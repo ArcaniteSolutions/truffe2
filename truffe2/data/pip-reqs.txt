@@ -1,0 +1,4 @@
+django==1.5.6
+south
+raven
+django-bootstrap3
