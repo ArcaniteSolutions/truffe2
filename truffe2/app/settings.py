@@ -114,6 +114,7 @@ INSTALLED_APPS = (
     'bootstrap3',
 
     'main',
+    'users',
 
 )
 
@@ -144,6 +145,8 @@ LOGGING = {
 }
 
 ACTIVATE_RAVEN = False
+
+AUTH_USER_MODEL = 'users.TruffeUser'
 
 try:
     from settingsLocal import *
