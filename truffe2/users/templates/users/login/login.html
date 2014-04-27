@@ -1,0 +1,210 @@
+{% load i18n %}<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
+
+        <title>Truffe</title>
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <!-- Basic Styles -->
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/font-awesome.min.css">
+
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/smartadmin-production.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/smartadmin-skins.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/truffe.css">
+
+        <!-- FAVICONS -->
+        <link rel="shortcut icon" href="{{MEDIA_URL}}img/favicon/favicon.png" type="image/x-icon">
+        <link rel="icon" href="{{MEDIA_URL}}img/favicon/favicon.png" type="image/x-icon">
+
+        <!-- GOOGLE FONT -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
+
+    </head>
+    <body id="login" class="animated fadeInDown">
+        <!-- possible classes: minified, no-right-panel, fixed-ribbon, fixed-header, fixed-width-->
+        <header id="header">
+
+            <div id="logo-group">
+              <span id="logo"> <img src="{{MEDIA_URL}}img/logo.png" style="margin-top: -20px;" alt="Truffe"> </span>
+            </div>
+
+        </header>
+
+        <div id="main" role="main">
+
+            <!-- MAIN CONTENT -->
+            <div id="content" class="container">
+
+            {% if why %}
+              <div class="alert alert-danger">
+                {% blocktrans with why=why %}
+                  Impossible de se connecter avec tequila. L'erreur est : {{why}}.
+                {% endblocktrans %}
+              </div>
+            {% endif %}
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm">
+                        <h1 class="txt-color-red login-header-big">Truffe</h1>
+                        <div class="hero">
+
+                            <div class="pull-left login-desc-box-l">
+                              <h4 class="paragraph-header">{% trans "L'intranet de l'AGEPoly. Version 2 !" %}</h4>
+  
+                                {% blocktrans %}
+                                  Grâce à Truffe tu peux gérer ta commission, y compris ses accréditations, les documents comptables.
+                                  Tu peux aussi réserver du matériel ou une salle de l'AGEPOly.
+                                  Tu peux même rallonger se texte pour qu'il soit terminé parque c'est pas le cas :).
+                                {% endblocktrans %}
+
+                                <div class="login-app-icons">
+                                    <a href="https://agepoly.ch" class="btn btn-danger btn-sm">{% trans "Site de l'AGEPoly" %}</a>
+                                </div>
+                            </div>
+
+                            <img src="{{MEDIA_URL}}img/agep_logo.png" class="pull-right display-image" alt="" style="margin-top: 60px; width:210px">
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                              <h5 class="about-heading">{% trans "Ceci est une nouvelle version de truffe" %}</h5>
+                                <p>
+                                  {% blocktrans %}
+                                    Cette version n'est pas encore en prod, il s'agit d'un test. Les données de l'application ne sont pas encore correctes et ne doivent pas être prises en compte !
+                                  {% endblocktrans %}
+                                </p>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <h5 class="about-heading">{% trans "Connection" %}</h5>
+                                <p>
+                                  {% blocktrans %}
+                                    Tu veux probablement te logger avec ton compte tequila. Les comptes truffes sont réservé aux externes qui n'ont pas de compte tequila.
+                                    Clique sur le bouton bleu en dessous du formulaire de login !
+                                  {% endblocktrans %}
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-4">
+                        <div class="well no-padding">
+                            <form action="" method="POST" id="login-form" class="smart-form client-form">
+                                <header>
+                                    {% trans "Se connecter (compte truffe)" %}
+                                </header>
+
+                                <fieldset>
+                                    <section>
+                                        <label class="label">{% trans "Username " %}</label>
+                                        <label class="input"> <i class="icon-append fa fa-user"></i>
+                                            <input type="text" name="username">
+                                            <b class="tooltip tooltip-top-right"><i class="fa fa-user txt-color-teal"></i> {% trans "Entrez votre username" %}</b></label>
+                                    </section>
+
+                                    <section>
+                                        <label class="label">{% trans "Mot de passe" %}</label>
+                                        <label class="input"> <i class="icon-append fa fa-lock"></i>
+                                            <input type="password" name="password">
+                                            <b class="tooltip tooltip-top-right"><i class="fa fa-lock txt-color-teal"></i> {% trans "Entrez votre mot de passe" %}</b> </label>
+                                        <!-- <div class="note"> -->
+                                        <!--     <a href="forgotpassword.html">Forgot password?</a> -->
+                                        <!-- </div> -->
+                                    </section>
+
+                                </fieldset>
+                                <footer>
+                                    <button type="submit" class="btn btn-primary">
+                                        {% trans "Connection" %}
+                                    </button>
+                                </footer>
+                            </form>
+
+                        </div>
+                        <h5 class="text-center"> - {% trans "Ou connectez vous avec" %} -</h5>
+                        <ul class="list-inline text-center">
+                            <li>
+                              <a href="{% url 'app.tequila.login' %}" class="btn btn-primary">Tequila</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+  
+        <center>
+          <br />
+          <a href="http://djangopony.com/" class="ponybadge" title="Magic! Ponies! Django! Whee!" target="_blank">
+            <img src="{{MEDIA_URL}}img/badge.png">
+          </a>
+          <a href="http://www.djangoproject.com/" target="_blank">
+            <img src="https://www.djangoproject.com/m/img/badges/djangomade124x25.gif" style="margin-top: 19px;" border="0" alt="Made with Django." title="Made with Django." />
+          </a>
+          <br /><br />
+        </center>
+
+        <div class="footer">&copy; Copyright 2014 AGEPoly / Maximilien Cuony - Lionel Martin - Yann Beaud / PolyLAN</div>
+
+        <!--================================================== -->  
+
+        <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
+        <script src="{{MEDIA_URL}}js/plugin/pace/pace.min.js"></script>
+
+        <script src="{{MEDIA_URL}}js/libs/jquery-2.0.2.min.js"></script>
+        <script src="{{MEDIA_URL}}js/libs/jquery-ui-1.10.3.min.js"></script>
+
+        <!-- JS TOUCH : include this plugin for mobile drag / drop touch events         
+        <script src="{{MEDIA_URL}}js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script> -->
+
+        <!-- BOOTSTRAP JS -->       
+        <script src="{{MEDIA_URL}}js/bootstrap/bootstrap.min.js"></script>
+
+        <!-- CUSTOM NOTIFICATION -->
+        <script src="{{MEDIA_URL}}js/notification/SmartNotification.min.js"></script>
+
+        <!-- JARVIS WIDGETS -->
+        <script src="{{MEDIA_URL}}js/smartwidgets/jarvis.widget.min.js"></script>
+
+        <!-- EASY PIE CHARTS -->
+        <script src="{{MEDIA_URL}}js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js"></script>
+
+        <!-- SPARKLINES -->
+        <script src="{{MEDIA_URL}}js/plugin/sparkline/jquery.sparkline.min.js"></script>
+
+        <!-- JQUERY VALIDATE -->
+        <script src="{{MEDIA_URL}}js/plugin/jquery-validate/jquery.validate.min.js"></script>
+
+        <!-- JQUERY MASKED INPUT -->
+        <script src="{{MEDIA_URL}}js/plugin/masked-input/jquery.maskedinput.min.js"></script>
+
+        <!-- JQUERY SELECT2 INPUT -->
+        <script src="{{MEDIA_URL}}js/plugin/select2/select2.min.js"></script>
+
+        <!-- JQUERY UI + Bootstrap Slider -->
+        <script src="{{MEDIA_URL}}js/plugin/bootstrap-slider/bootstrap-slider.min.js"></script>
+
+        <!-- browser msie issue fix -->
+        <script src="{{MEDIA_URL}}js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
+
+        <!-- FastClick: For mobile devices -->
+        <script src="{{MEDIA_URL}}js/plugin/fastclick/fastclick.js"></script>
+
+        <!--[if IE 7]>
+
+            <h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
+
+        <![endif]-->
+
+        <!-- MAIN APP JS FILE -->
+        <script src="{{MEDIA_URL}}js/app.js"></script>
+
+    </body>
+</html>

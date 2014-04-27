@@ -19,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 
 
+@login_required
 def home(request):
     """Dummy home page"""
 

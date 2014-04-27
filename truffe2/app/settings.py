@@ -148,6 +148,16 @@ ACTIVATE_RAVEN = False
 
 AUTH_USER_MODEL = 'users.TruffeUser'
 
+AUTHENTICATION_BACKENDS = ('app.tequila.Backend',)
+LOGIN_URL = '/users/login'
+
+TEQUILA_SERVER = 'https://tequila.epfl.ch'  # Url of tequila server
+TEQUILA_SERVICE = 'Truffe'  # Title used in tequila
+TEQUILA_AUTOCREATE = True  # Auto create users ?
+TEQUILA_FAILURE = '/users/login'  # Where to redirect user if there is a problem
+
+LOGIN_REDIRECT_URL = '/'
+
 try:
     from settingsLocal import *
 except ImportError:

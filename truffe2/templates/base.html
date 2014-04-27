@@ -121,7 +121,7 @@
 
                 <!-- logout button -->
                 <div id="logout" class="btn-header transparent pull-right">
-                    <span> <a href="login.html" title="{% trans "Logout" %}"><i class="fa fa-sign-out"></i></a> </span>
+                    <span> <a href="{% url 'django.contrib.auth.views.logout' %}" title="{% trans "Logout" %}"><i class="fa fa-sign-out"></i></a> </span>
                 </div>
                 <!-- end logout button -->
 
@@ -155,9 +155,9 @@
                 <span>
 
                     <a href="#" onclick="return false;">
-                        <img src="{{MEDIA_URL}}/img/avatars/sunny.png" alt="me" class="online" /> 
+                        <img src="http://people.epfl.ch/cgi-bin/people/getPhoto?id={{user.username}}" alt="" class="online" />
                         <span>
-                            john.doe 
+                            {{user.get_full_name}}
                         </span>
                     </a>
                 </span>
@@ -218,6 +218,8 @@
 
         </div>
         <!-- END MAIN PANEL -->
+
+        <div class="footer">&copy; Copyright 2014 AGEPoly / Maximilien Cuony - Lionel Martin - Yann Beaud / PolyLAN</div>
 
         <!--================================================== -->
 
