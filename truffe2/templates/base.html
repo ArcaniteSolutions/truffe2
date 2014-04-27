@@ -1,0 +1,304 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
+
+        <title>{% block title %}Truffe{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <!-- Basic Styles -->
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/font-awesome.min.css">
+
+        <!-- SmartAdmin Styles : Please note (smartadmin-production.css) was created using LESS variables -->
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/smartadmin-production.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/smartadmin-skins.css">
+
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/truffe.css">
+
+        <!-- FAVICONS -->
+        <link rel="shortcut icon" href="{{MEDIA_URL}}img/favicon/favicon.png" type="image/x-icon">
+        <link rel="icon" href="{{MEDIA_URL}}img/favicon/favicon.png" type="image/x-icon">
+
+        <!-- GOOGLE FONT -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
+
+    </head>
+    <body class="fixed-ribbon fixed-header">
+
+        <!-- HEADER -->
+        <header id="header">
+            <div id="logo-group">
+
+              <!-- Squares: http://www.thenounproject.com/term/stop/23031/ -->
+              <span id="logo"> <img src="{{MEDIA_URL}}img/logo.png" alt="Truffe"> </span>
+                <!-- END LOGO PLACEHOLDER -->
+
+                <!-- Note: The activity badge color changes when clicked and resets the number to 0
+                Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->
+                <!-- <span id="activity" class="activity&#45;dropdown"> <i class="fa fa&#45;user"></i> <b class="badge"> 21 </b> </span> -->
+
+<!--                 <!&#45;&#45; AJAX&#45;DROPDOWN : control this dropdown height, look and feel from the LESS variable file &#45;&#45;> -->
+<!--                 <div class="ajax&#45;dropdown"> -->
+<!--  -->
+<!--                     <!&#45;&#45; the ID links are fetched via AJAX to the ajax container "ajax&#45;notifications" &#45;&#45;> -->
+<!--                     <div class="btn&#45;group btn&#45;group&#45;justified" data&#45;toggle="buttons"> -->
+<!--                         <label class="btn btn&#45;default"> -->
+<!--                             <input type="radio" name="activity" id="ajax/notify/mail.html"> -->
+<!--                             Msgs (14) </label> -->
+<!--                         <label class="btn btn&#45;default"> -->
+<!--                             <input type="radio" name="activity" id="ajax/notify/notifications.html"> -->
+<!--                             notify (3) </label> -->
+<!--                         <label class="btn btn&#45;default"> -->
+<!--                             <input type="radio" name="activity" id="ajax/notify/tasks.html"> -->
+<!--                             Tasks (4) </label> -->
+<!--                     </div> -->
+<!--  -->
+<!--                     <!&#45;&#45; notification content &#45;&#45;> -->
+<!--                     <div class="ajax&#45;notifications custom&#45;scroll"> -->
+<!--  -->
+<!--                         <div class="alert alert&#45;transparent"> -->
+<!--                             <h4>Click a button to show messages here</h4> -->
+<!--                             This blank page message helps protect your privacy, or you can show the first message here automatically. -->
+<!--                         </div> -->
+<!--  -->
+<!--                         <i class="fa fa&#45;lock fa&#45;4x fa&#45;border"></i> -->
+<!--  -->
+<!--                     </div> -->
+<!--                     <!&#45;&#45; end notification content &#45;&#45;> -->
+<!--  -->
+<!--                     <!&#45;&#45; footer: refresh area &#45;&#45;> -->
+<!--                     <span> Last updated on: 12/12/2013 9:43AM -->
+<!--                         <button type="button" data&#45;loading&#45;text="<i class='fa fa&#45;refresh fa&#45;spin'></i> Loading..." class="btn btn&#45;xs btn&#45;default pull&#45;right"> -->
+<!--                             <i class="fa fa&#45;refresh"></i> -->
+<!--                         </button> </span> -->
+<!--                     <!&#45;&#45; end footer &#45;&#45;> -->
+<!--  -->
+<!--                 </div> -->
+<!--                 <!&#45;&#45; END AJAX&#45;DROPDOWN &#45;&#45;> -->
+            </div>
+
+<!--             <!&#45;&#45; projects dropdown &#45;&#45;> -->
+<!--             <div id="project&#45;context"> -->
+<!--  -->
+<!--                 <span class="label">Projects:</span> -->
+<!--                 <span id="project&#45;selector" class="popover&#45;trigger&#45;element dropdown&#45;toggle" data&#45;toggle="dropdown">Recent projects <i class="fa fa&#45;angle&#45;down"></i></span> -->
+<!--  -->
+<!--                 <!&#45;&#45; Suggestion: populate this list with fetch and push technique &#45;&#45;> -->
+<!--                 <ul class="dropdown&#45;menu"> -->
+<!--                     <li> -->
+<!--                         <a href="javascript:void(0);">Online e&#45;merchant management system &#45; attaching integration with the iOS</a> -->
+<!--                     </li> -->
+<!--                     <li> -->
+<!--                         <a href="javascript:void(0);">Notes on pipeline upgradee</a> -->
+<!--                     </li> -->
+<!--                     <li> -->
+<!--                         <a href="javascript:void(0);">Assesment Report for merchant account</a> -->
+<!--                     </li> -->
+<!--                     <li class="divider"></li> -->
+<!--                     <li> -->
+<!--                         <a href="javascript:void(0);"><i class="fa fa&#45;power&#45;off"></i> Clear</a> -->
+<!--                     </li> -->
+<!--                 </ul> -->
+<!--                 <!&#45;&#45; end dropdown&#45;menu&#45;&#45;> -->
+<!--  -->
+<!--             </div> -->
+<!--             <!&#45;&#45; end projects dropdown &#45;&#45;> -->
+
+            <!-- pulled right: nav area -->
+            <div class="pull-right">
+
+                <!-- collapse menu button -->
+                <div id="hide-menu" class="btn-header pull-right">
+                    <span> <a href="javascript:void(0);" title="{% trans "Cacher le menu" %}"><i class="fa fa-reorder"></i></a> </span>
+                </div>
+                <!-- end collapse menu -->
+
+                <!-- logout button -->
+                <div id="logout" class="btn-header transparent pull-right">
+                    <span> <a href="login.html" title="{% trans "Logout" %}"><i class="fa fa-sign-out"></i></a> </span>
+                </div>
+                <!-- end logout button -->
+
+<!--                 <!&#45;&#45; search mobile button (this is hidden till mobile view port) &#45;&#45;> -->
+<!--                 <div id="search&#45;mobile" class="btn&#45;header transparent pull&#45;right"> -->
+<!--                     <span> <a href="javascript:void(0)" title="Search"><i class="fa fa&#45;search"></i></a> </span> -->
+<!--                 </div> -->
+<!--                 <!&#45;&#45; end search mobile button &#45;&#45;> -->
+<!--  -->
+<!--                 <!&#45;&#45; input: search field &#45;&#45;> -->
+<!--                 <form action="#search.html" class="header&#45;search pull&#45;right"> -->
+<!--                     <input type="text" placeholder="Find reports and more" id="search&#45;fld"> -->
+<!--                     <button type="submit"> -->
+<!--                         <i class="fa fa&#45;search"></i> -->
+<!--                     </button> -->
+<!--                     <a href="javascript:void(0);" id="cancel&#45;search&#45;js" title="Cancel Search"><i class="fa fa&#45;times"></i></a> -->
+<!--                 </form> -->
+<!--                 <!&#45;&#45; end input: search field &#45;&#45;> -->
+
+            </div>
+            <!-- end pulled right: nav area -->
+
+        </header>
+        <!-- END HEADER -->
+
+        <!-- Left panel : Navigation area -->
+        <aside id="left-panel">
+
+            <!-- User info -->
+            <div class="login-info">
+                <span>
+
+                    <a href="#" onclick="return false;">
+                        <img src="{{MEDIA_URL}}/img/avatars/sunny.png" alt="me" class="online" /> 
+                        <span>
+                            john.doe 
+                        </span>
+                    </a>
+                </span>
+            </div>
+            <!-- end user info -->
+            <nav>
+                <ul>
+                    <li>
+                      <a href="{% url 'main.views.home' %}" title="{% trans "Acceuil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Acceuil" %}</span></a>
+                    </li>
+                    <!-- <li> -->
+                    <!--     <a href="inbox.html"><i class="fa fa&#45;lg fa&#45;fw fa&#45;inbox"></i> <span class="menu&#45;item&#45;parent">Inbox</span><span class="badge pull&#45;right inbox&#45;badge">14</span></a> -->
+                    <!-- </li> -->
+                    <!-- <li> -->
+                    <!--     <a href="#"><i class="fa fa&#45;lg fa&#45;fw fa&#45;bar&#45;chart&#45;o"></i> <span class="menu&#45;item&#45;parent">Graphs</span></a> -->
+                    <!--     <ul> -->
+                    <!--         <li> -->
+                    <!--             <a href="flot.html">Flot Chart</a> -->
+                    <!--         </li> -->
+                    <!--         <li> -->
+                    <!--             <a href="morris.html">Morris Charts</a> -->
+                    <!--         </li> -->
+                    <!--         <li> -->
+                    <!--             <a href="inline&#45;charts.html">Inline Charts</a> -->
+                    <!--         </li> -->
+                    <!--     </ul> -->
+                    <!-- </li> -->
+                </ul>
+            </nav>
+            <span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span>
+
+        </aside>
+        <!-- END NAVIGATION -->
+
+        <!-- MAIN PANEL -->
+        <div id="main" role="main">
+
+            <!-- RIBBON -->
+            <div id="ribbon">
+
+                <!-- breadcrumb -->
+                <ol class="breadcrumb">
+                    {% block ribbon %}
+                      <li><a href="{% url 'main.views.home' %}"><i class="fa fa-home"></i> {% trans "Acceuil" %}</a></li>
+                    {% endblock %}
+                </ol>
+                <!-- end breadcrumb -->
+
+            </div>
+            <!-- END RIBBON -->
+
+            <!-- MAIN CONTENT -->
+            <div id="content">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <!-- END MAIN CONTENT -->
+
+        </div>
+        <!-- END MAIN PANEL -->
+
+        <!--================================================== -->
+
+        <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
+        <script data-pace-options='{ "restartOnRequestAfter": true }' src="{{MEDIA_URL}}js/plugin/pace/pace.min.js"></script>
+
+        <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
+        <script src="{{MEDIA_URL}}js/libs/jquery-2.0.2.min.js"></script>
+        <script src="{{MEDIA_URL}}js/libs/jquery-ui-1.10.3.min.js"></script>
+
+        <!-- JS TOUCH : include this plugin for mobile drag / drop touch events
+        <script src="{{MEDIA_URL}}js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script> -->
+
+        <!-- BOOTSTRAP JS -->
+        <script src="{{MEDIA_URL}}js/bootstrap/bootstrap.min.js"></script>
+
+        <!-- CUSTOM NOTIFICATION -->
+        <script src="{{MEDIA_URL}}js/notification/SmartNotification.min.js"></script>
+
+        <!-- JARVIS WIDGETS -->
+        <script src="{{MEDIA_URL}}js/smartwidgets/jarvis.widget.min.js"></script>
+
+        <!-- EASY PIE CHARTS -->
+        <script src="{{MEDIA_URL}}js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js"></script>
+
+        <!-- SPARKLINES -->
+        <script src="{{MEDIA_URL}}js/plugin/sparkline/jquery.sparkline.min.js"></script>
+
+        <!-- JQUERY VALIDATE -->
+        <script src="{{MEDIA_URL}}js/plugin/jquery-validate/jquery.validate.min.js"></script>
+
+        <!-- JQUERY MASKED INPUT -->
+        <script src="{{MEDIA_URL}}js/plugin/masked-input/jquery.maskedinput.min.js"></script>
+
+        <!-- JQUERY SELECT2 INPUT -->
+        <script src="{{MEDIA_URL}}js/plugin/select2/select2.min.js"></script>
+
+        <!-- JQUERY UI + Bootstrap Slider -->
+        <script src="{{MEDIA_URL}}js/plugin/bootstrap-slider/bootstrap-slider.min.js"></script>
+
+        <!-- browser msie issue fix -->
+        <script src="{{MEDIA_URL}}js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
+
+        <!-- FastClick: For mobile devices -->
+        <script src="{{MEDIA_URL}}js/plugin/fastclick/fastclick.js"></script>
+
+        <!--[if IE 7]>
+
+        <h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
+
+        <![endif]-->
+
+        <!-- MAIN APP JS FILE -->
+        <script src="{{MEDIA_URL}}js/app.js"></script>
+
+
+        <script type="text/javascript">
+        // DO NOT REMOVE : GLOBAL FUNCTIONS!
+        $(document).ready(function() {
+            pageSetUp();
+        })
+
+        </script>
+
+        <!-- Your GOOGLE ANALYTICS CODE Below -->
+<!--        <script type="text/javascript"> -->
+<!--            var _gaq = _gaq || []; -->
+<!--                _gaq.push(['_setAccount', 'UA&#45;XXXXXXXX&#45;X']); -->
+<!--                _gaq.push(['_trackPageview']); -->
+<!--             -->
+<!--            (function() { -->
+<!--                var ga = document.createElement('script'); -->
+<!--                ga.type = 'text/javascript'; -->
+<!--                ga.async = true; -->
+<!--                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google&#45;analytics.com/ga.js'; -->
+<!--                var s = document.getElementsByTagName('script')[0]; -->
+<!--                s.parentNode.insertBefore(ga, s); -->
+<!--            })(); -->
+<!--  -->
+<!--        </script> -->
+
+    </body>
+
+</html>
