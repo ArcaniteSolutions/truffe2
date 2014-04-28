@@ -7,6 +7,8 @@ urlpatterns = patterns(
     'users.views',
 
     url(r'^login$', 'login'),
+    url(r'^users/(?P<pk>[0-9]+)$', 'users_profile'),
+    url(r'^users/(?P<pk>[0-9]+)/edit$', 'users_edit'),
 )
 
 

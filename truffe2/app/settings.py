@@ -158,6 +158,16 @@ TEQUILA_FAILURE = '/users/login'  # Where to redirect user if there is a problem
 
 LOGIN_REDIRECT_URL = '/'
 
+BOOTSTRAP3 = {
+    'jquery_url': '//code.jquery.com/jquery.min.js',
+    'base_url': '//netdna.bootstrapcdn.com/bootstrap/3.0.3/',
+    'css_url': None,
+    'theme_url': None,
+    'javascript_url': None,
+    'horizontal_label_class': 'col-md-2',
+    'horizontal_field_class': 'col-md-10',
+}
+
 try:
     from settingsLocal import *
 except ImportError:

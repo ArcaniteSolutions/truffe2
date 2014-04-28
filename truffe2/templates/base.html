@@ -28,6 +28,10 @@
         <!-- GOOGLE FONT -->
         <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
 
+        <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
+        <script src="{{MEDIA_URL}}js/libs/jquery-2.0.2.min.js"></script>
+        <script src="{{MEDIA_URL}}js/libs/jquery-ui-1.10.3.min.js"></script>
+
     </head>
     <body class="fixed-ribbon fixed-header">
 
@@ -154,7 +158,7 @@
             <div class="login-info">
                 <span>
 
-                    <a href="#" onclick="return false;">
+                    <a href="{% url 'users.views.users_profile' user.pk %}">
                         <img src="http://people.epfl.ch/cgi-bin/people/getPhoto?id={{user.username}}" alt="" class="online" />
                         <span>
                             {{user.get_full_name}}
@@ -225,11 +229,6 @@
 
         <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
         <script data-pace-options='{ "restartOnRequestAfter": true }' src="{{MEDIA_URL}}js/plugin/pace/pace.min.js"></script>
-
-        <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
-        <script src="{{MEDIA_URL}}js/libs/jquery-2.0.2.min.js"></script>
-        <script src="{{MEDIA_URL}}js/libs/jquery-ui-1.10.3.min.js"></script>
-
         <!-- JS TOUCH : include this plugin for mobile drag / drop touch events
         <script src="{{MEDIA_URL}}js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script> -->
 

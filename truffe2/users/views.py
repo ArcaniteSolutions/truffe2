@@ -19,9 +19,74 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 
 
+from users.models import TruffeUser, UserPrivacy
+from users.forms import TruffeUserForm
+
+
+import phonenumbers
+
+
 def login(request):
     """View to display the login page"""
 
     why = request.GET.get('why')
 
     return render_to_response('users/login/login.html', {'why': why}, context_instance=RequestContext(request))
+
+
+@login_required
+def users_profile(request, pk):
+    """Display a user profile"""
+
+    user = get_object_or_404(TruffeUser, pk=pk)
+
+    privacy_values = {}
+
+    for field in UserPrivacy.FIELD_CHOICES:
+        privacy_values[field[0]] = UserPrivacy.user_can_access(request.user, user, field[0])
+
+    return render_to_response('users/users/profile.html', {'user_to_display': user, 'privacy_values': privacy_values}, context_instance=RequestContext(request))
+
+
+@login_required
+def users_edit(request, pk):
+    """Edit a user profile"""
+
+    user = get_object_or_404(TruffeUser, pk=pk)
+
+    if not request.user.is_superuser and not user.pk == request.user.pk:
+        raise Http404
+
+    if request.method == 'POST':  # If the form has been submitted...
+        form = TruffeUserForm(request.POST, instance=user)
+
+        privacy_values = {}
+
+        for field in UserPrivacy.FIELD_CHOICES:
+            privacy_values[field[0]] = request.POST.get('priv_val_' + field[0])
+
+        if form.is_valid():  # If the form is valid
+            user = form.save()
+
+            if user.mobile:
+                user.mobile = phonenumbers.format_number(phonenumbers.parse(user.mobile, "CH"), phonenumbers.PhoneNumberFormat.E164)
+                user.save()
+
+            for (field, value) in privacy_values.iteritems():
+                # At this point, the object should exist !
+                UserPrivacy.objects.filter(user=user, field=field).update(level=value)
+
+            messages.success(request, _(u'Profile sauvegardé !'))
+
+            return redirect('users.views.users_profile', pk=user.pk)
+    else:
+        form = TruffeUserForm(instance=user)
+
+        privacy_values = {}
+
+        for field in UserPrivacy.FIELD_CHOICES:
+            privacy_values[field[0]] = UserPrivacy.get_privacy_for_field(user, field[0])
+
+    privacy_choices = UserPrivacy.LEVEL_CHOICES
+
+    return render_to_response('users/users/edit.html', {'form': form, 'privacy_choices': privacy_choices, 'privacy_values': privacy_values}, context_instance=RequestContext(request))

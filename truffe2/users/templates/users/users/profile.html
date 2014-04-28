@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Utilisateurs" %} :: {% trans "Profil" %}}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url 'main.views.home' %}"><i class="fa fa-group"></i> {% trans "Utilisateurs" %}</a></li>
+    <li><i class="fa fa-user"></i> {{user_to_display.get_full_name}}</li>
+  {% endblock %}
+
+{% block content %}
+    <h1>{{user_to_display.get_full_name}} {% if user_to_display.pk == user.pk %}{% trans "(C'est vous !)" %}{% endif %}</h1>
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                {% with w_title="Informations de base" %}{% include "widget/header.html" %}{% endwith %}
+
+                    <img src="http://people.epfl.ch/cgi-bin/people/getPhoto?id={{user_to_display.username}}" style="float: right; margin-bottom: 5px;">
+
+                    <dl class="dl-horizontal">
+                        <dt>{% trans "Username/sciper" %}</dt>
+                        <dd>{{user_to_display.username}}</dd>
+                        <dt>{% trans "Email" %}</dt>
+                        <dd>{{user_to_display.email}}</dd>
+                        <dt>{% trans "Prénom" %}</dt>
+                        <dd>{{user_to_display.first_name}}</dd>
+                        <dt>{% trans "Nom" %}</dt>
+                        <dd>{{user_to_display.last_name}}</dd>
+                        {% if user.is_superuser %}
+                            <dt>{% trans "Est admin ?" %}</dt>
+                            <dd>{% with v=user.is_superuser %}{% include "yesorno.html" %}{% endwith %}</dd>
+                        {% endif %}
+                    </dl>
+
+                    <hr style="clear: both; visibility: hidden;">
+
+                {% include "widget/footer.html" %}
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                {% if privacy_values.mobile and user_to_display.mobile or privacy_values.adresse and user_to_display.adresse %}
+                    {% with w_title="Informations de contact" %}{% include "widget/header.html" %}{% endwith %}
+                        <dl class="dl-horizontal">
+                            {% if privacy_values.mobile and user_to_display.mobile %}
+                                <dt>{% trans "Mobile" %}</dt>
+                                <dd>{{user_to_display.mobile}}</dd>
+                            {% endif %}
+                            {% if privacy_values.adresse and user_to_display.adresse %}
+                                <dt>{% trans "Adresse" %}</dt>
+                                <dd>{{user_to_display.adresse|linebreaks}}</dd>
+                            {% endif %}
+                        </dl>
+
+                    {% include "widget/footer.html" %}
+                {% endif %}
+                {% if privacy_values.nom_banque and user_to_display.nom_banque or privacy_values.iban_ou_ccp and user_to_display.iban_ou_ccp %}
+                    {% with w_title="Informations financières" %}{% include "widget/header.html" %}{% endwith %}
+                        <dl class="dl-horizontal">
+                            {% if privacy_values.nom_banque and user_to_display.nom_banque %}
+                                <dt>{% trans "Nom banque" %}</dt>
+                                <dd>{{user_to_display.nom_banque}}</dd>
+                            {% endif %}
+                            {% if privacy_values.iban_ou_ccp and user_to_display.iban_ou_ccp %}
+                                <dt>{% trans "IBAN ou CCP" %}</dt>
+                                <dd>{{user_to_display.iban_ou_ccp}}</dd>
+                            {% endif %}
+                        </dl>
+                    {% include "widget/footer.html" %}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <div style="float: right;">
+        <a href="" class="btn btn-info">
+          <i class="fa fa-download"></i>
+          {% trans "VCard" %}
+        </a>
+        <a href="{% url 'users.views.users_edit' user_to_display.pk %}" class="btn btn-primary">
+          <i class="fa fa-pencil"></i>
+          {% trans "Modifier" %}
+        </a>
+
+    </div>
+
+{% endblock %}
