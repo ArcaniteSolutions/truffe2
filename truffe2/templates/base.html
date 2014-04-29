@@ -170,8 +170,20 @@
             <nav>
                 <ul>
                     <li>
-                      <a href="{% url 'main.views.home' %}" title="{% trans "Acceuil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Acceuil" %}</span></a>
+                        <a href="{% url 'main.views.home' %}" title="{% trans "Acceuil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Acceuil" %}</span></a>
                     </li>
+                    <li>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-group"></i> <span class="menu-item-parent">{% trans "Gens" %}</span></a>
+                        <ul>
+                            <li>
+                                <a href="{% url 'users.views.users_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Annuaire global" %}</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'users.views.users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profile" %}</a>
+                            </li>
+                        </ul>
+                    </li>
+
                     <!-- <li> -->
                     <!--     <a href="inbox.html"><i class="fa fa&#45;lg fa&#45;fw fa&#45;inbox"></i> <span class="menu&#45;item&#45;parent">Inbox</span><span class="badge pull&#45;right inbox&#45;badge">14</span></a> -->
                     <!-- </li> -->

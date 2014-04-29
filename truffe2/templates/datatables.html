@@ -1,0 +1,73 @@
+{% load i18n %}
+
+  <script type="text/javascript">
+      $(function() { loadDataTableScripts_{{id}}()});
+      function loadDataTableScripts_{{id}}() {
+
+        loadScript("{{MEDIA_URL}}js/plugin/datatables/jquery.dataTables-cust.min.js", dt_2_{{id}});
+
+        function dt_2_{{id}}() {
+          loadScript("{{MEDIA_URL}}js/plugin/datatables/ColReorder.min.js", dt_3_{{id}});
+        }
+
+        function dt_3_{{id}}() {
+          loadScript("{{MEDIA_URL}}js/plugin/datatables/FixedColumns.min.js", dt_4_{{id}});
+        }
+
+        function dt_4_{{id}}() {
+          loadScript("{{MEDIA_URL}}js/plugin/datatables/ColVis.min.js", dt_5_{{id}});
+        }
+
+        function dt_5_{{id}}() {
+          loadScript("{{MEDIA_URL}}js/plugin/datatables/ZeroClipboard.js", dt_6_{{id}});
+        }
+
+        function dt_6_{{id}}() {
+          loadScript("{{MEDIA_URL}}js/plugin/datatables/media/js/TableTools.min.js", dt_7_{{id}});
+        }
+
+        function dt_7_{{id}}() {
+          loadScript("{{MEDIA_URL}}js/plugin/datatables/DT_bootstrap.js", runDataTables_{{id}});
+        }
+
+    }
+
+    function runDataTables_{{id}}() {
+      $('#{{id}}').dataTable({
+            "sPaginationType" : "bootstrap_full",
+            "sDom" : "<'dt-top-row'Tlf>r<'dt-wrapper't><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'p>>",
+            "oTableTools" : {
+                "aButtons" : ["copy", "print", {
+                    "sExtends" : "collection",
+                    "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
+                    "aButtons" : ["csv", "xls", "pdf"]
+                }],
+                "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
+            },
+            "bDeferRender": true,
+            "bProcessing": true,
+            "bServerSide": true,
+             "sAjaxSource": "{% url json_url %}",
+            "fnInitComplete" : function(oSettings, json) {
+                $(this).closest('#dt_table_tools_wrapper').find('.DTTT.btn-group').addClass('table_tools_group').children('a.btn').each(function() {
+                    $(this).addClass('btn-sm btn-default');
+                });
+            },
+            "fnServerData": function ( sSource, aoData, fnCallback, oSettings ) {
+                  oSettings.jqXHR = $.ajax( {
+                    "dataType": 'json',
+                    "method": 'POST',
+                    "url": sSource,
+                    "data": aoData,
+                    "success": function(data) {
+                      if (typeof post_process_data_{{id}} !== 'undefined')
+                        data = post_process_data_{{id}}(data);
+                      fnCallback(data);
+                    }
+                  } );
+                }
+        });
+
+    }
+
+    </script>

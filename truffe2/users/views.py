@@ -24,6 +24,9 @@ from users.forms import TruffeUserForm
 
 
 import phonenumbers
+from django_datatables_view.base_datatable_view import BaseDatatableView
+from django.utils.html import escape
+from django.db.models import Q
 
 
 def login(request):
@@ -32,6 +35,13 @@ def login(request):
     why = request.GET.get('why')
 
     return render_to_response('users/login/login.html', {'why': why}, context_instance=RequestContext(request))
+
+
+@login_required
+def users_list(request):
+    """Display the list of users"""
+
+    return render_to_response('users/users/list.html', {}, context_instance=RequestContext(request))
 
 
 @login_required
@@ -46,6 +56,27 @@ def users_profile(request, pk):
         privacy_values[field[0]] = UserPrivacy.user_can_access(request.user, user, field[0])
 
     return render_to_response('users/users/profile.html', {'user_to_display': user, 'privacy_values': privacy_values}, context_instance=RequestContext(request))
+
+
+class UserListJson(BaseDatatableView):
+    model = TruffeUser
+
+    columns = ['username', 'first_name', 'last_name', 'member_of', 'pk']
+    order_columns = ['username', 'first_name', 'last_name', 'pk', 'pk']
+
+    max_display_length = 500
+
+    def render_column(self, row, column):
+        if column == 'member_of':
+            return 'Todo'
+        else:
+            return escape(super(UserListJson, self).render_column(row, column))
+
+    def filter_queryset(self, qs):
+        sSearch = self.request.POST.get('sSearch', None)
+        if sSearch:
+            qs = qs.filter(Q(first_name__istartswith=sSearch) | Q(last_name__istartswith=sSearch) | Q(username__istartswith=sSearch))
+        return qs
 
 
 @login_required

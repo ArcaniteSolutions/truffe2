@@ -2,13 +2,19 @@
 
 from django.conf.urls import patterns, url
 
+from users.views import UserListJson
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+
 
 urlpatterns = patterns(
     'users.views',
 
     url(r'^login$', 'login'),
-    url(r'^users/(?P<pk>[0-9]+)$', 'users_profile'),
-    url(r'^users/(?P<pk>[0-9]+)/edit$', 'users_edit'),
+    url(r'^users/$', 'users_list'),
+    url(r'^users/data$', login_required(csrf_exempt(UserListJson.as_view())), name='users.views.users_list_json'),
+    url(r'^users/(?P<pk>[0-9~]+)$', 'users_profile'),
+    url(r'^users/(?P<pk>[0-9~]+)/edit$', 'users_edit'),
 )
 
 
