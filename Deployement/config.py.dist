@@ -1,0 +1,5 @@
+SSH_KEY = '~/.ssh/id_rsa'
+
+ADMIN_PASSWORD = ''
+RABBITMQ_PASSWORD = ''
+MYSQL_PASSWORD = ''
