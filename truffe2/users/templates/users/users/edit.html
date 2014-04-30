@@ -38,6 +38,9 @@
           function add_priv_buttons() {
               $('.form-group input, .form-group textarea').each(function(__, element) {
 
+                if ($(element).attr('id') == 'id_is_superuser')
+                    return;
+
                 $(element).wrap('<div class="input-group"></div>');
                 $(element).after('<span class="input-group-btn"><button class="btn btn-default dropdown-toggle" id="priv_val_' + $(element).attr('name') + '" tabindex="-1" data-toggle="dropdown" type="button"><span class="status">Privé</span> <span class="caret"></span><input name="priv_val_' + $(element).attr('name') + '" type="hidden"></button><ul class="dropdown-menu pull-right" role="menu"><li class="dropdown-header">{% trans "Visibilité" %}</li><li class="divider"></li>{% for level in privacy_choices %}<li><a href="#" onclick="switch_val(\'{{level.0}}\', \'' + $(element).attr('name') + '\');" id="priv_level_{{level.0}}">{{level.1}}</a></li>{% endfor %}</ul></span>');
 

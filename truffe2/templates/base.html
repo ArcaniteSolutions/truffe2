@@ -33,7 +33,7 @@
         <script src="{{MEDIA_URL}}js/libs/jquery-ui-1.10.3.min.js"></script>
 
     </head>
-    <body class="fixed-ribbon fixed-header">
+    <body class="fixed-ribbon fixed-header {% if user.body == 'm' %}minified{% endif %}{% if user.body == 'h' %}hidden-menu{% endif %}">
 
         <!-- HEADER -->
         <header id="header">
@@ -286,11 +286,27 @@
         <!-- MAIN APP JS FILE -->
         <script src="{{MEDIA_URL}}js/app.js"></script>
 
+        <script src="{{MEDIA_URL}}js/truffe.js"></script>
+
 
         <script type="text/javascript">
         // DO NOT REMOVE : GLOBAL FUNCTIONS!
         $(document).ready(function() {
             pageSetUp();
+
+            {% if messages %}
+                {% for message in messages %}
+                    $.smallBox({
+                        title : "{{message}}",
+                        content : "",
+                        color : "{% if message.tags == "success" %}#739E73{% endif %}{% if message.tags == "warning" %}#C79121{% endif %}{% if message.tags == "error" %}#C46A69{% endif %}{% if message.tags == "info" %}#3276B1{% endif %}",
+                        iconSmall : "fa fa-{% if message.tags == "success" %}check{% endif %}{% if message.tags == "warning" %}warning{% endif %}{% if message.tags == "error" %}warning{% endif %}{% if message.tags == "info" %}info{% endif %} bounce animated",
+                        timeout : 10000,
+                        sound: false
+                    });
+                {% endfor %}
+
+            {% endif %}
         })
 
         </script>

@@ -11,9 +11,11 @@ urlpatterns = patterns(
     'users.views',
 
     url(r'^login$', 'login'),
+    url(r'^set_body/(?P<mode>[mh\_])$', 'users_set_body'),
     url(r'^users/$', 'users_list'),
     url(r'^users/data$', login_required(csrf_exempt(UserListJson.as_view())), name='users.views.users_list_json'),
     url(r'^users/(?P<pk>[0-9~]+)$', 'users_profile'),
+    url(r'^users/(?P<pk>[0-9~]+)/vcard$', 'users_vcard'),
     url(r'^users/(?P<pk>[0-9~]+)/edit$', 'users_edit'),
 )
 

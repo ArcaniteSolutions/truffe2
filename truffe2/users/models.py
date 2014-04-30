@@ -40,6 +40,8 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin):
     nom_banque = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, met Postfinance. Sinon, met le nom de ta banque.'))
     iban_ou_ccp = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, met ton CCP. Sinon, met ton IBAN'))
 
+    body = models.CharField(max_length=1, default='.')
+
     objects = TruffeUserManager()
 
     USERNAME_FIELD = 'username'
@@ -57,6 +59,20 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         """Returns the short name for the user."""
         return self.first_name
+
+    def generate_vcard(self, source_user):
+        """Generate the user's vcard"""
+
+        retour = u"""BEGIN:VCARD
+N:%s;%s
+EMAIL;INTERNET:%s
+""" % (self.first_name, self.last_name, self.email)
+        if UserPrivacy.user_can_access(source_user, self, 'mobile'):
+            retour += u"""TEL;CELL:%s
+""" % (self.mobile, )
+        retour += u"""END:VCARD"""
+
+        return retour
 
 
 class UserPrivacy(models.Model):

@@ -73,7 +73,7 @@
     </section>
 
     <div style="float: right;">
-        <a href="" class="btn btn-info">
+      <a href="{% url 'users.views.users_vcard' user_to_display.pk %}" class="btn btn-info">
           <i class="fa fa-download"></i>
           {% trans "VCard" %}
         </a>

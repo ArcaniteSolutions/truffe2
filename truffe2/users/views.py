@@ -89,7 +89,7 @@ def users_edit(request, pk):
         raise Http404
 
     if request.method == 'POST':  # If the form has been submitted...
-        form = TruffeUserForm(request.POST, instance=user)
+        form = TruffeUserForm(request.user, request.POST, instance=user)
 
         privacy_values = {}
 
@@ -111,7 +111,7 @@ def users_edit(request, pk):
 
             return redirect('users.views.users_profile', pk=user.pk)
     else:
-        form = TruffeUserForm(instance=user)
+        form = TruffeUserForm(request.user, instance=user)
 
         privacy_values = {}
 
@@ -121,3 +121,29 @@ def users_edit(request, pk):
     privacy_choices = UserPrivacy.LEVEL_CHOICES
 
     return render_to_response('users/users/edit.html', {'form': form, 'privacy_choices': privacy_choices, 'privacy_values': privacy_values}, context_instance=RequestContext(request))
+
+
+@login_required
+def users_vcard(request, pk):
+    """Return a user vcard"""
+
+    user = get_object_or_404(TruffeUser, pk=pk)
+
+    retour = user.generate_vcard(request.user)
+
+    response = HttpResponse(retour, content_type='text/x-vcard')
+    nom = smart_str(user.get_full_name())
+    nom = nom.replace(' ', '_')
+    response['Content-Disposition'] = 'attachment; filename=' + nom + '.vcf'
+
+    return response
+
+
+@login_required
+def users_set_body(request, mode):
+    """Set the user mode for the body, keeping it consistent between requests"""
+
+    request.user.body = mode
+    request.user.save()
+
+    return HttpResponse('')
