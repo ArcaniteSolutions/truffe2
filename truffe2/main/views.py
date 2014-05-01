@@ -24,3 +24,4 @@ def home(request):
     """Dummy home page"""
 
     return render_to_response('main/home.html', {}, context_instance=RequestContext(request))
+

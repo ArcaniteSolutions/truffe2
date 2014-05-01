@@ -13,6 +13,9 @@ class _HomePageNews(GenericModel, GenericStateModel):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
+    class MetaData:
+        list_display = ('title', 'content', 'get_status_display')
+
     class MetaState:
         states = {
             'draft': _('Brouillon'),
