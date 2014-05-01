@@ -3,4 +3,3 @@ south
 raven
 django-bootstrap3
 phonenumbers
-django-datatables-view

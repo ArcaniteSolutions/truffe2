@@ -40,22 +40,4 @@
     </section>
 
     {% with id="main_list_table" json_url="users.views.users_list_json" %}{% include "datatables.html" %}{% endwith %}
-    <script type="text/javascript">
-            function post_process_data_main_list_table(data) {
-                new_data = [];
-                $(data.aaData).each(function(__, val) {
-
-                    val[0] = '<a href="' + '{% url "users.views.users_profile" "~" %}'.replace('~', val[4]) + '">' + val[0] + '</a>';
-
-                    {% if user.is_superuser %}
-                      val[4] = '<a class="btn btn-xs btn-default" href="' + '{% url "users.views.users_edit" "~" %}'.replace('~', val[4]) + '"><i class="fa fa-pencil"></i> {% trans "Editer" %}</a>';
-                    {% else %}
-                        val[4] = '';
-                    {% endif %}
-                    new_data.push(val);
-                    });
-                data.aaData = new_data;
-                return data;
-            }
-    </script>
 {% endblock %}

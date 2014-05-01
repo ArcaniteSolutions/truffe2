@@ -1,0 +1,16 @@
+{% extends "generic/datatables_json.html" %}
+{% load i18n %}
+
+{% block data %}
+[
+    {% for elem in list %}
+      [
+        "{{elem.username|force_escape|escapejs}}",
+        "{{elem.first_name|force_escape|escapejs}}",
+        "{{elem.last_name|force_escape|escapejs}}",
+        "Todo",
+        "{% if user.is_superuser %}<a href=\"{% url "users.views.users_edit" elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endif %}"
+      ]{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+{% endblock %}
