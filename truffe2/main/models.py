@@ -1,3 +1,27 @@
-from django.db import models
+# -*- coding: utf-8 -*-
 
-# Create your models here.
+from django.db import models
+from generic.models import GenericModel, GenericStateModel
+from django.utils.translation import ugettext_lazy as _
+
+
+class _HomePageNews(GenericModel, GenericStateModel):
+
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+
+    class MetaState:
+        states = {
+            'draft': _('Brouillon'),
+            'moderate': _(u'Modération demandée'),
+            'online': _(u'En ligne'),
+            'archive': _(u'Archivé'),
+            'refuse': _(u'Refusé'),
+        }
+        default = 'draft'
+
+    class Meta:
+        abstract = True
