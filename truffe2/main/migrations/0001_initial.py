@@ -8,35 +8,36 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'HomePageNewsLogging'
-        db.create_table(u'main_homepagenewslogging', (
+        # Adding model 'HomePageNews'
+        db.create_table(u'main_homepagenews', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('content', self.gf('django.db.models.fields.TextField')()),
             ('start_date', self.gf('django.db.models.fields.DateTimeField')()),
             ('end_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='draft', max_length=255)),
         ))
-        db.send_create_signal(u'main', ['HomePageNewsLogging'])
+        db.send_create_signal(u'main', ['HomePageNews'])
 
-        # Adding model 'HomePageNewsLoggingLogging'
-        db.create_table(u'main_homepagenewslogginglogging', (
+        # Adding model 'HomePageNewsLogging'
+        db.create_table(u'main_homepagenewslogging', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('when', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('extra_data', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('who', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
             ('what', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.HomePageNewsLogging'])),
+            ('object', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.HomePageNews'])),
         ))
-        db.send_create_signal(u'main', ['HomePageNewsLoggingLogging'])
+        db.send_create_signal(u'main', ['HomePageNewsLogging'])
 
 
     def backwards(self, orm):
+        # Deleting model 'HomePageNews'
+        db.delete_table(u'main_homepagenews')
+
         # Deleting model 'HomePageNewsLogging'
         db.delete_table(u'main_homepagenewslogging')
-
-        # Deleting model 'HomePageNewsLoggingLogging'
-        db.delete_table(u'main_homepagenewslogginglogging')
 
 
     models = {
@@ -60,20 +61,21 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        u'main.homepagenewslogging': {
-            'Meta': {'object_name': 'HomePageNewsLogging'},
+        u'main.homepagenews': {
+            'Meta': {'object_name': 'HomePageNews'},
             'content': ('django.db.models.fields.TextField', [], {}),
             'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'start_date': ('django.db.models.fields.DateTimeField', [], {}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'draft'", 'max_length': '255'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
-        u'main.homepagenewslogginglogging': {
-            'Meta': {'object_name': 'HomePageNewsLoggingLogging'},
+        u'main.homepagenewslogging': {
+            'Meta': {'object_name': 'HomePageNewsLogging'},
             'extra_data': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.HomePageNewsLogging']"}),
+            'object': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.HomePageNews']"}),
             'what': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'when': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'who': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
