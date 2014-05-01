@@ -5,7 +5,7 @@
 [
     {% for elem in list %}
       [
-        "{{elem.username|force_escape|escapejs}}",
+      "<a href=\"{% url "users.views.users_profile" elem.pk %}\">{{elem.username|force_escape|escapejs}}</a>",
         "{{elem.first_name|force_escape|escapejs}}",
         "{{elem.last_name|force_escape|escapejs}}",
         "Todo",
