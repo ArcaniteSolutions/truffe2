@@ -65,8 +65,6 @@ class GenericModel(models.Model):
 
             # Add views
             if not hasattr(views_module, 'x'):
-
-                print real_model_class.__name__
                 views_module.x = views.generate_x(real_model_class.__name__.lower(), real_model_class)
 
                 # Add urls to views
