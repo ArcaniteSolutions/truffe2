@@ -108,7 +108,7 @@ class UserPrivacy(models.Model):
     def user_can_access(user_reader, user_readed, field):
         level = UserPrivacy.get_privacy_for_field(user_readed, field)
 
-        if user_reader == user_readed or user_reader.is_superadmin:
+        if user_reader == user_readed or user_reader.is_superuser:
             return True
         else:
             return level == 'public'  # Todo: Implement corectly
