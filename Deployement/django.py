@@ -193,6 +193,7 @@ def configure_truffe():
         'mysql_password': config.MYSQL_PASSWORD,
         'secret_key': str(uuid.uuid4()),
         'rabbitmq_password': config.RABBITMQ_PASSWORD,
+        'raven_dsn': config.RAVEN_DSN,
     })
 
 

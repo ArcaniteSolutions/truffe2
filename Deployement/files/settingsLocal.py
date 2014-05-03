@@ -19,4 +19,8 @@ BROKER_URL = 'amqp://truffe2:%(rabbitmq_password)s@localhost:5672//'
 
 DEBUG = False
 
+RAVEN_CONFIG = {
+    'dsn': '%(raven_dsn)s',
+}
 
+ACTIVATE_RAVEN = True
