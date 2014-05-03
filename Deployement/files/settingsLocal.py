@@ -16,3 +16,7 @@ DATABASES = {
 SECRET_KEY = '%(secret_key)s'
 
 BROKER_URL = 'amqp://truffe2:%(rabbitmq_password)s@localhost:5672//'
+
+DEBUG = False
+
+
