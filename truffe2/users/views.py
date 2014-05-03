@@ -26,6 +26,10 @@ from users.forms import TruffeUserForm
 import phonenumbers
 
 from generic.datatables import generic_list_json
+import os
+import time
+import requests
+import shutil
 
 
 def login(request):
@@ -133,3 +137,31 @@ def users_set_body(request, mode):
     request.user.save()
 
     return HttpResponse('')
+
+
+@login_required
+def users_profile_picture(request, pk):
+    """Return a user profile picture"""
+
+    user = get_object_or_404(TruffeUser, pk=pk)
+
+    file_cache = os.path.join(settings.MEDIA_ROOT, 'cache', 'users', str(user.pk) + '.png')
+
+    if not os.path.exists(file_cache) or (os.path.getmtime(file_cache) + 60.0 * 24.0) < time.time():
+        print "Updating cache for ", user.pk
+
+        if os.path.exists(file_cache):
+            os.unlink(file_cache)
+
+        r = requests.get('http://people.epfl.ch/cgi-bin/people/getPhoto?id=' + user.username, stream=True)
+
+        print r.headers
+
+        if r.status_code == requests.codes.ok and 'text/html' not in r.headers['content-type']:
+            with open(file_cache, 'wb') as fd:
+                for chunk in r.iter_content(1024):
+                    fd.write(chunk)
+        else:
+            shutil.copy(os.path.join(settings.MEDIA_ROOT, 'img', 'default_avatar.png'), file_cache)
+
+    return HttpResponseRedirect(settings.MEDIA_URL + '/cache/users/' + str(user.pk) + '.png')

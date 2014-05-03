@@ -13,6 +13,8 @@ urlpatterns = patterns(
     url(r'^users/(?P<pk>[0-9~]+)$', 'users_profile'),
     url(r'^users/(?P<pk>[0-9~]+)/vcard$', 'users_vcard'),
     url(r'^users/(?P<pk>[0-9~]+)/edit$', 'users_edit'),
+
+    url(r'^users/(?P<pk>[0-9~]+)/profile_picture$', 'users_profile_picture'),
 )
 
 

@@ -160,7 +160,7 @@
                 <span>
 
                     <a href="{% url 'users.views.users_profile' user.pk %}">
-                        <img src="http://people.epfl.ch/cgi-bin/people/getPhoto?id={{user.username}}" alt="" class="online" />
+                        <img src="{% url 'users.views.users_profile_picture' user.pk %}" alt="" class="online" />
                         <span>
                             {{user.get_full_name}}
                         </span>
