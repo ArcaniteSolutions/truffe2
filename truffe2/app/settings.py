@@ -86,6 +86,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'impersonate.middleware.ImpersonateMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -112,6 +113,7 @@ INSTALLED_APPS = (
 
     'south',
     'bootstrap3',
+    'impersonate',
 
     'main',
     'users',
@@ -168,6 +170,9 @@ BOOTSTRAP3 = {
     'horizontal_label_class': 'col-md-2',
     'horizontal_field_class': 'col-md-10',
 }
+
+IMPERSONATE_REQUIRE_SUPERUSER = True
+
 
 try:
     from settingsLocal import *

@@ -173,6 +173,20 @@
                     <li>
                         <a href="{% url 'main.views.home' %}" title="{% trans "Acceuil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Acceuil" %}</span></a>
                     </li>
+                    {% if user.is_superuser or user.is_impersonate %}
+                        <li>
+                            <a href="#"><i class="fa fa-lg fa-fw fa-legal"></i> <span class="menu-item-parent">{% trans "Admin" %}</span></a>
+                            <ul>
+                                <li>
+                                    {% if not user.is_impersonate %}
+                                        <a href="{% url 'impersonate-search' %}"><i class="fa fa-lg fa-fw fa-male"></i> {% trans "Impersonate" %}</a>
+                                    {% else %}
+                                        <a href="{% url 'impersonate-stop' %}"><i class="fa fa-lg fa-fw fa-male fa-spin"></i> {% trans "Stop Impersonate" %}</a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </li>
+                    {% endif %}
                     <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-group"></i> <span class="menu-item-parent">{% trans "Gens" %}</span></a>
                         <ul>
