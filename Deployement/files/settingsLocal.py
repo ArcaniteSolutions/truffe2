@@ -24,3 +24,5 @@ RAVEN_CONFIG = {
 }
 
 ACTIVATE_RAVEN = True
+
+ALLOWED_HOSTS = ['truffe2.agepoly.ch', 'truffe.polylan.ch']
