@@ -1,0 +1,16 @@
+{% extends "generic/datatables_json.html" %}
+{% load i18n %}
+{% load generic_extras %}
+
+{% block data %}
+[
+    {% for elem in list %}
+      [
+      {% for field, __ in Model.MetaData.list_display %}
+        "{% if forloop.first %}<a href=\"{% url show_view elem.pk %}\">{% endif %}{{elem|get_attr:field|force_escape|escapejs}}{% if forloop.first %}</a>{% endif %}",
+      {% endfor %}
+        "<a href=\"{% url edit_view elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>"
+      ]{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+{% endblock %}

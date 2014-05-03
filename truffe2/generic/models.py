@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 import importlib
 from django.conf.urls import patterns, url
 from generic import views
+from generic.forms import GenericForm
 
 
 def build_models_list_of(Class):
@@ -19,6 +20,7 @@ def build_models_list_of(Class):
             models_module = importlib.import_module('.models', app)
             views_module = importlib.import_module('.views', app)
             urls_module = importlib.import_module('.urls', app)
+            forms_module = importlib.import_module('.forms', app)
         except:
             continue
 
@@ -26,7 +28,7 @@ def build_models_list_of(Class):
 
         for model_name, model_class in clsmembers:
             if issubclass(model_class, Class) and model_class != Class and model_class not in already_returned:
-                retour.append((module, (views_module, urls_module, models_module), model_class))
+                retour.append((module, (views_module, urls_module, models_module, forms_module), model_class))
                 already_returned.append(model_class)
 
     return retour
@@ -43,7 +45,7 @@ class GenericModel(models.Model):
 
         classes = build_models_list_of(GenericModel)
 
-        for module, (views_module, urls_module, models_module), model_class in classes:
+        for module, (views_module, urls_module, models_module, forms_module), model_class in classes:
 
             if model_class.__name__[0] != '_':
                 continue
@@ -62,12 +64,33 @@ class GenericModel(models.Model):
             logging_class = type(real_model_class.__name__ + 'Logging', (GenericLogEntry,), {'object': models.ForeignKey(real_model_class), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
 
+            # Create the form module
+            def generate_meta(Model):
+                class Meta():
+                    model = Model
+                    exclude = ('deleted', 'status')
+                return Meta
+
+            form_model_class = type(real_model_class.__name__ + 'Form', (GenericForm,), {'Meta': generate_meta(real_model_class)})
+            setattr(forms_module, form_model_class.__name__, form_model_class)
+
             # Add views
-            if not hasattr(views_module, 'x'):
-                views_module.x = views.generate_x(real_model_class.__name__.lower(), real_model_class)
+            base_views_name = real_model_class.__name__.lower()
+
+            if not hasattr(views_module, base_views_name + '_list'):
+
+                setattr(views_module, base_views_name + '_list', views.generate_list(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_list_json', views.generate_list_json(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class))
+                setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class))
 
                 # Add urls to views
-                urls_module.urlpatterns += patterns('main.views', url(r'^x$', 'x'))
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^' + base_views_name + '/$', base_views_name + '_list'),
+                    url(r'^' + base_views_name + '/json$', base_views_name + '_list_json'),
+                    url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
+                    url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/$', base_views_name + '_show'),
+                )
 
     class Meta:
         abstract = True

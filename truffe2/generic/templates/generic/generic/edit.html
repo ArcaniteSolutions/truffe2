@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load l10n %}
+{% load bootstrap3 %}
+
+{% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% if form.instance.pk %}{% trans "Edition" %}{% else %}{% trans "Création" %}{% endif %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url list_view %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
+    {% if form.instance.pk %}
+        <li><a href="{% url show_view form.instance.pk %}"><i class="{{Model.MetaData.elem_icon}}"></i> {{form.instance}}</a></li>
+        <li><i class="fa fa-pencil"></i> {% trans "Edition" %}</li>
+    {% else %}
+        <li><i class="fa fa-plus"></i> {% trans "Creation" %}</li>
+    {% endif %}
+
+  {% endblock %}
+
+
+{% block content %}
+
+    {% if form.instance.pk %}
+        <h1>{{form.instance}}</h1>
+    {% else %}
+        <h1>{% trans "Création d'un élément" %}</h1>
+    {% endif %}
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-7">
+      <div class="well">
+          <form class="form-horizontal" method="POST">
+            {% csrf_token %}
+
+            {% localize off %}
+                {% bootstrap_form form 'horizontal' %}
+            {% endlocalize %}
+
+            <div class="form-actions">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% if form.instance.pk %}{% url show_view form.instance.pk %}{% else %}{% url list_view %}{% endif %}" class="btn btn-default">{% trans "Annuler" %}</a>
+                        <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{{MEDIA_URL}}js/plugin/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}js/plugin/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css">
+
+<script type="text/javascript">
+
+
+    {% for field in Model.MetaEdit.date_time_fields %}
+        $("#id_{{field}}").datetimepicker({format: 'yyyy-mm-dd hh:ii', weekStart: 1, autoclose: true, todayBtn: true});
+    {% endfor %}
+
+</script>
+{% endblock %}

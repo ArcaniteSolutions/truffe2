@@ -1,16 +1,17 @@
 
+
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{block.super}} :: {% trans "Utilisateurs" %} :: {% trans "Annuaire global" %}}{% endblock %}
+{% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Liste" %}}{% endblock %}
 
 {% block ribbon %}
     {{block.super}}
-    <li><i class="fa fa-group"></i> {% trans "Annuaire global" %}</li>
+    <li><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</li>
   {% endblock %}
 
 {% block content %}
-    <h1>{% trans "Liste de toutes les personnes" %}</h1>
+    <h1>{{Model.MetaData.list_title}}</h1>
 
     <section id="widget-grid" class="">
         <div class="row">
@@ -20,10 +21,9 @@
                     <table id="main_list_table" class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>{% trans "Sciper" %}</th>
-                                    <th>{% trans "Nom" %}</th>
-                                    <th>{% trans "Prénom" %}</th>
-                                    <th>{% trans "Roles" %}</th>
+                                    {% for col, display in Model.MetaData.list_display %}
+                                        <th>{{display}}</th>
+                                    {% endfor %}
                                     <th></th>
                                 </tr>
                             </thead>
@@ -39,5 +39,12 @@
         </div>
     </section>
 
-    {% with id="main_list_table" json_url="users.views.users_list_json" %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url=json_view %}{% include "datatables.html" %}{% endwith %}
+
+    <div style="float: right;">
+        <a href="{% url edit_view '~' %}" class="btn btn-primary">
+          <i class="fa fa-plus"></i>
+          {% trans "Ajouter" %}
+        </a>
+    </div>
 {% endblock %}

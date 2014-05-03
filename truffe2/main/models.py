@@ -10,11 +10,23 @@ class _HomePageNews(GenericModel, GenericStateModel):
     title = models.CharField(max_length=255)
     content = models.TextField()
 
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
 
     class MetaData:
-        list_display = ('title', 'content', 'get_status_display')
+        list_display = (
+            ('title', _('Titre')),
+            ('start_date', _('Date debut')),
+            ('end_date', _('Date fin')),
+            ('get_status_display', _('Status')),
+        )
+        base_title = _('News truffe')
+        list_title = _(u'Liste de toutes les news truffe')
+        base_icon = 'fa fa-group'
+        elem_icon = 'fa fa-group'
+
+    class MetaEdit:
+        date_time_fields = ('start_date', 'end_date')
 
     class MetaState:
         states = {
@@ -28,3 +40,6 @@ class _HomePageNews(GenericModel, GenericStateModel):
 
     class Meta:
         abstract = True
+
+    def __unicode__(self):
+        return self.title
