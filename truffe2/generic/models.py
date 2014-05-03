@@ -57,7 +57,6 @@ class GenericModel(models.Model):
             real_model_class = type(model_class.__name__[1:], (model_class,), extra_data)
 
             setattr(models_module, real_model_class.__name__, real_model_class)
-            print real_model_class.__name__
 
             # Add the logging model
             logging_class = type(real_model_class.__name__ + 'Logging', (GenericLogEntry,), {'object': models.ForeignKey(real_model_class), '__module__': models_module.__name__})

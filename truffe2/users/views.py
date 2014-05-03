@@ -148,14 +148,10 @@ def users_profile_picture(request, pk):
     file_cache = os.path.join(settings.MEDIA_ROOT, 'cache', 'users', str(user.pk) + '.png')
 
     if not os.path.exists(file_cache) or (os.path.getmtime(file_cache) + 60.0 * 24.0) < time.time():
-        print "Updating cache for ", user.pk
-
         if os.path.exists(file_cache):
             os.unlink(file_cache)
 
         r = requests.get('http://people.epfl.ch/cgi-bin/people/getPhoto?id=' + user.username, stream=True)
-
-        print r.headers
 
         if r.status_code == requests.codes.ok and 'text/html' not in r.headers['content-type']:
             with open(file_cache, 'wb') as fd:
