@@ -53,7 +53,7 @@ def generate_list_json(module, base_name, model_class):
              'edit_view': edit_view,
              'delete_view': delete_view,
              'logs_view': logs_view},
-            True
+            True, model_class.MetaData.filter_fields
         )
 
     return _generic_list_json

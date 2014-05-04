@@ -3,8 +3,11 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 
-def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[]):
     """Generic function for json list"""
+
+    if not filter_fields:
+        filter_fields = columns
 
     def do_ordering(qs):
 
@@ -46,9 +49,9 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
     def do_filtering(qs):
         sSearch = request.REQUEST.get('sSearch', None)
         if sSearch:
-            base = Q(**{columns[0] + '__istartswith': sSearch})
+            base = Q(**{filter_fields[0] + '__istartswith': sSearch})
 
-            for col in columns[1:]:
+            for col in filter_fields[1:]:
                 base = base | Q(**{col + '__istartswith': sSearch})
 
             qs = qs.filter(base)
