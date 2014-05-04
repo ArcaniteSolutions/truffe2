@@ -20,6 +20,7 @@ class _HomePageNews(GenericModel, GenericStateModel):
             ('end_date', _('Date fin')),
             ('get_status_display', _('Status')),
         )
+        details_display = list_display
         base_title = _('News truffe')
         list_title = _(u'Liste de toutes les news truffe')
         base_icon = 'fa fa-group'

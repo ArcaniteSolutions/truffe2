@@ -9,7 +9,7 @@
       {% for field, __ in Model.MetaData.list_display %}
         "{% if forloop.first %}<a href=\"{% url show_view elem.pk %}\">{% endif %}{{elem|get_attr:field|force_escape|escapejs}}{% if forloop.first %}</a>{% endif %}",
       {% endfor %}
-        "<a href=\"{% url edit_view elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>"
+        "<a href=\"{% url delete_view elem.pk %}\" class=\"btn btn-xs btn-danger\"><i class=\"fa fa-times\"></i> {% trans "Supprimer" %}</a> <a href=\"{% url edit_view elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>"
       ]{% if not forloop.last %},{% endif %}
     {% endfor %}
 ]

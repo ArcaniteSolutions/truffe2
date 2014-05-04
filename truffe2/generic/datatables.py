@@ -3,7 +3,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 
-def generic_list_json(request, model, columns, templates, bonus_data = {}):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False):
     """Generic function for json list"""
 
     def do_ordering(qs):
@@ -56,6 +56,9 @@ def generic_list_json(request, model, columns, templates, bonus_data = {}):
         return qs
 
     qs = model.objects.all()
+
+    if check_deleted:
+        qs = qs.filter(deleted=False).all()
 
     total_records = qs.count()
 

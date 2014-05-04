@@ -52,7 +52,8 @@ def generate_list_json(module, base_name, model_class):
              'show_view': show_view,
              'edit_view': edit_view,
              'delete_view': delete_view,
-             'logs_view': logs_view}
+             'logs_view': logs_view},
+            True
         )
 
     return _generic_list_json
@@ -67,8 +68,8 @@ def generate_edit(module, base_name, model_class, form_class):
         show_view = module.__name__ + '.views.' + base_name + '_show'
 
         try:
-            obj = model_class.objects.get(pk=pk)
-        except ValueError, model_class.DoesNotExist:
+            obj = model_class.objects.get(pk=pk, deleted=False)
+        except (ValueError, model_class.DoesNotExist):
             obj = model_class()
 
         if request.method == 'POST':  # If the form has been submitted...
@@ -98,7 +99,7 @@ def generate_show(module, base_name, model_class):
         log_view = module.__name__ + '.views.' + base_name + '_log'
         list_view = module.__name__ + '.views.' + base_name + '_list'
 
-        obj = get_object_or_404(model_class, pk=pk)
+        obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
         return render_to_response([module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view,
@@ -107,3 +108,28 @@ def generate_show(module, base_name, model_class):
 
     return _generic_show
 
+
+def generate_delete(module, base_name, model_class):
+
+    @login_required
+    def _generic_delete(request, pk):
+
+        show_view = module.__name__ + '.views.' + base_name + '_show'
+        list_view = module.__name__ + '.views.' + base_name + '_list'
+
+        obj = get_object_or_404(model_class, pk=pk, deleted=False)
+
+        if request.method == 'POST' and request.POST.get('do') == 'it':
+            obj.deleted = True
+            if hasattr(obj, 'delete_signal'):
+                obj.delete_signal()
+            obj.save()
+            messages.success(request, _(u'Élément supprimé !'))
+            return redirect(list_view)
+
+        return render_to_response([module.__name__ + '/' + base_name + '/delete.html', 'generic/generic/delete.html'], {
+            'Model': model_class, 'show_view': show_view, 'list_view': list_view,
+            'obj': obj
+        }, context_instance=RequestContext(request))
+
+    return _generic_delete

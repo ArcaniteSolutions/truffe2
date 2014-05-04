@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load generic_extras %}
+
+{% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Détails" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url list_view %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
+    <li><i class="{{Model.MetaData.elem_icon}}"></i> {{obj}}</li>
+  {% endblock %}
+
+{% block content %}
+<h1>{{obj}}</h1>
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                {% with w_title="Informations" %}{% include "widget/header.html" %}{% endwith %}
+
+                    <dl class="dl-horizontal">
+                        {% for elem, title in Model.MetaData.details_display %}
+                            <dt>{{title}}</dt>
+                            <dd>{{obj|get_attr:elem|default:"&nbsp;"}}</dd>
+                        {% endfor %}
+                    </dl>
+
+                {% include "widget/footer.html" %}
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                {% with w_title="Modifications" %}{% include "widget/header.html" %}{% endwith %}
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+    </section>
+
+    <div style="float: right;">
+
+        <a href="{% url list_view %}" class="btn btn-info">
+          <i class="fa fa-list"></i>
+          {% trans "Retourner sur la liste" %}
+        </a>
+        <a href="{% url delete_view obj.pk %}" class="btn btn-danger">
+          <i class="fa fa-times"></i>
+          {% trans "Supprimer" %}
+        </a>
+        <a href="{% url edit_view obj.pk %}" class="btn btn-primary">
+          <i class="fa fa-pencil"></i>
+          {% trans "Modifier" %}
+        </a>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+
+{% extends "base.html" %}
+{% load i18n %}
+{% load l10n %}
+{% load bootstrap3 %}
+
+{% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Suppression" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url list_view %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
+    <li><a href="{% url show_view obj.pk %}"><i class="{{Model.MetaData.elem_icon}}"></i> {{obj}}</a></li>
+    <li><i class="fa fa-pencil"></i> {% trans "Suppression" %}</li>
+
+  {% endblock %}
+
+
+{% block content %}
+
+    <h1>{{obj}}</h1>
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-7">
+      <div class="well">
+          <form class="form-horizontal" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="do" value="it">
+
+            <div class="alert alert-block alert-warning">
+                <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'objet" %} "{{obj}}" ({{Model.MetaData.base_title}})</h4>
+
+                {% trans "Êtes vous sur de vouloir faire ça ?" %}
+            </div>
+
+            <div class="form-actions">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url list_view %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
+                        <a href="{% url show_view obj.pk %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
+                        <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
