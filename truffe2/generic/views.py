@@ -80,6 +80,12 @@ def generate_edit(module, base_name, model_class, form_class):
 
                 messages.success(request, _(u'Élément sauvegardé !'))
 
+                if request.POST.get('post-save-dest'):
+                    if request.POST.get('post-save-dest') == 'new':
+                        return redirect(module.__name__ + '.views.' + base_name + '_edit', pk='~')
+                    else:
+                        return redirect(module.__name__ + '.views.' + base_name + '_edit', pk=obj.pk)
+
                 return redirect(module.__name__ + '.views.' + base_name + '_show', pk=obj.pk)
         else:
             form = form_class(request.user, instance=obj)
