@@ -9,3 +9,13 @@
   display: block;
 
 }
+
+.popover-no-padding .popover-content {
+  padding: 0px; !important;
+}
+
+.popover-no-padding .popover {
+
+  max-width: 500px;
+
+}

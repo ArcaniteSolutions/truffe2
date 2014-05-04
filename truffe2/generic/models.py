@@ -9,6 +9,8 @@ import importlib
 from django.conf.urls import patterns, url
 from generic import views
 from generic.forms import GenericForm
+import json
+from pytz import timezone
 
 
 def build_models_list_of(Class):
@@ -81,9 +83,9 @@ class GenericModel(models.Model):
 
                 setattr(views_module, base_views_name + '_list', views.generate_list(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_list_json', views.generate_list_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class))
-                setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class))
+                setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
                 urls_module.urlpatterns += patterns(views_module.__name__,
@@ -93,6 +95,23 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/delete$', base_views_name + '_delete'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
                 )
+
+    def build_state(self):
+        """Return the current state of the object. Used for diffs."""
+        retour = {}
+        opts = self._meta
+        for f in sorted(opts.fields + opts.many_to_many):
+            if isinstance(f, models.DateTimeField):
+                if not getattr(self, f.name):
+                    retour[f.name] = None
+                else:
+                    loc = getattr(self, f.name).astimezone(timezone('Europe/Berlin'))
+                    retour[f.name] = loc.strftime("%Y-%m-%d %H:%M:%S")
+
+            else:
+                retour[f.name] = getattr(self, f.name)
+
+        return retour
 
     class Meta:
         abstract = True
@@ -118,10 +137,14 @@ class GenericLogEntry(models.Model):
         ('created', _(u'Creation')),
         ('edited', _(u'Edité')),
         ('deleted', _(u'Supprimé')),
+        ('restored', _(u'Restauré')),
         ('state_changed', _(u'Status changé'))
     )
 
     what = models.CharField(max_length=64, choices=LOG_TYPES)
+
+    def json_extra_data(self):
+        return json.loads(self.extra_data)
 
     class Meta:
         abstract = True

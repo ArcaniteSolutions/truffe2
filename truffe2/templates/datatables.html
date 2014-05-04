@@ -34,38 +34,42 @@
 
     function runDataTables_{{id}}() {
       $('#{{id}}').dataTable({
-            "sPaginationType" : "bootstrap_full",
+            {% if not datatable_simple %}
+                "oTableTools" : {
+                    "aButtons" : ["copy", "print", {
+                        "sExtends" : "collection",
+                        "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
+                        "aButtons" : ["csv", "xls", "pdf"]
+                    }],
+                    "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
+                },
+                "bDeferRender": true,
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "{% url json_url %}",
+                "fnInitComplete" : function(oSettings, json) {
+                    $(this).closest('#dt_table_tools_wrapper').find('.DTTT.btn-group').addClass('table_tools_group').children('a.btn').each(function() {
+                        $(this).addClass('btn-sm btn-default');
+                    });
+                },
+                "fnServerData": function ( sSource, aoData, fnCallback, oSettings ) {
+                    oSettings.jqXHR = $.ajax( {
+                        "dataType": 'json',
+                        "method": 'POST',
+                        "url": sSource,
+                        "data": aoData,
+                        "success": function(data) {
+                        if (typeof post_process_data_{{id}} !== 'undefined')
+                            data = post_process_data_{{id}}(data);
+                        fnCallback(data);
+                        }
+                    } );
+                    },
             "sDom" : "<'dt-top-row'Tlf>r<'dt-wrapper't><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'p>>",
-            "oTableTools" : {
-                "aButtons" : ["copy", "print", {
-                    "sExtends" : "collection",
-                    "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
-                    "aButtons" : ["csv", "xls", "pdf"]
-                }],
-                "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
-            },
-            "bDeferRender": true,
-            "bProcessing": true,
-            "bServerSide": true,
-             "sAjaxSource": "{% url json_url %}",
-            "fnInitComplete" : function(oSettings, json) {
-                $(this).closest('#dt_table_tools_wrapper').find('.DTTT.btn-group').addClass('table_tools_group').children('a.btn').each(function() {
-                    $(this).addClass('btn-sm btn-default');
-                });
-            },
-            "fnServerData": function ( sSource, aoData, fnCallback, oSettings ) {
-                  oSettings.jqXHR = $.ajax( {
-                    "dataType": 'json',
-                    "method": 'POST',
-                    "url": sSource,
-                    "data": aoData,
-                    "success": function(data) {
-                      if (typeof post_process_data_{{id}} !== 'undefined')
-                        data = post_process_data_{{id}}(data);
-                      fnCallback(data);
-                    }
-                  } );
-                }
+            {% else %}
+            "aaSorting": [],
+            {% endif %}
+            "sPaginationType" : "bootstrap_full"
         });
 
     }

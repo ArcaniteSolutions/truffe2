@@ -14,13 +14,13 @@ class _HomePageNews(GenericModel, GenericStateModel):
     end_date = models.DateTimeField(blank=True, null=True)
 
     class MetaData:
-        list_display = (
+        list_display = [
             ('title', _('Titre')),
             ('start_date', _('Date debut')),
             ('end_date', _('Date fin')),
             ('get_status_display', _('Status')),
-        )
-        details_display = list_display
+        ]
+        details_display = list_display + [('content', _('Content'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
         base_title = _('News truffe')
