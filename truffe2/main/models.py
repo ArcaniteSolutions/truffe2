@@ -25,8 +25,8 @@ class _HomePageNews(GenericModel, GenericStateModel):
 
         base_title = _('News truffe')
         list_title = _(u'Liste de toutes les news truffe')
-        base_icon = 'fa fa-group'
-        elem_icon = 'fa fa-group'
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-bullhorn'
 
     class MetaEdit:
         date_time_fields = ('start_date', 'end_date')
