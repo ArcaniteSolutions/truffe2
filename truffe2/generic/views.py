@@ -20,6 +20,9 @@ from django.utils.timezone import now
 import json
 
 
+from django.db.models import Max
+
+
 from generic.datatables import generic_list_json
 
 
@@ -30,9 +33,10 @@ def generate_list(module, base_name, model_class):
 
         json_view = module.__name__ + '.views.' + base_name + '_list_json'
         edit_view = module.__name__ + '.views.' + base_name + '_edit'
+        deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
 
         return render_to_response([module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
-            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view,
+            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view
         }, context_instance=RequestContext(request))
 
     return _generic_list
@@ -184,3 +188,31 @@ def generate_delete(module, base_name, model_class, log_class):
         }, context_instance=RequestContext(request))
 
     return _generic_delete
+
+
+def generate_deleted(module, base_name, model_class, log_class):
+
+    @login_required
+    def _generic_deleted(request):
+
+        list_view = module.__name__ + '.views.' + base_name + '_list'
+
+        if request.method == 'POST':
+            obj = get_object_or_404(model_class, pk=request.POST.get('pk'), deleted=True)
+            obj.deleted = False
+            if hasattr(obj, 'restore_signal'):
+                obj.restore_signal()
+            obj.save()
+
+            log_class(who=request.user, what='restored', object=obj).save()
+
+            messages.success(request, _(u'Élément restauré !'))
+            return redirect(list_view)
+
+        liste = model_class.objects.filter(deleted=True).annotate(Max('logs__when')).order_by('-logs__when__max').all()
+
+        return render_to_response([module.__name__ + '/' + base_name + '/deleted.html', 'generic/generic/deleted.html'], {
+            'Model': model_class, 'list_view': list_view, 'liste': liste,
+        }, context_instance=RequestContext(request))
+
+    return _generic_deleted

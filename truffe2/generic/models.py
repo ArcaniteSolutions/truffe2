@@ -63,7 +63,7 @@ class GenericModel(models.Model):
             setattr(models_module, real_model_class.__name__, real_model_class)
 
             # Add the logging model
-            logging_class = type(real_model_class.__name__ + 'Logging', (GenericLogEntry,), {'object': models.ForeignKey(real_model_class), '__module__': models_module.__name__})
+            logging_class = type(real_model_class.__name__ + 'Logging', (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
 
             # Create the form module
@@ -86,11 +86,13 @@ class GenericModel(models.Model):
                 setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class))
                 setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, base_views_name + '_deleted', views.generate_deleted(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
                 urls_module.urlpatterns += patterns(views_module.__name__,
                     url(r'^' + base_views_name + '/$', base_views_name + '_list'),
                     url(r'^' + base_views_name + '/json$', base_views_name + '_list_json'),
+                    url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/delete$', base_views_name + '_delete'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
@@ -112,6 +114,10 @@ class GenericModel(models.Model):
                 retour[f.name] = getattr(self, f.name)
 
         return retour
+
+    def last_log(self):
+        """Return the last log entry"""
+        return self.logs.order_by('-when')[0]
 
     class Meta:
         abstract = True

@@ -1,0 +1,57 @@
+
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Éléments supprimés" %}}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url list_view %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
+    <li><i class="fa fa-times"></i> {% trans "Éléments supprimés" %}</li>
+  {% endblock %}
+
+{% block content %}
+    <h1>{% trans "Éléments supprimés" %}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                {% with w_title="Liste" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+                    <div class="widget-body-toolbar"></div>
+                    <table id="deleted_list_table" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Élément" %}</th>
+                                <th>{% trans "Date suppression" %}</th>
+                                <th>{% trans "Auteur suppresion" %}</th>
+                                <th style="width: 200px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for elem in liste %}
+                                <tr>
+                                    <td>{{elem}}</td>
+                                    <td>{{elem.last_log.when|date:"y.m.d"}} {{elem.last_log.when|date:"H:i:s"}}</td>
+                                    <td>{{elem.last_log.who.get_full_name}}</td>
+                                    <td><form action="" method="POST">{% csrf_token %}<input type="hidden" value="{{elem.pk}}" name="pk"><button type="submit" onclick="return confirm('{% trans "Êtes vous sur de vouloir faire ceci ? Les conséquences peuvent être non-négliables !" %}');" class="btn btn-warning"><i class="glyphicon glyphicon-repeat"></i> {% trans "Restaurer" %}</button></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <hr style="clear: both; visibility: hidden;">
+
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+    </section>
+
+    {% with id="deleted_list_table"  datatable_simple=True %}{% include "datatables.html" %}{% endwith %}
+
+    <div style="float: right;">
+        <a href="{% url list_view %}" class="btn btn-primary">
+          <i class="fa fa-list"></i>
+          {% trans "Retourner sur la liste" %}
+        </a>
+    </div>
+{% endblock %}
