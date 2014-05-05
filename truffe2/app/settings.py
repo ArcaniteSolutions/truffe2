@@ -117,6 +117,8 @@ INSTALLED_APPS = (
 
     'main',
     'users',
+    'units',
+
     'generic',
 
 )
