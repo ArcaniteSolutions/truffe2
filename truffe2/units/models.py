@@ -44,3 +44,38 @@ class _Unit(GenericModel):
 
     def __unicode__(self):
         return self.name
+
+
+class _Role(GenericModel):
+    """Un role, pour une accred"""
+    name = models.CharField(max_length=255)
+    id_epfl = models.CharField(max_length=255, null=True, blank=True, help_text=_(u'Mettre ici l\'ID accred du role pour la syncronisation EPFL'))
+    description = models.TextField(null=True, blank=True)
+    ordre = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'acréditer la même personne dans la même unité plusieurs fois. Le role avec le plus PETIT ordre sera prit en compte'))
+
+    def __unicode__(self):
+        return self.name
+
+    class MetaData:
+        list_display = [
+            ('name', _('Nom')),
+            ('id_epfl', _('ID EPFL ?')),
+            ('ordre', _(u'Ordre'))
+        ]
+
+        details_display = [
+            ('name', _('Nom')),
+            ('description', _('Description')),
+            ('id_epfl', _('ID EPFL ?')),
+            ('ordre', _(u'Ordre')),
+        ]
+
+        filter_fields = ('name', 'id_epfl', 'description')
+
+        base_title = _(u'Roles')
+        list_title = _(u'Liste de toutes les roles')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-group'
+
+    class Meta:
+        abstract = True
