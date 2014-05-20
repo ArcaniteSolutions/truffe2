@@ -6,4 +6,8 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'units.views',
 
+    url(r'^accreds/$', 'accreds_list'),
+    url(r'^accreds/json$', 'accreds_list_json'),
+    url(r'^accreds/(?P<pk>[0-9~]+)/renew$', 'accreds_renew'),
+    url(r'^accreds/(?P<pk>[0-9~]+)/delete$', 'accreds_delete'),
 )

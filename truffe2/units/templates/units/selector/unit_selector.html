@@ -1,0 +1,37 @@
+{% load i18n %}
+
+{% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
+
+{% trans "Tu travailles actuellement avec l'unité" %}<br /><br />
+
+<center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
+
+<span style="float: right;">
+    <div class="dropdown">
+    <a class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">{% trans "Changer" %} <span class="caret"></span></a>
+    <ul class="dropdown-menu dropdown-menu-right">
+
+        {% with c_unit=main_unit %}
+            {% include "units/selector/menu_unit.html" %}
+        {% endwith %}
+
+    </ul>
+    </div>
+</span>
+
+<script type="text/javascript">
+
+    function select_unit(pk, name) {
+
+        $('.cgroupe').text(name);
+        $('.cgroupe').attr("pk", pk);
+
+        {% if function_to_call %}
+            {{function_to_call}}(pk, name);
+        {% endif %}
+
+    }
+
+</script>
+
+{% include "widget/footer.html" %}

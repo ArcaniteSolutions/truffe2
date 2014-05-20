@@ -1,9 +1,23 @@
+{% load i18n %}
 <div class="jarviswidget jarviswidget-color-blueLight" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-colorbutton="false" data-widget-editbutton="false" style="">
     <header>
         {% if w_icon %}
           <span class="widget-icon"> <i class="{{w_icon}}"></i> </span>
         {% endif %}
         <h2>{{w_title}}</h2>
+
+
+        {% if on_off_widget %}
+            <div class="widget-toolbar" id="switch-{{on_off_id}}">
+                    <span class="onoffswitch-title"><i class="fa fa-archive"></i> {% trans on_off_title %}</span>
+                <span class="onoffswitch">
+                    <input type="checkbox" name="onoffswitch{{on_off_id}}" class="onoffswitch-checkbox" id="myonoffswitch{{on_off_id}}" id="onoffswitch{{on_off_id}}">
+                    <label class="onoffswitch-label" for="myonoffswitch{{on_off_id}}"> 
+                        <span class="onoffswitch-inner" data-swchon-text="ON" data-swchoff-text="OFF"></span> 
+                        <span class="onoffswitch-switch"></span> </label>
+                    </span>
+            </div>
+        {% endif %}
     </header>
     <div>
       <div class="widget-body {% if w_nopadding %}no-padding{% endif %}">

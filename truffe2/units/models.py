@@ -4,6 +4,9 @@ from django.db import models
 from generic.models import GenericModel
 from django.utils.translation import ugettext_lazy as _
 
+from users.models import TruffeUser
+
+import datetime
 
 class _Unit(GenericModel):
 
@@ -45,6 +48,34 @@ class _Unit(GenericModel):
     def __unicode__(self):
         return self.name
 
+    def has_sub(self):
+        """Return true if the unit has subunits"""
+        return self.unit_set.filter(deleted=False).order_by('name').count() > 0
+
+    def only_one_sub_type(self):
+        tt = 0
+
+        if self.sub_com():
+            tt += 1
+        if self.sub_eqi():
+            tt += 1
+        if self.sub_grp():
+            tt += 1
+
+        return tt == 1
+
+    def sub_com(self):
+        """Return the sub units, but only commissions"""
+        return self.unit_set.filter(is_commission=True).filter(deleted=False).order_by('name')
+
+    def sub_eqi(self):
+        """Return the sub units, but only groups"""
+        return self.unit_set.exclude(is_commission=True).filter(is_equipe=True).filter(deleted=False).order_by('name')
+
+    def sub_grp(self):
+        """Return the sub units, without groups or commissions"""
+        return self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False).order_by('name')
+
 
 class _Role(GenericModel):
     """Un role, pour une accred"""
@@ -79,3 +110,30 @@ class _Role(GenericModel):
 
     class Meta:
         abstract = True
+
+
+class Accreditation(models.Model):
+    unite = models.ForeignKey('Unit')
+    user = models.ForeignKey(TruffeUser)
+    role = models.ForeignKey('Role')
+
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+    validation_date = models.DateTimeField(auto_now_add=True)
+
+    display_name = models.CharField(max_length=255, blank=True, null=True, help_text=_(u'Le nom a afficher dans truffe. Peut être utilisé pour préciser la fonction'))
+
+    no_epfl_sync = models.BooleanField(default=False, help_text=_(u'Checker cette coche pour ne pas sycroniser cette accrédiation au niveau EPFL'))
+
+    def exp_date(self):
+        """Returne la date d'expiration de l'accred"""
+        return self.validation_date + datetime.timedelta(days=365)
+
+    def is_valid(self):
+        """Returne true si l'accred est valide"""
+        return self.end_date is None
+
+    def get_role_or_display_name(self):
+        if self.display_name:
+            return str(self.role) + " (" + self.display_name + ")"
+        return str(self.role)

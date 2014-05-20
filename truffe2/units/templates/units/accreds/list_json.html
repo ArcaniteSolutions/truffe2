@@ -1,0 +1,17 @@
+{% extends "generic/datatables_json.html" %}
+{% load i18n %}
+
+{% block data %}
+[
+    {% for elem in list %}
+    [
+      "<a href=\"{% url "users.views.users_profile" elem.pk %}\">{{elem.user.get_full_name|force_escape|escapejs}}</a>",
+        "{{elem.get_role_or_display_name|force_escape|escapejs}}",
+        "{{elem.start_date|date:"Y.m.d"|force_escape|escapejs}}",
+        "{{elem.no_epfl_sync|yesno:"Non,Oui"|force_escape|escapejs}}",
+        "{% if elem.is_valid %}{{elem.exp_date|date:"Y.m.d"|force_escape|escapejs}} ({{elem.exp_date|timeuntil|force_escape|escapejs}}){% else %}{% trans "Accrédiation échue le" %} {{elem.end_date|date:"Y.m.d"|force_escape|escapejs}}{% endif %}",
+        "{% if elem.is_valid %}<a href=\"{% url "units.views.accreds_delete" elem.pk %}\" class=\"btn btn-xs btn-danger\"><i class=\"fa fa-times\"></i> {% trans "Supprimer" %}</a> <a href=\"{% url "units.views.accreds_renew" elem.pk %}\" class=\"btn btn-xs btn-default\" data-toggle=\"tooltip\" data-placement=\"left\" title=\"{% trans "L'accréditation sera renouvelée pour un an !" %}\"><i class=\"fa fa-refresh\"></i> {% trans "Renouveller" %}</a>{% endif %}"
+      ]{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+{% endblock %}

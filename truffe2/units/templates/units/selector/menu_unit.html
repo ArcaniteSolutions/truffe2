@@ -1,0 +1,62 @@
+{% load i18n %}
+
+{% with template_name="units/selector/menu_unit.html" %}
+    {% if not c_unit.has_sub %}
+        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}');">{{c_unit}}</a></li>
+    {% else %}
+        <li class="dropdown-submenu dropdown-submenu-right">
+
+        <a role="menuitem" tabindex="-1" href="#" onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}');">{{c_unit}}</a>
+
+            <ul class="dropdown-menu">
+                {% if c_unit.sub_com %}
+                    {% if not c_unit.only_one_sub_type %}
+                        <li class="dropdown-submenu dropdown-submenu-right">
+                            <a tabindex="-1" href="#"><i>{% trans "Commissions" %}</i></a>
+                            <ul class="dropdown-menu">
+                    {% endif %}
+                                    {% for unit in c_unit.sub_com %}
+                                        {% with c_unit=unit %}
+                                            {% include template_name %}
+                                        {% endwith %}
+                                    {% endfor %}
+                    {% if not c_unit.only_one_sub_type %}
+                                </ul>
+                            </li>
+                    {% endif %}
+                {% endif %}
+                {% if c_unit.sub_eqi %}
+                        {% if not c_unit.only_one_sub_type %}
+                            <li class="dropdown-submenu dropdown-submenu-right">
+                                <a tabindex="-1" href="#"><i>{% trans "Équipes" %}</i></a>
+                                <ul class="dropdown-menu">
+                        {% endif %}
+                                    {% for unit in c_unit.sub_eqi %}
+                                        {% with c_unit=unit %}
+                                            {% include template_name %}
+                                        {% endwith %}
+                                    {% endfor %}
+                    {% if not c_unit.only_one_sub_type %}
+                                </ul>
+                            </li>
+                    {% endif %}
+                {% endif %}
+                {% if c_unit.sub_grp %}
+                    {% if not c_unit.only_one_sub_type %}
+                        <li class="dropdown-submenu dropdown-submenu-right">
+                        <a tabindex="-1" href="#"><i>{% trans "Unités" %}</i></a>
+                            <ul class="dropdown-menu">
+                    {% endif %}
+                                    {% for unit in c_unit.sub_grp %}
+                                        {% with c_unit=unit %}
+                                            {% include template_name %}
+                                        {% endwith %}
+                                    {% endfor %}
+                    {% if not c_unit.only_one_sub_type %}
+                                </ul>
+                            </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% endwith %}

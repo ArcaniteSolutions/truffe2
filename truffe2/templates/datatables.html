@@ -32,8 +32,10 @@
 
     }
 
+    var data_table_{{id}} = undefined;
+
     function runDataTables_{{id}}() {
-      $('#{{id}}').dataTable({
+        data_table_{{id}} = $('#{{id}}').dataTable({
             {% if not datatable_simple %}
                 "oTableTools" : {
                     "aButtons" : ["copy", "print", {
@@ -56,7 +58,7 @@
                     oSettings.jqXHR = $.ajax( {
                         "dataType": 'json',
                         "method": 'POST',
-                        "url": sSource,
+                        "url": sSource{% if with_upk %} + "?upk=" + $('.cgroupe').attr('pk'){% endif %}{% if with_extradata %} + {{with_extradata}}(){% endif %},
                         "data": aoData,
                         "success": function(data) {
                         if (typeof post_process_data_{{id}} !== 'undefined')

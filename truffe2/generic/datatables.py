@@ -3,7 +3,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 
-def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[]):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None):
     """Generic function for json list"""
 
     if not filter_fields:
@@ -55,6 +55,9 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
                 base = base | Q(**{col + '__istartswith': sSearch})
 
             qs = qs.filter(base)
+
+        if bonus_filter_function:
+            qs = bonus_filter_function(qs)
 
         return qs
 

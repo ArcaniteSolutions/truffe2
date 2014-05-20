@@ -1,0 +1,65 @@
+
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Accréditations" %} :: {% trans "Liste" %}}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><i class="fa fa-key"></i> {% trans "Accréditations" %}</li>
+  {% endblock %}
+
+{% block content %}
+    <h1>{% trans "Liste de toutes les accréditations" %}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-10 col-lg-10">
+                {% with w_title="Liste" w_nopadding=True on_off_widget=True on_off_title="Afficher les anciennes accrédiations" on_off_id="accredlist" %}{% include "widget/header.html" %}{% endwith %}
+                    <div class="widget-body-toolbar"></div>
+                    <table id="main_list_table" class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="16.666%">{% trans "Personne" %}</th>
+                                    <th width="16.666%">{% trans "Role" %}</th>
+                                    <th width="16.666%">{% trans "Début" %}</th>
+                                    <th width="16.666%">{% trans "Syncronisation EPFL" %}</th>
+                                    <th width="16.666%">{% trans "Expiration automatique" %}</th>
+                                    <th width="16.666%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                          </table>
+
+                      <hr style="clear: both; visibility: hidden;">
+
+                {% include "widget/footer.html" %}
+            </div>
+            <div class="col-sm-12 col-md-2 col-lg-2">
+                {% with function_to_call="refresh_list" %}
+                  {% include "units/selector/unit_selector.html" %}
+                {% endwith %}
+            </div>
+
+        </div>
+    </section>
+
+    <script type="text/javascript">
+
+      function refresh_list() {
+
+        data_table_main_list_table._fnAjaxUpdate();
+
+      }
+
+      $('#myonoffswitchaccredlist').on('click', function() { refresh_list(); });
+
+      function accred_extra_data() {
+        return "&h=" + ($('#myonoffswitchaccredlist').is(":checked") ? 1 : 0);
+      }
+
+    </script>
+
+    {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" %}{% include "datatables.html" %}{% endwith %}
+{% endblock %}
