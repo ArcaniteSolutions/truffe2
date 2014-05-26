@@ -186,6 +186,8 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
     "django.contrib.messages.context_processors.messages",
     "app.utils.add_current_unit")
 
+LDAP = 'ldap://ldap.epfl.ch:389'
+
 try:
     from settingsLocal import *
 except ImportError:

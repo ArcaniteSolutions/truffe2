@@ -1,0 +1,67 @@
+
+{% load i18n %}
+{% load bootstrap3 %}
+
+<form id="add-accred-form" method="POST" action="{% url 'units.views.accreds_add' %}?upk={{unite.pk}}">
+  {% csrf_token %}
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Nouvelle accréditation" %}</h4>
+      </div>
+
+        <div class="modal-body">
+
+
+            <div class="form-group">
+                <label>
+                    {% trans "Unité" %}
+                </label>
+                <input disabled class="form-control" value="{{unite}}">
+                <span class="help-block">
+                    {% trans "Ferme cette fenêtre et utilise le sélecteur en haut à droite si tu veux changer d'unité" %}
+                </span>
+            </div>
+
+          {% bootstrap_form form %}
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                {% trans "Annuler" %}
+                </button>
+                <input type="submit" class="btn btn-primary" value="{% trans "Ajouter" %}">
+          </div>
+        </div>
+
+    </div><!-- /.modal-content -->
+    
+  <script type="text/javascript">
+      $('#add-accred-form').ajaxForm({replaceTarget: true, target: '#add-accred-form'});
+      $('#id_role').css('width', '100%').addClass('select2').removeClass('form-control').select2();
+      $('#id_user').css('width', '100%').addClass('select2').attr('type', 'hidden').removeClass('form-control').select2({
+            minimumInputLength: 3,
+            ajax: {
+            url: "{% url 'units.views.accreds_search' %}",
+            dataType: 'json',
+            data: function (term, page) {
+                return {
+                q: term
+                };
+            },
+            results: function (data, page) {
+                return { results: data };
+            }
+            }
+        });
+
+        {% if done %}
+            window.location.reload();
+        {% endif %}
+
+  </script>
+</form>
+

@@ -10,4 +10,6 @@ urlpatterns = patterns(
     url(r'^accreds/json$', 'accreds_list_json'),
     url(r'^accreds/(?P<pk>[0-9~]+)/renew$', 'accreds_renew'),
     url(r'^accreds/(?P<pk>[0-9~]+)/delete$', 'accreds_delete'),
+    url(r'^accreds/add$', 'accreds_add'),
+    url(r'^accreds/search$', 'accreds_search'),
 )

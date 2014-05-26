@@ -40,7 +40,7 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin):
     nom_banque = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, met Postfinance. Sinon, met le nom de ta banque.'))
     iban_ou_ccp = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, met ton CCP. Sinon, met ton IBAN'))
 
-    body = models.CharField(max_length=1, default='.')
+    body = models.CharField(max_length=1, default='.')  # Saved body classes (to save layout options of the user)
 
     objects = TruffeUserManager()
 

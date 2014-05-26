@@ -37,7 +37,7 @@
                 {% include "widget/footer.html" %}
             </div>
             <div class="col-sm-12 col-md-2 col-lg-2">
-                {% with function_to_call="refresh_list" %}
+                {% with function_to_call="unit_updated" %}
                   {% include "units/selector/unit_selector.html" %}
                 {% endwith %}
             </div>
@@ -48,18 +48,47 @@
     <script type="text/javascript">
 
       function refresh_list() {
-
         data_table_main_list_table._fnAjaxUpdate();
+      }
+
+      function unit_updated() {
+          $('#add-accred-button').attr('data-remote', $('#add-accred-button').attr('base-data-remote') + $('.cgroupe').attr("pk"));
+          refresh_list();
+                }
+
+      function disp_add() {
+        //Allow usage of select2
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+          $('#modal-add-accred').find('.modal-content').html('');
+          $('#modal-add-accred').removeData('bs.modal');
+          $('#modal-add-accred').modal({remote: $('#add-accred-button').attr('data-remote')});
 
       }
+
 
       $('#myonoffswitchaccredlist').on('click', function() { refresh_list(); });
 
       function accred_extra_data() {
         return "&h=" + ($('#myonoffswitchaccredlist').is(":checked") ? 1 : 0);
       }
-
     </script>
 
     {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" %}{% include "datatables.html" %}{% endwith %}
-{% endblock %}
+
+
+    <div style="float: right;">
+
+      <button class="btn btn-primary" onclick="disp_add();" data-remote="{% url 'units.views.accreds_add' %}?upk={{CURRENT_UNIT.pk}}" base-data-remote="{% url 'units.views.accreds_add' %}?upk=" id="add-accred-button">
+        <i class="fa fa-plus"></i> {% trans "Ajouter une accréditation" %}
+      </button>
+
+    </div>
+
+    <div class="modal fade" id="modal-add-accred" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+        </div>
+      </div>
+    </div>
+  
+  {% endblock %}

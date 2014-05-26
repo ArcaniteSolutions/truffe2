@@ -23,6 +23,10 @@ from generic.datatables import generic_list_json
 
 from units.models import Accreditation
 from app.utils import update_current_unit, get_current_unit
+from app.ldaputils import search_sciper, get_attrs_of_sciper
+from users.models import TruffeUser
+
+import json
 
 
 @login_required
@@ -86,3 +90,57 @@ def accreds_delete(request, pk):
 
     return render_to_response('units/accreds/delete.html', {'accred': accred}, context_instance=RequestContext(request))
 
+
+@login_required
+def accreds_add(request):
+
+    update_current_unit(request, request.GET.get('upk'))
+    unite = get_current_unit(request)
+
+    from units.forms2 import AccreditationAddForm
+
+    done = False
+
+    if request.method == 'POST':  # If the form has been submitted...
+        form = AccreditationAddForm(request.user, request.POST)
+
+        if form.is_valid():  # If the form is valid
+            accred = form.save(commit=False)
+
+            accred.unite = unite
+
+            # Try to find the user. If he dosen't exists, create it.
+            try:
+                user = TruffeUser.objects.get(username=form.cleaned_data['user'])
+            except TruffeUser.DoesNotExist:
+                user = TruffeUser()
+
+                user.username = form.cleaned_data['user']
+
+                user.last_name, user.first_name, user.email = get_attrs_of_sciper(user.username)
+
+                user.is_active = True
+
+                user.save()
+
+            accred.user = user
+            accred.save()
+
+            messages.success(request, _(u'Accréditation sauvegardé !'))
+
+            done = True
+
+    else:
+        form = AccreditationAddForm(request.user)
+
+    return render_to_response('units/accreds/add.html', {'form': form, 'done': done, 'unite': unite}, context_instance=RequestContext(request))
+
+
+@login_required
+def accreds_search(request):
+
+    results = search_sciper(request.GET.get('q'))
+
+    retour = map(lambda (sciper, data): {'id': sciper, 'text': '%s - %s %s (%s)' %data}, results.iteritems())
+
+    return HttpResponse(json.dumps(retour))
