@@ -3,6 +3,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from django.conf import settings
+from django.core.cache import cache
 
 
 class ModelWithRight(object):
@@ -14,15 +15,30 @@ class ModelWithRight(object):
 
         rights = {}
 
+    @classmethod
+    def static_rights_can(cls, right, user):
+
+        dummy = cls()
+
+        return dummy.rights_can(right, user)
+
     def rights_can(self, right, user):
 
         if right not in self.MetaRights.rights or not hasattr(self, 'rights_can_%s' % (right,)):
             return False
 
-        # if user.is_superuser:
-        #     return True
+        if user.is_superuser:
+            return True
 
-        return getattr(self, 'rights_can_%s' % (right,))(user)
+        cache_key = 'right_%s_%s_%s' % (self.pk or 'DUMMY', user.pk, right)
+
+        cached_value = cache.get(cache_key)
+
+        if cached_value is None:
+            cached_value = getattr(self, 'rights_can_%s' % (right,))(user)
+            cache.set(cache_key, cached_value)
+
+        return cached_value
 
     def rights_is_linked_user(self, user):
         if not self.MetaRights.linked_user_property or not hasattr(self, self.MetaRights.linked_user_property):
@@ -55,7 +71,9 @@ class BasicRightModel(ModelWithRight):
             'SHOW': _(u'Peut afficher cet éléments'),
             'EDIT': _(u'Peut modifier cet éléments'),
             'DELETE': _(u'Peut supprimer cet éléments'),
+            'RESTORE': _(u'Peut restaurer un élément'),
             'CREATE': _(u'Peut créer un élément'),
+            'DISPLAY_LOG': _(u'Peut afficher les logs de élément'),
         })
 
     def rights_can_LIST(self, user):
@@ -70,7 +88,13 @@ class BasicRightModel(ModelWithRight):
     def rights_can_DELETE(self, user):
         return self.rights_can_EDIT(user)
 
+    def rights_can_RESTORE(self, user):
+        return self.rights_can_EDIT(user)
+
     def rights_can_CREATE(self, user):
+        return self.rights_can_EDIT(user)
+
+    def rights_can_DISPLAY_LOG(self, user):
         return self.rights_can_EDIT(user)
 
 

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load generic_extras %}
+{% load rights_extras %}
 
 {% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Détails" %}{% endblock %}
 
@@ -27,64 +28,66 @@
                 {% include "widget/footer.html" %}
             </div>
 
-            <div class="col-sm-12 col-md-12 col-lg-6 popover-no-padding">
-                {% with w_title="Modifications" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+            {% ifhasright obj user 'DISPLAY_LOG' %}
+              <div class="col-sm-12 col-md-12 col-lg-6 popover-no-padding">
+                  {% with w_title="Modifications" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
-                    <div class="widget-body-toolbar"></div>
-                    <table id="log_list_table" class="table table-striped table-hover table-condensed">
-                        <thead>
-                            <tr>
-                                <th>{% trans "Quand" %}</th>
-                                <th>{% trans "Qui" %}</th>
-                                <th>{% trans "Quoi" %}</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for log_entry in log_entires %}
-                                <tr>
-                                    <td>{{log_entry.when|date:"y.m.d"}} {{log_entry.when|time:"H:i:s"}}</td>
-                                    <td>{{log_entry.who.get_full_name}}</td>
-                                    <td>{{log_entry.get_what_display}}</td>
-                                    <td>
-                                        {% if log_entry.what == 'edited' %}
-                                        <i class="fa fa-info" rel="popover-hover" data-html="true" data-placement="left" data-original-title="{% trans "Détails de la modification" %}" data-content="{% spaceless %}
-                                            <table class='table table-condensed table-striped'>
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                        <th>{% trans "Champ" %}</th>
-                                                        <th>{% trans "Avant" %}</th>
-                                                        <th>{% trans "Après" %}</th>
-                                                    </tr>
-                                                </thead>
+                      <div class="widget-body-toolbar"></div>
+                      <table id="log_list_table" class="table table-striped table-hover table-condensed">
+                          <thead>
+                              <tr>
+                                  <th>{% trans "Quand" %}</th>
+                                  <th>{% trans "Qui" %}</th>
+                                  <th>{% trans "Quoi" %}</th>
+                                  <th></th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for log_entry in log_entires %}
+                                  <tr>
+                                      <td>{{log_entry.when|date:"y.m.d"}} {{log_entry.when|time:"H:i:s"}}</td>
+                                      <td>{{log_entry.who.get_full_name}}</td>
+                                      <td>{{log_entry.get_what_display}}</td>
+                                      <td>
+                                          {% if log_entry.what == 'edited' %}
+                                          <i class="fa fa-info" rel="popover-hover" data-html="true" data-placement="left" data-original-title="{% trans "Détails de la modification" %}" data-content="{% spaceless %}
+                                              <table class='table table-condensed table-striped'>
+                                                  <thead>
+                                                      <tr>
+                                                          <th></th>
+                                                          <th>{% trans "Champ" %}</th>
+                                                          <th>{% trans "Avant" %}</th>
+                                                          <th>{% trans "Après" %}</th>
+                                                      </tr>
+                                                  </thead>
 
-                                                <tbody>
-                                                    {% for field, value in log_entry.json_extra_data.added.iteritems %}
-                                                        <tr class='success'><td><i class='fa fa-plus'></i></td><td>{{field}}</td><td>&nbsp;</td><td>{{value}}</td>
-                                                    {% endfor %}
-                                                    {% for field, value in log_entry.json_extra_data.edited.iteritems %}
-                                                        <tr class='warning'><td><i class='fa fa-asterisk'></i></td><td>{{field}}</td><td>{{value.0}}</td><td>{{value.1}}</td>
-                                                    {% endfor %}
-                                                    {% for field, value in log_entry.json_extra_data.deleted.iteritems %}
-                                                        <tr class='danger'><td><i class='fa fa-times'></i></td><td>{{field}}</td><td>{{value}}</td><td>&nbsp;</td>
-                                                    {% endfor %}
+                                                  <tbody>
+                                                      {% for field, value in log_entry.json_extra_data.added.iteritems %}
+                                                          <tr class='success'><td><i class='fa fa-plus'></i></td><td>{{field}}</td><td>&nbsp;</td><td>{{value}}</td>
+                                                      {% endfor %}
+                                                      {% for field, value in log_entry.json_extra_data.edited.iteritems %}
+                                                          <tr class='warning'><td><i class='fa fa-asterisk'></i></td><td>{{field}}</td><td>{{value.0}}</td><td>{{value.1}}</td>
+                                                      {% endfor %}
+                                                      {% for field, value in log_entry.json_extra_data.deleted.iteritems %}
+                                                          <tr class='danger'><td><i class='fa fa-times'></i></td><td>{{field}}</td><td>{{value}}</td><td>&nbsp;</td>
+                                                      {% endfor %}
 
-                                                </tbody>
+                                                  </tbody>
 
-                                            </table>
-                                            {% endspaceless %}"></i>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                              </table>
+                                              {% endspaceless %}"></i>
+                                          {% endif %}
+                                      </td>
+                                  </tr>
+                              {% endfor %}
+                          </tbody>
+                      </table>
 
-                {% with id="log_list_table" datatable_simple=True %}{% include "datatables.html" %}{% endwith %}
+                  {% with id="log_list_table" datatable_simple=True %}{% include "datatables.html" %}{% endwith %}
 
-                {% include "widget/footer.html" %}
-            </div>
+                  {% include "widget/footer.html" %}
+              </div>
+            {% endifhasright %}
 
               {% if rights %}
                 <div class="col-sm-12 col-md-12 col-lg-6">
@@ -111,14 +114,18 @@
           <i class="fa fa-list"></i>
           {% trans "Retourner sur la liste" %}
         </a>
-        <a href="{% url delete_view obj.pk %}" class="btn btn-danger">
-          <i class="fa fa-times"></i>
-          {% trans "Supprimer" %}
-        </a>
-        <a href="{% url edit_view obj.pk %}" class="btn btn-primary">
-          <i class="fa fa-pencil"></i>
-          {% trans "Modifier" %}
-        </a>
+        {% ifhasright obj user 'DELETE' %}
+          <a href="{% url delete_view obj.pk %}" class="btn btn-danger">
+            <i class="fa fa-times"></i>
+            {% trans "Supprimer" %}
+          </a>
+        {% endifhasright %}
+        {% ifhasright obj user 'EDIT' %}
+          <a href="{% url edit_view obj.pk %}" class="btn btn-primary">
+            <i class="fa fa-pencil"></i>
+            {% trans "Modifier" %}
+          </a>
+        {% endifhasright %}
 
     </div>
 

@@ -1,15 +1,16 @@
 {% extends "generic/datatables_json.html" %}
 {% load i18n %}
 {% load generic_extras %}
+{% load rights_extras %}
 
 {% block data %}
 [
     {% for elem in list %}
       [
       {% for field, __ in Model.MetaData.list_display %}
-        "{% if forloop.first %}<a href=\"{% url show_view elem.pk %}\">{% endif %}{{elem|get_attr:field|force_escape|escapejs}}{% if forloop.first %}</a>{% endif %}",
+        "{% if forloop.first %}{% ifhasright elem user 'SHOW' %}<a href=\"{% url show_view elem.pk %}\">{% endifhasright %}{% endif %}{{elem|get_attr:field|force_escape|escapejs}}{% if forloop.first %}{% ifhasright elem user 'SHOW' %}</a>{% endifhasright %}{% endif %}",
       {% endfor %}
-        "<a href=\"{% url delete_view elem.pk %}\" class=\"btn btn-xs btn-danger\"><i class=\"fa fa-times\"></i> {% trans "Supprimer" %}</a> <a href=\"{% url edit_view elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>"
+        "{% ifhasright elem user 'DELETE' %}<a href=\"{% url delete_view elem.pk %}\" class=\"btn btn-xs btn-danger\"><i class=\"fa fa-times\"></i> {% trans "Supprimer" %}</a>{% endifhasright %} {% ifhasright elem user 'EDIT' %}<a href=\"{% url edit_view elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endifhasright %}"
       ]{% if not forloop.last %},{% endif %}
     {% endfor %}
 ]

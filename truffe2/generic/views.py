@@ -25,6 +25,8 @@ from django.db.models import Max
 
 from generic.datatables import generic_list_json
 
+from rights.utils import BasicRightModel
+
 
 def generate_list(module, base_name, model_class):
 
@@ -35,8 +37,11 @@ def generate_list(module, base_name, model_class):
         edit_view = module.__name__ + '.views.' + base_name + '_edit'
         deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
 
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user):
+            raise Http404
+
         return render_to_response([module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
-            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view
+            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view,
         }, context_instance=RequestContext(request))
 
     return _generic_list
@@ -52,12 +57,16 @@ def generate_list_json(module, base_name, model_class):
         delete_view = module.__name__ + '.views.' + base_name + '_delete'
         logs_view = module.__name__ + '.views.' + base_name + '_logs'
 
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user):
+            raise Http404
+
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_json.html', 'generic/generic/list_json.html'],
             {'Model': model_class,
              'show_view': show_view,
              'edit_view': edit_view,
              'delete_view': delete_view,
-             'logs_view': logs_view},
+             'logs_view': logs_view
+            },
             True, model_class.MetaData.filter_fields
         )
 
@@ -74,8 +83,15 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
         try:
             obj = model_class.objects.get(pk=pk, deleted=False)
+
+            if isinstance(obj, BasicRightModel) and not obj.rights_can('EDIT', request.user):
+                raise Http404
+
         except (ValueError, model_class.DoesNotExist):
             obj = model_class()
+
+            if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
+                raise Http404
 
         if obj.pk:
             before_data = obj.build_state()
@@ -150,6 +166,9 @@ def generate_show(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
+        if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
+            raise Http404
+
         rights = []
 
         if hasattr(model_class, 'MetaRights'):
@@ -178,6 +197,9 @@ def generate_delete(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
+        if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
+            raise Http404
+
         if request.method == 'POST' and request.POST.get('do') == 'it':
             obj.deleted = True
             if hasattr(obj, 'delete_signal'):
@@ -204,8 +226,15 @@ def generate_deleted(module, base_name, model_class, log_class):
 
         list_view = module.__name__ + '.views.' + base_name + '_list'
 
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('RESTORE', request.user):
+            raise Http404
+
         if request.method == 'POST':
             obj = get_object_or_404(model_class, pk=request.POST.get('pk'), deleted=True)
+
+            if isinstance(obj, BasicRightModel) and not obj.rights_can('RESTORE', request.user):
+                raise Http404
+
             obj.deleted = False
             if hasattr(obj, 'restore_signal'):
                 obj.restore_signal()
