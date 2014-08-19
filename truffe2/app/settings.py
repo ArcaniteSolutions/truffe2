@@ -114,12 +114,15 @@ INSTALLED_APPS = (
     'south',
     'bootstrap3',
     'impersonate',
+    'multiselectfield',
 
     'main',
     'users',
     'units',
 
     'generic',
+
+
 
 )
 

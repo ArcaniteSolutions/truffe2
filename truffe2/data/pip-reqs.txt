@@ -1,4 +1,4 @@
-django==1.5.6
+django
 south
 raven
 django-bootstrap3
@@ -6,3 +6,4 @@ phonenumbers
 requests
 django-impersonate
 pytz
+git+https://github.com/goinnn/django-multiselectfield

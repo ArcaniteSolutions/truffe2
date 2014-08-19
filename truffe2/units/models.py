@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from users.models import TruffeUser
 
 import datetime
+from multiselectfield import MultiSelectField
+
 
 class _Unit(GenericModel):
 
@@ -84,8 +86,22 @@ class _Role(GenericModel):
     description = models.TextField(null=True, blank=True)
     ordre = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'acréditer la même personne dans la même unité plusieurs fois. Le role avec le plus PETIT ordre sera prit en compte'))
 
+    ACCESS_CHOICES = (
+        ('PRESIDENCE', ('Présidence')),
+        ('TRESORERIE', ('Trésorerie')),
+        ('COMMUNICATION', ('Communication')),
+        ('INFORMATIQUE', ('Informatique')),
+        ('LOGISTIQUE', ('Logistique')),
+        ('SECRETARIAT', ('Secrétariat'))
+    )
+
+    access = MultiSelectField(choices=ACCESS_CHOICES, blank=True, null=True)
+
     def __unicode__(self):
         return self.name
+
+    def get_access(self):
+        return ', '.join(self.access)
 
     class MetaData:
         list_display = [
@@ -99,6 +115,7 @@ class _Role(GenericModel):
             ('description', _('Description')),
             ('id_epfl', _('ID EPFL ?')),
             ('ordre', _(u'Ordre')),
+            ('get_access', _(u'Accès')),
         ]
 
         filter_fields = ('name', 'id_epfl', 'description')
