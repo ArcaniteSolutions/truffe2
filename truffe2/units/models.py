@@ -9,8 +9,14 @@ from users.models import TruffeUser
 import datetime
 from multiselectfield import MultiSelectField
 
+from rights.utils import AgepolyEditableModel
 
-class _Unit(GenericModel):
+
+class _Unit(GenericModel, AgepolyEditableModel):
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'INFORMATIQUE'
+        world_ro_access = False
 
     name = models.CharField(max_length=255)
     id_epfl = models.CharField(max_length=64, blank=True, null=True, help_text=_(u'Utilisé pour la syncronisation des accréditations'))
@@ -78,9 +84,25 @@ class _Unit(GenericModel):
         """Return the sub units, without groups or commissions"""
         return self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False).order_by('name')
 
+    def is_user_in_groupe(self, user, access=None):
+        for accreditation in self.accreditation_set.filter(user=user, end_date=None):
+            if accreditation.is_valid():
+                if not access or access in accreditation.role.access:
+                    return True
 
-class _Role(GenericModel):
+        if self.parent_herachique:
+            return self.parent_herachique.is_user_in_groupe(user, access)
+
+        return False
+
+
+class _Role(GenericModel, AgepolyEditableModel):
     """Un role, pour une accred"""
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'INFORMATIQUE'
+        world_ro_access = False
+
     name = models.CharField(max_length=255)
     id_epfl = models.CharField(max_length=255, null=True, blank=True, help_text=_(u'Mettre ici l\'ID accred du role pour la syncronisation EPFL'))
     description = models.TextField(null=True, blank=True)
@@ -130,7 +152,7 @@ class _Role(GenericModel):
 
 
 class Accreditation(models.Model):
-    unite = models.ForeignKey('Unit')
+    unit = models.ForeignKey('Unit')
     user = models.ForeignKey(TruffeUser)
     role = models.ForeignKey('Role')
 

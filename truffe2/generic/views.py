@@ -87,7 +87,6 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
             if form.is_valid():  # If the form is valid
 
-
                 obj = form.save()
 
                 messages.success(request, _(u'Élément sauvegardé !'))
@@ -151,11 +150,19 @@ def generate_show(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
+        rights = []
+
+        if hasattr(model_class, 'MetaRights'):
+
+            for key, info in model_class.MetaRights.rights.iteritems():
+                rights.append((key, info, obj.rights_can(key, request.user)))
+
         log_entires = log_class.objects.filter(object=obj).order_by('-when').all()
 
         return render_to_response([module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view,
-            'obj': obj, 'log_entires': log_entires
+            'obj': obj, 'log_entires': log_entires,
+            'rights': rights,
         }, context_instance=RequestContext(request))
 
     return _generic_show

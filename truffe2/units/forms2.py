@@ -11,7 +11,7 @@ class AccreditationAddForm(ModelForm):
 
     class Meta:
         model = Accreditation
-        exclude = ('start_date', 'end_date', 'validation_date', 'unite', 'user')
+        exclude = ('start_date', 'end_date', 'validation_date', 'unit', 'user')
 
     def __init__(self, current_user, *args, **kwargs):
         """"""

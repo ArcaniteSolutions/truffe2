@@ -85,6 +85,23 @@
 
                 {% include "widget/footer.html" %}
             </div>
+
+              {% if rights %}
+                <div class="col-sm-12 col-md-12 col-lg-6">
+                    {% with w_title="Droits" %}{% include "widget/header.html" %}{% endwith %}
+
+                        <dl class="dl-horizontal">
+                            {% for key, info, has_right in rights %}
+                                <dt>{{key}}</dt>
+                                <dd>{{info}}: {{has_right|yesno}}</dd>
+                            {% endfor %}
+                        </dl>
+
+                    {% include "widget/footer.html" %}
+                </div>
+              {% endif %}
+
+
         </div>
     </section>
 

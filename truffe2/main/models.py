@@ -4,8 +4,14 @@ from django.db import models
 from generic.models import GenericModel, GenericStateModel
 from django.utils.translation import ugettext_lazy as _
 
+from rights.utils import AgepolyEditableModel
 
-class _HomePageNews(GenericModel, GenericStateModel):
+
+class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'COMMUNICATION'
+        world_ro_access = False
 
     title = models.CharField(max_length=255)
     content = models.TextField()

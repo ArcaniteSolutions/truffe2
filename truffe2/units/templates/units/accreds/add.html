@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load bootstrap3 %}
 
-<form id="add-accred-form" method="POST" action="{% url 'units.views.accreds_add' %}?upk={{unite.pk}}">
+<form id="add-accred-form" method="POST" action="{% url 'units.views.accreds_add' %}?upk={{unit.pk}}">
   {% csrf_token %}
 
     <div class="modal-content">
@@ -21,7 +21,7 @@
                 <label>
                     {% trans "Unité" %}
                 </label>
-                <input disabled class="form-control" value="{{unite}}">
+                <input disabled class="form-control" value="{{unit}}">
                 <span class="help-block">
                     {% trans "Ferme cette fenêtre et utilise le sélecteur en haut à droite si tu veux changer d'unité" %}
                 </span>

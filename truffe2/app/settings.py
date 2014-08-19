@@ -119,10 +119,9 @@ INSTALLED_APPS = (
     'main',
     'users',
     'units',
+    'rights',
 
     'generic',
-
-
 
 )
 
@@ -190,6 +189,8 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
     "app.utils.add_current_unit")
 
 LDAP = 'ldap://ldap.epfl.ch:389'
+
+ROOT_UNIT_PK = 1
 
 try:
     from settingsLocal import *

@@ -49,7 +49,7 @@ def accreds_list_json(request):
     update_current_unit(request, request.GET.get('upk'))
 
     # Filter by unit
-    filter_ = lambda x: x.filter(unite=get_current_unit(request))
+    filter_ = lambda x: x.filter(unit=get_current_unit(request))
 
     # Filter old accreds, if needed
     if request.GET.get('h', '0') == '0':
@@ -95,7 +95,7 @@ def accreds_delete(request, pk):
 def accreds_add(request):
 
     update_current_unit(request, request.GET.get('upk'))
-    unite = get_current_unit(request)
+    unit = get_current_unit(request)
 
     from units.forms2 import AccreditationAddForm
 
@@ -107,7 +107,7 @@ def accreds_add(request):
         if form.is_valid():  # If the form is valid
             accred = form.save(commit=False)
 
-            accred.unite = unite
+            accred.unit = unit
 
             # Try to find the user. If he dosen't exists, create it.
             try:
@@ -133,7 +133,7 @@ def accreds_add(request):
     else:
         form = AccreditationAddForm(request.user)
 
-    return render_to_response('units/accreds/add.html', {'form': form, 'done': done, 'unite': unite}, context_instance=RequestContext(request))
+    return render_to_response('units/accreds/add.html', {'form': form, 'done': done, 'unit': unit}, context_instance=RequestContext(request))
 
 
 @login_required
