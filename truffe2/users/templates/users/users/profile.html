@@ -85,3 +85,5 @@
     </div>
 
 {% endblock %}
+
+{% block menuid %}{% if user_to_display.pk == user.pk %}menu-gens-monprofile{% else %}menu-gens-annuaire{% endif %}{% endblock %}

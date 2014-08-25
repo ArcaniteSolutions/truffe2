@@ -50,6 +50,8 @@ class _Unit(GenericModel, AgepolyEditableModel):
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-group'
 
+        menu_id = 'menu-units-units'
+
     class Meta:
         abstract = True
 
@@ -146,6 +148,8 @@ class _Role(GenericModel, AgepolyEditableModel):
         list_title = _(u'Liste de toutes les roles')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-group'
+
+        menu_id = 'menu-units-roles'
 
     class Meta:
         abstract = True

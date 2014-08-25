@@ -34,6 +34,8 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-bullhorn'
 
+        menu_id = 'menu-communication-homepagenews'
+
     class MetaEdit:
         date_time_fields = ('start_date', 'end_date')
 

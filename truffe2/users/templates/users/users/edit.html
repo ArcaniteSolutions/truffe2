@@ -63,3 +63,6 @@
       </script>
     </div>
 {% endblock %}
+
+
+{% block menuid %}{% if form.instance.pk == user.pk %}menu-gens-monprofile{% else %}menu-gens-annuaire{% endif %}{% endblock %}

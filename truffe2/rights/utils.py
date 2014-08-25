@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.conf import settings
 from django.core.cache import cache
+import inspect
 
 
 class ModelWithRight(object):
@@ -30,13 +31,13 @@ class ModelWithRight(object):
         if user.is_superuser:
             return True
 
-        cache_key = 'right_%s_%s_%s' % (self.pk or 'DUMMY', user.pk, right)
+        cache_key = 'right_%s.%s_%s_%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY', user.pk, right)
 
         cached_value = cache.get(cache_key)
 
         if cached_value is None:
             cached_value = getattr(self, 'rights_can_%s' % (right,))(user)
-            cache.set(cache_key, cached_value)
+            cache.set(cache_key, cached_value, 600)
 
         return cached_value
 

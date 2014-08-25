@@ -3,6 +3,9 @@ from django.template.base import Node, NodeList
 
 from rights.utils import BasicRightModel
 
+import importlib
+
+
 register = template.Library()
 
 
@@ -32,12 +35,16 @@ class IfHasRightNode(Node):
                 user = template.Variable(user).resolve(context)
                 right = template.Variable(right).resolve(context)
 
+                if isinstance(obj, basestring):
+                    new_obj = importlib.import_module('.'.join(obj.split('.')[:-1]))
+                    obj = getattr(new_obj, obj.split('.')[-1])
+
                 if isinstance(obj, BasicRightModel):
                     match = obj.rights_can(right, user)
                 elif hasattr(obj, 'static_rights_can'):
                     match = obj.static_rights_can(right, user)
                 else:
-                    match = True
+                    raise Exception("?", obj, " cannot be used for rights")
 
             else:
                 match = True
