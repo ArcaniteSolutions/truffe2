@@ -26,3 +26,10 @@ RAVEN_CONFIG = {
 ACTIVATE_RAVEN = True
 
 ALLOWED_HOSTS = ['truffe2.agepoly.ch', 'truffe.polylan.ch']
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}

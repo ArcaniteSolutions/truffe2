@@ -29,7 +29,7 @@
                         <dd>{{user_to_display.last_name}}</dd>
                         {% if user.is_superuser %}
                             <dt>{% trans "Est admin ?" %}</dt>
-                            <dd>{% with v=user.is_superuser %}{% include "yesorno.html" %}{% endwith %}</dd>
+                            <dd>{% with v=user_to_display.is_superuser %}{% include "yesorno.html" %}{% endwith %}</dd>
                         {% endif %}
                     </dl>
 

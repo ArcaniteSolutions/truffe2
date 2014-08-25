@@ -105,13 +105,19 @@ def configure_mysql():
 @task
 def install_python():
     """Install python and python deps"""
-    sudo('apt-get install -y python-crypto python-mysqldb python-imaging python-pip python python-dev python-ldap')
+    sudo('apt-get install -y python-crypto python-mysqldb python-imaging python-pip python python-dev python-ldap python-memcache')
 
 
 @task
 def install_git():
     """Install git"""
     sudo('apt-get install -y git')
+
+
+@task
+def install_memcache():
+    """Install git"""
+    sudo('apt-get install -y memcached')
 
 
 @task
@@ -228,6 +234,8 @@ def deploy_new():
 
     execute(install_git)
     execute(clone_repo)
+
+    execute(install_memcache)
 
     execute(install_python)
     execute(install_pip_dep)
