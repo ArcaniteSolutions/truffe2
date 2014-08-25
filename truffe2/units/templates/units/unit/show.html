@@ -1,0 +1,23 @@
+{% extends "generic/generic/show.html" %}
+{% load i18n %}
+
+{% block bonus_box %}
+
+<div class="col-sm-12 col-md-12 col-lg-6">
+    {% with w_title="Personnes accédités" %}{% include "widget/header.html" %}{% endwith %}
+
+        <dl class="dl-horizontal">
+            {% for accred in obj.current_accreds %}
+                <dt>{{accred.user.get_full_name}}</dt>
+                <dd>{{accred.role}} {% trans "depuis le" %} {{accred.start_date|date:"Y/m/d"}}</dd>
+            {% endfor %}
+        </dl>
+
+        <a href="{% url 'units.views.accreds_list' %}?upk={{obj.pk}}" class="btn btn-primary pull-right"><i class="fa fa-key"></i> {% trans "Page d'accrédiation" %}</a>
+        <br />
+        <br />
+
+    {% include "widget/footer.html" %}
+</div>
+
+{% endblock %}

@@ -151,6 +151,9 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
         return (True, None)
 
+    def current_accreds(self):
+        return self.accreditation_set.filter(end_date=None).order_by('role__ordre', 'user__first_name', 'user__last_name')
+
 
 class _Role(GenericModel, AgepolyEditableModel):
     """Un role, pour une accred"""
