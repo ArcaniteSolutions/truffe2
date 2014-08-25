@@ -21,7 +21,18 @@
                     <dl class="dl-horizontal">
                         {% for elem, title in Model.MetaData.details_display %}
                             <dt>{{title}}</dt>
-                            <dd>{{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}</dd>
+                            <dd>
+                            {% if elem in Model.MetaData.yes_or_no_fields %}
+                              {% with val=obj|get_attr:elem %}{% include "generic/yesorno.html" %}{% endwith %}
+                            {% else %}
+                              {% if elem in Model.MetaData.datetime_fields %}
+                                  {{obj|get_attr:elem|date:"Y.m.d"}} {{obj|get_attr:elem|time:"H:i:s"|default:"&nbsp;"}}
+                              {% else %}
+                                  {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
+                              {% endif %}
+
+                            {% endif %}
+                            </dd>
                         {% endfor %}
                     </dl>
 
@@ -96,7 +107,7 @@
                         <dl class="dl-horizontal">
                             {% for key, info, has_right in rights %}
                                 <dt>{{key}}</dt>
-                                <dd>{{info}}: {{has_right|yesno}}</dd>
+                                <dd>{{info}}: {% with val=has_right %}{% include "generic/yesorno.html" %}{% endwith %}</dd>
                             {% endfor %}
                         </dl>
 

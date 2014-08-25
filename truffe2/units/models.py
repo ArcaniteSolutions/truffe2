@@ -9,7 +9,9 @@ from users.models import TruffeUser
 import datetime
 from multiselectfield import MultiSelectField
 
-from rights.utils import AgepolyEditableModel
+from rights.utils import AgepolyEditableModel, UnitEditableModel
+
+from django.conf import settings
 
 
 class _Unit(GenericModel, AgepolyEditableModel):
@@ -33,15 +35,19 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('parent_herachique', _('Parent'))
+            ('parent_herachique', _('Parent')),
+            ('president', _('President'))
         ]
 
         details_display = [
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('parent_herachique', _('Parent'))
+            ('parent_herachique', _('Parent')),
+            ('president', _('President'))
         ]
+
+        yes_or_no_fields = ['is_commission', 'is_equipe']
 
         filter_fields = ('name', )
 
@@ -57,6 +63,30 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
     def __unicode__(self):
         return self.name
+
+    def rights_can_select(self):
+        """Return true if the unit can be selected in the selector menu"""
+        return True
+
+    _rights_can_select = lambda unit: True
+
+    def set_rights_can_select(self, f):
+        def __tmp():
+            return f(self)
+        self.rights_can_select = __tmp
+        self._rights_can_select = f
+
+    def rights_can_edit(self):
+        """Return true if the user has edit right"""
+        return True
+
+    _rights_can_edit = lambda unit: True
+
+    def set_rights_can_edit(self, f):
+        def __tmp():
+            return f(self)
+        self.rights_can_edit = __tmp
+        self._rights_can_edit = f
 
     def has_sub(self):
         """Return true if the unit has subunits"""
@@ -76,17 +106,31 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
     def sub_com(self):
         """Return the sub units, but only commissions"""
-        return self.unit_set.filter(is_commission=True).filter(deleted=False).order_by('name')
+        retour = []
+        for unit in self.unit_set.filter(is_commission=True).filter(deleted=False).order_by('name'):
+            unit.set_rights_can_select(self._rights_can_select)
+            unit.set_rights_can_edit(self._rights_can_edit)
+            retour.append(unit)
+        return retour
 
     def sub_eqi(self):
         """Return the sub units, but only groups"""
-        return self.unit_set.exclude(is_commission=True).filter(is_equipe=True).filter(deleted=False).order_by('name')
+        retour = []
+        for unit in self.unit_set.exclude(is_commission=True).filter(is_equipe=True).filter(deleted=False).order_by('name'):
+            unit.set_rights_can_select(self._rights_can_select)
+            retour.append(unit)
+        return retour
 
     def sub_grp(self):
         """Return the sub units, without groups or commissions"""
-        return self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False).order_by('name')
+        retour = []
+        for unit in self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False).order_by('name'):
+            unit.set_rights_can_select(self._rights_can_select)
+            retour.append(unit)
+        return retour
 
     def is_user_in_groupe(self, user, access=None):
+
         for accreditation in self.accreditation_set.filter(user=user, end_date=None):
             if accreditation.is_valid():
                 if not access or access in accreditation.role.access:
@@ -94,8 +138,18 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
         if self.parent_herachique:
             return self.parent_herachique.is_user_in_groupe(user, access)
-
         return False
+
+    @property
+    def president(self):
+        return ', '.join([u.user.get_full_name() for u in list(self.accreditation_set.filter(end_date=None, role__pk=settings.PRESIDENT_ROLE_PK))])
+
+    def can_delete(self):
+
+        if self.accreditation_set.count():
+            return (False, _(u'Au moins une accéditation existe avec cette unité, impossible de supprimer l\'unité (NB: Historique compris).'))
+
+        return (True, None)
 
 
 class _Role(GenericModel, AgepolyEditableModel):
@@ -154,8 +208,15 @@ class _Role(GenericModel, AgepolyEditableModel):
     class Meta:
         abstract = True
 
+    def can_delete(self):
 
-class Accreditation(models.Model):
+        if self.accreditation_set.count():
+            return (False, _(u'Au moins une accéditation existe avec ce role, impossible de supprimer le role (NB: Historique compris)'))
+
+        return (True, None)
+
+
+class Accreditation(models.Model, UnitEditableModel):
     unit = models.ForeignKey('Unit')
     user = models.ForeignKey(TruffeUser)
     role = models.ForeignKey('Role')
@@ -167,6 +228,20 @@ class Accreditation(models.Model):
     display_name = models.CharField(max_length=255, blank=True, null=True, help_text=_(u'Le nom a afficher dans truffe. Peut être utilisé pour préciser la fonction'))
 
     no_epfl_sync = models.BooleanField(default=False, help_text=_(u'Checker cette coche pour ne pas sycroniser cette accrédiation au niveau EPFL'))
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        unit_ro_access = True
+        access = 'INFORMATIQUE'
+
+    class MetaRights(UnitEditableModel.MetaRights):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super(Accreditation, self).__init__(*args, **kwargs)
+
+        self.MetaRights.rights_update({
+            'INGORE_PREZ': _(u'Peut supprimer le dernier président'),
+        })
 
     def exp_date(self):
         """Returne la date d'expiration de l'accred"""
@@ -180,3 +255,6 @@ class Accreditation(models.Model):
         if self.display_name:
             return str(self.role) + " (" + self.display_name + ")"
         return str(self.role)
+
+    def rights_can_INGORE_PREZ(self, user):
+        return self.rights_in_root_unit(user, self.MetaRightsUnit.access)

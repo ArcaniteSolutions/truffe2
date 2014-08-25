@@ -22,17 +22,26 @@
             {% csrf_token %}
             <input type="hidden" name="do" value="it">
 
-            <div class="alert alert-block alert-warning">
-                <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'accrédiation de" %} {{accred.user.get_full_name}} {% trans "dans l'unité" %} {{accred.unite}}</h4>
+            {% if cannot_last_prez %}
+                <div class="alert alert-block alert-danger">
+                <h4 class="alert-heading">{% trans "Impossible de supprimer l'accrédiation de" %} {{accred.user.get_full_name}} {% trans "dans l'unité" %} {{accred.unit}}</h4>
 
-                {% trans "Êtes vous sur de vouloir faire ça ?" %}
-            </div>
+                  {% trans "Il faut au moins un président accrédité !" %}
+              </div>
+            {% else %}
+            
+              <div class="alert alert-block alert-warning">
+                  <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'accrédiation de" %} {{accred.user.get_full_name}} {% trans "dans l'unité" %} {{accred.unit}}</h4>
+
+                  {% trans "Êtes vous sur de vouloir faire ça ?" %}
+              </div>
+            {% endif %}
 
             <div class="form-actions">
                 <div class="row">
                     <div class="col-md-12">
                         <a href="{% url "units.views.accreds_list" %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
-                        <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>
+                        {% if not cannot_last_prez %}<button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>{% endif %}
                     </div>
                 </div>
             </div>

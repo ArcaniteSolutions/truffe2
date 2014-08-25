@@ -2,17 +2,19 @@
 
 {% with template_name="units/selector/menu_unit.html" %}
     {% if not c_unit.has_sub %}
-        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}');">{{c_unit}}</a></li>
+    <li role="presentation">
+        <a role="menuitem" tabindex="-1" href="#" id="unit-selector-{{c_unit.pk}}" {% if c_unit.rights_can_select %}onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}', {{c_unit.rights_can_edit|yesno:"true,false"}});" class="unit-displayed"{% else %}class="unit-hidden"{% endif %}>{% if not c_unit.rights_can_select %}<strike>{% endif %}{{c_unit}}{% if not c_unit.rights_can_select %}</strike>{% endif %}</a>
+    </li>
     {% else %}
         <li class="dropdown-submenu dropdown-submenu-right">
 
-        <a role="menuitem" tabindex="-1" href="#" onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}');">{{c_unit}}</a>
+            <a role="menuitem" tabindex="-1" href="#" id="unit-selector-{{c_unit.pk}}" {% if c_unit.rights_can_select %}onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}', {{c_unit.rights_can_edit|yesno:"true,false"}});" class="unit-displayed"{% else %}class="unit-hidden"{% endif %}>{% if not c_unit.rights_can_select %}<strike>{% endif %}{{c_unit}}{% if not c_unit.rights_can_select %}</strike>{% endif %}</a>
 
             <ul class="dropdown-menu">
                 {% if c_unit.sub_com %}
                     {% if not c_unit.only_one_sub_type %}
                         <li class="dropdown-submenu dropdown-submenu-right">
-                            <a tabindex="-1" href="#"><i>{% trans "Commissions" %}</i></a>
+                            <a tabindex="-1" href="#" class="sub-title-menu"><i>{% trans "Commissions" %}</i></a>
                             <ul class="dropdown-menu">
                     {% endif %}
                                     {% for unit in c_unit.sub_com %}
@@ -28,7 +30,7 @@
                 {% if c_unit.sub_eqi %}
                         {% if not c_unit.only_one_sub_type %}
                             <li class="dropdown-submenu dropdown-submenu-right">
-                                <a tabindex="-1" href="#"><i>{% trans "Équipes" %}</i></a>
+                                <a tabindex="-1" href="#" class="sub-title-menu"><i>{% trans "Équipes" %}</i></a>
                                 <ul class="dropdown-menu">
                         {% endif %}
                                     {% for unit in c_unit.sub_eqi %}
@@ -44,7 +46,7 @@
                 {% if c_unit.sub_grp %}
                     {% if not c_unit.only_one_sub_type %}
                         <li class="dropdown-submenu dropdown-submenu-right">
-                        <a tabindex="-1" href="#"><i>{% trans "Unités" %}</i></a>
+                        <a tabindex="-1" href="#" class="sub-title-menu"><i>{% trans "Unités" %}</i></a>
                             <ul class="dropdown-menu">
                     {% endif %}
                                     {% for unit in c_unit.sub_grp %}

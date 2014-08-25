@@ -179,7 +179,7 @@
                         <li>
                             <a href="#"><i class="fa fa-lg fa-fw fa-legal"></i> <span class="menu-item-parent">{% trans "Admin" %}</span></a>
                             <ul>
-                                <li>
+                                <li id="menu-impersonate">
                                     {% if not user.is_impersonate %}
                                         <a href="{% url 'impersonate-search' %}"><i class="fa fa-lg fa-fw fa-male"></i> {% trans "Impersonate" %}</a>
                                     {% else %}
@@ -223,9 +223,11 @@
                                     <a href="{% url 'units.views.role_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Roles" %}</a>
                                 </li>
                             {% endifhasright %}
-                            <li>
-                                <a href="{% url 'units.views.accreds_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Accréditations" %}</a>
-                            </li>
+                            {% ifhasright 'units.models.Accreditation' user 'LIST' %}
+                                <li id="menu-units-accreds">
+                                    <a href="{% url 'units.views.accreds_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Accréditations" %}</a>
+                                </li>
+                            {% endifhasright %}
                         </ul>
                     </li>
                 </ul>

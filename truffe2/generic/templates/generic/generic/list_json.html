@@ -8,7 +8,24 @@
     {% for elem in list %}
       [
       {% for field, __ in Model.MetaData.list_display %}
-        "{% if forloop.first %}{% ifhasright elem user 'SHOW' %}<a href=\"{% url show_view elem.pk %}\">{% endifhasright %}{% endif %}{{elem|get_attr:field|force_escape|escapejs}}{% if forloop.first %}{% ifhasright elem user 'SHOW' %}</a>{% endifhasright %}{% endif %}",
+      "{% nocrlf %}
+        {% if forloop.first %}
+            {% ifhasright elem user 'SHOW' %}
+                <a href=\"{% url show_view elem.pk %}\">
+            {% endifhasright %}
+        {% endif %}
+        {% if field in Model.MetaData.yes_or_no_fields %}
+            {% with val=elem|get_attr:field %}{% include "generic/yesorno.html" %}{% endwith %}
+        {% else %}
+            {% if field in Model.MetaData.datetime_fields %}
+                {{elem|get_attr:field|date:"Y.m.d"|force_escape|escapejs}} {{elem|get_attr:field|time:"H:i:s"|force_escape|escapejs}}
+            {% else %}
+                {{elem|get_attr:field|force_escape|escapejs}}
+            {% endif %}
+        {% endif %}
+        {% if forloop.first %}
+            {% ifhasright elem user 'SHOW' %}</a>{% endifhasright %}
+        {% endif %}{% endnocrlf %}",
       {% endfor %}
         "{% ifhasright elem user 'DELETE' %}<a href=\"{% url delete_view elem.pk %}\" class=\"btn btn-xs btn-danger\"><i class=\"fa fa-times\"></i> {% trans "Supprimer" %}</a>{% endifhasright %} {% ifhasright elem user 'EDIT' %}<a href=\"{% url edit_view elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endifhasright %}"
       ]{% if not forloop.last %},{% endif %}

@@ -51,10 +51,16 @@
         data_table_main_list_table._fnAjaxUpdate();
       }
 
-      function unit_updated() {
+      function unit_updated(pk, name, can_edit) {
           $('#add-accred-button').attr('data-remote', $('#add-accred-button').attr('base-data-remote') + $('.cgroupe').attr("pk"));
           refresh_list();
-                }
+
+          if (can_edit) {
+            $('#add-accred-button').show();
+          } else {
+            $('#add-accred-button').hide();
+          }
+      }
 
       function disp_add() {
         //Allow usage of select2
@@ -65,16 +71,15 @@
 
       }
 
-
       $('#myonoffswitchaccredlist').on('click', function() { refresh_list(); });
 
       function accred_extra_data() {
         return "&h=" + ($('#myonoffswitchaccredlist').is(":checked") ? 1 : 0);
       }
+
     </script>
 
     {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" %}{% include "datatables.html" %}{% endwith %}
-
 
     <div style="float: right;">
 
@@ -90,5 +95,14 @@
         </div>
       </div>
     </div>
+
+    <script type="text/javascript">
+      {% if not can_edit %}
+          $('#add-accred-button').hide();
+      {% endif %}
+    </script>
   
   {% endblock %}
+
+
+{% block menuid %}menu-units-accreds{% endblock %}

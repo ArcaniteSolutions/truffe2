@@ -200,7 +200,13 @@ def generate_delete(module, base_name, model_class, log_class):
         if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
             raise Http404
 
-        if request.method == 'POST' and request.POST.get('do') == 'it':
+        can_delete = True
+        can_delete_message = ''
+
+        if hasattr(obj, 'can_delete'):
+            (can_delete, can_delete_message) = obj.can_delete()
+
+        if can_delete and request.method == 'POST' and request.POST.get('do') == 'it':
             obj.deleted = True
             if hasattr(obj, 'delete_signal'):
                 obj.delete_signal()
@@ -213,7 +219,7 @@ def generate_delete(module, base_name, model_class, log_class):
 
         return render_to_response([module.__name__ + '/' + base_name + '/delete.html', 'generic/generic/delete.html'], {
             'Model': model_class, 'show_view': show_view, 'list_view': list_view,
-            'obj': obj
+            'obj': obj, 'can_delete': can_delete, 'can_delete_message': can_delete_message,
         }, context_instance=RequestContext(request))
 
     return _generic_delete

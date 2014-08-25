@@ -35,9 +35,17 @@ def accreds_list(request):
 
     from units.models import Unit
 
-    main_unit = Unit.objects.get(pk=1)
+    main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-    return render_to_response('units/accreds/list.html', {'main_unit': main_unit}, context_instance=RequestContext(request))
+    main_unit.set_rights_can_select(lambda unit: Accreditation.static_rights_can('LIST', request.user, unit))
+    main_unit.set_rights_can_edit(lambda unit: Accreditation.static_rights_can('CREATE', request.user, unit))
+
+    if request.GET.get('upk'):
+        update_current_unit(request, request.GET.get('upk'))
+
+    can_edit = Accreditation.static_rights_can('CREATE', request.user, get_current_unit(request))
+
+    return render_to_response('units/accreds/list.html', {'main_unit': main_unit, 'can_edit': can_edit}, context_instance=RequestContext(request))
 
 
 @login_required
@@ -48,8 +56,15 @@ def accreds_list_json(request):
     # Update current unit
     update_current_unit(request, request.GET.get('upk'))
 
+    unit = get_current_unit(request)
+
+
+    # Check unit access
+    if not Accreditation.static_rights_can('SHOW', request.user, unit):
+        raise Http404
+
     # Filter by unit
-    filter_ = lambda x: x.filter(unit=get_current_unit(request))
+    filter_ = lambda x: x.filter(unit=unit)
 
     # Filter old accreds, if needed
     if request.GET.get('h', '0') == '0':
@@ -66,6 +81,9 @@ def accreds_renew(request, pk):
 
     accred = get_object_or_404(Accreditation, pk=pk)
 
+    if not accred.rights_can('EDIT', request.user):
+        raise Http404
+
     accred.validation_date = now()
     accred.save()
 
@@ -80,7 +98,15 @@ def accreds_delete(request, pk):
 
     accred = get_object_or_404(Accreditation, pk=pk)
 
-    if request.method == 'POST':
+    if not accred.rights_can('DELETE', request.user):
+        raise Http404
+
+    cannot_last_prez = False
+
+    if accred.role.pk == settings.PRESIDENT_ROLE_PK and not accred.rights_can('INGORE_PREZ', request.user) and accred.unit.accreditation_set.filter(role__pk=settings.PRESIDENT_ROLE_PK, end_date=None).count() <= 1:
+        cannot_last_prez = True
+
+    if not cannot_last_prez and request.method == 'POST':
         accred.end_date = now()
         accred.save()
 
@@ -88,7 +114,7 @@ def accreds_delete(request, pk):
 
         return redirect('units.views.accreds_list')
 
-    return render_to_response('units/accreds/delete.html', {'accred': accred}, context_instance=RequestContext(request))
+    return render_to_response('units/accreds/delete.html', {'accred': accred, 'cannot_last_prez': cannot_last_prez}, context_instance=RequestContext(request))
 
 
 @login_required
@@ -96,6 +122,9 @@ def accreds_add(request):
 
     update_current_unit(request, request.GET.get('upk'))
     unit = get_current_unit(request)
+
+    if not Accreditation.static_rights_can('CREATE', request.user, unit):
+        raise Http404
 
     from units.forms2 import AccreditationAddForm
 

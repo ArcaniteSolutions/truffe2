@@ -36,6 +36,8 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
 
         menu_id = 'menu-communication-homepagenews'
 
+        datetime_fields = ['start_date', 'end_date']
+
     class MetaEdit:
         date_time_fields = ('start_date', 'end_date')
 

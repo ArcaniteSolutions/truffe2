@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Impersonate" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><i class="fa fa-user"></i> {% trans "Impersonate" %}</li>
+  {% endblock %}
+
+{% block content %}
+
+<h1>Search Users {% if query %}- Page {{ page_number }}{% endif %}</h1>
+
+<form action="{% url 'impersonate-search' %}" method="GET">
+Enter Search Query:<br />
+<input type="text" name="q" value="{% if query %}{{ query }}{% endif %}"><br />
+{{redirect_field}}
+<input type="submit" value="Search"><br />
+</form>
+{% if query and page.object_list %}
+  <ul>
+    {% for user in page.object_list %}
+      <li><a href="{% url 'impersonate-start' user.id %}{{redirect}}">{{ user }} {{user.get_full_name}}</a> - Impersonate</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if query and page.has_previous %}
+<a href="?page={{ page.previous_page_number }}&q={{ query|urlencode }}">Previous Page</a> &nbsp; 
+{% endif %}
+
+{% if query and page.has_next %}
+<a href="?page={{ page.next_page_number }}&q={{ query|urlencode }}">Next Page</a> &nbsp; 
+{% endif %}
+
+{% endblock %}
+
+
+{% block menuid %}menu-impersonate{% endblock %}

@@ -111,4 +111,12 @@ class UserPrivacy(models.Model):
         if user_reader == user_readed or user_reader.is_superuser:
             return True
         else:
-            return level == 'public'  # Todo: Implement corectly
+            if level == 'public':
+                return True
+            if level == 'prive':
+                return False
+            if level == 'member':
+                return user_reader.accreditation_set.filter(end_date=None).count() > 0
+            if level == 'groupe':
+                my_groups = [a.unit.pk for a in list(user_readed.accreditation_set.filter(end_date=None))]
+                return user_reader.accreditation_set.filter(end_date=None, unit__pk__in=my_groups).count() > 0

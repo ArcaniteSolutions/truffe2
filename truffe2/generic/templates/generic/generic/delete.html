@@ -16,30 +16,47 @@
 
 {% block content %}
 
-    <h1>{{obj}}</h1>
+  <h1>{{obj}}</h1>
   <div class="row">
     <div class="col-sm-12 col-md-12 col-lg-7">
       <div class="well">
-          <form class="form-horizontal" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="do" value="it">
+          {% if can_delete %}
+            <form class="form-horizontal" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="do" value="it">
 
-            <div class="alert alert-block alert-warning">
-                <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'objet" %} "{{obj}}" ({{Model.MetaData.base_title}})</h4>
+                <div class="alert alert-block alert-warning">
+                    <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'objet" %} "{{obj}}" ({{Model.MetaData.base_title}})</h4>
 
-                {% trans "Êtes vous sur de vouloir faire ça ?" %}
-            </div>
+                    {% trans "Êtes vous sur de vouloir faire ça ?" %}
+                </div>
 
-            <div class="form-actions">
-                <div class="row">
-                    <div class="col-md-12">
-                        <a href="{% url list_view %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
-                        <a href="{% url show_view obj.pk %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
-                        <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>
+                <div class="form-actions">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="{% url list_view %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
+                            <a href="{% url show_view obj.pk %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
+                            <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+          {% else %}
+              <div class="alert alert-block alert-danger">
+                  <h4 class="alert-heading">{% trans "Impossible de supprimer l'objet" %} "{{obj}}" ({{Model.MetaData.base_title}})</h4>
+                  {% trans can_delete_message %}
+
+              </div>
+                <div class="form-actions">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="{% url list_view %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
+                            <a href="{% url show_view obj.pk %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
+                        </div>
+                    </div>
+                </div>
+
+          {% endif %}
       </div>
     </div>
 </div>
