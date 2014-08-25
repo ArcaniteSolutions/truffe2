@@ -341,10 +341,12 @@
         </script>
 
         <script type="text/javascript">
-            var CURRENT_MENU = '{% block menuid %}{% endblock %}';
+            $(document).ready(function() {
+                var CURRENT_MENU = '{% block menuid %}{% endblock %}';
 
-            if (CURRENT_MENU != '')
-                activate_menu(CURRENT_MENU);
+                if (CURRENT_MENU != '')
+                    activate_menu(CURRENT_MENU);
+            });
 
         </script>
 
