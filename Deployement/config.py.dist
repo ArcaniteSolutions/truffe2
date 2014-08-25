@@ -5,3 +5,5 @@ RABBITMQ_PASSWORD = ''
 MYSQL_PASSWORD = ''
 
 RAVEN_DSN = ''
+
+HOST = 'root@agepoly.ch:12222'

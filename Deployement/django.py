@@ -105,7 +105,7 @@ def configure_mysql():
 @task
 def install_python():
     """Install python and python deps"""
-    sudo('apt-get install -y python-crypto python-mysqldb python-imaging python-pip python python-dev')
+    sudo('apt-get install -y python-crypto python-mysqldb python-imaging python-pip python python-dev python-ldap')
 
 
 @task
