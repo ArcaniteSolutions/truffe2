@@ -1,3 +1,4 @@
+from django.conf import settings
 
 def add_current_unit(request):
     """Template context processor to add current unit"""
@@ -15,7 +16,10 @@ def get_current_unit(request):
     try:
         current_unit = Unit.objects.get(pk=current_unit_pk)
     except Unit.DoesNotExist:
-        current_unit = Unit.objects.get(pk=1)
+        try:
+            current_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
+        except:
+            current_unit = None
 
     return current_unit
 
