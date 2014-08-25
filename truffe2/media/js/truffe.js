@@ -14,17 +14,21 @@ $('.minifyme, #hide-menu >:first-child > a').click(function(e) {
     setTimeout(update_body_class, 100);
 });
 
-
 //Hide useless menus
-$('nav > ul > li > ul').each(function(__, elem) {
+$(document).ready(function() {
 
-    if ($(elem).children().length === 0) {
-        $(elem).parent().hide();
-    }
+    $('nav > ul > li > ul').each(function(__, elem) {
 
+        if ($(elem).children().length === 0) {
+            $(elem).parent().hide();
+        }
+
+    });
 });
 
 function activate_menu(id) {
     $('#' + id).addClass('active');
-    $('#' + id).parent().parent().addClass('open').addClass('active');
+    $('#' + id).parent().parent().children('a').click();
+    console.log($('#' + id).parent().parent());
+//.addClass('open').addClass('active');
 }

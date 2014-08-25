@@ -319,8 +319,14 @@
 
 
         <script type="text/javascript">
-        // DO NOT REMOVE : GLOBAL FUNCTIONS!
+
+        var CURRENT_MENU = '{% block menuid %}{% endblock %}';
+
         $(document).ready(function() {
+
+            if (CURRENT_MENU != '')
+                activate_menu(CURRENT_MENU);
+
             pageSetUp();
 
             {% if messages %}
@@ -337,16 +343,6 @@
 
             {% endif %}
         })
-
-        </script>
-
-        <script type="text/javascript">
-            $(document).ready(function() {
-                var CURRENT_MENU = '{% block menuid %}{% endblock %}';
-
-                if (CURRENT_MENU != '')
-                    activate_menu(CURRENT_MENU);
-            });
 
         </script>
 
