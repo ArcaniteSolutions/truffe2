@@ -44,6 +44,8 @@ def login(request):
 def users_list(request):
     """Display the list of users"""
 
+    print request.user.get_roles()
+
     return render_to_response('users/users/list.html', {}, context_instance=RequestContext(request))
 
 

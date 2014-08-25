@@ -74,6 +74,15 @@ EMAIL;INTERNET:%s
 
         return retour
 
+    def get_roles(self):
+        return ', '.join(['%s: %s' % (x.unit, x.role,) for x in list(self.active_accreds())])
+
+    def active_accreds(self):
+        return self.accreditation_set.filter(end_date=None).order_by('unit__name', 'role__ordre')
+
+    def old_accreds(self):
+        return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__ordre')
+
 
 class UserPrivacy(models.Model):
     user = models.ForeignKey(TruffeUser)
