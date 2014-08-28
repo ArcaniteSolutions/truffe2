@@ -6,4 +6,10 @@
 {% block content %}
   <h1>{% trans "Bienvenue !" %}</h1>
 
+   <section id="widget-grid" class="">
+        <div class="row">
+          {% include "main/box/news.html" %}
+        </div>
+  </section>
+
 {% endblock %}

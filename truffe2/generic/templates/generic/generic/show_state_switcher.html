@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load generic_extras %}
+
+<div class="btn-group" id="status_switcher">
+    <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+        {% trans "Modifier" %} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        {% for id, text in obj.MetaState.states.iteritems %}
+            <li x-display="{% switchable obj user id %}">
+            <a href="#" onclick="disp_switch('{{id}}'); return false;"><span class="label label-{{obj.MetaState.states_colors|get_attr:id}}">{{text}}</span> <small>{{obj.MetaState.states_texts|get_attr:id}}</small></a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $('#status_switcher li[x-display="false"]').remove();
+
+    if ($('#status_switcher li').length == 0) {
+        $('#status_switcher').remove();
+    }
+
+</script>

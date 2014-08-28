@@ -24,3 +24,69 @@
   left: -100% !important;
   margin-left: 2px !important;
 }
+
+
+.states-box {
+  height: 200px;
+}
+
+.states-box svg {
+  background-color: #FFF;
+  cursor: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.states-box svg:not(.active):not(.ctrl) {
+}
+
+.states-box path.link {
+  fill: none;
+  stroke: #999;
+  stroke-width: 4px;
+}
+
+.states-box svg:not(.active):not(.ctrl) path.link {
+}
+
+.states-box path.link.selected {
+  stroke-dasharray: 10,2;
+}
+
+.states-box path.link.dragline {
+  pointer-events: none;
+}
+
+.states-box path.link.hidden {
+  stroke-width: 0;
+}
+
+.states-box circle.node {
+  stroke-width: 1.5px;
+}
+
+.states-box circle.node.switchable {
+  cursor: pointer;
+}
+
+.states-box circle.node.active {
+  stroke: #000 !important;
+  stroke-width: 2.5px;
+}
+
+.states-box text {
+  font: 12px sans-serif;
+  pointer-events: none;
+}
+
+.states-box text.id {
+  /* text-anchor: middle; */
+}
+.states-box text.active {
+  font-weight: bold;
+}
+
+

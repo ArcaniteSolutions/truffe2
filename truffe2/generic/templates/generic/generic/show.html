@@ -28,7 +28,12 @@
                               {% if elem in Model.MetaData.datetime_fields %}
                                   {{obj|get_attr:elem|date:"Y.m.d"}} {{obj|get_attr:elem|time:"H:i:s"|default:"&nbsp;"}}
                               {% else %}
-                                  {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
+                                  {% if elem == 'status' and obj.MetaState.states %}
+                                    <span class="label label-{{obj.status_color}}"><i class="{{obj.status_icon}}"></i> {{obj.get_status_display}}</span>
+                                    {% include "generic/generic/show_state_switcher.html" %}
+                                  {% else %}
+                                    {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
+                                  {% endif %}
                               {% endif %}
 
                             {% endif %}
@@ -88,6 +93,14 @@
                                               </table>
                                               {% endspaceless %}"></i>
                                           {% endif %}
+                                          {% if log_entry.what == 'state_changed' %}
+                                          <i class="fa fa-info" rel="popover-hover" data-html="true" data-placement="left" data-original-title="{% trans "Détails de la modification" %}" data-content="{% spaceless %}
+                                            <p style='padding: 5px;'>
+                                              {% trans "Passé de " %} {{log_entry.json_extra_data.old}} {% trans "à" %} {{log_entry.json_extra_data.new}}
+                                            </p>
+                                              {% endspaceless %}"></i>
+                                          {% endif %}
+
                                       </td>
                                   </tr>
                               {% endfor %}
@@ -113,6 +126,10 @@
 
                     {% include "widget/footer.html" %}
                 </div>
+              {% endif %}
+
+              {% if obj.MetaState.states %}
+                    {% include "generic/generic/show_states.html" %}
               {% endif %}
 
               {% block bonus_box %}{% endblock %}

@@ -98,6 +98,12 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
                 )
 
+            if issubclass(model_class, GenericStateModel):
+                setattr(views_module, base_views_name + '_switch_status', views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/switch_status$', base_views_name + '_switch_status'),
+                )
+
     def build_state(self):
         """Return the current state of the object. Used for diffs."""
         retour = {}
@@ -131,6 +137,48 @@ class GenericStateModel():
         """Execute code at startup"""
 
         return {'status': models.CharField(max_length=255, choices=model_class.MetaState.states.iteritems(), default=model_class.MetaState.default)}
+
+    def status_color(self):
+        return self.MetaState.states_colors.get(self.status, 'default')
+
+    def status_icon(self):
+        return self.MetaState.states_icons.get(self.status, '')
+
+    def may_switch_to(self, user, dest_state):
+        """Return true if we MAY switch to a specific states (not including error, but including rights)"""
+        if self.status == dest_state:
+            return False
+
+        if user.is_superuser:
+            return True
+
+        return dest_state in self.MetaState.states_links[self.status]
+
+    def can_switch_to(self, user, dest_state):
+        """Return (IfOk, Message) if someone can switch to a speficic state."""
+        return (True, None)
+
+    @property
+    def states_links_with_ids(self):
+        by_ids = {}
+
+        current_id = 0
+
+        for elem, __ in self.MetaState.states.iteritems():
+            by_ids[elem] = current_id
+            current_id += 1
+
+        retour_links = []
+
+        for elem, __ in self.MetaState.states.iteritems():
+            tmp = []
+
+            for elem_dest in self.MetaState.states_links[elem]:
+                tmp.append(by_ids[elem_dest])
+            retour_links.append(tmp)
+
+        return retour_links
+
 
 
 class GenericLogEntry(models.Model):

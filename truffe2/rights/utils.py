@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 import inspect
 import copy
+import time
 
 
 class ModelWithRight(object):
@@ -32,6 +33,12 @@ class ModelWithRight(object):
 
         return dummy.rights_can(right, user)
 
+    def rights_expire(self):
+        """Mark cache as invalid"""
+        cache_key_last = 'right~last_%s.%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY')
+        cached_last = time.time()
+        cache.set(cache_key_last, cached_last)
+
     def rights_can(self, right, user):
 
         if right not in self.MetaRights.rights or not hasattr(self, 'rights_can_%s' % (right,)):
@@ -41,14 +48,24 @@ class ModelWithRight(object):
             return True
 
         cache_key = 'right_%s.%s_%s_%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY', user.pk, right)
+        cache_key_last = 'right~last_%s.%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY')
 
         cached_value = cache.get(cache_key)
 
-        cached_value = None
+        cached_last = cache.get(cache_key_last)
+
+        if cached_last is None:
+            cached_last = time.time()
+            cache.set(cache_key_last, cached_last)
+
+        if cached_value is not None:
+            (cached_value_last, cached_value) = cached_value
+            if cached_value_last < cached_last:
+                cached_value = None
 
         if cached_value is None:
             cached_value = getattr(self, 'rights_can_%s' % (right,))(user)
-            cache.set(cache_key, cached_value, 600)
+            cache.set(cache_key, (cached_last, cached_value), 600)
 
         return cached_value
 

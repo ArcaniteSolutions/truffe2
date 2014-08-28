@@ -105,6 +105,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
                 obj = form.save()
 
+                if isinstance(obj, BasicRightModel):
+                    obj.rights_expire()
+
                 messages.success(request, _(u'Élément sauvegardé !'))
 
                 if not before_data:
@@ -163,6 +166,7 @@ def generate_show(module, base_name, model_class, log_class):
         delete_view = module.__name__ + '.views.' + base_name + '_delete'
         log_view = module.__name__ + '.views.' + base_name + '_log'
         list_view = module.__name__ + '.views.' + base_name + '_list'
+        status_view = module.__name__ + '.views.' + base_name + '_switch_status'
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
@@ -179,7 +183,7 @@ def generate_show(module, base_name, model_class, log_class):
         log_entires = log_class.objects.filter(object=obj).order_by('-when').all()
 
         return render_to_response([module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
-            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view,
+            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view,
             'obj': obj, 'log_entires': log_entires,
             'rights': rights,
         }, context_instance=RequestContext(request))
@@ -258,3 +262,47 @@ def generate_deleted(module, base_name, model_class, log_class):
         }, context_instance=RequestContext(request))
 
     return _generic_deleted
+
+
+def generate_switch_status(module, base_name, model_class, log_class):
+
+    @login_required
+    def _switch_status(request, pk):
+
+        obj = get_object_or_404(model_class, pk=pk, deleted=False)
+
+        can_switch = True
+        can_switch_message = ''
+        done = False
+        status_view = module.__name__ + '.views.' + base_name + '_switch_status'
+
+        dest_status = request.GET.get('dest_status')
+
+        if not hasattr(obj, 'MetaState') or dest_status not in obj.MetaState.states:
+            raise Http404
+
+        (can_switch, can_switch_message) = obj.can_switch_to(request.user, dest_status)
+
+        if can_switch and request.method == 'POST' and request.POST.get('do') == 'it':
+            old_status = obj.status
+            obj.status = dest_status
+            obj.save()
+
+            if isinstance(obj, BasicRightModel):
+                obj.rights_expire()
+
+            if hasattr(obj, 'switch_status_signal'):
+                obj.switch_status_signal(old_status, dest_status)
+
+            log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': unicode(obj.MetaState.states.get(old_status)), 'new': unicode(obj.MetaState.states.get(dest_status))})).save()
+
+            messages.success(request, _(u'Status modifié !'))
+            done = True
+
+        return render_to_response([module.__name__ + '/' + base_name + '/switch_status.html', 'generic/generic/switch_status.html'], {
+            'Model': model_class, 'obj': obj, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done,
+            'dest_status': dest_status, 'dest_status_message': obj.MetaState.states.get(dest_status),
+            'status_view': status_view,
+        }, context_instance=RequestContext(request))
+
+    return _switch_status

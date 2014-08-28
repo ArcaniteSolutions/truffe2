@@ -23,5 +23,11 @@ from django.utils.timezone import now
 def home(request):
     """Dummy home page"""
 
-    return render_to_response('main/home.html', {}, context_instance=RequestContext(request))
+    from main.models import HomePageNews
+
+    news = HomePageNews.objects.filter(status='online').order_by('-pk').all()
+
+    news = filter(lambda s: (not s.start_date or s.start_date <= now()) and (not s.end_date or s.end_date >= now()), list(news))
+
+    return render_to_response('main/home.html', {'news': news}, context_instance=RequestContext(request))
 

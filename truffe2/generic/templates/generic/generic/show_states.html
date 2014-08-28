@@ -1,0 +1,221 @@
+{% load i18n %}
+{% load generic_extras %}
+
+<div class="col-sm-12 col-md-12 col-lg-6 ">
+    {% with w_title="Status" %}{% include "widget/header.html" %}{% endwith %}
+
+    <div class="states-box">
+
+    </div>
+
+    {% include "widget/footer.html" %}
+</div>
+
+<div style="display: none;">
+
+    {% for id, color in obj.MetaState.states_colors.iteritems %}
+        <span id="hidden-status-for-color-{{id}}" class="label label-{{color}}"></span>
+    {% endfor %}
+
+</div>
+
+<div class="modal fade" id="modal-switch-status" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+    </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // set up SVG for D3
+    var width  = $('.states-box').width(),
+        height = $('.states-box').height(),
+        colors = d3.scale.category10();
+
+    var svg = d3.select('.states-box')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+    // set up initial nodes and links
+    //  - nodes are known by 'id', not by index in array.
+    //  - active edges are indicated on the node (as a bold black circle).
+    //  - links are always source < target; edge directions are set by 'left' and 'right'.
+    var nodes = [
+        {% for id, text in obj.MetaState.states.iteritems %}
+{id: '{{id|escapejs}}', active: {% if id == obj.status %}true{% else %}false{% endif %}, text: '{{text|escapejs}}', x: {{forloop.counter0|node_x}}, y: {{forloop.counter0|node_y}}, switchable: {% switchable obj user id %}}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ],
+    links = [
+        {% for links in obj.states_links_with_ids %}
+            {% for link in links %}
+                {source: nodes[{{forloop.parentloop.counter0}}], target: nodes[{{link}}], left: false, right: true }{% if not forloop.last or not forloop.parentloop.last %},{% endif %}
+            {% endfor %}
+        {% endfor %}
+    ];
+
+    // init D3 force layout
+    var force = d3.layout.force()
+        .nodes(nodes)
+        .links(links)
+        .size([width, height])
+        .linkDistance(100)
+        .charge(-500)
+        .on('tick', tick)
+
+    // define arrow markers for graph links
+    svg.append('svg:defs').append('svg:marker')
+        .attr('id', 'end-arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 6)
+        .attr('markerWidth', 3)
+        .attr('markerHeight', 3)
+        .attr('orient', 'auto')
+    .append('svg:path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#999');
+
+    svg.append('svg:defs').append('svg:marker')
+        .attr('id', 'start-arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 4)
+        .attr('markerWidth', 3)
+        .attr('markerHeight', 3)
+        .attr('orient', 'auto')
+    .append('svg:path')
+        .attr('d', 'M10,-5L0,0L10,5')
+        .attr('fill', '#999');
+
+    // line displayed when dragging new nodes
+    var drag_line = svg.append('svg:path')
+    .attr('class', 'link dragline hidden')
+    .attr('d', 'M0,0L0,0');
+
+    // handles to link and node element groups
+    var path = svg.append('svg:g').selectAll('path'),
+        circle = svg.append('svg:g').selectAll('g');
+
+    // mouse event vars
+    var selected_node = null,
+        selected_link = null,
+        mousedown_link = null,
+        mousedown_node = null,
+        mouseup_node = null;
+
+    function resetMouseVars() {
+    mousedown_node = null;
+    mouseup_node = null;
+    mousedown_link = null;
+    }
+
+    // update force layout (called automatically each iteration)
+    function tick() {
+    // draw directed edges with proper padding from node centers
+    path.attr('d', function(d) {
+        var deltaX = d.target.x - d.source.x,
+            deltaY = d.target.y - d.source.y,
+            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+            normX = deltaX / dist,
+            normY = deltaY / dist,
+            sourcePadding = d.left ? 17 : 12,
+            targetPadding = d.right ? 17 : 12,
+            sourceX = d.source.x + (sourcePadding * normX),
+            sourceY = d.source.y + (sourcePadding * normY),
+            targetX = d.target.x - (targetPadding * normX),
+            targetY = d.target.y - (targetPadding * normY);
+        return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+    });
+
+    circle.attr('transform', function(d) {
+        return 'translate(' + d.x + ',' + d.y + ')';
+    });
+    }
+
+    function get_color(id) {
+        return $('#hidden-status-for-color-' + id).css('background-color');
+    }
+
+    // update graph (called when needed)
+    function restart() {
+        // path (link) group
+        path = path.data(links);
+
+        // update existing links
+        path.classed('selected', function(d) { return d === selected_link; })
+            .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+            .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
+
+
+        // add new links
+        path.enter().append('svg:path')
+            .attr('class', 'link')
+            .classed('selected', function(d) { return d === selected_link; })
+            .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+            .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
+            .on('mousedown', function(d) {
+                    });
+
+        // remove old links
+        path.exit().remove();
+
+
+        // circle (node) group
+        // NB: the function arg is crucial here! nodes are known by id, not by index!
+        circle = circle.data(nodes, function(d) { return d.id; });
+
+        // update existing nodes (active & selected visual states)
+        circle.selectAll('circle')
+            .style('fill', function(d) { return (d === selected_node) ? d3.rgb(get_color(d.id)).brighter().toString() : get_color(d.id); })
+            .classed('active', function(d) { return d.active; });
+
+        // add new nodes
+        var g = circle.enter().append('svg:g');
+
+        g.append('svg:circle')
+            .attr('class', 'node')
+            .attr('r', 12)
+            .style('fill', function(d) { return (d === selected_node) ? d3.rgb(get_color(d.id)).brighter().toString() : get_color(d.id); })
+            .style('stroke', function(d) { return d3.rgb(get_color(d.id)).darker().toString(); })
+            .classed('active', function(d) { return d.active; })
+            .classed('switchable', function(d) { return d.switchable; })
+            .on('click', function(d) {
+                if (d.switchable) {
+                    disp_switch(d.id);
+                }
+            });
+
+        // show node IDs
+        g.append('svg:text')
+            .attr('x', 9)
+            .attr('y', -9)
+            .attr('class', 'id')
+            .classed('active', function(d) { return d.active; })
+            .text(function(d) { return d.text; });
+
+        // remove old nodes
+        circle.exit().remove();
+
+        // set the graph in motion
+        var iters = 150; // You can get decent results from 300 if you are pressed for time
+        var thresh = 0.001;
+        force.start(); // Defaults to alpha = 0.1
+        force.alpha(0.1);
+        for (var i = iters; i > 0; --i) {
+            force.tick();
+            if(force.alpha() < thresh) {
+                break;
+            }
+        }
+        force.stop();
+}
+
+    restart();
+
+    function disp_switch(id) {
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+        $('#modal-switch-status').find('.modal-content').html('');
+        $('#modal-switch-status').removeData('bs.modal');
+        $('#modal-switch-status').modal({remote: '{% url status_view obj.pk %}?dest_status=' + id});
+
+    }
+</script>

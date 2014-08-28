@@ -1,0 +1,55 @@
+{% load i18n %}
+{% load bootstrap3 %}
+{% load generic_extras %}
+
+<form id="switch-status-form" method="POST" action="{% url status_view obj.pk %}?dest_status={{dest_status}}">
+  {% csrf_token %}
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Modification de status" %}</h4>
+      </div>
+
+        <div class="modal-body">
+
+            {% if can_switch %}
+                <input type="hidden" name="do" value="it">
+
+                {% blocktrans with obj=obj s=dest_status_message %}
+                    Vous êtes sur le point de passer {{obj}} vers le status <b>{{s}}</b>. Êtes vous sur de vouloir faire ça ?
+                {% endblocktrans %}
+
+                <div class="alert alert-info">
+                    {{obj.MetaState.states_texts|get_attr:dest_status}}
+                </div>
+            {% else %}
+
+                <div class="alert alert-danger">
+                    {% trans "Impossible de modifier le status" %}<br /><br />
+                    {{can_switch_message}}
+                </div>
+
+            {% endif %}
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                {% trans "Annuler" %}
+                </button>
+                {% if can_switch %}<input type="submit" class="btn btn-primary" value="{% trans "Modifier" %}">{% endif %}
+          </div>
+        </div>
+
+    </div><!-- /.modal-content -->
+    
+  <script type="text/javascript">
+      $('#switch-status-form').ajaxForm({replaceTarget: true, target: '#switch-status-form'});
+        {% if done %}
+            window.location.reload();
+        {% endif %}
+  </script>
+</form>
+

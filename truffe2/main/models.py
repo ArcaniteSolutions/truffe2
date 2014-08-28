@@ -19,12 +19,35 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
+    def may_switch_to(self, user, dest_state):
+        if self.rights_can('EDIT', user):
+            return super(_HomePageNews, self).may_switch_to(user, dest_state)
+        return False
+
+    def can_switch_to(self, user, dest_state):
+
+        if self.status == 'archive' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé'))
+
+        if not self.rights_can('EDIT', user):
+            return (False, _('Pas les droits'))
+
+        return super(_HomePageNews, self).can_switch_to(user, dest_state)
+
+    def rights_can_DISPLAY_LOG(self, user):
+        return super(_HomePageNews, self).rights_can_EDIT(user)
+
+    def rights_can_EDIT(self, user):
+        if self.status == 'archive':
+            return False
+        return super(_HomePageNews, self).rights_can_EDIT(user)
+
     class MetaData:
         list_display = [
             ('title', _('Titre')),
             ('start_date', _('Date debut')),
             ('end_date', _('Date fin')),
-            ('get_status_display', _('Status')),
+            ('status', _('Status')),
         ]
         details_display = list_display + [('content', _('Content'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
@@ -44,12 +67,34 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
     class MetaState:
         states = {
             'draft': _('Brouillon'),
-            'moderate': _(u'Modération demandée'),
             'online': _(u'En ligne'),
             'archive': _(u'Archivé'),
-            'refuse': _(u'Refusé'),
         }
         default = 'draft'
+
+        states_links = {
+            'draft': ['online', 'archive'],
+            'online': ['draft', 'archive'],
+            'archive': [],
+        }
+
+        states_colors = {
+            'draft': 'primary',
+            'online': 'success',
+            'archive': 'default',
+        }
+
+        states_icons = {
+            'draft': '',
+            'online': '',
+            'archive': '',
+        }
+
+        states_texts = {
+            'draft': _(u'La news est en cours de création et n\'est pas affichée sur la home page.'),
+            'online': _(u'La news est finalisée et affichée sur la home page aux date prévues.'),
+            'archive': _(u'La news est archivée et n\'est plus affichée sur la home page. Elle n\'est plus modifiable.'),
+        }
 
     class Meta:
         abstract = True

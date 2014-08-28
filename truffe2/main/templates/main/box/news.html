@@ -1,0 +1,12 @@
+<div class="col-sm-12 col-md-12 col-lg-6">
+    {% with w_title="News internes" %}{% include "widget/header.html" %}{% endwith %}
+
+        {% for n in news %}
+            <h4>{{n.title}}</h4>
+            ̣{{n.content|linebreaks}}
+
+            {% if not forloop.last %}<hr />{% endif %}
+        {% endfor %}
+    {% include "widget/footer.html" %}
+</div>
+
