@@ -25,7 +25,7 @@ def home(request):
 
     from main.models import HomePageNews
 
-    news = HomePageNews.objects.filter(status='online').order_by('-pk').all()
+    news = HomePageNews.objects.filter(status='1_online').order_by('-pk').all()
 
     news = filter(lambda s: (not s.start_date or s.start_date <= now()) and (not s.end_date or s.end_date >= now()), list(news))
 

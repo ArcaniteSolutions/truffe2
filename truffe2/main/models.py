@@ -26,7 +26,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     def can_switch_to(self, user, dest_state):
 
-        if self.status == 'archive' and not user.is_superuser:
+        if self.status == '2_archive' and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé'))
 
         if not self.rights_can('EDIT', user):
@@ -38,7 +38,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         return super(_HomePageNews, self).rights_can_EDIT(user)
 
     def rights_can_EDIT(self, user):
-        if self.status == 'archive':
+        if self.status == '2_archive':
             return False
         return super(_HomePageNews, self).rights_can_EDIT(user)
 
@@ -66,35 +66,38 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     class MetaState:
         states = {
-            'draft': _('Brouillon'),
-            'online': _(u'En ligne'),
-            'archive': _(u'Archivé'),
+            '0_draft': _('Brouillon'),
+            '1_online': _(u'En ligne'),
+            '2_archive': _(u'Archivé'),
         }
-        default = 'draft'
+        default = '0_draft'
 
         states_links = {
-            'draft': ['online', 'archive'],
-            'online': ['draft', 'archive'],
-            'archive': [],
+            '0_draft': ['1_online', '2_archive'],
+            '1_online': ['0_draft', '2_archive'],
+            '2_archive': [],
         }
 
         states_colors = {
-            'draft': 'primary',
-            'online': 'success',
-            'archive': 'default',
+            '0_draft': 'primary',
+            '1_online': 'success',
+            '2_archive': 'default',
         }
 
         states_icons = {
-            'draft': '',
-            'online': '',
-            'archive': '',
+            '0_draft': '',
+            '1_online': '',
+            '2_archive': '',
         }
 
         states_texts = {
-            'draft': _(u'La news est en cours de création et n\'est pas affichée sur la home page.'),
-            'online': _(u'La news est finalisée et affichée sur la home page aux date prévues.'),
-            'archive': _(u'La news est archivée et n\'est plus affichée sur la home page. Elle n\'est plus modifiable.'),
+            '0_draft': _(u'La news est en cours de création et n\'est pas affichée sur la home page.'),
+            '1_online': _(u'La news est finalisée et affichée sur la home page aux date prévues.'),
+            '2_archive': _(u'La news est archivée et n\'est plus affichée sur la home page. Elle n\'est plus modifiable.'),
         }
+
+        states_default_filter = '0_draft,1_online'
+        status_col_id = 3
 
     class Meta:
         abstract = True

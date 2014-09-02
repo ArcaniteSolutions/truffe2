@@ -56,6 +56,22 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
 
             qs = qs.filter(base)
 
+        if hasattr(model, 'MetaState') and hasattr(model.MetaState, 'status_col_id'):
+            status_search = request.REQUEST.get('sSearch_%s' % (model.MetaState.status_col_id,), None)
+
+            if status_search == "null":
+                status_search = None
+
+            if status_search:
+                status_search_splited = status_search.split(',')
+
+                base = Q(status=status_search_splited[0])
+
+                for v in status_search_splited[1:]:
+                    base = base | Q(status=v)
+
+                qs = qs.filter(base)
+
         if bonus_filter_function:
             qs = bonus_filter_function(qs)
 

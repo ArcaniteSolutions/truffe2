@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load generic_extras %}
 
   <script type="text/javascript">
       $(function() { loadDataTableScripts_{{id}}()});
@@ -27,6 +28,10 @@
         }
 
         function dt_7_{{id}}() {
+          loadScript("{{MEDIA_URL}}js/plugin/select2/select2.min.js", dt_8_{{id}});
+        }
+
+        function dt_8_{{id}}() {
           loadScript("{{MEDIA_URL}}js/plugin/datatables/DT_bootstrap.js", runDataTables_{{id}});
         }
 
@@ -67,13 +72,39 @@
                         }
                     } );
                     },
-            "sDom" : "<'dt-top-row'Tlf>r<'dt-wrapper't><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'p>>",
+                "sDom" : "<'dt-top-row'Tlf>r<'dt-wrapper't><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'p>>",
+                {% if status_filter %}
+                    "aaSorting": [[{{status_col_id}}, 'asc']],
+                {% endif %}
             {% else %}
             "aaSorting": [],
             {% endif %}
             "sPaginationType" : "bootstrap_full"
         });
 
+
+        {% if status_filter %}
+          $('#{{id}}').parent().parent().find('.dataTables_filter').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px;">/select>');
+
+          var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
+
+          {% for id_, text in states.iteritems %}
+            select_{{id}}.append('<option value="{{id_}}" {% if id_ in status_filter %}selected{% endif %}>{{text|escapejs}}</option>"');
+          {% endfor %}
+
+          select_{{id}}.css('width', '300px').select2();
+
+          function select2_filter() {
+            data_table_{{id}}.fnFilter(select_{{id}}.val(), {{status_col_id}});
+          }
+
+          select_{{id}}.on('change', function() {
+            select2_filter();
+          });
+
+          select2_filter();
+
+        {% endif %}
     }
 
     </script>

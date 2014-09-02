@@ -37,7 +37,7 @@
         </div>
     </section>
 
-    {% with id="main_list_table" json_url=json_view %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id %}{% include "datatables.html" %}{% endwith %}
 
 
     <div style="float: right;">
