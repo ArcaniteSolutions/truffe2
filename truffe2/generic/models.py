@@ -13,6 +13,12 @@ import json
 from pytz import timezone
 
 
+class FalseFK():
+
+    def __init__(self, model):
+        self.model = model
+
+
 def build_models_list_of(Class):
     retour = []
     already_returned = []
@@ -23,7 +29,7 @@ def build_models_list_of(Class):
             views_module = importlib.import_module('.views', app)
             urls_module = importlib.import_module('.urls', app)
             forms_module = importlib.import_module('.forms', app)
-        except:
+        except Exception as e:
             continue
 
         clsmembers = inspect.getmembers(models_module, inspect.isclass)
@@ -47,6 +53,8 @@ class GenericModel(models.Model):
 
         classes = build_models_list_of(GenericModel)
 
+        cache = {}
+
         for module, (views_module, urls_module, models_module, forms_module), model_class in classes:
 
             if model_class.__name__[0] != '_':
@@ -58,9 +66,15 @@ class GenericModel(models.Model):
             if issubclass(model_class, GenericStateModel):
                 extra_data.update(GenericStateModel.do(module, models_module, model_class))
 
+            for key, value in model_class.__dict__.iteritems():
+                if hasattr(value, '__class__') and value.__class__ == FalseFK:
+                    extra_data.update({key: models.ForeignKey(cache[value.model])})
+
             real_model_class = type(model_class.__name__[1:], (model_class,), extra_data)
 
             setattr(models_module, real_model_class.__name__, real_model_class)
+
+            cache['%s.%s' % (models_module.__name__, real_model_class.__name__)] = real_model_class
 
             # Add the logging model
             logging_class = type(real_model_class.__name__ + 'Logging', (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
@@ -71,6 +85,14 @@ class GenericModel(models.Model):
                 class Meta():
                     model = Model
                     exclude = ('deleted', 'status')
+
+                class MetaNoUnit():
+                    model = Model
+                    exclude = ('deleted', 'status', 'unit')
+
+                if hasattr(model_class.MetaData, 'has_unit') and model_class.MetaData.has_unit:
+                    return MetaNoUnit
+
                 return Meta
 
             form_model_class = type(real_model_class.__name__ + 'Form', (GenericForm,), {'Meta': generate_meta(real_model_class)})
@@ -180,7 +202,6 @@ class GenericStateModel():
         return retour_links
 
 
-
 class GenericLogEntry(models.Model):
 
     when = models.DateTimeField(auto_now_add=True)
@@ -202,3 +223,98 @@ class GenericLogEntry(models.Model):
 
     class Meta:
         abstract = True
+
+
+class GenericStateModerable(object):
+    """Un système de status générique pour de la modération"""
+
+    def __init__(self, *args, **kwargs):
+
+        super(GenericStateModerable, self).__init__(*args, **kwargs)
+
+        self.MetaRights.rights_update({
+            'VALIDATE': _(u'Peut modérer cet élément'),
+        })
+
+    class MetaState:
+        states = {
+            '0_draft': _('Brouillon'),
+            '1_asking': _(u'Modération en cours'),
+            '2_online': _(u'Validé/En ligne'),
+            '3_archive': _(u'Archivé'),
+        }
+        default = '0_draft'
+
+        states_links = {
+            '0_draft': ['1_asking', '3_archive'],
+            '1_asking': ['0_draft', '2_online', '3_archive'],
+            '2_online': ['0_draft', '3_archive'],
+            '3_archive': [],
+        }
+
+        states_colors = {
+            '0_draft': 'primary',
+            '1_asking': 'danger',
+            '2_online': 'success',
+            '3_archive': 'default',
+        }
+
+        states_icons = {
+            '0_draft': '',
+            '1_asking': '',
+            '2_online': '',
+            '3_archive': '',
+        }
+
+        states_texts = {
+            '0_draft': _(u'L\'objet est en cours de création et n\'est pas public.'),
+            '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce status pour demander une modération !'),
+            '2_online': _(u'L\'objet est validé/publié. Il n\'est pas éditable.'),
+            '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
+        }
+
+        states_quick_switch = {
+            '0_draft': ('1_asking', _(u'Demander à modérer')),
+            '1_asking': ('2_online', _(u'Valider')),
+            '2_online': ('0_draft', _(u'Repasser en brouillon')),
+        }
+
+        states_default_filter = '0_draft,1_asking,2_online'
+        status_col_id = 3
+
+    def may_switch_to(self, user, dest_state):
+        if self.rights_can('EDIT', user) or (self.status == '2_online' and super(GenericStateModerable, self).rights_can_EDIT(user)):
+            return super(GenericStateModerable, self).may_switch_to(user, dest_state)
+        return False
+
+    def can_switch_to(self, user, dest_state):
+
+        if self.status == '3_archive' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé'))
+
+        if dest_state == '2_online' and not self.rights_can('VALIDATE', user):
+            return (False, _(u'Seul un modérateur peut valider cet object. Merci de passer cet object en status \'Modération en cours\' pour demander une validation.'))
+
+        if self.status == '2_online' and super(GenericStateModerable, self).rights_can_EDIT(user):
+            return (True, None)
+
+        if not self.rights_can('EDIT', user):
+            return (False, _('Pas les droits'))
+
+        return super(GenericStateModerable, self).can_switch_to(user, dest_state)
+
+    def rights_can_VALIDATE(self, user):
+        if self.status == '3_archive':
+            return False
+
+        return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+
+    def rights_can_EDIT(self, user):
+
+        if self.status == '3_archive':
+            return False
+
+        if self.status == '2_online' and not self.rights_can('VALIDATE', user):
+            return False
+
+        return super(GenericStateModerable, self).rights_can_EDIT(user)

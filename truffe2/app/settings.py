@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     'users',
     'units',
     'rights',
+    'communication',
 
     'generic',
 

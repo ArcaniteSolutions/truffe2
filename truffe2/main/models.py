@@ -34,9 +34,6 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
 
         return super(_HomePageNews, self).can_switch_to(user, dest_state)
 
-    def rights_can_DISPLAY_LOG(self, user):
-        return super(_HomePageNews, self).rights_can_EDIT(user)
-
     def rights_can_EDIT(self, user):
         if self.status == '2_archive':
             return False

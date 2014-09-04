@@ -67,6 +67,11 @@ class ModelWithRight(object):
             cached_value = getattr(self, 'rights_can_%s' % (right,))(user)
             cache.set(cache_key, (cached_last, cached_value), 600)
 
+        if hasattr(self, 'unit'):
+            u = self.unit
+        else:
+            u = None
+
         return cached_value
 
     def rights_is_linked_user(self, user):

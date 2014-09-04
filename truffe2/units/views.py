@@ -59,7 +59,7 @@ def accreds_list_json(request):
     unit = get_current_unit(request)
 
     # Check unit access
-    if not Accreditation.static_rights_can('SHOW', request.user, unit):
+    if not Accreditation.static_rights_can('LIST', request.user, unit):
         raise Http404
 
     # Filter by unit

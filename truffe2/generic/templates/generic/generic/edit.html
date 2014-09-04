@@ -48,9 +48,44 @@
                     </div>
                 </div>
             </div>
+            {% if unit_mode %}
+                <input type="hidden" id="input_upk" name="upk" value="{{form.instance.unit.pk}}">
+            {% endif %}
         </form>
       </div>
     </div>
+
+    {% if unit_mode %}
+
+        <div class="col-sm-12 col-md-2 col-lg-2">
+
+          {% if form.instance.pk %}
+          
+            {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
+
+                {% trans "Cet object est lié à l'unité" %}<br /><br />
+
+                <center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
+
+            {% include "widget/footer.html" %}
+
+
+          {% else %}
+              {% with function_to_call="unit_updated" %}
+                  {% include "units/selector/unit_selector.html" %}
+              {% endwith %}
+
+              <script type="text/javascript">
+                  function unit_updated(pk, name, can_edit) {
+                    $('#input_upk').val(pk);
+                  }
+              </script>
+          {% endif %}
+
+
+        </div>
+
+    {% endif %}
 </div>
 
 <script type="text/javascript" src="{{MEDIA_URL}}js/plugin/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
