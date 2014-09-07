@@ -40,6 +40,16 @@
                 {% with function_to_call="unit_updated" %}
                   {% include "units/selector/unit_selector.html" %}
                 {% endwith %}
+
+                  {% with w_title="Aide" %}{% include "widget/header.html" %}{% endwith %}
+                  {% blocktrans %}Les accréditations permettent d'ajouter officiellement une personne dans une unité et de lui donner un role particulier.<br /><br />
+                  Certains roles donnent des accès particuliers (exemple: Trésorier donne l'accès TRÉSORERIE). Les accès déterminent les droits dans Truffe.<br /><br />
+                  Les accéditations sont, sauf configuration contraire, syncronisées avec les accréditations de l'EFPL. Ceci peut prendre jusqu'a 48h avant d'être effective.<br /><br />
+                  Les accéditations se propagent au niveau des unités inférieurs: Par exemple, une personne accéditée en temps que Présidant de Coaching diposera aussi du role Président dans Cocahing Physique. Par contre, une seule accréditations EPFL est crée, au niveau Coaching.<br /><br />
+                  Il doit toujours y avoir un président dans une unité: il n'est pas possible de supprimer le dernier président !
+                  {% endblocktrans %}
+                  {% include "widget/footer.html" %}
+
             </div>
 
         </div>
@@ -88,6 +98,8 @@
       </button>
 
     </div>
+
+    <br /><br />
 
     <div class="modal fade" id="modal-add-accred" role="dialog" aria-hidden="true">
       <div class="modal-dialog">

@@ -42,6 +42,10 @@ class _WebsiteNews(GenericModel, GenericStateModerable, GenericStateModel, UnitE
 
         has_unit = True
 
+        help_list = _(u"""Les news du site de l'AGEPoly sont les nouvelles affichées sur toutes les pages du site de l'AGEPoly.
+
+Elles sont soumises à modération par le responsable communication de l'AGEPoly avant d'être visibles.""")
+
     class MetaEdit:
         date_time_fields = ('start_date', 'end_date')
 

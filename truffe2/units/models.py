@@ -60,6 +60,11 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
         menu_id = 'menu-units-units'
 
+        help_list = _(u"""Les unités sont les différents groups de l'AGEPoly (Comité de l'AGEPoly, commissions, équipes, etc.)
+
+Les unités sont organisées en arbre hérachique, avec le Comité de l'AGEPoly au sommet.""")
+
+
     class Meta:
         abstract = True
 
@@ -148,7 +153,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
                 access_delegations = self.accessdelegation_set.filter((Q(user=user) | Q(user=None)) & (Q(role=accreditation.role) | Q(role=None))).all()
 
                 for access_delegation in access_delegations:
-                    if access in access_delegation.access:
+                    if access in access_delegation.access and (not parent_mode or access_delegation.valid_for_sub_units):
                         return True
 
         if self.parent_herachique:
@@ -225,6 +230,11 @@ class _Role(GenericModel, AgepolyEditableModel):
         elem_icon = 'fa fa-group'
 
         menu_id = 'menu-units-roles'
+
+        help_list = _(u"""Les roles sont les différents type d'accéditations possible pour une unité.
+
+Certains roles donnent des accès particuliers.
+Par exemple, le role 'Trésorier' donne l'accès TRESORERIE. Les droits sont gérés en fonction des accês !""")
 
     class Meta:
         abstract = True
@@ -321,6 +331,16 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
         yes_or_no_fields = ['valid_for_sub_units']
 
         has_unit = True
+
+        help_list = _(u"""Les délégations d'accès permettent de donner des accès supplémentaires dans une unité.
+
+Les accès sont normalement déterminés en fonction des accréditations, au niveau global.
+Par exemple, une personne accréditée en temps que Trésorier dans une unité disposera de l'accès TRÉSOERIE pour l'unité.
+
+Avec les délégations d'accês, il est par exemple possible de donner l'accès "COMMUNICATION" à tout les membres d'une unité en créant une délégations d'accès.
+
+Il est aussi possible de restraindre une délégations â un utilisateurs ou à un role particulier.""")
+
 
     class Meta:
         abstract = True
