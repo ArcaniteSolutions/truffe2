@@ -15,8 +15,10 @@ from pytz import timezone
 
 class FalseFK():
 
-    def __init__(self, model):
+    def __init__(self, model, *args, **kwargs):
         self.model = model
+        self.args = args
+        self.kwargs = kwargs
 
 
 def build_models_list_of(Class):
@@ -36,7 +38,15 @@ def build_models_list_of(Class):
 
         for model_name, model_class in clsmembers:
             if issubclass(model_class, Class) and model_class != Class and model_class not in already_returned:
-                retour.append((module, (views_module, urls_module, models_module, forms_module), model_class))
+
+                data = (module, (views_module, urls_module, models_module, forms_module), model_class)
+
+                # Special case for unit, who must be loaded first
+                if model_name in ['_Unit', '_Role']:
+                    retour.insert(0, data)
+                else:
+                    retour.append(data)
+
                 already_returned.append(model_class)
 
     return retour
@@ -68,7 +78,7 @@ class GenericModel(models.Model):
 
             for key, value in model_class.__dict__.iteritems():
                 if hasattr(value, '__class__') and value.__class__ == FalseFK:
-                    extra_data.update({key: models.ForeignKey(cache[value.model])})
+                    extra_data.update({key: models.ForeignKey(cache[value.model], *value.args, **value.kwargs)})
 
             real_model_class = type(model_class.__name__[1:], (model_class,), extra_data)
 
@@ -139,7 +149,7 @@ class GenericModel(models.Model):
                     retour[f.name] = loc.strftime("%Y-%m-%d %H:%M:%S")
 
             else:
-                retour[f.name] = getattr(self, f.name)
+                retour[f.name] = str(getattr(self, f.name))
 
         return retour
 

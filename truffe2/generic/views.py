@@ -168,6 +168,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
                 if isinstance(obj, BasicRightModel):
                     obj.rights_expire()
 
+
+                if hasattr(obj, 'save_signal'):
+                    obj.save_signal()
+
                 messages.success(request, _(u'Élément sauvegardé !'))
 
                 if not before_data:

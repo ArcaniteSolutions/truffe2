@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel
+from generic.models import GenericModel, FalseFK
 from django.utils.translation import ugettext_lazy as _
 
 from users.models import TruffeUser
@@ -12,6 +12,8 @@ from multiselectfield import MultiSelectField
 from rights.utils import AgepolyEditableModel, UnitEditableModel
 
 from django.conf import settings
+
+from django.db.models import Q
 
 
 class _Unit(GenericModel, AgepolyEditableModel):
@@ -129,15 +131,28 @@ class _Unit(GenericModel, AgepolyEditableModel):
             retour.append(unit)
         return retour
 
-    def is_user_in_groupe(self, user, access=None):
+    def is_user_in_groupe(self, user, access=None, parent_mode=False):
 
         for accreditation in self.accreditation_set.filter(user=user, end_date=None):
             if accreditation.is_valid():
-                if not access or access in accreditation.role.access:
+
+                # No acces: Only an accred is needed
+                if not access:
                     return True
 
+                # If role has acces, ok
+                if access in accreditation.role.access:
+                    return True
+
+                # Check valid delegations for this accred
+                access_delegations = self.accessdelegation_set.filter((Q(user=user) | Q(user=None)) & (Q(role=accreditation.role) | Q(role=None))).all()
+
+                for access_delegation in access_delegations:
+                    if access in access_delegation.access:
+                        return True
+
         if self.parent_herachique:
-            return self.parent_herachique.is_user_in_groupe(user, access)
+            return self.parent_herachique.is_user_in_groupe(user, access, True)
         return False
 
     @property
@@ -153,6 +168,9 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
     def current_accreds(self):
         return self.accreditation_set.filter(end_date=None).order_by('role__ordre', 'user__first_name', 'user__last_name')
+
+    def get_users(self):
+        return [a.user for a in self.current_accreds()]
 
 
 class _Role(GenericModel, AgepolyEditableModel):
@@ -261,3 +279,63 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def rights_can_INGORE_PREZ(self, user):
         return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+
+
+class _AccessDelegation(GenericModel, UnitEditableModel):
+    unit = FalseFK('units.models.Unit')
+
+    access = MultiSelectField(choices=_Role.ACCESS_CHOICES, blank=True, null=True)
+    valid_for_sub_units = models.BooleanField(_(u'Valide pour les sous-unités'), default=False, help_text=_(u'Si sélectionné, les accès supplémentaires dans l\'unit courrante seront aussi valide dans les sous-unités'))
+
+    user = models.ForeignKey(TruffeUser, blank=True, null=True, help_text=_(u'(Optionnel !) L\'utilisateur concerné. L\'utilisateur doit disposer d\'une accréditation dans l\'unité'))
+    role = FalseFK('units.models.Role', blank=True, null=True, help_text=_(u'(Optionnel !) Le role concerné.'))
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        unit_ro_access = True
+        access = 'INFORMATIQUE'
+
+    class MetaData:
+        list_display = [
+            ('id', ''),
+            ('user', _('User')),
+            ('role', _('Role')),
+            ('get_access', _(u'Acces'))
+        ]
+
+        details_display = [
+            ('user', _('User')),
+            ('role', _('Role')),
+            ('get_access', _(u'Accès supplémentaires')),
+            ('valid_for_sub_units', _(u'Valide pour les sous-unités'))
+        ]
+
+        filter_fields = ()
+
+        base_title = _(u'Délégation d\'accès')
+        list_title = _(u'Liste de toutes les délégations d\'access')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-group'
+
+        menu_id = 'menu-units-delegations'
+
+        yes_or_no_fields = ['valid_for_sub_units']
+
+        has_unit = True
+
+    class Meta:
+        abstract = True
+
+    def get_access(self):
+        return ', '.join(self.access)
+
+    def __unicode__(self):
+        return _(u'Accês supplémentaire n°%s' % (self.pk,))
+
+    def delete_signal(self):
+        self.save_signal()
+
+    def save_signal(self):
+        """Cleanup rights"""
+
+        for user in self.unit.get_users():
+            user.clear_rights_cache()

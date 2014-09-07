@@ -233,6 +233,11 @@
                                     <a href="{% url 'units.views.accreds_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Accréditations" %}</a>
                                 </li>
                             {% endifhasright %}
+                            {% ifhasright 'units.models.AccessDelegation' user 'LIST' %}
+                                <li id="menu-units-delegations">
+                                    <a href="{% url 'units.views.accessdelegation_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Délégations d'accès" %}</a>
+                                </li>
+                            {% endifhasright %}
                         </ul>
                     </li>
                 </ul>

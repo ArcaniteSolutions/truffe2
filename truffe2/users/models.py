@@ -89,6 +89,9 @@ EMAIL;INTERNET:%s
     def clear_rights_cache(self):
         cache.set('right~user_%s' % (self.pk,), time.time())
 
+    def __unicode__(self):
+        return '%s (%s)' % (self.get_full_name(), self.username)
+
 
 class UserPrivacy(models.Model):
     user = models.ForeignKey(TruffeUser)
