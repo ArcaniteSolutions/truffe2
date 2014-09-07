@@ -65,9 +65,12 @@ def generate_list(module, base_name, model_class):
 
             main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('LIST', request.user, unit))
             main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('CREATE', request.user, unit))
-
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
-            raise Http404
+        else:
+            # The LIST right is not verified here if we're in unit mode. We
+            # need to test (in the view) in another unit is available for LIST
+            # if the current unit isn't !
+            if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
+                raise Http404
 
         return render_to_response([module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view,

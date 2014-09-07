@@ -7,6 +7,9 @@ from django.utils import timezone
 
 from django.contrib.auth.models import BaseUserManager
 
+from django.core.cache import cache
+import time
+
 
 class TruffeUserManager(BaseUserManager):
 
@@ -82,6 +85,9 @@ EMAIL;INTERNET:%s
 
     def old_accreds(self):
         return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__ordre')
+
+    def clear_rights_cache(self):
+        cache.set('right~user_%s' % (self.pk,), time.time())
 
 
 class UserPrivacy(models.Model):

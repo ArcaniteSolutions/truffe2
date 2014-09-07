@@ -47,30 +47,45 @@ class ModelWithRight(object):
         if user.is_superuser:
             return True
 
-        cache_key = 'right_%s.%s_%s_%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY', user.pk, right)
+        # A cache system is used, for performances
+
+        # To be able to clear cache, a timestamp is also cached with the lasted
+        # modification on the object (cache_key_last) and on user's rights
+        # (cache_key_user_last). If the computed value is olded than those two
+        # values, cache is not taken into account
+
+        if hasattr(self, 'unit') and self.unit.pk:
+            unit_pk = self.unit.pk
+        else:
+            unit_pk = 'NOUPK'
+
+        cache_key = 'right_%s.%s_%s_%s_%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY', user.pk, right, unit_pk)
         cache_key_last = 'right~last_%s.%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY')
+        cache_key_user_last = 'right~user_%s' % (user.pk, )
 
         cached_value = cache.get(cache_key)
 
         cached_last = cache.get(cache_key_last)
+        cached_user_last = cache.get(cache_key_user_last)
+
+        current_time = time.time()
 
         if cached_last is None:
-            cached_last = time.time()
+            cached_last = current_time
             cache.set(cache_key_last, cached_last)
+
+        if cached_user_last is None:
+            cached_user_last = current_time
+            cache.set(cache_key_user_last, cached_user_last)
 
         if cached_value is not None:
             (cached_value_last, cached_value) = cached_value
-            if cached_value_last < cached_last:
+            if cached_value_last < cached_last or cached_value_last < cached_user_last:
                 cached_value = None
 
         if cached_value is None:
             cached_value = getattr(self, 'rights_can_%s' % (right,))(user)
             cache.set(cache_key, (cached_last, cached_value), 600)
-
-        if hasattr(self, 'unit'):
-            u = self.unit
-        else:
-            u = None
 
         return cached_value
 

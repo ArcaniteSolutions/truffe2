@@ -307,7 +307,7 @@ class GenericStateModerable(object):
         if self.status == '3_archive':
             return False
 
-        return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+        return self.rights_in_root_unit(user, self.MetaRightsUnit.moderation_access)
 
     def rights_can_EDIT(self, user):
 

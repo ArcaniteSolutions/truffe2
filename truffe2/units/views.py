@@ -109,6 +109,8 @@ def accreds_delete(request, pk):
         accred.end_date = now()
         accred.save()
 
+        accred.user.clear_rights_cache()
+
         messages.success(request, _(u'Accréditation supprimée !'))
 
         return redirect('units.views.accreds_list')
@@ -153,6 +155,8 @@ def accreds_add(request):
 
             accred.user = user
             accred.save()
+
+            accred.user.clear_rights_cache()
 
             messages.success(request, _(u'Accréditation sauvegardé !'))
 

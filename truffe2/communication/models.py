@@ -10,7 +10,8 @@ from rights.utils import UnitEditableModel
 class _WebsiteNews(GenericModel, GenericStateModerable, GenericStateModel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
-        access = None
+        access = 'COMMUNICATION'
+        moderation_access = 'COMMUNICATION'
 
     title = models.CharField(max_length=255)
     content = models.TextField()

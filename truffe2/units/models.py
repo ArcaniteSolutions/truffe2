@@ -18,7 +18,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'INFORMATIQUE'
-        world_ro_access = False
+        world_ro_access = True
 
     name = models.CharField(max_length=255)
     id_epfl = models.CharField(max_length=64, blank=True, null=True, help_text=_(u'Utilisé pour la syncronisation des accréditations'))
@@ -160,7 +160,7 @@ class _Role(GenericModel, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'INFORMATIQUE'
-        world_ro_access = False
+        world_ro_access = True
 
     name = models.CharField(max_length=255)
     id_epfl = models.CharField(max_length=255, null=True, blank=True, help_text=_(u'Mettre ici l\'ID accred du role pour la syncronisation EPFL'))
