@@ -115,6 +115,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'impersonate',
     'multiselectfield',
+    'easy_thumbnails',
 
     'main',
     'users',

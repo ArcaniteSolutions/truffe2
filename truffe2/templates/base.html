@@ -20,6 +20,8 @@
         <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/smartadmin-production.css">
         <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/smartadmin-skins.css">
 
+        <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/lightbox.css">
+
         <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}css/truffe.css">
 
         <!-- FAVICONS -->
@@ -33,6 +35,7 @@
         <script src="{{MEDIA_URL}}js/libs/jquery-ui-1.10.3.min.js"></script>
         <script src="{{MEDIA_URL}}js/plugin/jquery-form/jquery-form.min.js"></script>
         <script src="{{MEDIA_URL}}js/d3.min.js"></script>
+        <script src="{{MEDIA_URL}}js/lightbox.min.js"></script>
 
     </head>
     <body class="fixed-ribbon fixed-header {% if user.body == 'm' %}minified{% endif %}{% if user.body == 'h' %}hidden-menu{% endif %}">
@@ -211,6 +214,12 @@
                             {% ifhasright 'communication.models.WebsiteNews' user 'LIST' %}
                                 <li id="menu-communication-websitenews">
                                     <a href="{% url 'communication.views.websitenews_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "News du site de l'AGEPoly" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% ifhasright 'communication.models.AgepSlide' user 'LIST' %}
+                                <li id="menu-communication-agepslide">
+                                    <a href="{% url 'communication.views.agepslide_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "Slides des écrans de l'AGEPoly" %}</a>
                                 </li>
                             {% endifhasright %}
                         </ul>

@@ -159,7 +159,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
             before_data = None
 
         if request.method == 'POST':  # If the form has been submitted...
-            form = form_class(request.user, request.POST, instance=obj)
+            form = form_class(request.user, request.POST, request.FILES, instance=obj)
 
             if form.is_valid():  # If the form is valid
 
