@@ -195,6 +195,10 @@ LDAP = 'ldap://ldap.epfl.ch:389'
 ROOT_UNIT_PK = 1
 PRESIDENT_ROLE_PK = 1
 
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+}
+
 try:
     from settingsLocal import *
 except ImportError:
