@@ -39,7 +39,13 @@ class IfHasRightNode(Node):
                     new_obj = importlib.import_module('.'.join(obj.split('.')[:-1]))
                     obj = getattr(new_obj, obj.split('.')[-1])
 
-                if isinstance(obj, BasicRightModel):
+                force_static = False
+
+                if right[0] == '!':
+                    force_static = True
+                    right = right[1:]
+
+                if isinstance(obj, BasicRightModel) and not force_static:
                     match = obj.rights_can(right, user)
                 elif hasattr(obj, 'static_rights_can'):
                     match = obj.static_rights_can(right, user)
