@@ -13,8 +13,8 @@ def get_attrs_of_sciper(sciper):
     attrs = ['sn', 'givenName', 'mail']
 
     for someone in con.search_s(base_dn, ldap.SCOPE_SUBTREE, filter, attrs):
-        name = someone[1]['sn'][0]
-        firstname = someone[1]['givenName'][0]
+        name = someone[1]['sn'][0].split(',')[0]
+        firstname = someone[1]['givenName'][0].split(',')[0]
         email = someone[1]['mail'][0]
 
     return (name, firstname, email)
@@ -34,8 +34,8 @@ def search_sciper(s):
     for someone in con.search_s(base_dn, ldap.SCOPE_SUBTREE, filter, attrs):
         try:
             sciper = someone[1]['uniqueIdentifier'][0]
-            name = someone[1]['sn'][0]
-            firstname = someone[1]['givenName'][0]
+            name = someone[1]['sn'][0].split(',')[0]
+            firstname = someone[1]['givenName'][0].split(',')[0]
             email = someone[1]['mail'][0]
 
             results[sciper] = (sciper, firstname, name, email)

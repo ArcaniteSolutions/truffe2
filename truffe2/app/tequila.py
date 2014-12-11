@@ -57,8 +57,8 @@ class Backend:
             if settings.TEQUILA_AUTOCREATE:
                 user = User()
                 user.username = sciper
-                user.first_name = firstName
-                user.last_name = name
+                user.first_name = firstName.split(',')[0]
+                user.last_name = name.split(',')[0]
                 user.email = email
                 user.save()
             else:
