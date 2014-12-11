@@ -83,7 +83,7 @@ class ModelWithRight(object):
             if cached_value_last < cached_last or cached_value_last < cached_user_last:
                 cached_value = None
 
-        if cached_value is None:
+        if cached_value is None or True:
             cached_value = getattr(self, 'rights_can_%s' % (right,))(user)
             cache.set(cache_key, (cached_last, cached_value), 600)
 
