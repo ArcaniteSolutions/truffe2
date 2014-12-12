@@ -341,12 +341,14 @@ Avec les délégations d'accês, il est par exemple possible de donner l'accès 
 
 Il est aussi possible de restraindre une délégations â un utilisateurs ou à un role particulier.""")
 
-
     class Meta:
         abstract = True
 
     def get_access(self):
-        return ', '.join(self.access)
+        if self.access:
+            return u', '.join(list(self.access))
+        else:
+            return _(u'Rien')
 
     def __unicode__(self):
         return _(u'Accês supplémentaire n°%s' % (self.pk,))
