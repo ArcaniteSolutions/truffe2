@@ -149,7 +149,7 @@ class GenericModel(models.Model):
                     retour[f.name] = loc.strftime("%Y-%m-%d %H:%M:%S")
 
             else:
-                retour[f.name] = str(getattr(self, f.name))
+                retour[f.name] = unicode(getattr(self, f.name))
 
         return retour
 
