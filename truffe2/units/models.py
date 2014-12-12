@@ -205,7 +205,8 @@ class _Role(GenericModel, AgepolyEditableModel):
         return self.name
 
     def get_access(self):
-        return ', '.join(self.access)
+        if self.access:
+            return u', '.join(list(self.access))
 
     class MetaData:
         list_display = [
@@ -347,8 +348,6 @@ Il est aussi possible de restraindre une délégations â un utilisateurs ou à 
     def get_access(self):
         if self.access:
             return u', '.join(list(self.access))
-        else:
-            return _(u'Rien')
 
     def __unicode__(self):
         return _(u'Accês supplémentaire n°%s' % (self.pk,))
