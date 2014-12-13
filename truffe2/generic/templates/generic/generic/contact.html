@@ -1,0 +1,42 @@
+
+{% load i18n %}
+{% load bootstrap3 %}
+
+<form id="contact-form" method="POST" action="{% url contact_view obj.pk '_' %}">
+  {% csrf_token %}
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Formulaire de contact" %}</h4>
+      </div>
+
+        <div class="modal-body">
+
+
+          {% bootstrap_form form %}
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                {% trans "Annuler" %}
+                </button>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-enevelop"></i> {% trans "Ajouter" %}</button>
+          </div>
+        </div>
+
+    </div><!-- /.modal-content -->
+    
+  <script type="text/javascript">
+      $('#contact-form').ajaxForm({replaceTarget: true, target: '#contact-form'});
+      $('#id_key').css('width', '100%').addClass('select2').removeClass('form-control').select2();
+
+    {% if done %}
+        window.location.reload();
+    {% endif %}
+
+  </script>
+</form>
+

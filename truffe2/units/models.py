@@ -146,8 +146,9 @@ Les unités sont organisées en arbre hérachique, avec le Comité de l'AGEPoly 
                     return True
 
                 # If role has acces, ok
-                if access in accreditation.role.access:
-                    return True
+                if accreditation.role.access:
+                    if access in accreditation.role.access:
+                        return True
 
                 # Check valid delegations for this accred
                 access_delegations = self.accessdelegation_set.filter((Q(user=user) | Q(user=None)) & (Q(role=accreditation.role) | Q(role=None))).all()
@@ -159,6 +160,22 @@ Les unités sont organisées en arbre hérachique, avec le Comité de l'AGEPoly 
         if self.parent_herachique:
             return self.parent_herachique.is_user_in_groupe(user, access, True)
         return False
+
+    def users_with_access(self, access=None):
+
+        retour = []
+
+        for accreditation in self.accreditation_set.filter(end_date=None):
+            if not accreditation.is_valid():
+                continue
+
+            if accreditation.user in retour:
+                continue
+
+            if not access or self.is_user_in_groupe(accreditation.user, access):  # To avoid duplicate code, check if access with other function
+                retour.append(accreditation.user)
+
+        return retour
 
     @property
     def president(self):

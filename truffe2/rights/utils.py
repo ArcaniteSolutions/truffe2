@@ -114,6 +114,24 @@ class ModelWithRight(object):
 
         return Unit.objects.get(pk=settings.ROOT_UNIT_PK).is_user_in_groupe(user, access)
 
+    def people_in_unit(self, unit, access=None):
+        return unit.users_with_access(access)
+
+    def people_in_linked_unit(self, access=None):
+
+        if not self.MetaRights.linked_unit_property or not hasattr(self, self.MetaRights.linked_unit_property):
+            return False
+
+        unit = getattr(self, self.MetaRights.linked_unit_property)
+
+        return self.people_in_unit(unit, access)
+
+    def people_in_root_unit(self, access=None):
+
+        from units.models import Unit
+
+        return self.people_in_unit(Unit.objects.get(pk=settings.ROOT_UNIT_PK), access)
+
 
 class BasicRightModel(ModelWithRight):
 
@@ -170,6 +188,9 @@ class AgepolyEditableModel(BasicRightModel):
     def rights_can_EDIT(self, user):
         return self.rights_in_root_unit(user, self.MetaRightsAgepoly.access)
 
+    def rights_peoples_in_EDIT(self):
+        return self.people_in_root_unit(self.MetaRightsAgepoly.access)
+
 
 class UnitEditableModel(BasicRightModel):
 
@@ -194,3 +215,6 @@ class UnitEditableModel(BasicRightModel):
 
     def rights_can_EDIT(self, user):
         return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+    def rights_peoples_in_EDIT(self):
+        return self.people_in_linked_unit(self.MetaRightsUnit.access)

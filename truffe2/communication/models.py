@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateModerable, FalseFK
+from generic.models import GenericModel, GenericStateModel, GenericStateModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel
 from django.utils.translation import ugettext_lazy as _
 
 from rights.utils import UnitEditableModel
 
 
-class _WebsiteNews(GenericModel, GenericStateModerable, GenericStateModel, UnitEditableModel):
+class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateModerable, GenericStateModel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'
@@ -56,7 +56,7 @@ Elles sont soumises à modération par le responsable communication de l'AGEPoly
         return self.title
 
 
-class _AgepSlide(GenericModel, GenericStateModerable, GenericStateModel, UnitEditableModel):
+class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateModerable, GenericStateModel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'

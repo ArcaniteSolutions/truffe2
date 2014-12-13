@@ -158,6 +158,27 @@
             {% trans "Supprimer" %}
           </a>
         {% endifhasright %}
+        {% if contactables_groups %}
+          <div class="btn-group dropup">
+            <a href="#" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-envelope"></i>
+              {% trans "Contacter..." %}
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              {% for key, description in contactables_groups.iteritems %}
+              <li><a data-target="#modal-contact" data-toggle="modal" href="{% url contact_view obj.pk key %}">{{description}}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="modal fade" id="modal-contact" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+              </div>
+            </div>
+          </div>
+        {% endif %}
         {% ifhasright obj user 'EDIT' %}
           <a href="{% url edit_view obj.pk %}" class="btn btn-primary">
             <i class="fa fa-pencil"></i>

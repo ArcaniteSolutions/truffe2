@@ -19,12 +19,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 import json
 
-from app.utils import update_current_unit, get_current_unit
+from app.utils import update_current_unit, get_current_unit, send_templated_mail
 
 from django.db.models import Max
 
 
 from generic.datatables import generic_list_json
+from generic.forms import ContactForm
+
 
 from rights.utils import BasicRightModel
 
@@ -168,7 +170,6 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
                 if isinstance(obj, BasicRightModel):
                     obj.rights_expire()
 
-
                 if hasattr(obj, 'save_signal'):
                     obj.save_signal()
 
@@ -231,6 +232,7 @@ def generate_show(module, base_name, model_class, log_class):
         log_view = module.__name__ + '.views.' + base_name + '_log'
         list_view = module.__name__ + '.views.' + base_name + '_list'
         status_view = module.__name__ + '.views.' + base_name + '_switch_status'
+        contact_view = module.__name__ + '.views.' + base_name + '_contact'
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
@@ -252,11 +254,17 @@ def generate_show(module, base_name, model_class, log_class):
 
         log_entires = log_class.objects.filter(object=obj).order_by('-when').all()
 
+        if hasattr(obj, 'contactables_groups'):
+            contactables_groups = obj.contactables_groups()
+        else:
+            contactables_groups = None
+
         return render_to_response([module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
-            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view,
+            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view,
             'obj': obj, 'log_entires': log_entires,
             'rights': rights,
             'unit_mode': unit_mode, 'current_unit': current_unit,
+            'contactables_groups': contactables_groups
         }, context_instance=RequestContext(request))
 
     return _generic_show
@@ -408,3 +416,57 @@ def generate_switch_status(module, base_name, model_class, log_class):
         }, context_instance=RequestContext(request))
 
     return _switch_status
+
+
+def generate_contact(module, base_name, model_class, log_class):
+
+    @login_required
+    def _contact(request, pk, key):
+
+        contact_view = module.__name__ + '.views.' + base_name + '_contact'
+        show_view = module.__name__ + '.views.' + base_name + '_show'
+
+        obj = get_object_or_404(model_class, pk=pk, deleted=False)
+
+        unit_mode, current_unit = get_unit_data(model_class, request)
+
+        if unit_mode:
+            update_current_unit(request, obj.unit.pk)
+
+        if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
+            raise Http404
+
+        if not hasattr(obj, 'contactables_groups'):
+            raise Http404
+
+        contactables_groups = obj.contactables_groups()
+
+        done = False
+
+        if request.method == 'POST':
+
+            form = ContactForm(contactables_groups, request.POST)
+            if form.is_valid():
+
+                dest = [u.email for u in getattr(obj, 'build_group_members_for_%s' % (form.cleaned_data['key'],))()]
+
+                context = {
+                    'subject': form.cleaned_data['subject'],
+                    'show_view': show_view,
+                    'message': form.cleaned_data['message'],
+                    'sender': request.user,
+                    'obj': obj
+                }
+
+                send_templated_mail(request, _('Truffe :: Contact :: %s') % (form.cleaned_data['subject'],), request.user.email, dest, 'generic/generic/mail/contact', context)
+
+                done = True
+                messages.success(request, _(u'Message envoyé !'))
+        else:
+            form = ContactForm(contactables_groups, initial={'key': key})
+
+        return render_to_response([module.__name__ + '/' + base_name + '/contact.html', 'generic/generic/contact.html'], {
+            'Model': model_class, 'obj': obj, 'contact_view': contact_view, 'form': form, 'done': done
+        }, context_instance=RequestContext(request))
+
+    return _contact

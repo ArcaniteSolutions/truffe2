@@ -11,6 +11,7 @@ from generic import views
 from generic.forms import GenericForm
 import json
 from pytz import timezone
+import copy
 
 
 class FalseFK():
@@ -119,6 +120,7 @@ class GenericModel(models.Model):
                 setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_deleted', views.generate_deleted(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, base_views_name + '_contact', views.generate_contact(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
                 urls_module.urlpatterns += patterns(views_module.__name__,
@@ -127,6 +129,7 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/delete$', base_views_name + '_delete'),
+                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/contact/(?P<key>.+)$', base_views_name + '_contact'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
                 )
 
@@ -319,6 +322,9 @@ class GenericStateModerable(object):
 
         return self.rights_in_root_unit(user, self.MetaRightsUnit.moderation_access)
 
+    def rights_peoples_in_VALIDATE(self):
+        return self.people_in_root_unit(self.MetaRightsUnit.moderation_access)
+
     def rights_can_EDIT(self, user):
 
         if self.status == '3_archive':
@@ -328,3 +334,56 @@ class GenericStateModerable(object):
             return False
 
         return super(GenericStateModerable, self).rights_can_EDIT(user)
+
+
+class GenericGroupsModel():
+
+    class MetaGroups:
+        groups = {
+            'creator': _(u'Créateur de cet élément'),
+            'editors': _(u'Personnes ayant modifié cet élément (y compris le status)'),
+            'canedit': _(u'Personnes pouvant éditer cet élément')
+        }
+
+        @classmethod
+        def groups_update(cls, new_groups):
+            cls.groups = copy.deepcopy(cls.groups)
+            cls.groups.update(new_groups)
+
+    def build_group_members_for_creator(self):
+        return [self.logs.filter(what='created').first().who]
+
+    def build_group_members_for_editors(self):
+        retour = []
+
+        for log in self.logs.all():
+            if log.who not in retour:
+                retour.append(log.who)
+
+        return retour
+
+    def build_group_members_for_canedit(self):
+        return self.rights_peoples_in_EDIT()
+
+
+class GenericGroupsModerableModel(object):
+    def __init__(self, *args, **kwargs):
+
+        super(GenericGroupsModerableModel, self).__init__(*args, **kwargs)
+
+        self.MetaGroups.groups_update({
+            'validators': _(u'Personnes pouvant modérer cet élément'),
+        })
+
+    def build_group_members_for_validators(self):
+        return self.rights_peoples_in_VALIDATE()
+
+
+class GenericContactableModel():
+
+    def contactables_groups(self):
+        return self.MetaGroups.groups
+
+
+class GenericNotifiableModel():
+    pass
