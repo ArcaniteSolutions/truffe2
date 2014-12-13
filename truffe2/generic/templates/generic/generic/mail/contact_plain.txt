@@ -4,7 +4,7 @@
 Ce mail vous a été envoyé par {{sender}} concernant l'élément {{obj}}.
 {% endblocktrans %}
 
-Détails: {% url show_view obj.pk %}
+Détails: https://{{site.domain}}{% url show_view obj.pk %}
 
 {{message}}
 
