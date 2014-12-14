@@ -1,0 +1,13 @@
+{% load i18n %}{% trans "Bonjour" %}
+
+{% blocktrans with notification=notification %}
+Vous avez une nouvelle notification sur truffe !
+{% endblocktrans %}
+
+{% include notification.get_email_template %}
+
+Détails: https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}
+
+{% trans "Bonne journée," %}
+
+{% trans "Le système de notifications de Truffe" %}

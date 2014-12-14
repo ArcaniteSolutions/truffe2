@@ -48,51 +48,16 @@
               <span id="logo"> <img src="{{MEDIA_URL}}img/logo.png" alt="Truffe"> </span>
                 <!-- END LOGO PLACEHOLDER -->
 
-                <!-- Note: The activity badge color changes when clicked and resets the number to 0
-                Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->
-                <!-- <span id="activity" class="activity&#45;dropdown"> <i class="fa fa&#45;user"></i> <b class="badge"> 21 </b> </span> -->
+                <span id="activity" class="activity-dropdown" url="{% url 'notifications.views.dropdown' %}">
+                    <i class="fa fa-bell"></i>
+                    <b class="badge bounceIn animated">{{notifications_count}}</b>
 
-<!--                 <!&#45;&#45; AJAX&#45;DROPDOWN : control this dropdown height, look and feel from the LESS variable file &#45;&#45;> -->
-<!--                 <div class="ajax&#45;dropdown"> -->
-<!--  -->
-<!--                     <!&#45;&#45; the ID links are fetched via AJAX to the ajax container "ajax&#45;notifications" &#45;&#45;> -->
-<!--                     <div class="btn&#45;group btn&#45;group&#45;justified" data&#45;toggle="buttons"> -->
-<!--                         <label class="btn btn&#45;default"> -->
-<!--                             <input type="radio" name="activity" id="ajax/notify/mail.html"> -->
-<!--                             Msgs (14) </label> -->
-<!--                         <label class="btn btn&#45;default"> -->
-<!--                             <input type="radio" name="activity" id="ajax/notify/notifications.html"> -->
-<!--                             notify (3) </label> -->
-<!--                         <label class="btn btn&#45;default"> -->
-<!--                             <input type="radio" name="activity" id="ajax/notify/tasks.html"> -->
-<!--                             Tasks (4) </label> -->
-<!--                     </div> -->
-<!--  -->
-<!--                     <!&#45;&#45; notification content &#45;&#45;> -->
-<!--                     <div class="ajax&#45;notifications custom&#45;scroll"> -->
-<!--  -->
-<!--                         <div class="alert alert&#45;transparent"> -->
-<!--                             <h4>Click a button to show messages here</h4> -->
-<!--                             This blank page message helps protect your privacy, or you can show the first message here automatically. -->
-<!--                         </div> -->
-<!--  -->
-<!--                         <i class="fa fa&#45;lock fa&#45;4x fa&#45;border"></i> -->
-<!--  -->
-<!--                     </div> -->
-<!--                     <!&#45;&#45; end notification content &#45;&#45;> -->
-<!--  -->
-<!--                     <!&#45;&#45; footer: refresh area &#45;&#45;> -->
-<!--                     <span> Last updated on: 12/12/2013 9:43AM -->
-<!--                         <button type="button" data&#45;loading&#45;text="<i class='fa fa&#45;refresh fa&#45;spin'></i> Loading..." class="btn btn&#45;xs btn&#45;default pull&#45;right"> -->
-<!--                             <i class="fa fa&#45;refresh"></i> -->
-<!--                         </button> </span> -->
-<!--                     <!&#45;&#45; end footer &#45;&#45;> -->
-<!--  -->
-<!--                 </div> -->
-<!--                 <!&#45;&#45; END AJAX&#45;DROPDOWN &#45;&#45;> -->
+                </span>
+
+                <div class="ajax-dropdown"></div>
             </div>
 
-                <span style="font-weight: bold; font-size: 140%; color: #FF2383; margin-top: 10px; text-decoration: underline;">ATTENTION - APPLICATION DE TEST - LES DONNÉES SONT FAUSSES</span>
+                <span style="font-weight: bold; font-size: 140%; color: #FF2383; margin-top: 30px; padding-top: 15px; margin-left: 40px; text-decoration: underline;">ATTENTION - APPLICATION EN COURS DE DEVELOPEMENT</span>
 <!--             <!&#45;&#45; projects dropdown &#45;&#45;> -->
 <!--             <div id="project&#45;context"> -->
 <!--  -->
@@ -362,6 +327,17 @@
 
             {% endif %}
         })
+
+        function notification_ignore(pk) {
+            $.ajax('{% url 'notifications.views.dropdown' %}?read=' + pk).done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
+        }
+
+        function mark_all_as_ok() {
+            $.ajax('{% url 'notifications.views.dropdown' %}?allread=jeu').done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
+
+        }
+
+
 
         </script>
 

@@ -79,7 +79,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
         details_display = list_display + [('picture', _('Image'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
-        base_title = _(u'Slide à AGEPoly')
+        base_title = _(u'Slide à l\'AGEPoly')
         list_title = _(u'Liste de toutes les slides à l\'AGEPoly')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-bullhorn'

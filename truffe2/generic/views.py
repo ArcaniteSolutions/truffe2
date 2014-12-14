@@ -402,7 +402,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
                 obj.rights_expire()
 
             if hasattr(obj, 'switch_status_signal'):
-                obj.switch_status_signal(old_status, dest_status)
+                obj.switch_status_signal(request, old_status, dest_status)
 
             log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': unicode(obj.MetaState.states.get(old_status)), 'new': unicode(obj.MetaState.states.get(dest_status))})).save()
 

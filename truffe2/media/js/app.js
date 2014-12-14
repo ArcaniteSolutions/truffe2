@@ -126,11 +126,11 @@ $(document).ready(function() {
 	$('#activity').click(function(e) {
 		var $this = $(this);
 
-		if ($this.find('.badge').hasClass('bg-color-red')) {
-			$this.find('.badge').removeClassPrefix('bg-color-');
-			$this.find('.badge').text("0");
-			// console.log("Ajax call for activity")
-		}
+		// if ($this.find('.badge').hasClass('bg-color-red')) {
+		// 	$this.find('.badge').removeClassPrefix('bg-color-');
+		// 	$this.find('.badge').text("0");
+		// 	// console.log("Ajax call for activity")
+		// }
 
 		if (!$this.next('.ajax-dropdown').is(':visible')) {
 			$this.next('.ajax-dropdown').fadeIn(150);
@@ -142,6 +142,12 @@ $(document).ready(function() {
 
 		var mytest = $this.next('.ajax-dropdown').find('.btn-group > .active > input').attr('id');
 		//console.log(mytest)
+		//
+		//
+		url = $this.attr('url');
+		container = $this.next('.ajax-dropdown');
+
+		$.ajax(url, {'script': true}).done(function(data) { container.html(data); });
 
 		e.preventDefault();
 	});

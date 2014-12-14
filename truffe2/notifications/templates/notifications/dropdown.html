@@ -1,0 +1,42 @@
+{% load i18n %}
+<div style="opacity: 1; padding: 0px; margin: -10px; margin-bottom: 0px; height: 425px;" class="ajax-notifications custom-scroll">
+    <ul class="notification-body">
+        {% for notification in notifications %}
+            <li>
+                <span class="padding-10">
+                    {% include notification.get_template %}
+                </span>
+            </li>
+        {% empty %}
+            <li><span class="padding-10">
+
+                    <em class="badge padding-5 no-border-radius bg-color-greenLight pull-left margin-right-5">
+                        <i class="fa fa-smile-o fa-fw fa-2x"></i>
+                    </em>
+                    <span>
+                        {% trans "Aucune notification !" %}
+                        <br>
+                    </span>
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+<span>
+
+    <button class="btn btn-xs btn-default pull-right" type="button" onclick="mark_all_as_ok();">
+        <i class="fa fa-check"></i> {% trans "Marquer tout comme lu" %}
+    </button>
+
+</span>
+
+<script style="display: none;">
+    $('#activity .badge').html('{{notifications.count}}');
+    {% if not notifications.count %}
+        $('#activity .badge').removeClass('bg-color-red');
+    {% else %}
+        $('#activity .badge').addClass('bg-color-red');
+    {% endif %}
+</script>

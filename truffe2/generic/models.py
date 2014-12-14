@@ -12,6 +12,10 @@ from generic.forms import GenericForm
 import json
 from pytz import timezone
 import copy
+from django.core.urlresolvers import reverse
+
+
+from notifications.utils import notify_people, unotify_people
 
 
 class FalseFK():
@@ -133,6 +137,8 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
                 )
 
+                setattr(real_model_class, '_show_view', '%s.%s_show' % (views_module.__name__, base_views_name,))
+
             if issubclass(model_class, GenericStateModel):
                 setattr(views_module, base_views_name + '_switch_status', views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
                 urls_module.urlpatterns += patterns(views_module.__name__,
@@ -159,6 +165,9 @@ class GenericModel(models.Model):
     def last_log(self):
         """Return the last log entry"""
         return self.logs.order_by('-when')[0]
+
+    def display_url(self):
+        return reverse(str(self.__class__._show_view), args=(self.pk,))
 
     class Meta:
         abstract = True
@@ -335,6 +344,20 @@ class GenericStateModerable(object):
 
         return super(GenericStateModerable, self).rights_can_EDIT(user)
 
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(GenericStateModerable, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(old_status, dest_status)
+
+        if dest_status == '1_asking':
+            notify_people(request, '%s.moderation' % (self.__class__.__name__,), 'moderation', self, self.build_group_members_for_validators())
+
+        if dest_status == '2_online':
+            unotify_people('%s.moderation' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.online' % (self.__class__.__name__,), 'online', self, self.build_group_members_for_editors())
+
 
 class GenericGroupsModel():
 
@@ -383,7 +406,3 @@ class GenericContactableModel():
 
     def contactables_groups(self):
         return self.MetaGroups.groups
-
-
-class GenericNotifiableModel():
-    pass

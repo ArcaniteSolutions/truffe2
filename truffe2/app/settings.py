@@ -122,6 +122,7 @@ INSTALLED_APPS = (
     'units',
     'rights',
     'communication',
+    'notifications',
 
     'generic',
 
@@ -189,7 +190,9 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
     "django.core.context_processors.request",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    "app.utils.add_current_unit")
+    "app.utils.add_current_unit",
+    "notifications.views.notifications_count",
+)
 
 LDAP = 'ldap://ldap.epfl.ch:389'
 

@@ -7,6 +7,7 @@ urlpatterns = patterns('',
     url(r'^users/', include('users.urls')),
     url(r'^units/', include('units.urls')),
     url(r'^communication/', include('communication.urls')),
+    url(r'^notifications/', include('notifications.urls')),
 
     url(r'^impersonate/', include('impersonate.urls')),
 
