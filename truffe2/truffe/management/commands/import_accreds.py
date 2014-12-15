@@ -40,7 +40,7 @@ class Command(BaseCommand):
                     try:
                         user = TruffeUser.objects.get(username=accred_data['user'])
                     except:
-                        print u"User not found", (accred_data['user']
+                        print u"User not found", accred_data['user']
                         user = None
 
                     if role and user:
