@@ -21,8 +21,9 @@
 }
 
 .dropdown-submenu-right > .dropdown-menu {
-  left: -100% !important;
   margin-left: 2px !important;
+  right: 100% !important;
+  left: auto !important;
 }
 
 
