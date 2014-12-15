@@ -117,6 +117,8 @@ INSTALLED_APPS = (
     'multiselectfield',
     'easy_thumbnails',
 
+    'truffe',
+
     'main',
     'users',
     'units',
