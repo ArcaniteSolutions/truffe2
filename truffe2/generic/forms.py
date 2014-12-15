@@ -14,6 +14,11 @@ class GenericForm(ModelForm):
                 from users.models import TruffeUser
                 self.fields['user'].queryset = TruffeUser.objects.filter(accreditation__unit=self.instance.unit, accreditation__end_date=None).distinct().order_by('first_name', 'last_name')
 
+        for unit_field_name in ('unit', 'parent_herachique'):
+            if unit_field_name in self.fields:
+                from units.models import Unit
+                self.fields[unit_field_name].queryset = Unit.objects.order_by('name')
+
 
 class ContactForm(Form):
 

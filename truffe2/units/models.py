@@ -67,7 +67,6 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
 Les unités sont organisées en arbre hérachique, avec le Comité de l'AGEPoly au sommet.""")
 
-
     class Meta:
         abstract = True
 
