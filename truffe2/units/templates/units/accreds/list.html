@@ -12,6 +12,10 @@
 {% block content %}
     <h1>{% trans "Liste de toutes les accréditations" %}</h1>
 
+    <div class="alert alert-danger">
+      {% trans "Les accréditations sont actuellement syncronisés depuis truffe1: Les modifications ne sont pas prise en compte et seront effacées !" %}
+    </div>
+
     <section id="widget-grid" class="">
         <div class="row">
             <div class="col-sm-12 col-md-10 col-lg-10">
