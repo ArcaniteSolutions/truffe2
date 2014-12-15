@@ -63,6 +63,21 @@
         $('.unit-displayed')[0].click();
     }
 
+    //Don't autoclose menu
+    $('.dropdown-menu li a').mouseover(function(e) {
+        e.stopPropagation();
+        $(this).parent().parent().find('li').each(function() {
+            $(this).removeClass('open');
+        });
+        $(this).parent().addClass('open');
+    });
+
+    $('.dropdown-toggle').click(function(e) {
+        $(this).parent().find('li').each(function() {
+            $(this).removeClass('open');
+        });
+    });
+
 
 </script>
 
