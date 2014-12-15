@@ -46,7 +46,10 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
             ('parent_herachique', _('Parent')),
-            ('president', _('President'))
+            ('president', _('President')),
+            ('id_epfl', _('ID EPFL')),
+            ('description', _('Description')),
+            ('url', _('URL')),
         ]
 
         yes_or_no_fields = ['is_commission', 'is_equipe']
