@@ -24,7 +24,7 @@ class Command(BaseCommand):
             try:
                 unit = Unit.objects.get(name=unit_data['name'])
             except:
-                print "Unit %s not found !!" % (unit_data['name'],)
+                print u"Unit %s not found !!" % (unit_data['name'],)
                 unit = None
 
             if unit:
@@ -34,13 +34,13 @@ class Command(BaseCommand):
                     try:
                         role = Role.objects.get(name=accred_data['role'])
                     except:
-                        print "Role %s not found" % (accred_data['role'],)
+                        print u"Role %s not found" % (accred_data['role'],)
                         role = None
 
                     try:
                         user = TruffeUser.objects.get(username=accred_data['user'])
                     except:
-                        print "User %s not found" % (accred_data['user'],)
+                        print u"User %s not found" % (accred_data['user'],)
                         user = None
 
                     if role and user:
