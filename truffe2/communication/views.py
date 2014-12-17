@@ -32,6 +32,6 @@ def random_slide(request):
 
     from communication.models import AgepSlide
 
-    slide = AgepSlide.objects.filter(status='2_online').filter(Q(start_date=None) | Q(start_date__lt=now())).filter(Q(end_date=None) | Q(end_date__gt=now())).order_by('?').all()[0]
+    slide = AgepSlide.objects.filter(status='2_online').exclude(deleted=True).filter(Q(start_date=None) | Q(start_date__lt=now())).filter(Q(end_date=None) | Q(end_date__gt=now())).order_by('?').all()[0]
 
     return HttpResponse(slide.picture.url)
