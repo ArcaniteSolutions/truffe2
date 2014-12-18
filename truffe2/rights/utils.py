@@ -47,6 +47,9 @@ class ModelWithRight(object):
         if user.is_superuser:
             return True
 
+        if not user.pk:
+            return False
+
         # A cache system is used, for performances
 
         # To be able to clear cache, a timestamp is also cached with the lasted
