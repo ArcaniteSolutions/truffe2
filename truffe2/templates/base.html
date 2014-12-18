@@ -166,9 +166,11 @@
                             <li id="menu-gens-annuaire">
                                 <a href="{% url 'users.views.users_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Annuaire global" %}</a>
                             </li>
-                            <li id="menu-gens-monprofile">
-                                <a href="{% url 'users.views.users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profile" %}</a>
-                            </li>
+                            {% if user and user.pk %}
+                                <li id="menu-gens-monprofile">
+                                    <a href="{% url 'users.views.users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profile" %}</a>
+                                </li>
+                            {% endif %}
                         </ul>
                     </li>
                     <li>
