@@ -24,7 +24,7 @@
 
 </div>
 
-<div class="unit-no-unit">
+<div class="unit-no-unit" style="display: none;">
     <div class="alert alert-danger">
         {% trans "Malheureusement, tu ne disposes pas des droits nécessaires pour afficher cette liste, dans aucune unité !" %}
     </div>
@@ -75,7 +75,7 @@
             $('.unit-no-unit').show();
             $('.unit-ok').hide();
 
-            $('.dataTables_processing').html('<div class="alert alert-warning">{% trans "Aucun droit !" %}</div>');
+            setTimeout("$('.dataTables_processing').html('<div class=\"alert alert-warning\">{% trans "Aucun droit !" %}</div>');", 1000);
         } else {
             $('.unit-displayed')[0].click();
         }
