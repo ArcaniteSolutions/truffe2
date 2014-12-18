@@ -128,13 +128,14 @@
             <!-- User info -->
             <div class="login-info">
                 <span>
-
-                    <a href="{% url 'users.views.users_profile' user.pk %}">
-                        <img src="{% url 'users.views.users_profile_picture' user.pk %}" alt="" class="online" />
-                        <span>
-                            {{user.get_full_name}}
-                        </span>
-                    </a>
+                    {% if user and user.pk %}
+                        <a href="{% url 'users.views.users_profile' user.pk %}">
+                            <img src="{% url 'users.views.users_profile_picture' user.pk %}" alt="" class="online" />
+                            <span>
+                                {{user.get_full_name}}
+                            </span>
+                        </a>
+                    {% endif %}
                 </span>
             </div>
             <!-- end user info -->
