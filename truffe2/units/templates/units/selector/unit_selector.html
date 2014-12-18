@@ -2,22 +2,33 @@
 
 {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
 
-{% trans "Tu travailles actuellement avec l'unité" %}<br /><br />
 
-<center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
+<div class="unit-ok">
 
-<span style="float: right;">
-    <div class="dropdown">
-    <a class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">{% trans "Changer" %} <span class="caret"></span></a>
-    <ul class="dropdown-menu dropdown-menu-right" id="unit-selector">
+    {% trans "Tu travailles actuellement avec l'unité" %}<br /><br />
 
-        {% with c_unit=main_unit %}
-            {% include "units/selector/menu_unit.html" %}
-        {% endwith %}
+    <center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
 
-    </ul>
+    <span style="float: right;">
+        <div class="dropdown">
+        <a class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">{% trans "Changer" %} <span class="caret"></span></a>
+        <ul class="dropdown-menu dropdown-menu-right" id="unit-selector">
+
+            {% with c_unit=main_unit %}
+                {% include "units/selector/menu_unit.html" %}
+            {% endwith %}
+
+        </ul>
+        </div>
+    </span>
+
+</div>
+
+<div class="unit-no-unit">
+    <div class="alert alert-danger">
+        {% trans "Malheureusement, tu ne disposes pas des droits nécessaires pour afficher cette liste, dans aucune unité !" %}
     </div>
-</span>
+</div>
 
 <script type="text/javascript">
 
@@ -60,7 +71,14 @@
 
     //Ensure the current unit is selectable
     if ($('#unit-selector-{{CURRENT_UNIT.pk}}').length == 0 || $('#unit-selector-{{CURRENT_UNIT.pk}}').attr('style') == 'display: none;') {
-        $('.unit-displayed')[0].click();
+        if ($('.unit-displayed').length == 0) {
+            $('.unit-no-unit').show();
+            $('.unit-ok').hide();
+
+            $('.dataTables_processing').html('<div class="alert alert-warning">{% trans "Aucun droit !" %}</div>');
+        } else {
+            $('.unit-displayed')[0].click();
+        }
     }
 
     //Don't autoclose menu
@@ -77,6 +95,9 @@
             $(this).removeClass('open');
         });
     });
+
+
+    //
 
 
 </script>
