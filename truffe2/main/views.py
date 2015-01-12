@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -29,5 +29,5 @@ def home(request):
 
     news = filter(lambda s: (not s.start_date or s.start_date <= now()) and (not s.end_date or s.end_date >= now()), list(news))
 
-    return render_to_response('main/home.html', {'news': news}, context_instance=RequestContext(request))
+    return render(request, 'main/home.html', {'news': news})
 

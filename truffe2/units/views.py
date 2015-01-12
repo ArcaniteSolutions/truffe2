@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -45,7 +45,7 @@ def accreds_list(request):
 
     can_edit = Accreditation.static_rights_can('CREATE', request.user, get_current_unit(request))
 
-    return render_to_response('units/accreds/list.html', {'main_unit': main_unit, 'can_edit': can_edit}, context_instance=RequestContext(request))
+    return render(request, 'units/accreds/list.html', {'main_unit': main_unit, 'can_edit': can_edit})
 
 
 @login_required
@@ -115,7 +115,7 @@ def accreds_delete(request, pk):
 
         return redirect('units.views.accreds_list')
 
-    return render_to_response('units/accreds/delete.html', {'accred': accred, 'cannot_last_prez': cannot_last_prez}, context_instance=RequestContext(request))
+    return render(request, 'units/accreds/delete.html', {'accred': accred, 'cannot_last_prez': cannot_last_prez})
 
 
 @login_required
@@ -165,7 +165,7 @@ def accreds_add(request):
     else:
         form = AccreditationAddForm(request.user)
 
-    return render_to_response('units/accreds/add.html', {'form': form, 'done': done, 'unit': unit}, context_instance=RequestContext(request))
+    return render(request, 'units/accreds/add.html', {'form': form, 'done': done, 'unit': unit})
 
 
 @login_required

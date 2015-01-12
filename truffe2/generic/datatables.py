@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 
 def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None):
@@ -94,6 +94,6 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
     data = {'iTotalRecords': total_records, 'iTotalDisplayRecords': total_display_records, 'sEcho': int(request.REQUEST.get('sEcho', 0)), 'list': qs.all()}
     data.update(bonus_data)
 
-    rep = render_to_response(templates, data, context_instance=RequestContext(request), content_type='application/json')
+    rep = render(request, templates, data, content_type='application/json')
 
     return rep

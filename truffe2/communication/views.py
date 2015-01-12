@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -24,7 +24,7 @@ from django.db.models import Q
 def ecrans(request):
     """View to display the ecran page"""
 
-    return render_to_response('communication/ecrans.html', {}, context_instance=RequestContext(request))
+    return render(request, 'communication/ecrans.html', {})
 
 
 def random_slide(request):

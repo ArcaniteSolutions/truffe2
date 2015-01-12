@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -74,10 +74,10 @@ def generate_list(module, base_name, model_class):
             if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
                 raise Http404
 
-        return render_to_response([module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
+        return render(request, [module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view,
             'unit_mode': unit_mode, 'main_unit': main_unit
-        }, context_instance=RequestContext(request))
+        })
 
     return _generic_list
 
@@ -217,7 +217,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         else:
             form = form_class(request.user, instance=obj)
 
-        return render_to_response([module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit}, context_instance=RequestContext(request))
+        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit})
 
     return _generic_edit
 
@@ -259,13 +259,13 @@ def generate_show(module, base_name, model_class, log_class):
         else:
             contactables_groups = None
 
-        return render_to_response([module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
+        return render(request, [module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view,
             'obj': obj, 'log_entires': log_entires,
             'rights': rights,
             'unit_mode': unit_mode, 'current_unit': current_unit,
             'contactables_groups': contactables_groups
-        }, context_instance=RequestContext(request))
+        })
 
     return _generic_show
 
@@ -305,10 +305,10 @@ def generate_delete(module, base_name, model_class, log_class):
             messages.success(request, _(u'Élément supprimé !'))
             return redirect(list_view)
 
-        return render_to_response([module.__name__ + '/' + base_name + '/delete.html', 'generic/generic/delete.html'], {
+        return render(request, [module.__name__ + '/' + base_name + '/delete.html', 'generic/generic/delete.html'], {
             'Model': model_class, 'show_view': show_view, 'list_view': list_view,
             'obj': obj, 'can_delete': can_delete, 'can_delete_message': can_delete_message,
-        }, context_instance=RequestContext(request))
+        })
 
     return _generic_delete
 
@@ -361,10 +361,10 @@ def generate_deleted(module, base_name, model_class, log_class):
         else:
             liste = liste.all()
 
-        return render_to_response([module.__name__ + '/' + base_name + '/deleted.html', 'generic/generic/deleted.html'], {
+        return render(request, [module.__name__ + '/' + base_name + '/deleted.html', 'generic/generic/deleted.html'], {
             'Model': model_class, 'list_view': list_view, 'liste': liste,
             'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit
-        }, context_instance=RequestContext(request))
+        })
 
     return _generic_deleted
 
@@ -409,11 +409,11 @@ def generate_switch_status(module, base_name, model_class, log_class):
             messages.success(request, _(u'Status modifié !'))
             done = True
 
-        return render_to_response([module.__name__ + '/' + base_name + '/switch_status.html', 'generic/generic/switch_status.html'], {
+        return render(request, [module.__name__ + '/' + base_name + '/switch_status.html', 'generic/generic/switch_status.html'], {
             'Model': model_class, 'obj': obj, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done,
             'dest_status': dest_status, 'dest_status_message': obj.MetaState.states.get(dest_status),
             'status_view': status_view,
-        }, context_instance=RequestContext(request))
+        })
 
     return _switch_status
 
@@ -465,8 +465,8 @@ def generate_contact(module, base_name, model_class, log_class):
         else:
             form = ContactForm(contactables_groups, initial={'key': key})
 
-        return render_to_response([module.__name__ + '/' + base_name + '/contact.html', 'generic/generic/contact.html'], {
+        return render(request, [module.__name__ + '/' + base_name + '/contact.html', 'generic/generic/contact.html'], {
             'Model': model_class, 'obj': obj, 'contact_view': contact_view, 'form': form, 'done': done
-        }, context_instance=RequestContext(request))
+        })
 
     return _contact

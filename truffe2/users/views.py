@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -37,7 +37,7 @@ def login(request):
 
     why = request.GET.get('why')
 
-    return render_to_response('users/login/login.html', {'why': why}, context_instance=RequestContext(request))
+    return render(request, 'users/login/login.html', {'why': why})
 
 
 @login_required
@@ -46,7 +46,7 @@ def users_list(request):
 
     print request.user.get_roles()
 
-    return render_to_response('users/users/list.html', {}, context_instance=RequestContext(request))
+    return render(request, 'users/users/list.html', {})
 
 
 @login_required
@@ -68,7 +68,7 @@ def users_profile(request, pk):
     for field in UserPrivacy.FIELD_CHOICES:
         privacy_values[field[0]] = UserPrivacy.user_can_access(request.user, user, field[0])
 
-    return render_to_response('users/users/profile.html', {'user_to_display': user, 'privacy_values': privacy_values}, context_instance=RequestContext(request))
+    return render(request, 'users/users/profile.html', {'user_to_display': user, 'privacy_values': privacy_values})
 
 
 @login_required
@@ -112,7 +112,7 @@ def users_edit(request, pk):
 
     privacy_choices = UserPrivacy.LEVEL_CHOICES
 
-    return render_to_response('users/users/edit.html', {'form': form, 'privacy_choices': privacy_choices, 'privacy_values': privacy_values}, context_instance=RequestContext(request))
+    return render(request, 'users/users/edit.html', {'form': form, 'privacy_choices': privacy_choices, 'privacy_values': privacy_values})
 
 
 @login_required
