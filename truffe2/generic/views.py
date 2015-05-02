@@ -55,6 +55,7 @@ def generate_list(module, base_name, model_class):
 
         json_view = module.__name__ + '.views.' + base_name + '_list_json'
         edit_view = module.__name__ + '.views.' + base_name + '_edit'
+        show_view = module.__name__ + '.views.' + base_name + '_show'
         deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
 
         unit_mode, current_unit = get_unit_data(model_class, request)
@@ -74,9 +75,19 @@ def generate_list(module, base_name, model_class):
             if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
                 raise Http404
 
+        if hasattr(model_class, 'moderable_object') and model_class.moderable_object:  # If the object is moderable, list all moderable things by the current user
+            # List all moderiables in the 'todo' satate
+            moderables = model_class.objects.filter(status=model_class.moderable_state)
+
+            # Filter to check if user has rights
+            moderables = filter(lambda m: m.rights_can('VALIDATE', request.user), moderables)
+        else:
+            moderables = False
+
         return render(request, [module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
-            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view,
-            'unit_mode': unit_mode, 'main_unit': main_unit
+            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view,
+            'unit_mode': unit_mode, 'main_unit': main_unit,
+            'moderables': moderables
         })
 
     return _generic_list

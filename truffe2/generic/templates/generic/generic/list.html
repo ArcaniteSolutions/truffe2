@@ -12,6 +12,23 @@
 {% block content %}
     <h1>{{Model.MetaData.list_title}}</h1>
 
+    {% if moderables %}
+
+      <div class="alert alert-warning">
+        <i class="glyphicon glyphicon-warning-sign"></i>
+          {% trans "Il y a des éléments à modérer !" %}
+          <div class="btn-group">
+              <button class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown">{% trans "Accès rapide" %} <span class="caret"></span></button>
+              <ul class="dropdown-menu">
+                  {% for moderable in moderables %}
+                      <li><a href="{% url show_view moderable.pk %}">{{moderable}}</a></li>
+                  {% endfor %}
+              </ul>
+          </div>
+      </div>
+
+    {% endif %}
+
     <section id="widget-grid" class="">
         <div class="row">
           <div class="col-sm-12 col-md-{% if unit_mode or Model.MetaData.help_list %}10{% else %}12{% endif %} col-lg-{% if unit_mode or Model.MetaData.help_list %}10{% else %}12{% endif %}">

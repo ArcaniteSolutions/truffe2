@@ -250,6 +250,9 @@ class GenericLogEntry(models.Model):
 class GenericStateModerable(object):
     """Un système de status générique pour de la modération"""
 
+    moderable_object = True
+    moderable_state = '1_asking'
+
     def __init__(self, *args, **kwargs):
 
         super(GenericStateModerable, self).__init__(*args, **kwargs)
