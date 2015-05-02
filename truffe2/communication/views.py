@@ -17,8 +17,9 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
-
 from django.db.models import Q
+
+import json
 
 
 def ecrans(request):
@@ -35,3 +36,16 @@ def random_slide(request):
     slide = AgepSlide.objects.filter(status='2_online').exclude(deleted=True).filter(Q(start_date=None) | Q(start_date__lt=now())).filter(Q(end_date=None) | Q(end_date__gt=now())).order_by('?').all()[0]
 
     return HttpResponse(slide.picture.url)
+
+
+def website_news(request):
+    """Return data to display on website"""
+
+    from communication.models import WebsiteNews
+
+    retour = []
+
+    for news in WebsiteNews.objects.filter(status='2_online').exclude(deleted=True).filter(Q(start_date=None) | Q(start_date__lt=now())).filter(Q(end_date=None) | Q(end_date__gt=now())).order_by('?'):
+        retour.append({'title': news.title, 'content': news.content, 'url': news.url})
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')

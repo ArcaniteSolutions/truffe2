@@ -8,4 +8,5 @@ urlpatterns = patterns(
 
     url(r'^ecrans$', 'ecrans'),
     url(r'^random_slide$', 'random_slide'),
+    url(r'^website_news$', 'website_news'),
 )
