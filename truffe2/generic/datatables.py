@@ -14,7 +14,7 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
         # Ordering
         try:
             i_sorting_cols = int(request.REQUEST.get('iSortingCols', 0))
-        except ValueError:
+        except:
             i_sorting_cols = 0
 
         order = []

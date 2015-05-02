@@ -43,12 +43,16 @@
         data_table_{{id}} = $('#{{id}}').dataTable({
             {% if not datatable_simple %}
                 "oTableTools" : {
-                    "aButtons" : ["copy", "print", {
-                        "sExtends" : "collection",
-                        "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
-                        "aButtons" : ["csv", "xls", "pdf"]
-                    }],
-                    "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
+                    {% if not datatable_notools %}
+                        "aButtons" : ["copy", "print", {
+                            "sExtends" : "collection",
+                            "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
+                            "aButtons" : ["csv", "xls", "pdf"]
+                        }],
+                        "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
+                    {% else %}
+                        "aButtons" : []
+                    {% endif %}
                 },
                 "bDeferRender": true,
                 "bProcessing": true,
@@ -76,8 +80,11 @@
                 {% if status_filter %}
                     "aaSorting": [[{{status_col_id}}, 'asc']],
                 {% endif %}
+                {% if default_sort %}
+                    "aaSorting": [{{default_sort}}],
+                {% endif %}
             {% else %}
-            "aaSorting": [],
+                "aaSorting": [],
             {% endif %}
             "sPaginationType" : "bootstrap_full"
         });

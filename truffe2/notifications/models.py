@@ -28,3 +28,9 @@ class Notification(models.Model):
 
     def get_email_template(self):
         return 'notifications/species/mails/%s.html' % (self.species,)
+
+    def get_center_message_template(self):
+        return 'notifications/species/center/message/%s.html' % (self.species,)
+
+    def get_center_buttons_template(self):
+        return 'notifications/species/center/buttons/%s.html' % (self.species,)

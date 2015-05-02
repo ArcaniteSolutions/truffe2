@@ -141,9 +141,10 @@
             <!-- end user info -->
             <nav>
                 <ul>
-                    <li>
+                    <li id="menu-home">
                         <a href="{% url 'main.views.home' %}" title="{% trans "Acceuil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Acceuil" %}</span></a>
                     </li>
+
                     <li>
                         <a href="https://truffe.polylan.ch" title="{% trans "Retourner sur Truffe 1" %}"><i class="fa fa-lg fa-fw fa-backward"></i> <span class="menu-item-parent">{% trans "Retourner sur Truffe 1" %}</span></a>
                     </li>
@@ -219,6 +220,13 @@
                                 </li>
                             {% endifhasright %}
                         </ul>
+                    </li>
+
+                    <li id="menu-notifications">
+                        <a href="{% url 'notifications.views.notification_center' %}">
+                            <i class="fa fa-lg fa-fw fa-bell"></i>
+                            <span class="menu-item-parent">{% trans "Centre de notifications" %}</span>
+                        </a>
                     </li>
                 </ul>
             </nav>

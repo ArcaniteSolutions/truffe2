@@ -24,9 +24,14 @@
 </div>
 
 
-<span>
+<span class="pull-right">
 
-    <button class="btn btn-xs btn-default pull-right" type="button" onclick="mark_all_as_ok();">
+    <a href="{% url 'notifications.views.notification_center' %}" class="btn btn-xs btn-primary">
+        <i class="fa fa-bell"></i>
+        {% trans "Centre de notifications" %}</a>
+    </a>
+
+    <button class="btn btn-xs btn-default" type="button" onclick="mark_all_as_ok();">
         <i class="fa fa-check"></i> {% trans "Marquer tout comme lu" %}
     </button>
 
