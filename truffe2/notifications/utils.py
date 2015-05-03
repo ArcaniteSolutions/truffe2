@@ -1,4 +1,4 @@
-from notifications.models import Notification
+from notifications.models import Notification, NotificationRestriction
 from django.contrib.contenttypes.models import ContentType
 
 from django.utils.translation import ugettext_lazy as _
@@ -15,7 +15,14 @@ def notify_people(request, key, species, obj, users):
         n = Notification(key=key, species=species, linked_object=obj, user=user)
         n.save()
 
-        if Notification.objects.filter(key=key, species=species, object_id=obj.pk, content_type=ContentType.objects.get_for_model(obj), user=user, seen=False).count() == 1:
+        notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=user, key=key)
+        notification_restriction_all, __ = NotificationRestriction.objects.get_or_create(user=user, key='')
+
+        if notification_restriction.autoread or notification_restriction_all.autoread:
+            n.seen = True
+            n.save()
+
+        if not notification_restriction.no_email and not notification_restriction_all.no_email and Notification.objects.filter(key=key, species=species, object_id=obj.pk, content_type=ContentType.objects.get_for_model(obj), user=user, seen=False).count() == 1:
 
             context = {
                 'notification': n,

@@ -1,0 +1,36 @@
+{% load i18n %}
+
+{% if key %}
+    {% trans "Pour les notifications de type" %} {{key}}:
+{% else %}
+    {% trans "Pour toutes les notificaitons:" %}
+{% endif %}
+
+<h6>{% trans "Désactiver les mails" %}</h6>
+<center>
+    <span class="onoffswitch">
+        <input type="checkbox" class="onoffswitch-checkbox" id="notifications_mail" {% if notification_restriction.no_email %}checked{% endif %}>
+        <label class="onoffswitch-label" for="notifications_mail">
+          <span class="onoffswitch-inner" data-swchon-text="{% trans "Oui" %}" data-swchoff-text="{% trans "Non" %}"></span>
+            <span class="onoffswitch-switch"></span>
+        </label>
+    </span>
+</center>
+
+<h6>{% trans "Ignorer automatiquement" %}</h6>
+<center>
+    <span class="onoffswitch">
+        <input type="checkbox" class="onoffswitch-checkbox" id="notifications_mute" {% if notification_restriction.autoread %}checked{% endif %}>
+        <label class="onoffswitch-label" for="notifications_mute">
+          <span class="onoffswitch-inner" data-swchon-text="{% trans "Oui" %}" data-swchoff-text="{% trans "Non" %}"></span>
+            <span class="onoffswitch-switch"></span>
+        </label>
+    </span>
+</center>
+
+{% if not key and notification_restriction.no_email %}
+    <div class="alert alert-warning">
+      <i class="fa-fw fa fa-warning"></i>
+      {% trans "Désactiver toutes les notifications est une mauvaise idée !" %}
+    </div>
+{% endif %}

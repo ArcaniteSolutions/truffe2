@@ -12,5 +12,7 @@ urlpatterns = patterns(
     url(r'^center/$', 'notification_center'),
     url(r'^center/keys$', 'notification_keys'),
     url(r'^center/json$', 'notification_json'),
+    url(r'^center/restrictions$', 'notification_restrictions'),
+    url(r'^center/restrictions/update$', 'notification_restrictions_update'),
     url(r'^read$', 'mark_as_read'),
 )

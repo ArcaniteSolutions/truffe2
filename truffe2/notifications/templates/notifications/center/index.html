@@ -17,10 +17,15 @@
 
     <div class="inbox-side-bar">
 
-      <h6>{% trans "Par type" %}</h6>
+      <h5>{% trans "Type de notification" %}</h5>
 
-        <ul class="inbox-menu-lg" id="notification_types">
-        </ul>
+      <ul class="inbox-menu-lg" id="notification_types">
+      </ul>
+
+      <h5>{% trans "Restrictions" %}</h5>
+
+      <div id="notification_restrictions"></div>
+
     </div>
 
     <div class="table-wrap" style="padding-top: 50px;">
@@ -79,6 +84,25 @@
 
     load_types();
 
+    function load_restrictions() {
+
+        $.ajax('{% url 'notifications.views.notification_restrictions' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
+            function (data) {
+                $('#notification_restrictions').html(data);
+
+                $('#notifications_mute, #notifications_mail').on('change', function (e) {
+
+                  $.ajax('{% url 'notifications.views.notification_restrictions_update' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE + '&mail=' + $('#notifications_mail').is(':checked') + '&mute=' + $('#notifications_mute').is(':checked') + '&elem=' + $(e.target).attr('id')).done(function() { load_restrictions(); });
+
+
+                });
+            }
+        );
+
+    }
+
+    load_restrictions();
+
     function reload_data() {
         data_table_main_list_table._fnAjaxUpdate();
     }
@@ -87,6 +111,7 @@
         NOTIFICATIONS_CURRENT_TYPE = type;
         reload_data();
         load_types();
+        load_restrictions();
 
     }
 

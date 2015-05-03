@@ -34,3 +34,12 @@ class Notification(models.Model):
 
     def get_center_buttons_template(self):
         return 'notifications/species/center/buttons/%s.html' % (self.species,)
+
+
+class NotificationRestriction(models.Model):
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    key = models.CharField(max_length=255)
+
+    no_email = models.BooleanField(default=False)
+    autoread = models.BooleanField(default=False)

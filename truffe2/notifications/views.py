@@ -17,7 +17,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 
-from notifications.models import Notification
+from notifications.models import Notification, NotificationRestriction
 from generic.datatables import generic_list_json
 
 
@@ -99,6 +99,36 @@ def notification_json(request):
         bonus_filter = lambda x: x.filter(user=request.user)
 
     return generic_list_json(request, Notification, ['creation_date', 'key', 'linked_object', 'pk', 'pk'], 'notifications/center/json.html', bonus_filter_function=bonus_filter)
+
+
+@login_required
+def notification_restrictions(request):
+
+    key = request.GET.get('current_type')
+
+    notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=request.user, key=key)
+    return render(request, 'notifications/center/restrictions.html', {'key': key, 'notification_restriction': notification_restriction})
+
+
+@login_required
+def notification_restrictions_update(request):
+
+    key = request.GET.get('current_type')
+
+    notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=request.user, key=key)
+    notification_restriction.no_email = request.GET.get('mail') == 'true'
+    notification_restriction.autoread = request.GET.get('mute') == 'true'
+
+    if notification_restriction.autoread and not notification_restriction.no_email:
+
+        if 'mail' in request.GET.get('elem'):
+            notification_restriction.autoread = False
+        else:
+            notification_restriction.no_email = True
+
+    notification_restriction.save()
+
+    return HttpResponse()
 
 
 @login_required
