@@ -38,7 +38,11 @@
                                       <span class="label label-{{obj.status_color}}"><i class="{{obj.status_icon}}"></i> {{obj.get_status_display}}</span>
                                       {% include "generic/generic/show_state_switcher.html" %}
                                     {% else %}
-                                      {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
+                                      {% if elem in Model.MetaData.html_fields %}
+                                        {{obj|get_attr:elem|default:"&nbsp;"|html_check_and_safe}}
+                                      {% else %}
+                                        {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
+                                      {% endif %}
                                     {% endif %}
                                   {% endif %}
                               {% endif %}
@@ -86,13 +90,13 @@
 
                                                   <tbody>
                                                       {% for field, value in log_entry.json_extra_data.added.iteritems %}
-                                                          <tr class='success'><td><i class='fa fa-plus'></i></td><td>{{field}}</td><td>&nbsp;</td><td>{{value}}</td>
+                                                          <tr class='success'><td><i class='fa fa-plus'></i></td><td>{{field}}</td><td>&nbsp;</td><td>{{value|html_check_and_safe|truncatewords_html:500|force_escape}}</td>
                                                       {% endfor %}
                                                       {% for field, value in log_entry.json_extra_data.edited.iteritems %}
-                                                          <tr class='warning'><td><i class='fa fa-asterisk'></i></td><td>{{field}}</td><td>{{value.0}}</td><td>{{value.1}}</td>
+                                                          <tr class='warning'><td><i class='fa fa-asterisk'></i></td><td>{{field}}</td><td>{{value.0|html_check_and_safe|truncatewords_html:500|force_escape}}</td><td>{{value.1|html_check_and_safe|truncatewords_html:500|force_escape}}</td>
                                                       {% endfor %}
                                                       {% for field, value in log_entry.json_extra_data.deleted.iteritems %}
-                                                          <tr class='danger'><td><i class='fa fa-times'></i></td><td>{{field}}</td><td>{{value}}</td><td>&nbsp;</td>
+                                                          <tr class='danger'><td><i class='fa fa-times'></i></td><td>{{field}}</td><td>{{value|html_check_and_safe|truncatewords_html:500|force_escape}}</td><td>&nbsp;</td>
                                                       {% endfor %}
 
                                                   </tbody>

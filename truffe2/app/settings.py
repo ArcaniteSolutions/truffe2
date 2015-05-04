@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     'rights',
     'communication',
     'notifications',
+    'logistics',
 
     'generic',
 

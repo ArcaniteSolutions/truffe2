@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'^units/', include('units.urls')),
     url(r'^communication/', include('communication.urls')),
     url(r'^notifications/', include('notifications.urls')),
+    url(r'^logistics/', include('logistics.urls')),
 
     url(r'^impersonate/', include('impersonate.urls')),
 

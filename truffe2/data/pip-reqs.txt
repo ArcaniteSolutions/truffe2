@@ -8,3 +8,4 @@ django-impersonate
 pytz
 git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails
+bleach

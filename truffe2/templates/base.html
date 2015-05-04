@@ -197,6 +197,16 @@
                         </ul>
                     </li>
                     <li>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> <span class="menu-item-parent">{% trans "Logistique" %}</span></a>
+                        <ul>
+                            {% ifhasright 'logistics.models.Room' user 'LIST' %}
+                                <li id="menu-logistics-room">
+                                    <a href="{% url 'logistics.views.room_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des salles" %}</a>
+                                </li>
+                            {% endifhasright %}
+                        </ul>
+                    </li>
+                    <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-suitcase"></i> <span class="menu-item-parent">{% trans "Unités&Acreds" %}</span></a>
                         <ul>
                             {% ifhasright 'units.models.Unit' user 'LIST' %}

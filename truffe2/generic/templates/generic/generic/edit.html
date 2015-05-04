@@ -90,12 +90,27 @@
 
 <script type="text/javascript" src="{{MEDIA_URL}}js/plugin/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <link rel="stylesheet" type="text/css" media="screen" href="{{MEDIA_URL}}js/plugin/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css">
+<script type="text/javascript" src="{{MEDIA_URL}}js/plugin/summernote/summernote.js"></script>
 
 <script type="text/javascript">
 
 
     {% for field in Model.MetaEdit.date_time_fields %}
         $("#id_{{field}}").datetimepicker({format: 'yyyy-mm-dd hh:ii', weekStart: 1, autoclose: true, todayBtn: true});
+    {% endfor %}
+
+    {% for field in Model.MetaEdit.html_fields %}
+        $("#id_{{field}}").summernote({
+            height : 180,
+            focus : false,
+            tabsize : 2,
+            onblur: function (e) {
+              $('#id_{{field}}').val($("#id_{{field}}").code());
+            }
+        });
+
+        $("#id_{{field}}").code(($('#id_{{field}}').val()));
+
     {% endfor %}
 
 </script>
