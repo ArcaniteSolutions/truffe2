@@ -1,17 +1,29 @@
+# -*- coding: utf-8 -*-
+
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+
 
 def add_current_unit(request):
     """Template context processor to add current unit"""
 
-    return {'CURRENT_UNIT': get_current_unit(request)}
+    current_unit = get_current_unit(request, True)
+
+    current_unit_pk = current_unit.pk if current_unit else -1
+    current_unit_name = current_unit.name if current_unit else _(u'Unités externes')
+
+    return {'CURRENT_UNIT': current_unit, 'CURRENT_UNIT_NAME': current_unit_name, 'CURRENT_UNIT_PK': current_unit_pk}
 
 
-def get_current_unit(request):
+def get_current_unit(request, unit_blank=True):
     """Return the current unit"""
 
     from units.models import Unit
 
     current_unit_pk = request.session.get('current_unit_pk', 1)
+
+    if int(current_unit_pk) == -1 and unit_blank:
+        return None
 
     try:
         current_unit = Unit.objects.get(pk=current_unit_pk)

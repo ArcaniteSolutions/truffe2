@@ -108,7 +108,13 @@ class GenericModel(models.Model):
                     model = Model
                     exclude = ('deleted', 'status', 'unit')
 
+                class MetaNoUnitExternal():
+                    model = Model
+                    exclude = ('deleted', 'status', 'unit', 'unit_blank_user')
+
                 if hasattr(model_class.MetaData, 'has_unit') and model_class.MetaData.has_unit:
+                    if issubclass(model_class, GenericExternalUnitAllowed):
+                        return MetaNoUnitExternal
                     return MetaNoUnit
 
                 return Meta
@@ -488,6 +494,14 @@ class GenericExternalUnitAllowed():
 
         return {
             'unit': models.ForeignKey(cache['units.models.Unit'], blank=True, null=True),
-            'unit_blank_user': models.ForeignKey(settings.AUTH_USER_MODEL),
-            'unit_blank_name': models.CharField(max_length=255),
+            'unit_blank_user': models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True),
+            'unit_blank_name': models.CharField(_(u'Nom de l\'entité externe'), max_length=255, blank=True, null=True),
         }
+
+
+    def get_unit_name(self):
+
+        if self.unit:
+            return '<span class="label label-success">%s</span>' % (self.unit,)
+
+        return '<span class="label label-warning">%s (Externe, par %s)</span>' % (self.unit_blank_name, self.unit_blank_user)

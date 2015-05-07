@@ -57,7 +57,7 @@ class ModelWithRight(object):
         # (cache_key_user_last). If the computed value is olded than those two
         # values, cache is not taken into account
 
-        if hasattr(self, 'unit') and self.unit.pk:
+        if hasattr(self, 'unit') and self.unit and self.unit.pk:
             unit_pk = self.unit.pk
         else:
             unit_pk = 'NOUPK'
@@ -196,6 +196,7 @@ class AgepolyEditableModel(BasicRightModel):
 
 
 class UnitEditableModel(BasicRightModel):
+    """Editable par n'importe quelle unit, pour les objects de l'unité"""
 
     class MetaRights(BasicRightModel.MetaRights):
         pass
@@ -220,4 +221,46 @@ class UnitEditableModel(BasicRightModel):
         return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
     def rights_peoples_in_EDIT(self):
+        return self.people_in_linked_unit(self.MetaRightsUnit.access)
+
+
+class UnitExternalEditableModel(BasicRightModel):
+    """Editable par n'importe quelle unit, y compris les externes pour les objects de l'unité"""
+
+    class MetaRights(BasicRightModel.MetaRights):
+        pass
+
+    class MetaRightsUnit:
+        access = 'PRESIDENCE'
+        unit_ro_access = False
+
+    def rights_can_SHOW(self, user):
+
+        # Peut toujours afficher, de manière générique
+        if not hasattr(self, self.MetaRights.linked_unit_property):
+            return True
+
+        if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
+            try:
+                return not self.unit_blank_user or self.unit_blank_user == user
+            except:
+                return True  # Pas d'unité, ni d'users
+
+        return (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+    def rights_can_EDIT(self, user):
+
+        if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
+            try:
+                return not self.unit_blank_user or self.unit_blank_user == user
+            except:
+                return True  # Pas d'unité, ni d'users
+
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+    def rights_peoples_in_EDIT(self):
+
+        if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
+            return [user]
+
         return self.people_in_linked_unit(self.MetaRightsUnit.access)

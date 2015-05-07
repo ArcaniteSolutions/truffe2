@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 
-from rights.utils import UnitEditableModel
+from rights.utils import UnitEditableModel, UnitExternalEditableModel
 
 
 class _Room(GenericModel, GenericGroupsModel, UnitEditableModel):
@@ -61,16 +61,21 @@ N'importe quelle unité peut mettre à disposition des salles et est responsable
         return self.title
 
 
-class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitEditableModel):
+class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel):
+
+    class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
+        access = 'LOGISTIQUE'
+        moderation_access = 'LOGISTIQUE'
 
     room = FalseFK('logistics.models.Room')
+
+    title = models.CharField(max_length=255)
 
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
-    title = models.CharField(max_length=255)
-    raison = models.TextField()
-    remarks = models.TextField()
+    raison = models.TextField(help_text=_(u'Explique pourquoi tu as besion (manifestation par ex.)'))
+    remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     generic_state_unit_field = 'room.unit'
 
@@ -78,6 +83,7 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
 
         list_display = [
             ('title', _('Titre')),
+            ('get_unit_name', 'Non de l\'unité'),
             ('start_date', _('Date debut')),
             ('end_date', _('Date fin')),
             ('status', _('Status')),
@@ -90,6 +96,8 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         list_title = _(u'Liste de toutes les réservation de salles')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
+
+        safe_fields = ['get_unit_name']
 
         menu_id = 'menu-logistics-room-reservation'
 

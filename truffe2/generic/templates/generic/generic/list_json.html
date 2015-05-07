@@ -23,7 +23,11 @@
                 {% if field == 'status' and elem.MetaState.states %}
                     <span class='label label-{{elem.status_color}}'><i class='{{elem.status_icon}}'></i> {{elem.get_status_display|force_escape|escapejs}}</span>
                 {% else %}
-                    {{elem|get_attr:field|force_escape|escapejs}}
+                    {% if field in Model.MetaData.safe_fields %}
+                        {{elem|get_attr:field|escapejs}}
+                    {% else %}
+                        {{elem|get_attr:field|force_escape|escapejs}}
+                    {% endif %}
                 {% endif %}
             {% endif %}
         {% endif %}

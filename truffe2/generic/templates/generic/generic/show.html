@@ -41,7 +41,13 @@
                                       {% if elem in Model.MetaData.html_fields %}
                                         {{obj|get_attr:elem|default:"&nbsp;"|html_check_and_safe}}
                                       {% else %}
-                                        {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
+
+                                          {% if elem in Model.MetaData.safe_fields %}
+                                              {{obj|get_attr:elem|safe|default:"&nbsp;"|linebreaksbr}}
+                                          {% else %}
+                                              {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
+                                          {% endif %}
+
                                       {% endif %}
                                     {% endif %}
                                   {% endif %}

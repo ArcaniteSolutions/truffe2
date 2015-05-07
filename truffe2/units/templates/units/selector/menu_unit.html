@@ -2,9 +2,9 @@
 
 {% with template_name="units/selector/menu_unit.html" %}
     {% if not c_unit.has_sub %}
-    <li role="presentation">
-        <a role="menuitem" tabindex="-1" href="#" id="unit-selector-{{c_unit.pk}}" {% if c_unit.rights_can_select %}onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}', {{c_unit.rights_can_edit|yesno:"true,false"}});" class="unit-displayed"{% else %}class="unit-hidden"{% endif %}>{% if not c_unit.rights_can_select %}<strike>{% endif %}{{c_unit}}{% if not c_unit.rights_can_select %}</strike>{% endif %}</a>
-    </li>
+        <li role="presentation">
+            <a role="menuitem" tabindex="-1" href="#" id="unit-selector-{{c_unit.pk}}" {% if c_unit.rights_can_select %}onclick="select_unit({{c_unit.pk}}, '{{c_unit.name|escapejs}}', {{c_unit.rights_can_edit|yesno:"true,false"}});" class="unit-displayed"{% else %}class="unit-hidden"{% endif %}>{% if not c_unit.rights_can_select %}<strike>{% endif %}{{c_unit}}{% if not c_unit.rights_can_select %}</strike>{% endif %}</a>
+        </li>
     {% else %}
         <li class="dropdown-submenu dropdown-submenu-right">
 

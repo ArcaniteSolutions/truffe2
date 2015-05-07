@@ -7,7 +7,7 @@
 
     {% trans "Tu travailles actuellement avec l'unité" %}<br /><br />
 
-    <center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
+    <center><b class="cgroupe" pk="{{CURRENT_UNIT_PK}}">{{CURRENT_UNIT_NAME}}</b></center><br />
 
     <span style="float: right;">
         <div class="dropdown">
@@ -17,6 +17,14 @@
             {% with c_unit=main_unit %}
                 {% include "units/selector/menu_unit.html" %}
             {% endwith %}
+
+            {% if unit_blank %}
+
+                <li role="presentation">
+                    <a role="menuitem" tabindex="-1" href="#" id="unit-selector--1" onclick="select_unit(-1, '{% trans "Unités externes" %}', true);" class="unit-displayed"><u>{% trans "Unités externes" %}</u></a>
+                </li>
+
+            {% endif %}
 
         </ul>
         </div>
@@ -32,10 +40,20 @@
 
 <script type="text/javascript">
 
+    {% if CURRENT_UNIT_PK != -1 %}
+        $('#id_unit_blank_name').parent().parent().hide();
+    {% endif %}
+
     function select_unit(pk, name, can_edit) {
 
         $('.cgroupe').text(name);
         $('.cgroupe').attr("pk", pk);
+
+        if (pk == -1) {
+            $('#id_unit_blank_name').parent().parent().show();
+        } else {
+            $('#id_unit_blank_name').parent().parent().hide();
+        }
 
         {% if function_to_call %}
             {{function_to_call}}(pk, name, can_edit);
@@ -70,7 +88,7 @@
     });
 
     //Ensure the current unit is selectable
-    if ($('#unit-selector-{{CURRENT_UNIT.pk}}').length == 0 || $('#unit-selector-{{CURRENT_UNIT.pk}}').attr('style') == 'display: none;') {
+    if ($('#unit-selector-{{CURRENT_UNIT_PK}}').length == 0 || $('#unit-selector-{{CURRENT_UNIT_PK}}').attr('style') == 'display: none;') {
         if ($('.unit-displayed').length == 0) {
             $('.unit-no-unit').show();
             $('.unit-ok').hide();

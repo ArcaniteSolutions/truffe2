@@ -32,7 +32,12 @@ from rights.utils import BasicRightModel
 
 
 def get_unit_data(model_class, request):
+
+    from generic.models import GenericExternalUnitAllowed
+
     unit_mode = hasattr(model_class.MetaData, 'has_unit') and model_class.MetaData.has_unit
+    unit_blank = unit_mode and issubclass(model_class, GenericExternalUnitAllowed)
+
     current_unit = None
 
     if unit_mode:
@@ -43,9 +48,9 @@ def get_unit_data(model_class, request):
         if request.POST.get('upk'):
             update_current_unit(request, request.POST.get('upk'))
 
-        current_unit = get_current_unit(request)
+        current_unit = get_current_unit(request, unit_blank)
 
-    return unit_mode, current_unit
+    return unit_mode, current_unit, unit_blank
 
 
 def generate_list(module, base_name, model_class):
@@ -58,7 +63,7 @@ def generate_list(module, base_name, model_class):
         show_view = module.__name__ + '.views.' + base_name + '_show'
         deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
         main_unit = None
 
         if unit_mode:
@@ -86,7 +91,7 @@ def generate_list(module, base_name, model_class):
 
         return render(request, [module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view,
-            'unit_mode': unit_mode, 'main_unit': main_unit,
+            'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'moderables': moderables
         })
 
@@ -103,10 +108,16 @@ def generate_list_json(module, base_name, model_class):
         delete_view = module.__name__ + '.views.' + base_name + '_delete'
         logs_view = module.__name__ + '.views.' + base_name + '_logs'
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
-            filter_ = lambda x: x.filter(unit=current_unit)
+            if not current_unit:
+                if request.user.is_superuser:  # Never filter
+                    filter_ = lambda x: x.filter(unit=None)
+                else:
+                    filter_ = lambda x: x.filter(unit=None, unit_blank_user=request.user)
+            else:
+                filter_ = lambda x: x.filter(unit=current_unit)
         else:
             filter_ = lambda x: x
 
@@ -135,13 +146,13 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         list_view = module.__name__ + '.views.' + base_name + '_list'
         show_view = module.__name__ + '.views.' + base_name + '_show'
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         try:
             obj = model_class.objects.get(pk=pk, deleted=False)
 
             if unit_mode:
-                update_current_unit(request, obj.unit.pk)
+                update_current_unit(request, obj.unit.pk if obj.unit else -1)
                 current_unit = obj.unit
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('EDIT', request.user):
@@ -151,6 +162,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
             obj = model_class()
 
             if unit_mode:
+                if unit_blank and not current_unit:
+                    obj.unit_blank_user = request.user
                 obj.unit = current_unit
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('CREATE', request.user):
@@ -228,7 +241,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         else:
             form = form_class(request.user, instance=obj)
 
-        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit})
+        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode})
 
     return _generic_edit
 
@@ -247,10 +260,10 @@ def generate_show(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
-            update_current_unit(request, obj.unit.pk)
+            update_current_unit(request, obj.unit.pk if obj.unit else -1)
             current_unit = obj.unit
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
@@ -291,10 +304,10 @@ def generate_delete(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
-            update_current_unit(request, obj.unit.pk)
+            update_current_unit(request, obj.unit.pk if obj.unit else -1)
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
             raise Http404
@@ -331,7 +344,7 @@ def generate_deleted(module, base_name, model_class, log_class):
 
         list_view = module.__name__ + '.views.' + base_name + '_list'
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('RESTORE', request.user, current_unit):
             raise Http404
@@ -350,7 +363,7 @@ def generate_deleted(module, base_name, model_class, log_class):
             obj = get_object_or_404(model_class, pk=request.POST.get('pk'), deleted=True)
 
             if unit_mode:
-                update_current_unit(request, obj.unit.pk)
+                update_current_unit(request, obj.unit.pk if obj.unit else -1)
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('RESTORE', request.user):
                 raise Http404
@@ -387,10 +400,10 @@ def generate_switch_status(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
-            update_current_unit(request, obj.unit.pk)
+            update_current_unit(request, obj.unit.pk if obj.unit else -1)
 
         can_switch = True
         can_switch_message = ''
@@ -439,10 +452,10 @@ def generate_contact(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
-        unit_mode, current_unit = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
-            update_current_unit(request, obj.unit.pk)
+            update_current_unit(request, obj.unit.pk if obj.unit else -1)
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
             raise Http404

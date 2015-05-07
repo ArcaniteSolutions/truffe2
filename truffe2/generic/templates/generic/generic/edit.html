@@ -111,7 +111,12 @@
 
         $("#id_{{field}}").code(($('#id_{{field}}').val()));
 
+
     {% endfor %}
+
+    var ubn = $('#id_unit_blank_name').parent().parent();
+    var ubn_parent = ubn.parent();
+    ubn_parent.prepend(ubn.remove());
 
 </script>
 {% endblock %}
