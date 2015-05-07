@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel
+from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+
 
 from rights.utils import UnitEditableModel
 
@@ -51,6 +53,56 @@ N'importe quelle unité peut mettre à disposition des salles et est responsable
 
     class MetaEdit:
         html_fields = ('description', 'conditions', 'conditions_externals')
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.title
+
+
+class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitEditableModel):
+
+    room = FalseFK('logistics.models.Room')
+
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+
+    title = models.CharField(max_length=255)
+    raison = models.TextField()
+    remarks = models.TextField()
+
+    generic_state_unit_field = 'room.unit'
+
+    class MetaData:
+
+        list_display = [
+            ('title', _('Titre')),
+            ('start_date', _('Date debut')),
+            ('end_date', _('Date fin')),
+            ('status', _('Status')),
+        ]
+
+        details_display = list_display + [('room', _('Room')), ('raison', _('Raison')), ('remarks', _('Remarques'))]
+        filter_fields = ('title', 'start_date', 'end_date', 'status')
+
+        base_title = _('Réservation de salle')
+        list_title = _(u'Liste de toutes les réservation de salles')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-hospital'
+
+        menu_id = 'menu-logistics-room-reservation'
+
+        has_unit = True
+
+        help_list = _(u"""Les réservation de salles.
+
+Les réservations sont soumises à modération par l'unité lié à la salle.
+
+Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une unité externe) et modérer les réservation des autres unités te concernant.""")
+
+    class MetaEdit:
+        date_time_fields = ('start_date', 'end_date')
 
     class Meta:
         abstract = True

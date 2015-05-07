@@ -79,7 +79,10 @@ class GenericModel(models.Model):
             extra_data = {'__module__': models_module.__name__}
 
             if issubclass(model_class, GenericStateModel):
-                extra_data.update(GenericStateModel.do(module, models_module, model_class))
+                extra_data.update(GenericStateModel.do(module, models_module, model_class, cache))
+
+            if issubclass(model_class, GenericExternalUnitAllowed):
+                extra_data.update(GenericExternalUnitAllowed.do(module, models_module, model_class, cache))
 
             for key, value in model_class.__dict__.iteritems():
                 if hasattr(value, '__class__') and value.__class__ == FalseFK:
@@ -173,11 +176,11 @@ class GenericModel(models.Model):
         abstract = True
 
 
-class GenericStateModel():
+class GenericStateModel(object):
     """Un modele generic avec une notiion de status"""
 
     @staticmethod
-    def do(module, models_module, model_class):
+    def do(module, models_module, model_class, cache):
         """Execute code at startup"""
 
         return {'status': models.CharField(max_length=255, choices=model_class.MetaState.states.iteritems(), default=model_class.MetaState.default)}
@@ -247,27 +250,26 @@ class GenericLogEntry(models.Model):
         abstract = True
 
 
-class GenericStateModerable(object):
-    """Un système de status générique pour de la modération"""
+class GenericStateValidableOrModerable(object):
+    """Un système de status générique pour de la modération/validation"""
 
     moderable_object = True
     moderable_state = '1_asking'
 
+    generic_state_unit_field = '!root'  # !root for the root unit, or the field with an unit
+    generic_state_moderable = True  # To use the term 'Moderate' sinon 'Validé'
+
     def __init__(self, *args, **kwargs):
 
-        super(GenericStateModerable, self).__init__(*args, **kwargs)
+        super(GenericStateValidableOrModerable, self).__init__(*args, **kwargs)
 
         self.MetaRights.rights_update({
             'VALIDATE': _(u'Peut modérer cet élément'),
         })
 
-    class MetaState:
-        states = {
-            '0_draft': _('Brouillon'),
-            '1_asking': _(u'Modération en cours'),
-            '2_online': _(u'Validé/En ligne'),
-            '3_archive': _(u'Archivé'),
-        }
+    class MetaState_:
+        """Full object defined in subclasses !"""
+
         default = '0_draft'
 
         states_links = {
@@ -291,25 +293,12 @@ class GenericStateModerable(object):
             '3_archive': '',
         }
 
-        states_texts = {
-            '0_draft': _(u'L\'objet est en cours de création et n\'est pas public.'),
-            '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce status pour demander une modération !'),
-            '2_online': _(u'L\'objet est validé/publié. Il n\'est pas éditable.'),
-            '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
-        }
-
-        states_quick_switch = {
-            '0_draft': ('1_asking', _(u'Demander à modérer')),
-            '1_asking': ('2_online', _(u'Valider')),
-            '2_online': ('0_draft', _(u'Repasser en brouillon')),
-        }
-
         states_default_filter = '0_draft,1_asking,2_online'
         status_col_id = 3
 
     def may_switch_to(self, user, dest_state):
-        if self.rights_can('EDIT', user) or (self.status == '2_online' and super(GenericStateModerable, self).rights_can_EDIT(user)):
-            return super(GenericStateModerable, self).may_switch_to(user, dest_state)
+        if self.rights_can('EDIT', user) or (self.status == '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)):
+            return super(GenericStateValidableOrModerable, self).may_switch_to(user, dest_state)
         return False
 
     def can_switch_to(self, user, dest_state):
@@ -320,13 +309,13 @@ class GenericStateModerable(object):
         if dest_state == '2_online' and not self.rights_can('VALIDATE', user):
             return (False, _(u'Seul un modérateur peut valider cet object. Merci de passer cet object en status \'Modération en cours\' pour demander une validation.'))
 
-        if self.status == '2_online' and super(GenericStateModerable, self).rights_can_EDIT(user):
+        if self.status == '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return (True, None)
 
         if not self.rights_can('EDIT', user):
             return (False, _('Pas les droits'))
 
-        return super(GenericStateModerable, self).can_switch_to(user, dest_state)
+        return super(GenericStateValidableOrModerable, self).can_switch_to(user, dest_state)
 
     def rights_can_VALIDATE(self, user):
         if self.status == '3_archive':
@@ -345,11 +334,11 @@ class GenericStateModerable(object):
         if self.status == '2_online' and not self.rights_can('VALIDATE', user):
             return False
 
-        return super(GenericStateModerable, self).rights_can_EDIT(user)
+        return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
 
     def switch_status_signal(self, request, old_status, dest_status):
 
-        s = super(GenericStateModerable, self)
+        s = super(GenericStateValidableOrModerable, self)
 
         if hasattr(s, 'switch_status_signal'):
             s.switch_status_signal(old_status, dest_status)
@@ -360,6 +349,72 @@ class GenericStateModerable(object):
         if dest_status == '2_online':
             unotify_people('%s.moderation' % (self.__class__.__name__,), self)
             notify_people(request, '%s.online' % (self.__class__.__name__,), 'online', self, self.build_group_members_for_editors())
+
+
+class GenericStateModerable(GenericStateValidableOrModerable):
+
+    generic_state_moderable = True
+
+    class MetaState(GenericStateValidableOrModerable.MetaState_):
+
+        states = {
+            '0_draft': _('Brouillon'),
+            '1_asking': _(u'Modération en cours'),
+            '2_online': _(u'En ligne'),
+            '3_archive': _(u'Archivé'),
+        }
+        default = '0_draft'
+
+        states_texts = {
+            '0_draft': _(u'L\'objet est en cours de création et n\'est pas public.'),
+            '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce status pour demander une modération !'),
+            '2_online': _(u'L\'objet est publié. Il n\'est pas éditable.'),
+            '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
+        }
+
+        states_quick_switch = {
+            '0_draft': ('1_asking', _(u'Demander à modérer')),
+            '1_asking': ('2_online', _(u'Mettre en ligne')),
+            '2_online': ('0_draft', _(u'Repasser en brouillon')),
+        }
+
+
+class GenericStateValidable(GenericStateValidableOrModerable):
+
+    generic_state_moderable = False
+
+    class MetaState(GenericStateValidableOrModerable.MetaState_):
+
+        states = {
+            '0_draft': _('Brouillon'),
+            '1_asking': _(u'Validation en cours'),
+            '2_online': _(u'Validé'),
+            '3_archive': _(u'Archivé'),
+        }
+        default = '0_draft'
+
+        states_texts = {
+            '0_draft': _(u'La réservation est en cours de création et n\'est pas public.'),
+            '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce status pour demander une modération !'),
+            '2_online': _(u'La résevation est validée. Elle n\'est pas éditable.'),
+            '3_archive': _(u'La réservation est archivée. Elle n\'est plus modifiable.'),
+        }
+
+        states_quick_switch = {
+            '0_draft': ('1_asking', _(u'Demander à modérer')),
+            '1_asking': ('2_online', _(u'Valider')),
+            '2_online': ('0_draft', _(u'Repasser en brouillon')),
+        }
+
+
+class GenericStateRootModerable(GenericStateModerable):
+    """Un système de status générique pour de la modération par l'unité racine"""
+
+    generic_state_unit_field = '!root'
+
+
+class GenericStateUnitValidable(GenericStateValidable):
+    """Un système de status générique pour de la validation par une unité. Définir generic_state_unit_field !"""
 
 
 class GenericGroupsModel():
@@ -392,20 +447,47 @@ class GenericGroupsModel():
         return self.rights_peoples_in_EDIT()
 
 
-class GenericGroupsModerableModel(object):
+class GenericGroupsValidableOrModerableModel(object):
+
+    generic_groups_moderable = True
+
     def __init__(self, *args, **kwargs):
 
-        super(GenericGroupsModerableModel, self).__init__(*args, **kwargs)
+        super(GenericGroupsValidableOrModerableModel, self).__init__(*args, **kwargs)
 
         self.MetaGroups.groups_update({
-            'validators': _(u'Personnes pouvant modérer cet élément'),
+            'validators':
+                _(u'Personnes pouvant modérer cet élément') if self.generic_groups_moderable else
+                _(u'Personnes pouvant valider cet élément'),
         })
 
     def build_group_members_for_validators(self):
         return self.rights_peoples_in_VALIDATE()
 
 
+class GenericGroupsModerableModel(GenericGroupsValidableOrModerableModel):
+    generic_groups_moderable = True
+
+
+class GenericGroupsValidableModel(object):
+    generic_groups_moderable = False
+
+
 class GenericContactableModel():
 
     def contactables_groups(self):
         return self.MetaGroups.groups
+
+
+class GenericExternalUnitAllowed():
+    """Rend l'utilisation d'unités externes possibles"""
+
+    @staticmethod
+    def do(module, models_module, model_class, cache):
+        """Execute code at startup"""
+
+        return {
+            'unit': models.ForeignKey(cache['units.models.Unit'], blank=True, null=True),
+            'unit_blank_user': models.ForeignKey(settings.AUTH_USER_MODEL),
+            'unit_blank_name': models.CharField(max_length=255),
+        }
