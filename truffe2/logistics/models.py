@@ -3,10 +3,13 @@
 from django.db import models
 from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import escape
 from django.conf import settings
+from django.utils.safestring import mark_safe
 
 
 from rights.utils import UnitEditableModel, UnitExternalEditableModel
+from generic.templatetags.generic_extras import html_check_and_safe
 
 
 class _Room(GenericModel, GenericGroupsModel, UnitEditableModel):
@@ -89,7 +92,7 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
             ('status', _('Status')),
         ]
 
-        details_display = list_display + [('room', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques'))]
+        details_display = list_display + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
         base_title = _('Réservation de salle')
@@ -102,6 +105,8 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         menu_id = 'menu-logistics-room-reservation'
 
         has_unit = True
+
+        html_fields = ('get_room_infos')
 
         help_list = _(u"""Les réservation de salles.
 
@@ -128,3 +133,10 @@ Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une u
 
         if not self.unit and not data['room'].allow_externals:
             raise forms.ValidationError(_('Salle non disponible'))
+
+    def get_room_infos(self):
+        """Affiche les infos sur la salle pour une réserversation"""
+
+        tpl = mark_safe('<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div><br /><div class="alert alert-info"><h3 style="margin-top: 0px;"><i class="fa fa-info"></i> %s </h3>%s</div><div class="alert alert-warning"><h3 style="margin-top: 0px;"><i class="fa fa-warning"></i> %s </h3>%s</div>' % (escape(self.room.title), _(u'gérée par'), escape(self.room.unit.name), _(u'Description'), html_check_and_safe(self.room.description), _(u'Conditions de réservation'), html_check_and_safe(self.room.conditions_externals if not self.unit or not self.room.conditions_externals else self.room.conditions)))
+
+        return tpl

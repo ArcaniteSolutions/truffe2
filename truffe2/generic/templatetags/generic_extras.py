@@ -62,13 +62,13 @@ class CrlfNode(template.Node):
 @register.filter
 def html_check_and_safe(value):
 
-    tags = bleach.ALLOWED_TAGS + ['br', 'font', 'p', 'table', 'tr', 'td', 'th', 'img', 'u', 'span', 'tbody', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr']
+    tags = bleach.ALLOWED_TAGS + ['div', 'br', 'font', 'p', 'table', 'tr', 'td', 'th', 'img', 'u', 'span', 'tbody', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr']
     attrs = {
         '*': ['class', 'style', 'color', 'align'],
         'a': ['href', 'rel'],
         'img': ['src', 'alt'],
     }
-    style = ['line-height', 'background-color', 'font-size']
+    style = ['line-height', 'background-color', 'font-size', 'margin-top']
 
     text = force_unicode(value)
 
