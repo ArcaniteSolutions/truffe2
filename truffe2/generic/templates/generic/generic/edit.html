@@ -79,11 +79,19 @@
                   function unit_updated(pk, name, can_edit) {
                     $('#input_upk').val(pk);
                   }
+
+
               </script>
           {% endif %}
 
 
         </div>
+
+        <script type="text/javascript">
+            {% if CURRENT_UNIT_PK != -1 %}
+                $('#id_unit_blank_name').parent().parent().hide();
+            {% endif %}
+        </script>
 
     {% endif %}
 </div>
@@ -119,6 +127,11 @@
     ubn_parent.prepend(ubn.remove());
 
 </script>
+
+{% block edit_bonus %}
+
+{% endblock %}
+
 {% endblock %}
 
 

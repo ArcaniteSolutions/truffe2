@@ -14,7 +14,7 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel):
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(_('Titre'), max_length=255)
     description = models.TextField()
     unit = FalseFK('units.models.Unit')
 
@@ -67,12 +67,12 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         access = 'LOGISTIQUE'
         moderation_access = 'LOGISTIQUE'
 
-    room = FalseFK('logistics.models.Room')
+    room = FalseFK('logistics.models.Room', verbose_name=_('Salle'))
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(_('Titre'), max_length=255)
 
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    start_date = models.DateTimeField(_(u'Date de début'))
+    end_date = models.DateTimeField(_(u'Date de fin'))
 
     raison = models.TextField(help_text=_(u'Explique pourquoi tu as besion (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
@@ -89,7 +89,7 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
             ('status', _('Status')),
         ]
 
-        details_display = list_display + [('room', _('Room')), ('raison', _('Raison')), ('remarks', _('Remarques'))]
+        details_display = list_display + [('room', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
         base_title = _('Réservation de salle')

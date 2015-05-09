@@ -206,7 +206,7 @@
                             {% endifhasright %}
                             {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
                                 <li id="menu-logistics-room-reservation">
-                                    <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des réservations salles" %}</a>
+                                    <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Réservation de salle" %}</a>
                                 </li>
                             {% endifhasright %}
                         </ul>

@@ -18,3 +18,45 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db.models import Q
+from django.utils.html import strip_tags
+
+import json
+
+from app.utils import update_current_unit
+from generic.templatetags.generic_extras import html_check_and_safe
+
+
+@login_required
+def room_search(request):
+
+    from logistics.models import Room, RoomReservation
+
+    q = request.GET.get('q')
+    init = request.GET.get('init')
+    unit_pk = request.GET.get('unit_pk')
+
+    rooms = Room.objects.filter(active=True).order_by('title')
+
+    if q:
+        rooms = rooms.filter(title__icontains=q)
+
+    if init:
+        rooms = rooms.filter(pk=init)
+
+    if unit_pk == "-1":
+        rooms = rooms.filter(allow_externals=True)
+    else:
+        # Pas de filtre, mais on check que le dude peut faire une réservation
+        # dans l'unité
+        from units.models import Unit
+        get_object_or_404(Unit, pk=unit_pk)
+
+        dummy = RoomReservation()
+        update_current_unit(request, unit_pk)
+
+        if not dummy.rights_can('CREATE', request.user):
+            raise Http404
+
+    retour = map(lambda room: {'id': room.pk, 'text': room.title, 'description': strip_tags(html_check_and_safe(room.description))[:100] + '...', 'unit': str(room.unit)}, rooms)
+
+    return HttpResponse(json.dumps(retour))

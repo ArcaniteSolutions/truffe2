@@ -40,10 +40,6 @@
 
 <script type="text/javascript">
 
-    {% if CURRENT_UNIT_PK != -1 %}
-        $('#id_unit_blank_name').parent().parent().hide();
-    {% endif %}
-
     function select_unit(pk, name, can_edit) {
 
         $('.cgroupe').text(name);

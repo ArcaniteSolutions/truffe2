@@ -22,8 +22,11 @@ def get_current_unit(request, unit_blank=True):
 
     current_unit_pk = request.session.get('current_unit_pk', 1)
 
-    if int(current_unit_pk) == -1 and unit_blank:
-        return None
+    try:
+        if int(current_unit_pk) == -1 and unit_blank:
+            return None
+    except:
+        pass
 
     try:
         current_unit = Unit.objects.get(pk=current_unit_pk)
