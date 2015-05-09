@@ -117,3 +117,14 @@ Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une u
 
     def __unicode__(self):
         return self.title
+
+    def genericFormExtraClean(self, data):
+        """Check if select room is available"""
+
+        from django import forms
+
+        if 'room' not in data or not data['room'].active:
+            raise forms.ValidationError(_('Salle non disponible'))
+
+        if not self.unit and not data['room'].allow_externals:
+            raise forms.ValidationError(_('Salle non disponible'))

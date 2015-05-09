@@ -1,4 +1,6 @@
-from django.forms import ModelForm, Form, CharField, ChoiceField, Textarea
+# -*- coding: utf-8 -*-
+
+from django.forms import ModelForm, Form, CharField, ChoiceField, Textarea, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -18,6 +20,20 @@ class GenericForm(ModelForm):
             if unit_field_name in self.fields:
                 from units.models import Unit
                 self.fields[unit_field_name].queryset = Unit.objects.order_by('name')
+
+    def clean(self):
+        cleaned_data = super(GenericForm, self).clean()
+
+        if hasattr(self.instance, 'genericFormExtraClean'):
+            self.instance.genericFormExtraClean(cleaned_data)
+
+        from rights.utils import UnitExternalEditableModel
+
+        if isinstance(self.instance, UnitExternalEditableModel):
+            if not self.instance.unit and not cleaned_data['unit_blank_name']:
+                raise ValidationError(_(u'Le nom de l\'entité externe est obligatoire !'))
+
+        return cleaned_data
 
 
 class ContactForm(Form):

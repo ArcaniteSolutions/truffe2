@@ -33,7 +33,7 @@ def room_search(request):
 
     q = request.GET.get('q')
     init = request.GET.get('init')
-    unit_pk = request.GET.get('unit_pk')
+    unit_pk = request.GET.get('unit_pk', "-1") or "-1"
 
     rooms = Room.objects.filter(active=True).order_by('title')
 
