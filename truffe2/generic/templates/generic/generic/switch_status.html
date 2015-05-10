@@ -48,7 +48,11 @@
   <script type="text/javascript">
       $('#switch-status-form').ajaxForm({replaceTarget: true, target: '#switch-status-form'});
         {% if done %}
-            window.location.reload();
+            {% if no_more_access %}
+                window.location = '{% url list_view %}';
+            {% else %}
+                window.location.reload();
+            {% endif %}
         {% endif %}
   </script>
 </form>

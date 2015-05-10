@@ -2,19 +2,20 @@
 
 from django.db import models
 from django.conf import settings
-import inspect
-from users.models import TruffeUser
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-import importlib
 from django.conf.urls import patterns, url
+
+import json
+import copy
+import inspect
+import importlib
+from pytz import timezone
+
+from users.models import TruffeUser
 from generic import views
 from generic.forms import GenericForm
-import json
-from pytz import timezone
-import copy
-from django.core.urlresolvers import reverse
-
-
+from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
 
 
@@ -303,8 +304,13 @@ class GenericStateValidableOrModerable(object):
         status_col_id = 3
 
     def may_switch_to(self, user, dest_state):
-        if self.rights_can('EDIT', user) or (self.status == '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)):
+
+        if dest_state == '0_draft' and not super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
+            return False
+
+        if self.rights_can('EDIT', user) or (self.status in ['1_asking', '2_online'] and dest_state != '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)):
             return super(GenericStateValidableOrModerable, self).may_switch_to(user, dest_state)
+
         return False
 
     def can_switch_to(self, user, dest_state):
@@ -318,19 +324,38 @@ class GenericStateValidableOrModerable(object):
         if self.status == '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return (True, None)
 
+        if dest_state == '0_draft' and not super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
+            return (False, _(u'Les modérateurs ne peuvent pas repasser en brouillion un object qui ne leur appartiens pas'))
+
         if not self.rights_can('EDIT', user):
             return (False, _('Pas les droits'))
 
         return super(GenericStateValidableOrModerable, self).can_switch_to(user, dest_state)
 
+    def rights_can_SHOW(self, user):
+
+        if super(GenericStateValidableOrModerable, self).rights_can_SHOW(user):
+            return True
+
+        # Si le status est en cours de validation ou validé, les modérateurs peuvent voir
+        if self.status in ['1_asking', '2_online']:
+            return self.rights_can_VALIDATE(user)
+
     def rights_can_VALIDATE(self, user):
         if self.status == '3_archive':
             return False
 
-        return self.rights_in_root_unit(user, self.MetaRightsUnit.moderation_access)
+        if self.generic_state_unit_field == '!root':
+            return self.rights_in_root_unit(user, self.MetaRightsUnit.moderation_access)
+        else:
+            return self.rights_in_unit(user, get_property(self, self.generic_state_unit_field), self.MetaRightsUnit.moderation_access)
 
-    def rights_peoples_in_VALIDATE(self):
-        return self.people_in_root_unit(self.MetaRightsUnit.moderation_access)
+    def rights_peoples_in_VALIDATE(self, no_parent=False):
+
+        if self.generic_state_unit_field == '!root':
+            return self.people_in_root_unit(self.MetaRightsUnit.moderation_access)
+        else:
+            return self.people_in_unit(get_property(self, self.generic_state_unit_field), self.MetaRightsUnit.moderation_access, no_parent=no_parent)
 
     def rights_can_EDIT(self, user):
 
@@ -338,6 +363,19 @@ class GenericStateValidableOrModerable(object):
             return False
 
         if self.status == '2_online' and not self.rights_can('VALIDATE', user):
+            return False
+
+        # Si le status est en cours de validation ou validé, les modérateurs
+        # peuvent editer
+        if self.status in ['1_asking', '2_online']:
+            return self.rights_can_VALIDATE(user)
+
+        return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
+
+    def rights_can_DELETE(self, user):
+
+        # ! Pas de supression même si on est modérateur
+        if self.status == '3_archive':
             return False
 
         return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
@@ -468,14 +506,14 @@ class GenericGroupsValidableOrModerableModel(object):
         })
 
     def build_group_members_for_validators(self):
-        return self.rights_peoples_in_VALIDATE()
+        return self.rights_peoples_in_VALIDATE(no_parent=True)  # Pas besion d'informer les gens avec un droit supérieur :)
 
 
 class GenericGroupsModerableModel(GenericGroupsValidableOrModerableModel):
     generic_groups_moderable = True
 
 
-class GenericGroupsValidableModel(object):
+class GenericGroupsValidableModel(GenericGroupsValidableOrModerableModel):
     generic_groups_moderable = False
 
 

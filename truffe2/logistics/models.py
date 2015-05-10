@@ -95,7 +95,7 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         details_display = list_display + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
-        base_title = _('Réservation de salle')
+        base_title = _(u'Réservation de salle')
         list_title = _(u'Liste de toutes les réservation de salles')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'

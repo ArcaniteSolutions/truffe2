@@ -66,3 +66,13 @@ def send_templated_mail(request, subject, email_from, emails_to, template, conte
     msg = EmailMultiAlternatives(subject, text_content, email_from, emails_to)
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
+
+def get_property(obj, prop):
+
+    for attr in prop.split('.'):
+        if not hasattr(obj, attr):
+            return None
+        obj = getattr(obj, attr)
+
+    return obj

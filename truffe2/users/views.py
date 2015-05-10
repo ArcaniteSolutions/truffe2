@@ -37,6 +37,13 @@ def login(request):
 
     why = request.GET.get('why')
 
+    # from django.contrib.auth import login
+    #
+    # user = TruffeUser.objects.get(username=request.GET.get('username'))
+    # user.backend = 'app.tequila.Backend'
+    #
+    # login(request, user)
+
     return render(request, 'users/login/login.html', {'why': why})
 
 

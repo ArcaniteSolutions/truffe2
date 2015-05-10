@@ -86,7 +86,7 @@ class ModelWithRight(object):
             if cached_value_last < cached_last or cached_value_last < cached_user_last:
                 cached_value = None
 
-        if cached_value is None:
+        if cached_value is None or settings.DEBUG:
             cached_value = getattr(self, 'rights_can_%s' % (right,))(user)
             cache.set(cache_key, (cached_last, cached_value), 600)
 
@@ -98,6 +98,9 @@ class ModelWithRight(object):
 
         return getattr(self, self.MetaRights.linked_user_property) == user
 
+    def rights_in_unit(self, user, unit, access=None, no_parent=False):
+        return unit.is_user_in_groupe(user, access, no_parent=no_parent)
+
     def rights_in_linked_unit(self, user, access=None):
         if not self.MetaRights.linked_unit_property or not hasattr(self, self.MetaRights.linked_unit_property):
             return False
@@ -106,19 +109,20 @@ class ModelWithRight(object):
 
         if not unit:
             e = Exception("Tried to test right in unit without an unit")
-            print e
             raise e
             return False
 
-        return unit.is_user_in_groupe(user, access)
+        return self.rights_in_unit(user, unit, access)
 
     def rights_in_root_unit(self, user, access=None):
         from units.models import Unit
 
-        return Unit.objects.get(pk=settings.ROOT_UNIT_PK).is_user_in_groupe(user, access)
+        unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-    def people_in_unit(self, unit, access=None):
-        return unit.users_with_access(access)
+        return self.rights_in_unit(user, unit, access)
+
+    def people_in_unit(self, unit, access=None, no_parent=False):
+        return unit.users_with_access(access, no_parent=no_parent)
 
     def people_in_linked_unit(self, access=None):
 
@@ -146,9 +150,9 @@ class BasicRightModel(ModelWithRight):
 
         self.MetaRights.rights_update({
             'LIST': _(u'Peut lister les éléments'),
-            'SHOW': _(u'Peut afficher cet éléments'),
-            'EDIT': _(u'Peut modifier cet éléments'),
-            'DELETE': _(u'Peut supprimer cet éléments'),
+            'SHOW': _(u'Peut afficher cet élément'),
+            'EDIT': _(u'Peut modifier cet élément'),
+            'DELETE': _(u'Peut supprimer cet élément'),
             'RESTORE': _(u'Peut restaurer un élément'),
             'CREATE': _(u'Peut créer un élément'),
             'DISPLAY_LOG': _(u'Peut afficher les logs de élément'),

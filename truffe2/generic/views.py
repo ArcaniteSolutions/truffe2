@@ -408,7 +408,9 @@ def generate_switch_status(module, base_name, model_class, log_class):
         can_switch = True
         can_switch_message = ''
         done = False
+        no_more_access = False
         status_view = module.__name__ + '.views.' + base_name + '_switch_status'
+        list_view = module.__name__ + '.views.' + base_name + '_list'
 
         dest_status = request.GET.get('dest_status')
 
@@ -432,11 +434,15 @@ def generate_switch_status(module, base_name, model_class, log_class):
 
             messages.success(request, _(u'Status modifié !'))
             done = True
+            no_more_access = not obj.rights_can('SHOW', request.user)
+
+            if no_more_access:
+                messages.warning(request, _(u'Vous avez perdu le droit de voir l\'objet !'))
 
         return render(request, [module.__name__ + '/' + base_name + '/switch_status.html', 'generic/generic/switch_status.html'], {
-            'Model': model_class, 'obj': obj, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done,
+            'Model': model_class, 'obj': obj, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done, 'no_more_access': no_more_access,
             'dest_status': dest_status, 'dest_status_message': obj.MetaState.states.get(dest_status),
-            'status_view': status_view,
+            'status_view': status_view, 'list_view': list_view,
         })
 
     return _switch_status
