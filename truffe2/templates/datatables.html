@@ -112,6 +112,29 @@
           select2_filter();
 
         {% endif %}
+
+        {% if object_filter %}
+        $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select class="select2 object_filter" type="text" placeholder="{{object_filter_name}}" style="position: absolute; top: 0px; right: 5px; width: 200px;"><option value="">&nbsp;</option>/select>');
+
+          var obj_select_{{id}} = $('#{{id}}').parent().parent().find('.object_filter');
+
+          {% for obj in object_filter %}
+            obj_select_{{id}}.append('<option value="{{obj.pk}}">{{obj|escapejs}}</option>"');
+          {% endfor %}
+
+          obj_select_{{id}}.select2({allowClear: true}); //.css('width', '300px')
+
+          function obj_select2_filter() {
+            data_table_{{id}}.fnFilter(obj_select_{{id}}.val(), {{object_col_id}});
+          }
+
+          obj_select_{{id}}.on('change', function() {
+              obj_select2_filter();
+          });
+
+          obj_select2_filter();
+
+        {% endif %}
     }
 
     </script>

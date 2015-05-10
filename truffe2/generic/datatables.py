@@ -3,7 +3,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 
 
-def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None):
     """Generic function for json list"""
 
     if not filter_fields:
@@ -33,6 +33,10 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
                     order.append('%s%s' % (sdir, sc))
             else:
                 order.append('%s%s' % (sdir, sortcol))
+
+        if '-pk' not in order and 'pk' not in order:
+            order.append('-pk')
+
         if order:
             qs = qs.order_by(*order)
 
@@ -74,6 +78,9 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
 
         if bonus_filter_function:
             qs = bonus_filter_function(qs)
+
+        if bonus_filter_function_with_parameters:
+            qs = bonus_filter_function_with_parameters(qs, request)
 
         return qs
 

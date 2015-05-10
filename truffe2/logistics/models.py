@@ -88,6 +88,11 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         r = Room(unit=unit)
         self.room = r
 
+    @staticmethod
+    def get_linked_object_class():
+        from logistics.models import Room
+        return Room
+
     def get_linked_object(self):
         return self.room
 

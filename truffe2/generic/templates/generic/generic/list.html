@@ -86,7 +86,9 @@
       </script>
     {% endif %}
 
-    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id with_upk=unit_mode %}{% include "datatables.html" %}{% endwith %}
+    {% block datatables %}
+        {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id with_upk=unit_mode %}{% include "datatables.html" %}{% endwith %}
+    {% endblock %}
 
     {% block buttons %}
         <div style="float: right;">

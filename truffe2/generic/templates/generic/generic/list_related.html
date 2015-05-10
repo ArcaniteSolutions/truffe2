@@ -1,4 +1,5 @@
 {% extends "generic/generic/list.html" %}
+{% load i18n %}
 
 {% block content_title %}{{Model.MetaData.list_related_title}}{% endblock %}
 
@@ -6,3 +7,6 @@
 {% block help %}{{Model.MetaData.help_list_related|linebreaksbr}}{% endblock %}
 {% block buttons %}{% endblock %}
 {% block menuid %}{{Model.MetaData.menu_id_related}}{% endblock %}
+{% block datatables %}
+    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id|add:"1" with_upk=unit_mode object_filter=object_filter object_filter_name=Model.MetaData.related_name object_col_id=0 %}{% include "datatables.html" %}{% endwith %}
+{% endblock %}

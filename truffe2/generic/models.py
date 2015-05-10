@@ -464,6 +464,8 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             '2_online': ('0_draft', _(u'Repasser en brouillon')),
         }
 
+        status_col_id = 4
+
 
 class GenericStateRootModerable(GenericStateModerable):
     """Un système de status générique pour de la modération par l'unité racine"""

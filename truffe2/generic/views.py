@@ -53,7 +53,7 @@ def get_unit_data(model_class, request, allow_blank=True):
     return unit_mode, current_unit, unit_blank
 
 
-def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank):
+def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False):
 
     @login_required
     def _generic_generic_list(request):
@@ -89,10 +89,15 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         else:
             moderables = False
 
+        if object_filter:
+            objects = model_class.get_linked_object_class().objects.filter(unit=current_unit)
+        else:
+            objects = []
+
         return render(request, [module.__name__ + '/' + base_name + '/%s.html' % (template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
-            'moderables': moderables
+            'moderables': moderables, 'object_filter': objects,
         })
 
     return _generic_generic_list
@@ -145,7 +150,7 @@ def generate_list_json(module, base_name, model_class):
 
 def generate_list_related(module, base_name, model_class):
 
-    return generate_generic_list(module, base_name, model_class, '_list_related_json', 'VALIDATE', 'VALIDATE', 'list_related', False)
+    return generate_generic_list(module, base_name, model_class, '_list_related_json', 'VALIDATE', 'VALIDATE', 'list_related', False, True)
 
 
 def generate_list_related_json(module, base_name, model_class):
@@ -165,6 +170,12 @@ def generate_list_related_json(module, base_name, model_class):
         else:
             filter_ = lambda x: x
 
+        def filter_object(qs, request):
+            if request.POST.get('sSearch_0'):
+                return qs.filter(**{'__'.join(model_class.generic_state_unit_field.split('.')[:-1] + ['pk']): request.POST.get('sSearch_0'), model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+            else:
+                return qs
+
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
             raise Http404
 
@@ -176,7 +187,8 @@ def generate_list_related_json(module, base_name, model_class):
              'logs_view': logs_view
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter_
+            bonus_filter_function=filter_,
+            bonus_filter_function_with_parameters=filter_object
         )
 
     return _generic_list_json
