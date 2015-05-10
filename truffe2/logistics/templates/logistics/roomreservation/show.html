@@ -1,0 +1,25 @@
+{% extends "generic/generic/show.html" %}
+{% load i18n %}
+{% load generic_extras %}
+
+{% block bonus_box_after_infos %}
+    <div class="col-sm-12 col-md-12 col-lg-6 popover-no-padding">
+        {% with w_title="Détails sur la salle" %}{% include "widget/header.html" %}{% endwith %}
+
+        <h3 style="margin-top: 0px;">Description</h3>
+        {{obj.room.description|html_check_and_safe}}
+
+        <h3>Conditions de réservation</h3>
+        {% if obj.unit or not obj.room.conditions_externals %}
+            {{obj.room.conditions|html_check_and_safe}}
+        {% else %}
+            {{obj.room.conditions_externals|html_check_and_safe}}
+        {% endif %}
+
+        {% include "widget/footer.html" %}
+    </div>
+
+    </div><div class="row">
+{% endblock %}
+
+{% block row_for_logs %}{% endblock %}
