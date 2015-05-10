@@ -7,7 +7,7 @@
       [
         "{{elem.creation_date|force_escape|escapejs}}",
         "{{elem.key|force_escape|escapejs}}",
-        "{% if elem.linked_object.unit %}<span class=\"label label-success\">{{elem.linked_object.unit}}</span> {% endif %}<a href=\"{% url 'notifications.views.goto' elem.pk %}?next={{elem.linked_object.display_url}}\">{{elem.linked_object|force_escape|escapejs}}</a>",
+        "{% if elem.linked_object.unit %}<span class=\"label label-success\">{{elem.linked_object.unit}}</span> {% endif %}{% if elem.linked_object.unit_blank_name %}<span class=\"label label-warning\">{{elem.linked_object.unit_blank_name}}</span> {% endif %}<a href=\"{% url 'notifications.views.goto' elem.pk %}?next={{elem.linked_object.display_url}}\">{{elem.linked_object|force_escape|escapejs}}</a>",
         "{% spaceless %}{% include elem.get_center_message_template %}{% endspaceless %}",
         "{% if not elem.seen %}{% spaceless %}{% include elem.get_center_buttons_template %}{% endspaceless %}{% else %}<i class=\"fa fa-check\"></i> {% trans "Traité !" %}{% endif %}"
       ]{% if not forloop.last %},{% endif %}

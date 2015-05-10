@@ -395,7 +395,11 @@ class GenericStateValidableOrModerable(object):
 
         if dest_status == '2_online':
             unotify_people('%s.moderation' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.online' % (self.__class__.__name__,), 'online', self, self.build_group_members_for_editors())
+
+            if self.generic_state_moderable:
+                notify_people(request, '%s.online' % (self.__class__.__name__,), 'online', self, self.build_group_members_for_editors())
+            else:
+                notify_people(request, '%s.validated' % (self.__class__.__name__,), 'validated', self, self.build_group_members_for_editors())
 
 
 class GenericStateModerable(GenericStateValidableOrModerable):
