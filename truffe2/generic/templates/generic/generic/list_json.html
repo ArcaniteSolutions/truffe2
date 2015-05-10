@@ -7,6 +7,7 @@
 [
     {% for elem in list %}
       [
+      {% block list_bonus %}{% endblock %}
       {% for field, __ in Model.MetaData.list_display %}
       "{% nocrlf %}
         {% if forloop.first %}

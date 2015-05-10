@@ -1,0 +1,8 @@
+{% extends "generic/generic/list.html" %}
+
+{% block content_title %}{{Model.MetaData.list_related_title}}{% endblock %}
+
+{% block main_list_header %}<th>{{Model.MetaData.related_name}}</th>{% endblock %}
+{% block help %}{{Model.MetaData.help_list_related|linebreaksbr}}{% endblock %}
+{% block buttons %}{% endblock %}
+{% block menuid %}{{Model.MetaData.menu_id_related}}{% endblock %}

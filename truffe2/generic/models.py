@@ -154,6 +154,13 @@ class GenericModel(models.Model):
                 urls_module.urlpatterns += patterns(views_module.__name__,
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/switch_status$', base_views_name + '_switch_status'),
                 )
+            if issubclass(model_class, GenericStateUnitValidable):
+                setattr(views_module, base_views_name + '_list_related', views.generate_list_related(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_list_related_json', views.generate_list_related_json(module, base_views_name, real_model_class))
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^' + base_views_name + '/related/$', base_views_name + '_list_related'),
+                    url(r'^' + base_views_name + '/related/json$', base_views_name + '_list_related_json'),
+                )
 
     def build_state(self):
         """Return the current state of the object. Used for diffs."""

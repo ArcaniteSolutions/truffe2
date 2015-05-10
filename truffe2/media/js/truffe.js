@@ -33,5 +33,5 @@ function activate_menu(id) {
 }
 
 $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
+    $('[data-toggle="tooltip"]').tooltip()
 })

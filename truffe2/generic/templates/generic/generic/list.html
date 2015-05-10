@@ -10,7 +10,7 @@
   {% endblock %}
 
 {% block content %}
-    <h1>{{Model.MetaData.list_title}}</h1>
+    <h1>{% block content_title %}{{Model.MetaData.list_title}}{% endblock %}</h1>
 
     {% if moderables %}
 
@@ -37,6 +37,7 @@
                     <table id="main_list_table" class="table table-striped table-hover">
                         <thead>
                             <tr>
+                                {% block main_list_header %}{% endblock %}
                                 {% for col, display in Model.MetaData.list_display %}
                                     <th>{{display}}</th>
                                 {% endfor %}
@@ -62,7 +63,7 @@
 
                     {% if Model.MetaData.help_list %}
                         {% with w_title="Aide" %}{% include "widget/header.html" %}{% endwith %}
-                          {{Model.MetaData.help_list|linebreaksbr}}
+                            {% block help %}{{Model.MetaData.help_list|linebreaksbr}}{% endblock %}
                         {% include "widget/footer.html" %}
                     {% endif %}
                 </div>
@@ -87,22 +88,23 @@
 
     {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id with_upk=unit_mode %}{% include "datatables.html" %}{% endwith %}
 
+    {% block buttons %}
+        <div style="float: right;">
 
-    <div style="float: right;">
-
-        {% ifhasright Model user '!RESTORE' %}
-          <a href="{% url deleted_view %}" class="btn btn-info">
-            <i class="fa fa-list"></i>
-            {% trans "Élements supprimés" %}
-          </a>
-        {% endifhasright %}
-        {% ifhasright Model user '!CREATE' %}
-          <a href="{% url edit_view '~' %}" class="btn btn-primary">
-            <i class="fa fa-plus"></i>
-            {% trans "Ajouter" %}
-          </a>
-        {% endifhasright %}
-    </div>
+            {% ifhasright Model user '!RESTORE' %}
+              <a href="{% url deleted_view %}" class="btn btn-info">
+                <i class="fa fa-list"></i>
+                {% trans "Élements supprimés" %}
+              </a>
+            {% endifhasright %}
+            {% ifhasright Model user '!CREATE' %}
+              <a href="{% url edit_view '~' %}" class="btn btn-primary">
+                <i class="fa fa-plus"></i>
+                {% trans "Ajouter" %}
+              </a>
+            {% endifhasright %}
+        </div>
+    {% endblock %}
 
 
     <br /><br />

@@ -1,0 +1,5 @@
+{% extends "generic/generic/list_json.html" %}
+
+{% block list_bonus %}
+    "{{elem.get_linked_object}}",
+{% endblock %}

@@ -83,6 +83,14 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
 
     generic_state_unit_field = 'room.unit'
 
+    def generic_set_dummy_unit(self, unit):
+        from logistics.models import Room
+        r = Room(unit=unit)
+        self.room = r
+
+    def get_linked_object(self):
+        return self.room
+
     class MetaData:
 
         list_display = [
@@ -97,24 +105,34 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
         base_title = _(u'Réservation de salle')
-        list_title = _(u'Liste de toutes les réservation de salles')
+        list_title = _(u'Liste de toutes les réservations de salles')
+        list_related_title = _(u'Liste de toutes les réservations des salles de mon unité')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
 
         safe_fields = ['get_unit_name']
 
         menu_id = 'menu-logistics-room-reservation'
+        menu_id_related = 'menu-logistics-room-reservation-related'
 
         has_unit = True
 
         html_fields = ('get_room_infos', 'get_conflits')
         datetime_fields = ('start_date', 'end_date')
 
+        related_name = _('Salle')
+
         help_list = _(u"""Les réservation de salles.
 
 Les réservations sont soumises à modération par l'unité lié à la salle.
 
-Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une unité externe) et modérer les réservation des autres unités te concernant.""")
+Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une unité externe).""")
+
+        help_list_related = _(u"""Les réservation des salles de l'unité.
+
+Les réservations sont soumises à modération par l'unité lié à la salle.
+
+Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
     class MetaEdit:
         date_time_fields = ('start_date', 'end_date')

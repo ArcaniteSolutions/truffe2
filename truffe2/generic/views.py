@@ -31,12 +31,12 @@ from generic.forms import ContactForm
 from rights.utils import BasicRightModel
 
 
-def get_unit_data(model_class, request):
+def get_unit_data(model_class, request, allow_blank=True):
 
     from generic.models import GenericExternalUnitAllowed
 
     unit_mode = hasattr(model_class.MetaData, 'has_unit') and model_class.MetaData.has_unit
-    unit_blank = unit_mode and issubclass(model_class, GenericExternalUnitAllowed)
+    unit_blank = allow_blank and unit_mode and issubclass(model_class, GenericExternalUnitAllowed)
 
     current_unit = None
 
@@ -53,17 +53,17 @@ def get_unit_data(model_class, request):
     return unit_mode, current_unit, unit_blank
 
 
-def generate_list(module, base_name, model_class):
+def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank):
 
     @login_required
-    def _generic_list(request):
+    def _generic_generic_list(request):
 
-        json_view = module.__name__ + '.views.' + base_name + '_list_json'
+        json_view = module.__name__ + '.views.' + base_name + json_view_suffix
         edit_view = module.__name__ + '.views.' + base_name + '_edit'
         show_view = module.__name__ + '.views.' + base_name + '_show'
         deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
 
-        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank)
         main_unit = None
 
         if unit_mode:
@@ -71,13 +71,13 @@ def generate_list(module, base_name, model_class):
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('LIST', request.user, unit))
-            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('CREATE', request.user, unit))
+            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can(right_to_check, request.user, unit))
+            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can(right_to_check_edit, request.user, unit))
         else:
             # The LIST right is not verified here if we're in unit mode. We
             # need to test (in the view) in another unit is available for LIST
             # if the current unit isn't !
-            if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
+            if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can(right_to_check, request.user, current_unit):
                 raise Http404
 
         if hasattr(model_class, 'moderable_object') and model_class.moderable_object:  # If the object is moderable, list all moderable things by the current user
@@ -89,13 +89,18 @@ def generate_list(module, base_name, model_class):
         else:
             moderables = False
 
-        return render(request, [module.__name__ + '/' + base_name + '/list.html', 'generic/generic/list.html'], {
+        return render(request, [module.__name__ + '/' + base_name + '/%s.html' % (template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'moderables': moderables
         })
 
-    return _generic_list
+    return _generic_generic_list
+
+
+def generate_list(module, base_name, model_class):
+
+    return generate_generic_list(module, base_name, model_class, '_list_json', 'LIST', 'CREATE', 'list', True)
 
 
 def generate_list_json(module, base_name, model_class):
@@ -125,6 +130,45 @@ def generate_list_json(module, base_name, model_class):
             raise Http404
 
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_json.html', 'generic/generic/list_json.html'],
+            {'Model': model_class,
+             'show_view': show_view,
+             'edit_view': edit_view,
+             'delete_view': delete_view,
+             'logs_view': logs_view
+            },
+            True, model_class.MetaData.filter_fields,
+            bonus_filter_function=filter_
+        )
+
+    return _generic_list_json
+
+
+def generate_list_related(module, base_name, model_class):
+
+    return generate_generic_list(module, base_name, model_class, '_list_related_json', 'VALIDATE', 'VALIDATE', 'list_related', False)
+
+
+def generate_list_related_json(module, base_name, model_class):
+
+    @login_required
+    @csrf_exempt
+    def _generic_list_json(request):
+        show_view = module.__name__ + '.views.' + base_name + '_show'
+        edit_view = module.__name__ + '.views.' + base_name + '_edit'
+        delete_view = module.__name__ + '.views.' + base_name + '_delete'
+        logs_view = module.__name__ + '.views.' + base_name + '_logs'
+
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
+
+        if unit_mode:
+            filter_ = lambda x: x.filter(**{model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+        else:
+            filter_ = lambda x: x
+
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
+            raise Http404
+
+        return generic_list_json(request, model_class, [model_class.generic_state_unit_field.split('.')[0]] + [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_related_json.html', 'generic/generic/list_related_json.html'],
             {'Model': model_class,
              'show_view': show_view,
              'edit_view': edit_view,

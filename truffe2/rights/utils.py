@@ -31,6 +31,9 @@ class ModelWithRight(object):
         if unit_to_link and hasattr(dummy.MetaRights, 'linked_unit_property') and dummy.MetaRights.linked_unit_property:
             setattr(dummy, dummy.MetaRights.linked_unit_property, unit_to_link)
 
+        if unit_to_link and hasattr(dummy, 'generic_set_dummy_unit'):
+            dummy.generic_set_dummy_unit(unit_to_link)
+
         return dummy.rights_can(right, user)
 
     def rights_expire(self):
