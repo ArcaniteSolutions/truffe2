@@ -184,6 +184,7 @@ BOOTSTRAP3 = {
 IMPERSONATE_REQUIRE_SUPERUSER = True
 
 DATETIME_FORMAT = "Y-m-d H:i:s"
+USE_TZ = True
 
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",

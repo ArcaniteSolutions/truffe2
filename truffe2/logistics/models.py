@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.utils.timezone import localtime
 
 
 from rights.utils import UnitEditableModel, UnitExternalEditableModel
@@ -92,7 +93,7 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
             ('status', _('Status')),
         ]
 
-        details_display = list_display + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques'))]
+        details_display = list_display + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
         base_title = _(u'Réservation de salle')
@@ -106,7 +107,8 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
 
         has_unit = True
 
-        html_fields = ('get_room_infos')
+        html_fields = ('get_room_infos', 'get_conflits')
+        datetime_fields = ('start_date', 'end_date')
 
         help_list = _(u"""Les réservation de salles.
 
@@ -140,3 +142,19 @@ Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une u
         tpl = mark_safe('<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div>' % (escape(self.room.title), _(u'gérée par'), escape(self.room.unit.name),))
 
         return tpl
+
+    def get_conflits(self):
+
+        liste = self.room.roomreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
+
+        if not liste:
+            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))
+        else:
+            retour = '<span class="txt-color-red"><i class="fa fa-warning"></i> %s</span><ul>' % (unicode(_(u'Il y a d\'autres réservations en même temps !')),)
+
+            for elem in liste:
+                retour += u'<li><span class="label label-%s"><i class="%s"></i> %s</span> %s pour l\'unité %s  <span data-toggle="tooltip" data-placement="right" title="Du %s au %s"><i class="fa fa-clock-o"></i> </span></li>' % (elem.status_color(), elem.status_icon(), elem.get_status_display(), elem, elem.get_unit_name(), localtime(elem.start_date), localtime(elem.end_date),)
+
+            retour += '</ul>'
+
+            return retour

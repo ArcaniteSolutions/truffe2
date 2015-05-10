@@ -31,3 +31,7 @@ function activate_menu(id) {
     $('#' + id).parent().parent().children('a').click();
 //.addClass('open').addClass('active');
 }
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})

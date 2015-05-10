@@ -64,7 +64,7 @@ def html_check_and_safe(value):
 
     tags = bleach.ALLOWED_TAGS + ['div', 'br', 'font', 'p', 'table', 'tr', 'td', 'th', 'img', 'u', 'span', 'tbody', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr']
     attrs = {
-        '*': ['class', 'style', 'color', 'align'],
+        '*': ['class', 'style', 'color', 'align', 'title', 'data-toggle', 'data-placement'],
         'a': ['href', 'rel'],
         'img': ['src', 'alt'],
     }

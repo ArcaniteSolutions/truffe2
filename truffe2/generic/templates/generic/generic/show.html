@@ -139,8 +139,8 @@
 
                   <dl class="dl-horizontal">
                       {% for key, info, has_right in rights %}
-                          <dt>{{key}}</dt>
-                          <dd>{{info}}: {% with val=has_right %}{% include "generic/yesorno.html" %}{% endwith %}</dd>
+                          <dt class="txt-color-{{has_right|yesno:"green,red"}}">{{key}}</dt>
+                          <dd class="txt-color-{{has_right|yesno:"green,red"}}">{{info}}: {% with val=has_right %}{% include "generic/yesorno.html" %}{% endwith %}</dd>
                       {% endfor %}
                   </dl>
 
