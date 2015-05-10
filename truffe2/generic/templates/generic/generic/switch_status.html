@@ -44,16 +44,16 @@
         </div>
 
     </div><!-- /.modal-content -->
-    
-  <script type="text/javascript">
-      $('#switch-status-form').ajaxForm({replaceTarget: true, target: '#switch-status-form'});
-        {% if done %}
-            {% if no_more_access %}
-                window.location = '{% url list_view %}';
-            {% else %}
-                window.location.reload();
+
+    <script type="text/javascript">
+        $('#switch-status-form').ajaxForm({replaceTarget: true, target: '#switch-status-form'});
+            {% if done %}
+                {% if no_more_access %}
+                    window.location = '{% url list_view %}';
+                {% else %}
+                    window.location.reload();
+                {% endif %}
             {% endif %}
-        {% endif %}
-  </script>
+     </script>
 </form>
 

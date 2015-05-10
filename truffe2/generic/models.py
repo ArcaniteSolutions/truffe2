@@ -372,6 +372,9 @@ class GenericStateValidableOrModerable(object):
 
         return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
 
+    def rights_can_DISPLAY_LOG(self, user):
+        return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
+
     def rights_can_DELETE(self, user):
 
         # ! Pas de supression même si on est modérateur

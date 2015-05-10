@@ -137,6 +137,6 @@ Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une u
     def get_room_infos(self):
         """Affiche les infos sur la salle pour une réserversation"""
 
-        tpl = mark_safe('<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div><br /><div class="alert alert-info"><h3 style="margin-top: 0px;"><i class="fa fa-info"></i> %s </h3>%s</div><div class="alert alert-warning"><h3 style="margin-top: 0px;"><i class="fa fa-warning"></i> %s </h3>%s</div>' % (escape(self.room.title), _(u'gérée par'), escape(self.room.unit.name), _(u'Description'), html_check_and_safe(self.room.description), _(u'Conditions de réservation'), html_check_and_safe(self.room.conditions_externals if not self.unit or not self.room.conditions_externals else self.room.conditions)))
+        tpl = mark_safe('<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div>' % (escape(self.room.title), _(u'gérée par'), escape(self.room.unit.name),))
 
         return tpl

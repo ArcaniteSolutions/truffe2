@@ -155,7 +155,7 @@ class BasicRightModel(ModelWithRight):
             'DELETE': _(u'Peut supprimer cet élément'),
             'RESTORE': _(u'Peut restaurer un élément'),
             'CREATE': _(u'Peut créer un élément'),
-            'DISPLAY_LOG': _(u'Peut afficher les logs de élément'),
+            'DISPLAY_LOG': _(u'Peut afficher les logs de l\'élément'),
         })
 
     def rights_can_LIST(self, user):
