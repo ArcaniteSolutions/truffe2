@@ -126,6 +126,18 @@
     var ubn_parent = ubn.parent();
     ubn_parent.prepend(ubn.remove());
 
+    $('#id_unit_blank_name').parent().append("<div class='alert alert-danger' style='margin-top: 4px; margin-bottom: 0px; display: none;' id='id_unit_blank_name_warning'>{% trans "Attention ! Une unité existe déjà avec ce nom. Est-ce que tu manques de droits pour utiliser directement l'unité ? Hors cas exceptionnels, il ne faut pas passer via une entité externe, mais demander les droits ! Demande au président !" %}</div>");
+
+    $('#id_unit_blank_name').on('change', function (elem) {
+      $.ajax('{% url 'generic.views.check_unit_name' %}?name=' + escape($('#id_unit_blank_name').val()), {dataType: 'json'}).success(function (data) {
+        if (data['result'] == 'ok') {
+            $('#id_unit_blank_name_warning').hide();
+        } else {
+            $('#id_unit_blank_name_warning').show();
+        }
+        });
+    });
+
 </script>
 
 {% block edit_bonus %}

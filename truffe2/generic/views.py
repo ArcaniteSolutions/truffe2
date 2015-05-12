@@ -556,3 +556,8 @@ def generate_contact(module, base_name, model_class, log_class):
         })
 
     return _contact
+
+
+def check_unit_name(request):
+    from units.models import Unit
+    return HttpResponse(json.dumps({'result': 'ok' if Unit.objects.filter(name__icontains=request.GET.get('name')).count() == 0 else 'err'}))
