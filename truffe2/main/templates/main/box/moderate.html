@@ -1,0 +1,16 @@
+{% load i18n %}
+<div class="col-sm-12 col-md-12 col-lg-6">
+    {% with w_title="Éléments à modérer" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+        <div id="elem-to-moderate">
+            <i>{% trans "Chargement..." %}</i> <i class="fa-spin fa fa-refresh "></i>
+        </div>
+    {% include "widget/footer.html" %}
+</div>
+
+<script type="text/javascript">
+    $(function() {
+        $.ajax('{% url 'main.views.get_to_moderate' %}').success(function (data) {
+            $('#elem-to-moderate').html(data);
+        });
+    });
+</script>

@@ -31,3 +31,20 @@ def home(request):
 
     return render(request, 'main/home.html', {'news': news})
 
+
+@login_required
+def get_to_moderate(request):
+
+    from generic.models import moderables_things
+
+    liste = {}
+
+    for model_class in moderables_things:
+
+        moderable = model_class.objects.order_by('-pk').filter(status='1_asking')
+        moderable = filter(lambda x: x.rights_can('VALIDATE', request.user), moderable)
+
+        if moderable:
+            liste[model_class.MetaData.base_title] = moderable
+
+    return render(request, 'main/to_moderate.html', {'liste': liste})

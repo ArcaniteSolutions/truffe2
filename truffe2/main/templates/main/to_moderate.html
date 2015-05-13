@@ -1,0 +1,29 @@
+{% load i18n %}
+
+{% if not liste %}
+    <h5 class="todo-group-title"><i class="fa fa-check"></i> {% trans "Rien à faire !" %}</h5>
+    <ul class="todo">
+        <li style="background: none;">
+            <span style="display: none;"></span>
+            <p style="margin-left: 0px;">
+                {% blocktrans %}Tu n'as rien à modérer, soit parque tu as peu de droits, soit parque tu as bien fait ton travail :){% endblocktrans %}
+            </p>
+        </li>
+    </ul>
+{% else %}
+
+    {% for key, items in liste.iteritems %}
+        <h5 class="todo-group-title"><i class="fa fa-exclamation"></i> {{key}} (<small class="num-of-tasks">{{items|length}}</small>)</h5>
+
+        <ul class="todo">
+            {% for item in items %}
+                <li style="background: none;">
+                    <span style="display: none;"></span>
+                    <p style="margin-left: 0px;">
+                        {{item}}</strong> <a href="{{item.display_url}}" class="font-xs">{% trans "Détails" %}</a> <span class="date">{{item.last_log.when|date}} {{item.last_log.when|time}}</span>
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% endif %}

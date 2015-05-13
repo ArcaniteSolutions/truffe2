@@ -19,6 +19,9 @@ from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
 
 
+moderables_things = []
+
+
 class FalseFK():
 
     def __init__(self, model, *args, **kwargs):
@@ -161,6 +164,9 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/related/$', base_views_name + '_list_related'),
                     url(r'^' + base_views_name + '/related/json$', base_views_name + '_list_related_json'),
                 )
+
+            if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderables_things:
+                moderables_things.append(real_model_class)
 
     def build_state(self):
         """Return the current state of the object. Used for diffs."""
