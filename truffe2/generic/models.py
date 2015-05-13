@@ -459,7 +459,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
 
         states_texts = {
             '0_draft': _(u'La réservation est en cours de création et n\'est pas public.'),
-            '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce status pour demander une modération !'),
+            '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce status pour demander une modération ! ATTENTION ! Tu accèptes par défaut les conditions de réservations liés !'),
             '2_online': _(u'La résevation est validée. Elle n\'est pas éditable.'),
             '3_archive': _(u'La réservation est archivée. Elle n\'est plus modifiable.'),
         }

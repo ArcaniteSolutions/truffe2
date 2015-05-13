@@ -24,7 +24,7 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel):
 
     active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver'), default=True)
 
-    conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser des informations sur la réservation de la salle'), blank=True)
+    conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser les conditions de réservations pour la salle. Tu peux par exemple mettre un lien vers un contrat.'), blank=True)
 
     allow_externals = models.BooleanField(_(u'Autoriser les externes'), help_text=_(u'Permet aux externes (pas dans l\'AGEPoly) de réserver la salle'), default=False)
     conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation de la salle pour les externes. Remplace le champ \'Conditions\' pour les externe si remplis.'), blank=True)

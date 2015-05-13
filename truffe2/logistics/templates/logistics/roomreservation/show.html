@@ -10,6 +10,9 @@
         {{obj.room.description|html_check_and_safe}}
 
         <h3>Conditions de réservation</h3>
+
+        <div class="alert alert-warning" style="margin-top: -15px; margin-bottom: 5px;">{% trans "La personne effectuant la réservation s'engage à respecter les conditions en demandant une validation de la réservation !" %}</div>
+
         {% if obj.unit or not obj.room.conditions_externals %}
             {{obj.room.conditions|html_check_and_safe}}
         {% else %}
