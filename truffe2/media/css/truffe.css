@@ -90,4 +90,6 @@
   font-weight: bold;
 }
 
-
+.event .fc-event-inner {
+  cursor: pointer;
+}

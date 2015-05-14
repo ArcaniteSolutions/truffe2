@@ -1,0 +1,156 @@
+
+{% extends "base.html" %}
+{% load i18n %}
+{% load rights_extras %}
+
+{% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Calendrier" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</li>
+  {% endblock %}
+
+{% block content %}
+    <h1>{% block content_title %}{{Model.MetaData.calendar_title}}{% endblock %}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+          <div class="col-sm-12 col-md-{% if unit_mode or Model.MetaData.help_list %}10{% else %}12{% endif %} col-lg-{% if unit_mode or Model.MetaData.help_list %}10{% else %}12{% endif %}">
+                {% with w_title="Calendrier des réservations de l'unité en cours" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+
+
+                    <div class="widget-body-toolbar">
+                        <div id="calendar-buttons">
+                            <div class="btn-group">
+                                <a href="javascript:void(0)" class="btn btn-default btn-xs" id="mt">{% trans "Mois" %}</a>
+                                <a href="javascript:void(0)" class="btn btn-default btn-xs" id="ag">{% trans "Semaine" %}</a>
+                                <a href="javascript:void(0)" class="btn btn-default btn-xs" id="td">{% trans "Jour" %}</a>
+                            </div>
+                            <div class="btn-group">
+                                <a href="javascript:void(0)" class="btn btn-default btn-xs" id="btn-prev"><i class="fa fa-chevron-left"></i></a>
+                                <a href="javascript:void(0)" class="btn btn-default btn-xs" id="btn-next"><i class="fa fa-chevron-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="calendar"></div>
+
+                    <hr style="clear: both; visibility: hidden;">
+
+                {% include "widget/footer.html" %}
+            </div>
+
+            {% if unit_mode or Model.MetaData.help_list %}
+                <div class="col-sm-12 col-md-2 col-lg-2">
+                    {% if unit_mode %}
+                      {% with function_to_call="unit_updated" %}
+                          {% include "units/selector/unit_selector.html" %}
+                      {% endwith %}
+                    {% endif %}
+
+                    {% if Model.MetaData.help_list %}
+                        {% with w_title="Aide" %}{% include "widget/header.html" %}{% endwith %}
+                            {% block help %}{{Model.MetaData.help_list|linebreaksbr}}{% endblock %}
+                        {% include "widget/footer.html" %}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <script src="{{MEDIA_URL}}js/plugin/fullcalendar/jquery.fullcalendar.js"></script>
+
+
+    <script type="text/javascript">
+
+        function iniCalendar() {
+
+            var hdr = {
+                left: 'title',
+                center: 'month,agendaWeek,agendaDay',
+                right: 'prev,today,next'
+            };
+
+
+            $('#calendar').fullCalendar({
+
+                header: hdr,
+                buttonText: {
+                    prev: '<i class="fa fa-chevron-left"></i>',
+                    next: '<i class="fa fa-chevron-right"></i>'
+                },
+
+                editable: false,
+                droppable: false, // this allows things to be dropped onto the calendar !!!
+                lang: 'fr',
+
+                events: {
+                    url: '{% url json_view %}',
+                    data: function () {
+                        return {
+                          upk: $('.cgroupe').attr('pk')
+                        };
+                    }
+                },
+
+                eventRender: function (event, element, icon) {
+                    if (!event.description == "") {
+                        element.find('.fc-event-title').append("<br/><span class='ultra-light'>" + event.description +
+                            "</span>");
+                    }
+                    if (!event.icon == "") {
+                        element.find('.fc-event-title').append("<i class='air air-top-right fa " + event.icon +
+                            " '></i>");
+                    }
+                },
+
+                windowResize: function (event, ui) {
+                    $('#calendar').fullCalendar('render');
+                }
+            });
+
+            /* hide default buttons */
+            $('.fc-header-right, .fc-header-center').hide();
+        }
+
+
+        $('#calendar-buttons #btn-prev').click(function () {
+            $('.fc-button-prev').click();
+            return false;
+        });
+
+        $('#calendar-buttons #btn-next').click(function () {
+            $('.fc-button-next').click();
+            return false;
+        });
+
+        $('#calendar-buttons #btn-today').click(function () {
+            $('.fc-button-today').click();
+            return false;
+        });
+
+        $('#mt').click(function () {
+            $('#calendar').fullCalendar('changeView', 'month');
+        });
+
+        $('#ag').click(function () {
+            $('#calendar').fullCalendar('changeView', 'agendaWeek');
+        });
+
+        $('#td').click(function () {
+            $('#calendar').fullCalendar('changeView', 'agendaDay');
+        });
+
+        iniCalendar();
+
+        function unit_updated() {
+            $('#calendar').fullCalendar('refetchEvents');
+        }
+
+    </script>
+
+
+    <br /><br />
+{% endblock %}
+
+
+{% block menuid %}{{Model.MetaData.menu_id_calendar}}{% endblock %}

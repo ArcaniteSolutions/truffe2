@@ -35,8 +35,8 @@ var defaults = {
 	//disableDragging: false,
 	//disableResizing: false,
 	
-	allDayDefault: true,
-	ignoreTimezone: true,
+	allDayDefault: false,
+	ignoreTimezone: false,
 	
 	// event ajax
 	lazyFetching: true,
@@ -55,16 +55,17 @@ var defaults = {
 		day: 'dddd M/d'
 	},
 	timeFormat: { // for event elements
-		'': 'h(:mm)t' // default
+		'': 'HH(:mm)' // default
 	},
 	
 	// locale
 	isRTL: false,
-	firstDay: 0,
-	monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-	monthNamesShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-	dayNames: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-	dayNamesShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+	firstDay: 1,
+	monthNames: ['Janvier','F\351vrier','Mars','Avril','Mai','Juin','Juillet','Ao\373t','Septembre','Octobre','Novembre','D\351cembre'],
+	monthNamesShort: ['Jan','F\351v','Mar','Avr','Mai','Jun','Jui','Ao\373','Sep','Oct','Nov','D\351c'],
+	dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+	dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+
 	buttonText: {
 		prev: '&nbsp;&#9668;&nbsp;',
 		next: '&nbsp;&#9658;&nbsp;',
@@ -966,7 +967,7 @@ function EventManager(options, _sources) {
 				var success = source.success;
 				var error = source.error;
 				var complete = source.complete;
-				var data = $.extend({}, source.data || {});
+				var data = $.extend({}, source.data() || {});
 				var startParam = firstDefined(source.startParam, options.startParam);
 				var endParam = firstDefined(source.endParam, options.endParam);
 				if (startParam) {
