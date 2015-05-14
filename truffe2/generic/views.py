@@ -625,3 +625,67 @@ def generate_calendar_list_json(module, base_name, model_class):
         return HttpResponse(json.dumps(retour))
 
     return _generic_calendar_list_json
+
+
+def generate_calendar_list_related(module, base_name, model_class):
+
+    return generate_generic_list(module, base_name, model_class, '_calendar_list_related_json', 'VALIDATE', 'VALIDATE', 'calendar_list_related', False, True)
+
+
+def generate_calendar_list_related_json(module, base_name, model_class):
+
+    @login_required
+    @csrf_exempt
+    def _generic_calendar_list_related_json(request):
+
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
+
+        if unit_mode:
+            filter_ = lambda x: x.filter(**{model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+        else:
+            filter_ = lambda x: x
+
+        if request.GET.get('filter_object'):
+            filter__ = lambda x: x.filter(**{'__'.join(model_class.generic_state_unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+        else:
+            filter__ = lambda x: x
+
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
+            raise Http404
+
+        start = request.GET.get('start')
+
+        end = request.GET.get('end')
+
+        start = datetime.date.fromtimestamp(float(start))
+        end = datetime.date.fromtimestamp(float(end))
+
+        liste = filter__(filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
+
+        retour = []
+
+        for l in liste:
+            if l.unit:
+                par = l.unit.name
+            else:
+                par = '%s (%s)' % (l.unit_blank_name, l.unit_blank_user)
+
+            if l.status == '1_asking':
+                icon = 'fa-question'
+                className = ["event", "bg-color-redLight"]
+            else:
+                icon = 'fa-check'
+                className = ["event", "bg-color-greenLight"]
+
+            if l.rights_can('SHOW', request.user):
+                url = l.display_url()
+            else:
+                url = ''
+
+            titre = '%s (%s)' % (l.get_linked_object(), par)
+
+            retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
+
+        return HttpResponse(json.dumps(retour))
+
+    return _generic_calendar_list_related_json

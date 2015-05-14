@@ -16,11 +16,34 @@
     <section id="widget-grid" class="">
         <div class="row">
           <div class="col-sm-12 col-md-{% if unit_mode or Model.MetaData.help_list %}10{% else %}12{% endif %} col-lg-{% if unit_mode or Model.MetaData.help_list %}10{% else %}12{% endif %}">
-                {% with w_title="Calendrier des réservations de l'unité en cours" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+                {% with w_title="Calendrier" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
 
                     <div class="widget-body-toolbar">
+
+
+                            {% if object_filter %}
+                                <select id="object_filter" name="__" style="left: 200px; width: 200px;">
+                                    <option value="">&nbsp;</option>
+
+                                    {% for obj in object_filter %}
+                                        <option value="{{obj.pk}}">{{obj}}</option>
+                                    {% endfor %}
+
+                                </select>
+
+                                <script type="text/javascript">
+                                    $(function() { $('#object_filter').select2({allowClear: true}); });
+
+                                    $('#object_filter').on('change', function() {
+                                        $('#calendar').fullCalendar('refetchEvents');
+                                    });
+                                </script>
+                            {% endif %}
+
                         <div id="calendar-buttons">
+
+
                             <div class="btn-group">
                                 <a href="javascript:void(0)" class="btn btn-default btn-xs" id="mt">{% trans "Mois" %}</a>
                                 <a href="javascript:void(0)" class="btn btn-default btn-xs" id="ag">{% trans "Semaine" %}</a>
@@ -87,7 +110,8 @@
                     url: '{% url json_view %}',
                     data: function () {
                         return {
-                          upk: $('.cgroupe').attr('pk')
+                          upk: $('.cgroupe').attr('pk'),
+                          filter_object: $('#object_filter').val(),
                         };
                     }
                 },

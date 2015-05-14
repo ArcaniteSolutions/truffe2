@@ -216,6 +216,9 @@
                                 <li id="menu-logistics-room-reservation-related">
                                     <a href="{% url 'logistics.views.roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Réservations de mes salles" %}</a>
                                 </li>
+                                <li id="menu-logistics-room-reservation-calendar-related">
+                                    <a href="{% url 'logistics.views.roomreservation_calendar_list_related' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Réservation de mes salles (calendrier)" %}</a>
+                                </li>
                             {% endifhasright %}
                         </ul>
                     </li>

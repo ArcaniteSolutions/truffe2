@@ -113,6 +113,7 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         list_title = _(u'Liste de toutes les réservations de salles')
         list_related_title = _(u'Liste de toutes les réservations des salles de mon unité')
         calendar_title = _(u'Calendrier des réservations de salles')
+        calendar_related_title = _(u'Calendrier des réservations des salles de mon unité')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
 
@@ -121,6 +122,7 @@ class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsM
         menu_id = 'menu-logistics-room-reservation'
         menu_id_related = 'menu-logistics-room-reservation-related'
         menu_id_calendar = 'menu-logistics-room-reservation-calendar'
+        menu_id_calendar_related = 'menu-logistics-room-reservation-calendar-related'
 
         has_unit = True
 

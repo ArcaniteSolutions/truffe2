@@ -1,0 +1,10 @@
+{% extends "generic/generic/calendar_list.html" %}
+{% load i18n %}
+
+{% block content_title %}{{Model.MetaData.calendar_related_title}}{% endblock %}
+
+{% block main_list_header %}<th>{{Model.MetaData.related_name}}</th>{% endblock %}
+{% block help %}{{Model.MetaData.help_list_related|linebreaksbr}}{% endblock %}
+{% block buttons %}{% endblock %}
+{% block menuid %}{{Model.MetaData.menu_id_calendar_related}}{% endblock %}
+
