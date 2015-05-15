@@ -168,6 +168,8 @@
 
         function unit_updated() {
             $('#calendar').fullCalendar('refetchEvents');
+            {% block bonus_unit_updated %}
+            {% endblock %}
         }
 
     </script>

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.conf.urls import patterns, url
+from django.forms import CharField, Textarea, Form
 
 import json
 import copy
@@ -411,7 +412,9 @@ class GenericStateValidableOrModerable(object):
         s = super(GenericStateValidableOrModerable, self)
 
         if hasattr(s, 'switch_status_signal'):
-            s.switch_status_signal(old_status, dest_status)
+            s.switch_status_signal(request, old_status, dest_status)
+
+        print "C1"
 
         if dest_status == '1_asking':
             notify_people(request, '%s.moderation' % (self.__class__.__name__,), 'moderation', self, self.build_group_members_for_validators())
@@ -481,6 +484,28 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         }
 
         status_col_id = 4
+
+        class FormRemark(Form):
+            remark = CharField(label=_('Remarque'), widget=Textarea)
+
+        states_bonus_form = {
+            '2_online': FormRemark
+        }
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(GenericStateValidable, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        print "C2"
+
+        if dest_status == '2_online':
+
+            if request.POST.get('remark'):
+                self.remarks += request.POST.get('remark') + '\n'
+                self.save()
 
 
 class GenericStateRootModerable(GenericStateModerable):
@@ -567,7 +592,6 @@ class GenericExternalUnitAllowed():
             'unit_blank_user': models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True),
             'unit_blank_name': models.CharField(_(u'Nom de l\'entité externe'), max_length=255, blank=True, null=True),
         }
-
 
     def get_unit_name(self):
 

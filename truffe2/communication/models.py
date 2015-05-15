@@ -47,7 +47,7 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
 Elles sont soumises à modération par le responsable communication de l'AGEPoly avant d'être visibles.""")
 
     class MetaEdit:
-        date_time_fields = ('start_date', 'end_date')
+        datetime_fields = ('start_date', 'end_date')
 
     class Meta:
         abstract = True
@@ -96,7 +96,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
 Ils sont soumis à modération par le responsable communication de l'AGEPoly avant d'être visibles.""")
 
     class MetaEdit:
-        date_time_fields = ('start_date', 'end_date')
+        datetime_fields = ('start_date', 'end_date')
 
     class Meta:
         abstract = True

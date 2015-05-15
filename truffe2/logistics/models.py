@@ -144,7 +144,12 @@ Les réservations sont soumises à modération par l'unité lié à la salle.
 Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
     class MetaEdit:
-        date_time_fields = ('start_date', 'end_date')
+        datetime_fields = ('start_date', 'end_date')
+
+        only_if = {
+            'remarks': lambda (obj, user): obj.status == '2_online' and obj.rights_can('VALIDATE', user),
+            'room': lambda (obj, user): obj.status == '0_draft',
+        }
 
     class Meta:
         abstract = True
@@ -152,16 +157,18 @@ Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
     def __unicode__(self):
         return self.title
 
-    def genericFormExtraClean(self, data):
+    def genericFormExtraClean(self, data, form):
         """Check if select room is available"""
 
         from django import forms
 
-        if 'room' not in data or not data['room'].active:
-            raise forms.ValidationError(_('Salle non disponible'))
+        if 'room' in form.fields:
 
-        if not self.unit and not data['room'].allow_externals:
-            raise forms.ValidationError(_('Salle non disponible'))
+            if 'room' not in data or not data['room'].active:
+                raise forms.ValidationError(_('Salle non disponible'))
+
+            if not self.unit and not data['room'].allow_externals:
+                raise forms.ValidationError(_('Salle non disponible'))
 
     def get_room_infos(self):
         """Affiche les infos sur la salle pour une réserversation"""

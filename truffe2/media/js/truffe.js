@@ -29,6 +29,9 @@ $(document).ready(function() {
 function activate_menu(id) {
     $('#' + id).addClass('active');
     $('#' + id).parent().parent().children('a').click();
+
+    if ($('#' + id).parent().hasClass('subsub-menu'))
+        $('#' + id).parent().parent().parent().parent().children('a').click();
 //.addClass('open').addClass('active');
 }
 

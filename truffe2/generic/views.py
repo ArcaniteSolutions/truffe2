@@ -475,6 +475,11 @@ def generate_switch_status(module, base_name, model_class, log_class):
 
         (can_switch, can_switch_message) = obj.can_switch_to(request.user, dest_status)
 
+        bonus_form = None
+
+        if hasattr(model_class.MetaState, 'states_bonus_form'):
+            bonus_form = model_class.MetaState.states_bonus_form.get(dest_status, None)
+
         if can_switch and request.method == 'POST' and request.POST.get('do') == 'it':
             old_status = obj.status
             obj.status = dest_status
@@ -499,6 +504,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
             'Model': model_class, 'obj': obj, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done, 'no_more_access': no_more_access,
             'dest_status': dest_status, 'dest_status_message': obj.MetaState.states.get(dest_status),
             'status_view': status_view, 'list_view': list_view,
+            'bonus_form': bonus_form() if bonus_form else None,
         })
 
     return _switch_status

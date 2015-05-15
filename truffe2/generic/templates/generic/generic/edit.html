@@ -103,7 +103,7 @@
 <script type="text/javascript">
 
 
-    {% for field in Model.MetaEdit.date_time_fields %}
+    {% for field in Model.MetaEdit.datetime_fields %}
         $("#id_{{field}}").datetimepicker({format: 'yyyy-mm-dd hh:ii', weekStart: 1, autoclose: true, todayBtn: true});
     {% endfor %}
 

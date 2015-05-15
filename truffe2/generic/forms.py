@@ -21,11 +21,16 @@ class GenericForm(ModelForm):
                 from units.models import Unit
                 self.fields[unit_field_name].queryset = Unit.objects.order_by('name')
 
+        if hasattr(self.Meta.model.MetaEdit, 'only_if'):
+            for key, test in self.Meta.model.MetaEdit.only_if.iteritems():
+                if not test((self.instance, current_user)):
+                    del self.fields[key]
+
     def clean(self):
         cleaned_data = super(GenericForm, self).clean()
 
         if hasattr(self.instance, 'genericFormExtraClean'):
-            self.instance.genericFormExtraClean(cleaned_data)
+            self.instance.genericFormExtraClean(cleaned_data, self)
 
         from rights.utils import UnitExternalEditableModel
 

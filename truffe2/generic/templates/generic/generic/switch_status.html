@@ -26,6 +26,10 @@
                 <div class="alert alert-info">
                     {{obj.MetaState.states_texts|get_attr:dest_status}}
                 </div>
+
+                {% if bonus_form %}
+                    {% bootstrap_form bonus_form %}
+                {% endif %}
             {% else %}
 
                 <div class="alert alert-danger">

@@ -7,4 +7,6 @@
 {% block help %}{{Model.MetaData.help_list_related|linebreaksbr}}{% endblock %}
 {% block buttons %}{% endblock %}
 {% block menuid %}{{Model.MetaData.menu_id_calendar_related}}{% endblock %}
-
+{% block bonus_unit_updated %}
+    setTimeout("window.location.reload();", 100);  //On doit rafraichir le menu des objects
+{% endblock %}

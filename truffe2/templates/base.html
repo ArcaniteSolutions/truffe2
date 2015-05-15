@@ -199,27 +199,39 @@
                     <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> <span class="menu-item-parent">{% trans "Logistique" %}</span></a>
                         <ul>
-                            {% ifhasright 'logistics.models.Room' user 'LIST' %}
-                                <li id="menu-logistics-room">
-                                    <a href="{% url 'logistics.views.room_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des salles" %}</a>
-                                </li>
-                            {% endifhasright %}
                             {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
-                                <li id="menu-logistics-room-reservation">
-                                    <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Réservation de salle" %}</a>
-                                </li>
-                                <li id="menu-logistics-room-reservation-calendar">
-                                    <a href="{% url 'logistics.views.roomreservation_calendar_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Réservation de salle (calendrier)" %}</a>
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Salles" %}</a>
+
+                                    <ul class="subsub-menu">
+
+                                        {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
+                                            <li id="menu-logistics-room-reservation">
+                                                <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de salle" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-room-reservation-calendar">
+                                                <a href="{% url 'logistics.views.roomreservation_calendar_list' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Room' user 'LIST' %}
+                                            <li id="menu-logistics-room">
+                                                <a href="{% url 'logistics.views.room_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des salles" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Room' user 'LIST' %}
+                                            <li id="menu-logistics-room-reservation-related">
+                                                <a href="{% url 'logistics.views.roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes salles" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-room-reservation-calendar-related">
+                                                <a href="{% url 'logistics.views.roomreservation_calendar_list_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                    </ul>
                                 </li>
                             {% endifhasright %}
-                            {% ifhasright 'logistics.models.Room' user 'LIST' %}
-                                <li id="menu-logistics-room-reservation-related">
-                                    <a href="{% url 'logistics.views.roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Réservations de mes salles" %}</a>
-                                </li>
-                                <li id="menu-logistics-room-reservation-calendar-related">
-                                    <a href="{% url 'logistics.views.roomreservation_calendar_list_related' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Réservation de mes salles (calendrier)" %}</a>
-                                </li>
-                            {% endifhasright %}
+
                         </ul>
                     </li>
                     <li>
