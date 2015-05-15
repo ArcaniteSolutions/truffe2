@@ -21,7 +21,7 @@
 
                     <dl class="dl-horizontal">
                         {% for elem, title in Model.MetaData.details_display %}
-                            <dt>{{title}}</dt>
+                            <dt title="{{title}}">{{title}}</dt>
                             <dd>
                             {% if elem in Model.MetaData.yes_or_no_fields %}
                               {% with val=obj|get_attr:elem %}{% include "generic/yesorno.html" %}{% endwith %}

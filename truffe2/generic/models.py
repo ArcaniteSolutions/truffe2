@@ -6,12 +6,14 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.conf.urls import patterns, url
 from django.forms import CharField, Textarea, Form
+from django.utils.timezone import now
 
 import json
 import copy
 import inspect
 import importlib
 from pytz import timezone
+from datetime import timedelta
 
 from users.models import TruffeUser
 from generic import views
@@ -88,6 +90,9 @@ class GenericModel(models.Model):
 
             if issubclass(model_class, GenericExternalUnitAllowed):
                 extra_data.update(GenericExternalUnitAllowed.do(module, models_module, model_class, cache))
+
+            if issubclass(model_class, GenericDelayValidableInfo):
+                extra_data.update(GenericDelayValidableInfo.do(module, models_module, model_class, cache))
 
             for key, value in model_class.__dict__.iteritems():
                 if hasattr(value, '__class__') and value.__class__ == FalseFK:
@@ -351,6 +356,9 @@ class GenericStateValidableOrModerable(object):
         if dest_state == '0_draft' and not super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return (False, _(u'Les modérateurs ne peuvent pas repasser en brouillion un object qui ne leur appartiens pas'))
 
+        if dest_state == '0_draft' and self.status == '1_asking' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
+            return (True, None)
+
         if not self.rights_can('EDIT', user):
             return (False, _('Pas les droits'))
 
@@ -413,8 +421,6 @@ class GenericStateValidableOrModerable(object):
 
         if hasattr(s, 'switch_status_signal'):
             s.switch_status_signal(request, old_status, dest_status)
-
-        print "C1"
 
         if dest_status == '1_asking':
             notify_people(request, '%s.moderation' % (self.__class__.__name__,), 'moderation', self, self.build_group_members_for_validators())
@@ -498,8 +504,6 @@ class GenericStateValidable(GenericStateValidableOrModerable):
 
         if hasattr(s, 'switch_status_signal'):
             s.switch_status_signal(request, old_status, dest_status)
-
-        print "C2"
 
         if dest_status == '2_online':
 
@@ -599,3 +603,50 @@ class GenericExternalUnitAllowed():
             return '<span class="label label-success">%s</span>' % (self.unit,)
 
         return '<span class="label label-warning">%s (Externe, par %s)</span>' % (self.unit_blank_name, self.unit_blank_user)
+
+
+class GenericDelayValidableInfo():
+
+    @staticmethod
+    def do(module, models_module, model_class, cache):
+        """Execute code at startup"""
+
+        return {
+            'max_days': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours')),
+            'max_days_externals': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours, pour les unités externes')),
+
+            'minimum_days_before': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours')),
+            'minimum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes')),
+
+            'maximum_days_before': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours')),
+            'maximum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes')),
+        }
+
+
+class GenericDelayValidable(object):
+
+    def can_switch_to(self, user, dest_state):
+
+        if dest_state == '1_asking' and not self.rights_can('VALIDATE', user):
+
+            nb_days = (self.end_date - self.start_date).days
+            in_days = (self.start_date - now()).days
+
+            lo = self.get_linked_object()
+
+            max_days = lo.max_days if self.unit else lo.max_days_externals
+            min_in_days = lo.minimum_days_before if self.unit else lo.minimum_days_before_externals
+            max_in_days = lo.maximum_days_before if self.unit else lo.maximum_days_before_externals
+
+            if max_days > 0 and nb_days > max_days:
+                return (False, _(u'La résevation est trop longue ! Maximium %s jours !') % (max_days,))
+
+            if min_in_days > 0 and in_days < min_in_days:
+                return (False, _(u'La résevation est pas assez dans le futur ! Minimum %s jours (%s) !') % (min_in_days, now() + timedelta(days=min_in_days)))
+
+            if max_in_days > 0 and in_days > max_in_days:
+                return (False, _(u'La résevation est trop dans le futur ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
+
+            return (False, self.get_linked_object().max_days)
+
+        return super(GenericDelayValidable, self).can_switch_to(user, dest_state)

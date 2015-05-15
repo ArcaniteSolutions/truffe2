@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed
+from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, GenericDelayValidable, GenericDelayValidableInfo
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.conf import settings
@@ -13,7 +13,7 @@ from rights.utils import UnitEditableModel, UnitExternalEditableModel
 from generic.templatetags.generic_extras import html_check_and_safe
 
 
-class _Room(GenericModel, GenericGroupsModel, UnitEditableModel):
+class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
@@ -36,7 +36,17 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel):
             ('allow_externals', _('Autoriser les externes')),
         ]
 
-        details_display = list_display + [('description', _('Description')), ('conditions', _('Conditions')), ('conditions_externals', _('Conditions pour les externes'))]
+        details_display = list_display + [
+            ('description', _('Description')),
+            ('conditions', _('Conditions')),
+            ('conditions_externals', _('Conditions pour les externes')),
+            ('max_days', _(u'Nombre maximum de jours de réservation')),
+            ('max_days_externals', _(u'Nombre maximum de jours de réservation (externes)')),
+            ('minimum_days_before', _(u'Nombre de jours minimum avant réservation')),
+            ('minimum_days_before_externals', _(u'Nombre de jours minimum avant réservation (externes)')),
+            ('maximum_days_before', _(u'Nombre de jours maximum avant réservation')),
+            ('maximum_days_before_externals', _(u'Nombre de jours maximum avant réservation (externes)')),
+        ]
         filter_fields = ('title', 'description', 'conditions', 'conditions_externals')
 
         base_title = _('Salle')
@@ -65,7 +75,7 @@ N'importe quelle unité peut mettre à disposition des salles et est responsable
         return self.title
 
 
-class _RoomReservation(GenericModel, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel):
+class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel):
 
     class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
