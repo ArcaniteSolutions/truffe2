@@ -331,7 +331,7 @@ def generate_show(module, base_name, model_class, log_class):
 
         if hasattr(model_class, 'MetaRights'):
 
-            for key, info in model_class.MetaRights.rights.iteritems():
+            for key, info in obj.MetaRights.rights.iteritems():
                 rights.append((key, info, obj.rights_can(key, request.user)))
 
         log_entires = log_class.objects.filter(object=obj).order_by('-when').all()

@@ -12,7 +12,7 @@ import time
 class ModelWithRight(object):
     """A basic class for a model with right. Mainly implement the can(RIGHT, user) function and helper functions"""
 
-    class MetaRights:
+    class MetaRights(object):
         linked_user_property = 'user'
         linked_unit_property = 'unit'
 

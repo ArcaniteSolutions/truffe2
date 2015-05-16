@@ -297,6 +297,7 @@ class GenericStateValidableOrModerable(object):
 
         super(GenericStateValidableOrModerable, self).__init__(*args, **kwargs)
 
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
         self.MetaRights.rights_update({
             'VALIDATE': _(u'Peut modérer cet élément'),
         })
