@@ -76,13 +76,13 @@
       <script type="text/javascript">
 
         function refresh_list() {
-          data_table_main_list_table._fnAjaxUpdate();
+            data_table_main_list_table._fnAjaxUpdate();
         }
 
         function unit_updated(pk, name, can_edit) {
-          refresh_list();
-          {% block bonus_unit_updated %}
-          {% endblock %}
+            refresh_list();
+            {% block bonus_unit_updated %}
+            {% endblock %}
         }
 
       </script>

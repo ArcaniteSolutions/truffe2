@@ -188,7 +188,8 @@ def generate_list_related_json(module, base_name, model_class):
             },
             True, model_class.MetaData.filter_fields,
             bonus_filter_function=filter_,
-            bonus_filter_function_with_parameters=filter_object
+            bonus_filter_function_with_parameters=filter_object,
+            deca_one_status=True,
         )
 
     return _generic_list_json

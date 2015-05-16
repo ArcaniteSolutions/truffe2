@@ -405,7 +405,7 @@ class GenericStateValidableOrModerable(object):
         return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
 
     def rights_can_DISPLAY_LOG(self, user):
-        return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
+        return self.rights_can('VALIDATE', user) or super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
 
     def rights_can_DELETE(self, user):
 
@@ -492,7 +492,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         status_col_id = 4
 
         class FormRemark(Form):
-            remark = CharField(label=_('Remarque'), widget=Textarea)
+            remark = CharField(label=_('Remarque'), widget=Textarea, required=False)
 
         states_bonus_form = {
             '2_online': FormRemark
@@ -508,7 +508,10 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         if dest_status == '2_online':
 
             if request.POST.get('remark'):
-                self.remarks += request.POST.get('remark') + '\n'
+                if self.remarks:
+                    self.remarks += '\n' + request.POST.get('remark')
+                else:
+                    self.remarks = request.POST.get('remark')
                 self.save()
 
 
@@ -625,14 +628,14 @@ class GenericDelayValidableInfo():
         """Execute code at startup"""
 
         return {
-            'max_days': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours')),
-            'max_days_externals': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours, pour les unités externes')),
+            'max_days': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours'), default=0),
+            'max_days_externals': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours, pour les unités externes'), default=0),
 
-            'minimum_days_before': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours')),
-            'minimum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes')),
+            'minimum_days_before': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours'), default=0),
+            'minimum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes'), default=0),
 
-            'maximum_days_before': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours')),
-            'maximum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes')),
+            'maximum_days_before': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours'), default=0),
+            'maximum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes'), default=0),
         }
 
 
@@ -659,7 +662,5 @@ class GenericDelayValidable(object):
 
             if max_in_days > 0 and in_days > max_in_days:
                 return (False, _(u'La résevation est trop dans le futur ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
-
-            return (False, self.get_linked_object().max_days)
 
         return super(GenericDelayValidable, self).can_switch_to(user, dest_state)

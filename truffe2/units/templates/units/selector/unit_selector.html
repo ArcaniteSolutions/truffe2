@@ -57,62 +57,60 @@
 
     }
 
-    // Hide useless menus
-    $('#unit-selector .unit-hidden, #unit-selector .sub-title-menu').each(function(__, elem) {
-        if ($(elem).parent().find('.unit-displayed').length == 0) {
-            $(elem).hide();
-        }
-    });
-
-    // Hide useless sub-title-menus
-    $('#unit-selector .sub-title-menu[style!="display: none;"]').each(function(__, elem) {
-        if ($(elem).parent().parent().find('> li > a[style="display: none;"]').length == 2) {
-            $(elem).parent().parent().replaceWith($(elem).parent().children('ul'));
-        }
-    });
-
-    // Hide alone menus (replace the sub ul with the parrent ul)
-    $('#unit-selector, #unit-selector ul').each(function (__, elem) {
-        if ($(elem).find('> li > .unit-displayed').length == 0 && $(elem).find('> li > .unit-hidden').length == 1) {
-            var add_left = $(elem).hasClass('dropdown-menu-right');
-            var new_ul = $($(elem).find('> li > .unit-hidden')[0]).parent().children('ul');
-
-            $(new_ul).attr('class', $(elem).attr('class'));
-
-            $(elem).replaceWith(new_ul);
-        }
-    });
-
-    //Ensure the current unit is selectable
-    if ($('#unit-selector-{{CURRENT_UNIT_PK}}').length == 0 || $('#unit-selector-{{CURRENT_UNIT_PK}}').attr('style') == 'display: none;') {
-        if ($('.unit-displayed').length == 0) {
-            $('.unit-no-unit').show();
-            $('.unit-ok').hide();
-
-            setTimeout("$('.dataTables_processing').html('<div class=\"alert alert-warning\">{% trans "Aucun droit !" %}</div>');", 1000);
-        } else {
-            $('.unit-displayed')[0].click();
-        }
-    }
-
-    //Don't autoclose menu
-    $('.dropdown-menu li a').mouseover(function(e) {
-        e.stopPropagation();
-        $(this).parent().parent().find('li').each(function() {
-            $(this).removeClass('open');
+    $(function () {
+        // Hide useless menus
+        $('#unit-selector .unit-hidden, #unit-selector .sub-title-menu').each(function(__, elem) {
+            if ($(elem).parent().find('.unit-displayed').length == 0) {
+                $(elem).hide();
+            }
         });
-        $(this).parent().addClass('open');
-    });
 
-    $('.dropdown-toggle').click(function(e) {
-        $(this).parent().find('li').each(function() {
-            $(this).removeClass('open');
+        // Hide useless sub-title-menus
+        $('#unit-selector .sub-title-menu[style!="display: none;"]').each(function(__, elem) {
+            if ($(elem).parent().parent().find('> li > a[style="display: none;"]').length == 2) {
+                $(elem).parent().parent().replaceWith($(elem).parent().children('ul'));
+            }
+        });
+
+        // Hide alone menus (replace the sub ul with the parrent ul)
+        $('#unit-selector, #unit-selector ul').each(function (__, elem) {
+            if ($(elem).find('> li > .unit-displayed').length == 0 && $(elem).find('> li > .unit-hidden').length == 1) {
+                var add_left = $(elem).hasClass('dropdown-menu-right');
+                var new_ul = $($(elem).find('> li > .unit-hidden')[0]).parent().children('ul');
+
+                $(new_ul).attr('class', $(elem).attr('class'));
+
+                $(elem).replaceWith(new_ul);
+            }
+        });
+
+        //Ensure the current unit is selectable
+        if ($('#unit-selector-{{CURRENT_UNIT_PK}}').length == 0 || $('#unit-selector-{{CURRENT_UNIT_PK}}').attr('style') == 'display: none;') {
+            if ($('.unit-displayed').length == 0) {
+                $('.unit-no-unit').show();
+                $('.unit-ok').hide();
+
+                setTimeout("$('.dataTables_processing').html('<div class=\"alert alert-warning\">{% trans "Aucun droit !" %}</div>');", 1000);
+            } else {
+                $('.unit-displayed')[0].click();
+            }
+        }
+
+        //Don't autoclose menu
+        $('.dropdown-menu li a').mouseover(function(e) {
+            e.stopPropagation();
+            $(this).parent().parent().find('li').each(function() {
+                $(this).removeClass('open');
+            });
+            $(this).parent().addClass('open');
+        });
+
+        $('.dropdown-toggle').click(function(e) {
+            $(this).parent().find('li').each(function() {
+                $(this).removeClass('open');
+            });
         });
     });
-
-
-    //
-
 
 </script>
 
