@@ -210,7 +210,7 @@
                                                 <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de salle" %}</a>
                                             </li>
                                             <li id="menu-logistics-room-reservation-calendar">
-                                                <a href="{% url 'logistics.views.roomreservation_calendar_list' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
+                                                <a href="{% url 'logistics.views.roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
                                             </li>
                                         {% endifhasright %}
 
@@ -225,7 +225,7 @@
                                                 <a href="{% url 'logistics.views.roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes salles" %}</a>
                                             </li>
                                             <li id="menu-logistics-room-reservation-calendar-related">
-                                                <a href="{% url 'logistics.views.roomreservation_calendar_list_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
+                                                <a href="{% url 'logistics.views.roomreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
                                             </li>
                                         {% endifhasright %}
                                     </ul>

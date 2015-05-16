@@ -166,19 +166,19 @@ class GenericModel(models.Model):
             if issubclass(model_class, GenericStateUnitValidable):
                 setattr(views_module, base_views_name + '_list_related', views.generate_list_related(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_list_related_json', views.generate_list_related_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_list', views.generate_calendar_list(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_list_json', views.generate_calendar_list_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_list_related', views.generate_calendar_list_related(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_list_related_json', views.generate_calendar_list_related_json(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_calendar', views.generate_calendar(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_calendar_json', views.generate_calendar_json(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_calendar_related', views.generate_calendar_related(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_calendar_related_json', views.generate_calendar_related_json(module, base_views_name, real_model_class))
 
                 urls_module.urlpatterns += patterns(views_module.__name__,
                     url(r'^' + base_views_name + '/related/$', base_views_name + '_list_related'),
                     url(r'^' + base_views_name + '/related/json$', base_views_name + '_list_related_json'),
 
-                    url(r'^' + base_views_name + '/calendar/$', base_views_name + '_calendar_list'),
-                    url(r'^' + base_views_name + '/calendar/json$', base_views_name + '_calendar_list_json'),
-                    url(r'^' + base_views_name + '/related/calendar/$', base_views_name + '_calendar_list_related'),
-                    url(r'^' + base_views_name + '/related/calendar/json$', base_views_name + '_calendar_list_related_json'),
+                    url(r'^' + base_views_name + '/calendar/$', base_views_name + '_calendar'),
+                    url(r'^' + base_views_name + '/calendar/json$', base_views_name + '_calendar_json'),
+                    url(r'^' + base_views_name + '/related/calendar/$', base_views_name + '_calendar_related'),
+                    url(r'^' + base_views_name + '/related/calendar/json$', base_views_name + '_calendar_related_json'),
                 )
 
             if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderables_things:

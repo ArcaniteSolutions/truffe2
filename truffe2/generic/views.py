@@ -569,16 +569,16 @@ def check_unit_name(request):
     return HttpResponse(json.dumps({'result': 'ok' if Unit.objects.filter(name__icontains=request.GET.get('name')).count() == 0 else 'err'}))
 
 
-def generate_calendar_list(module, base_name, model_class):
+def generate_calendar(module, base_name, model_class):
 
-    return generate_generic_list(module, base_name, model_class, '_calendar_list_json', 'LIST', 'CREATE', 'calendar_list', True)
+    return generate_generic_list(module, base_name, model_class, '_calendar_json', 'LIST', 'CREATE', 'calendar', True)
 
 
-def generate_calendar_list_json(module, base_name, model_class):
+def generate_calendar_json(module, base_name, model_class):
 
     @login_required
     @csrf_exempt
-    def _generic_calendar_list_json(request):
+    def _generic_calendar_json(request):
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
@@ -630,19 +630,19 @@ def generate_calendar_list_json(module, base_name, model_class):
 
         return HttpResponse(json.dumps(retour))
 
-    return _generic_calendar_list_json
+    return _generic_calendar_json
 
 
-def generate_calendar_list_related(module, base_name, model_class):
+def generate_calendar_related(module, base_name, model_class):
 
-    return generate_generic_list(module, base_name, model_class, '_calendar_list_related_json', 'VALIDATE', 'VALIDATE', 'calendar_list_related', False, True)
+    return generate_generic_list(module, base_name, model_class, '_calendar_related_json', 'VALIDATE', 'VALIDATE', 'calendar_related', False, True)
 
 
-def generate_calendar_list_related_json(module, base_name, model_class):
+def generate_calendar_related_json(module, base_name, model_class):
 
     @login_required
     @csrf_exempt
-    def _generic_calendar_list_related_json(request):
+    def _generic_calendar_related_json(request):
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
 
@@ -694,4 +694,4 @@ def generate_calendar_list_related_json(module, base_name, model_class):
 
         return HttpResponse(json.dumps(retour))
 
-    return _generic_calendar_list_related_json
+    return _generic_calendar_related_json
