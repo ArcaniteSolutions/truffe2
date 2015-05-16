@@ -163,7 +163,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
         if 'room' in form.fields:
 
-            if 'room' not in data or not data['room'].active:
+            if 'room' not in data or not data['room'].active or data['room'].deleted:
                 raise forms.ValidationError(_('Salle non disponible'))
 
             if not self.unit and not data['room'].allow_externals:
