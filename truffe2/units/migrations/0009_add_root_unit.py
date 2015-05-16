@@ -9,16 +9,18 @@ from django.conf import settings
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        try:
-            orm.Unit.objects.get(pk=settings.ROOT_UNIT_PK)
-        except orm.Unit.DoesNotExist:
-            orm.Unit(name=u"Comité de Direction de l'AGEPoly", id_epfl=147, description=u"Le comité de l'AGEPoly", url='https://agepoly.epfl.ch/').save()
+        if not db.dry_run:
+            try:
+                orm.Unit.objects.get(pk=settings.ROOT_UNIT_PK)
+            except orm.Unit.DoesNotExist:
+                orm.Unit(name=u"Comité de Direction de l'AGEPoly", id_epfl=147, description=u"Le comité de l'AGEPoly", url='https://agepoly.epfl.ch/').save()
 
     def backwards(self, orm):
-        try:
-            orm.Unit.objects.get(pk=settings.ROOT_UNIT_PK).delete()
-        except orm.Unit.DoesNotExist:
-            pass
+        if not db.dry_run:
+            try:
+                orm.Unit.objects.get(pk=settings.ROOT_UNIT_PK).delete()
+            except orm.Unit.DoesNotExist:
+                pass
 
     models = {
         u'auth.group': {
