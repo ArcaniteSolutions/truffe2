@@ -60,3 +60,39 @@ def room_search(request):
     retour = map(lambda room: {'id': room.pk, 'text': room.title, 'description': strip_tags(html_check_and_safe(room.description))[:100] + '...', 'unit': str(room.unit)}, rooms)
 
     return HttpResponse(json.dumps(retour))
+
+
+@login_required
+def supply_search(request):
+
+    from logistics.models import Supply, SupplyReservation
+
+    q = request.GET.get('q')
+    init = request.GET.get('init')
+    unit_pk = request.GET.get('unit_pk', "-1") or "-1"
+
+    supplies = Supply.objects.filter(active=True, deleted=False).order_by('title')
+
+    if q:
+        supplies = supplies.filter(title__icontains=q)
+
+    if init:
+        supplies = supplies.filter(pk=init)
+
+    if unit_pk == "-1":
+        supplies = supplies.filter(allow_externals=True)
+    else:
+        # Pas de filtre, mais on check que le dude peut faire une réservation
+        # dans l'unité
+        from units.models import Unit
+        get_object_or_404(Unit, pk=unit_pk)
+
+        dummy = SupplyReservation()
+        update_current_unit(request, unit_pk)
+
+        if not dummy.rights_can('CREATE', request.user):
+            raise Http404
+
+    retour = map(lambda supply: {'id': supply.pk, 'text': supply.title, 'description': strip_tags(html_check_and_safe(supply.description))[:100] + '...', 'unit': str(supply.unit)}, supplies)
+
+    return HttpResponse(json.dumps(retour))

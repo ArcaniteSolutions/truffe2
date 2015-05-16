@@ -232,6 +232,39 @@
                                 </li>
                             {% endifhasright %}
 
+                            {% ifhasright 'logistics.models.SupplyReservation' user 'LIST' %}
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Matériel" %}</a>
+
+                                    <ul class="subsub-menu">
+
+                                        {% ifhasright 'logistics.models.SupplyReservation' user 'LIST' %}
+                                            <li id="menu-logistics-supply-reservation">
+                                                <a href="{% url 'logistics.views.supplyreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de matériel" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-supply-reservation-calendar">
+                                                <a href="{% url 'logistics.views.supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Supply' user 'LIST' %}
+                                            <li id="menu-logistics-supply">
+                                                <a href="{% url 'logistics.views.supply_list' %}"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Gestion du matériel" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Supply' user 'LIST' %}
+                                            <li id="menu-logistics-supply-reservation-related">
+                                                <a href="{% url 'logistics.views.supplyreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mon matériel" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-supply-reservation-calendar-related">
+                                                <a href="{% url 'logistics.views.supplyreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mon matériel" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                    </ul>
+                                </li>
+                            {% endifhasright %}
+
                         </ul>
                     </li>
                     <li>

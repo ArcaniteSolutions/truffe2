@@ -1,0 +1,52 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        // Move supply up
+        var supply = $('#id_supply').parent().parent().remove();
+        $('#id_title').parent().parent().after(supply);
+
+        $(function() {
+            var papa = $('#id_supply').parent();
+            var val = $('#id_supply').val();
+            var old_id = $('#id_supply').attr('name');
+            $('#id_supply').remove();
+
+            $(papa).append("<input id='id_supply' name='" + old_id + "' value='" + val + "' type='text'>");
+
+            $('#id_supply').width('92%').select2({
+                minimumInputLength: 0,
+                ajax: {
+                    url: "{% url 'logistics.views.supply_search' %}",
+                    dataType: 'json',
+                    data: function (term, page) {
+                        return {
+                            q: term,
+                            unit_pk: $('#input_upk').val()
+                        }
+                    },
+                    results: function (data, page) {
+                        return { results: data };
+                    },
+                },
+                initSelection : function (element, callback) {
+                    $.ajax("{% url 'logistics.views.supply_search' %}?init=" + $(element).val() + '&unit_pk=' + $('#input_upk').val(), {'dataType': 'json'}).success(function (data) {
+                        callback(data[0]);
+                    });
+                },
+                formatResult: function(result, container, query, escapeMarkup) {
+                    return escapeMarkup(result.text) + ' <small class="label label-info">' + escapeMarkup(result.unit) + '</small><br /><small>' + escapeMarkup(result.description) + "</small>";
+                },
+                formatSelection: function(result, container, escapeMarkup) {
+                    return escapeMarkup(result.text) + ' <small class="label label-info">' + escapeMarkup(result.unit) + '</small>';
+                },
+            }).on('change', function(e) {
+                console.log(e);
+                $('#id_supply').val(e.val);
+            });
+        });
+
+    </script>
+{% endblock %}
