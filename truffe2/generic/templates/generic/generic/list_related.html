@@ -8,8 +8,8 @@
 {% block buttons %}{% endblock %}
 {% block menuid %}{{Model.MetaData.menu_id_related}}{% endblock %}
 {% block datatables %}
-    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id|add:"1" with_upk=unit_mode object_filter=object_filter object_filter_name=Model.MetaData.related_name object_col_id=0 %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter_related states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id|add:"1" with_upk=unit_mode object_filter=object_filter object_filter_name=Model.MetaData.related_name object_col_id=0 %}{% include "datatables.html" %}{% endwith %}
 {% endblock %}
 {% block bonus_unit_updated %}
-    setTimeout("window.location.reload();", 500);  //On doit rafraichir le menu des objects
+    window.location = window.location.pathname + '?upk=' + $('.cgroupe').attr('pk');
 {% endblock %}

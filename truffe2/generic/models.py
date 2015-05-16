@@ -270,6 +270,7 @@ class GenericLogEntry(models.Model):
     who = models.ForeignKey(TruffeUser)
 
     LOG_TYPES = (
+        ('imported', _(u'Importé depuis truffe 1')),
         ('created', _(u'Creation')),
         ('edited', _(u'Edité')),
         ('deleted', _(u'Supprimé')),
@@ -330,6 +331,7 @@ class GenericStateValidableOrModerable(object):
         }
 
         states_default_filter = '0_draft,1_asking,2_online'
+        states_default_filter_related = '1_asking,2_online'
         status_col_id = 3
 
     def may_switch_to(self, user, dest_state):

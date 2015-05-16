@@ -22,6 +22,7 @@ from django.db.models import Max, Q
 
 import json
 import datetime
+import pytz
 
 
 from generic.datatables import generic_list_json
@@ -600,18 +601,14 @@ def generate_calendar_json(module, base_name, model_class):
         start = request.GET.get('start')
         end = request.GET.get('end')
 
-        start = datetime.date.fromtimestamp(float(start))
-        end = datetime.date.fromtimestamp(float(end))
+        start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
+        end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
         liste = filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
 
         retour = []
 
         for l in liste:
-            # if l.unit:
-            #     par = l.unit.name
-            # else:
-            #     par = '%s (%s)' % (l.unit_blank_name, l.unit_blank_user)
 
             if l.status == '1_asking':
                 icon = 'fa-question'
@@ -625,7 +622,7 @@ def generate_calendar_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = '%s (%s)' % (l.get_linked_object(), l.get_linked_object().unit)
+            titre = u'%s (%s)' % (l.get_linked_object(), l.get_linked_object().unit)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
@@ -664,8 +661,8 @@ def generate_calendar_related_json(module, base_name, model_class):
 
         end = request.GET.get('end')
 
-        start = datetime.date.fromtimestamp(float(start))
-        end = datetime.date.fromtimestamp(float(end))
+        start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
+        end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
         liste = filter__(filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
 
@@ -675,7 +672,7 @@ def generate_calendar_related_json(module, base_name, model_class):
             if l.unit:
                 par = l.unit.name
             else:
-                par = '%s (%s)' % (l.unit_blank_name, l.unit_blank_user)
+                par = u'%s (%s)' % (l.unit_blank_name, l.unit_blank_user)
 
             if l.status == '1_asking':
                 icon = 'fa-question'
@@ -689,7 +686,7 @@ def generate_calendar_related_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = '%s (%s)' % (l.get_linked_object(), par)
+            titre = u'%s (%s)' % (l.get_linked_object(), par)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
