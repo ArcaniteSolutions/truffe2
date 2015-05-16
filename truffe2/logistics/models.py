@@ -138,6 +138,8 @@ Les réservations sont soumises à modération par l'unité lié à la salle.
 
 Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
+        not_sortable_colums = ['get_unit_name']
+
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
 
@@ -317,6 +319,8 @@ Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une u
 Les réservations sont soumises à modération par l'unité lié à au matériel.
 
 Tu peux gérer ici la liste de réservation du matériel de l'unité en cours.""")
+
+        not_sortable_colums = ['get_unit_name']
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')

@@ -71,7 +71,7 @@ def accreds_list_json(request):
     else:
         filter2 = filter_
 
-    return generic_list_json(request, Accreditation, ['user', 'get_role_or_display_name', 'start_date', 'exp_date', 'no_epfl_sync', 'pk'], 'units/accreds/list_json.html', filter_fields=['user__first_name', 'user__last_name', 'role__name'], bonus_filter_function=filter2)
+    return generic_list_json(request, Accreditation, ['user', 'get_role_or_display_name', 'start_date', 'exp_date', 'no_epfl_sync', 'pk'], 'units/accreds/list_json.html', filter_fields=['user__first_name', 'user__last_name', 'role__name'], bonus_filter_function=filter2, not_sortable_colums=['get_role_or_display_name'])
 
 
 @login_required

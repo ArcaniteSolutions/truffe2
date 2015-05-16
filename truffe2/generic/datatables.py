@@ -3,11 +3,13 @@ from django.template import RequestContext
 from django.shortcuts import render
 
 
-def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_colums=[]):
     """Generic function for json list"""
 
     if not filter_fields:
         filter_fields = columns
+
+    not_sortable_colums_local = not_sortable_colums + (model.MetaData.not_sortable_colums if hasattr(model, 'MetaData') and hasattr(model.MetaData, 'not_sortable_colums') else [])
 
     def do_ordering(qs):
 
@@ -30,9 +32,11 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
             sortcol = columns[i_sort_col]
             if isinstance(sortcol, list):
                 for sc in sortcol:
-                    order.append('%s%s' % (sdir, sc))
+                    if sc not in not_sortable_colums_local:
+                        order.append('%s%s' % (sdir, sc))
             else:
-                order.append('%s%s' % (sdir, sortcol))
+                if sortcol not in not_sortable_colums_local:
+                    order.append('%s%s' % (sdir, sortcol))
 
         if '-pk' not in order and 'pk' not in order:
             order.append('-pk')
