@@ -166,20 +166,20 @@ def generate_list_related_json(module, base_name, model_class):
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
 
         if unit_mode:
-            filter_ = lambda x: x.filter(**{model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+            filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
 
         def filter_object(qs, request):
             if request.POST.get('sSearch_0'):
-                return qs.filter(**{'__'.join(model_class.generic_state_unit_field.split('.')[:-1] + ['pk']): request.POST.get('sSearch_0'), model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+                return qs.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.POST.get('sSearch_0'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
             else:
                 return qs
 
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
             raise Http404
 
-        return generic_list_json(request, model_class, [model_class.generic_state_unit_field.split('.')[0]] + [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_related_json.html', 'generic/generic/list_related_json.html'],
+        return generic_list_json(request, model_class, [model_class.MetaState.unit_field.split('.')[0]] + [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_related_json.html', 'generic/generic/list_related_json.html'],
             {'Model': model_class,
              'show_view': show_view,
              'edit_view': edit_view,
@@ -647,12 +647,12 @@ def generate_calendar_related_json(module, base_name, model_class):
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
 
         if unit_mode:
-            filter_ = lambda x: x.filter(**{model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+            filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
 
         if request.GET.get('filter_object'):
-            filter__ = lambda x: x.filter(**{'__'.join(model_class.generic_state_unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.generic_state_unit_field.replace('.', '__'): current_unit})
+            filter__ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter__ = lambda x: x
 

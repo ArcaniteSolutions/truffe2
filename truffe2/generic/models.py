@@ -292,9 +292,6 @@ class GenericStateValidableOrModerable(object):
     moderable_object = True
     moderable_state = '1_asking'
 
-    generic_state_unit_field = '!root'  # !root for the root unit, or the field with an unit
-    generic_state_moderable = True  # To use the term 'Moderate' sinon 'Validé'
-
     def __init__(self, *args, **kwargs):
 
         super(GenericStateValidableOrModerable, self).__init__(*args, **kwargs)
@@ -305,6 +302,9 @@ class GenericStateValidableOrModerable(object):
 
     class MetaState_:
         """Full object defined in subclasses !"""
+
+        unit_field = '!root'  # !root for the root unit, or the field with an unit
+        moderable = True  # To use the term 'Moderate' sinon 'Validé'
 
         default = '0_draft'
 
@@ -377,17 +377,17 @@ class GenericStateValidableOrModerable(object):
         if self.status == '3_archive':
             return False
 
-        if self.generic_state_unit_field == '!root':
+        if self.MetaState.unit_field == '!root':
             return self.rights_in_root_unit(user, self.MetaRightsUnit.moderation_access)
         else:
-            return self.rights_in_unit(user, get_property(self, self.generic_state_unit_field), self.MetaRightsUnit.moderation_access)
+            return self.rights_in_unit(user, get_property(self, self.MetaState.unit_field), self.MetaRightsUnit.moderation_access)
 
     def rights_peoples_in_VALIDATE(self, no_parent=False):
 
-        if self.generic_state_unit_field == '!root':
+        if self.MetaState.unit_field == '!root':
             return self.people_in_root_unit(self.MetaRightsUnit.moderation_access)
         else:
-            return self.people_in_unit(get_property(self, self.generic_state_unit_field), self.MetaRightsUnit.moderation_access, no_parent=no_parent)
+            return self.people_in_unit(get_property(self, self.MetaState.unit_field), self.MetaRightsUnit.moderation_access, no_parent=no_parent)
 
     def rights_can_EDIT(self, user):
 
@@ -428,7 +428,7 @@ class GenericStateValidableOrModerable(object):
         if dest_status == '2_online':
             unotify_people('%s.moderation' % (self.__class__.__name__,), self)
 
-            if self.generic_state_moderable:
+            if self.MetaState.moderable:
                 notify_people(request, '%s.online' % (self.__class__.__name__,), 'online', self, self.build_group_members_for_editors())
             else:
                 notify_people(request, '%s.validated' % (self.__class__.__name__,), 'validated', self, self.build_group_members_for_editors())
@@ -436,9 +436,9 @@ class GenericStateValidableOrModerable(object):
 
 class GenericStateModerable(GenericStateValidableOrModerable):
 
-    generic_state_moderable = True
-
     class MetaState(GenericStateValidableOrModerable.MetaState_):
+
+        moderable = True
 
         states = {
             '0_draft': _('Brouillon'),
@@ -464,9 +464,9 @@ class GenericStateModerable(GenericStateValidableOrModerable):
 
 class GenericStateValidable(GenericStateValidableOrModerable):
 
-    generic_state_moderable = False
-
     class MetaState(GenericStateValidableOrModerable.MetaState_):
+
+        moderable = False
 
         states = {
             '0_draft': _('Brouillon'),
@@ -514,12 +514,25 @@ class GenericStateValidable(GenericStateValidableOrModerable):
 
 class GenericStateRootModerable(GenericStateModerable):
     """Un système de status générique pour de la modération par l'unité racine"""
-
-    generic_state_unit_field = '!root'
+    pass
 
 
 class GenericStateUnitValidable(GenericStateValidable):
-    """Un système de status générique pour de la validation par une unité. Définir generic_state_unit_field !"""
+    """Un système de status générique pour de la validation par une unité. Définir MetaStateUnit.unit_field et MetaStateUnit.linked_model !"""
+
+    def generic_set_dummy_unit(self, unit):
+        x = self.__class__.get_linked_object_class()(**{self.MetaState.unit_field.split('.')[-1]: unit})
+        setattr(self, self.MetaState.unit_field.split('.')[0], x)
+
+    @classmethod
+    def get_linked_object_class(cls):
+
+        module = importlib.import_module('.'.join(cls.MetaState.linked_model.split('.')[:-1]))
+
+        return getattr(module, cls.MetaState.linked_model.split('.')[-1])
+
+    def get_linked_object(self):
+        return getattr(self, self.MetaState.unit_field.split('.')[0])
 
 
 class GenericGroupsModel():

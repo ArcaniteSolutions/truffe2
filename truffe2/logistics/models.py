@@ -91,21 +91,6 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
     raison = models.TextField(help_text=_(u'Explique pourquoi tu as besion (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
-    generic_state_unit_field = 'room.unit'
-
-    def generic_set_dummy_unit(self, unit):
-        from logistics.models import Room
-        r = Room(unit=unit)
-        self.room = r
-
-    @staticmethod
-    def get_linked_object_class():
-        from logistics.models import Room
-        return Room
-
-    def get_linked_object(self):
-        return self.room
-
     class MetaData:
 
         list_display = [
@@ -163,6 +148,10 @@ Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
     class Meta:
         abstract = True
+
+    class MetaState(GenericStateUnitValidable.MetaState):
+        unit_field = 'room.unit'
+        linked_model = 'logistics.models.Room'
 
     def __unicode__(self):
         return self.title
