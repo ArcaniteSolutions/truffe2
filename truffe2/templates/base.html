@@ -358,10 +358,10 @@
 
         var CURRENT_MENU = '{% block menuid %}{% endblock %}';
 
-        $(document).ready(function() {
+        if (CURRENT_MENU != '')
+            activate_menu(CURRENT_MENU);
 
-            if (CURRENT_MENU != '')
-                activate_menu(CURRENT_MENU);
+        $(document).ready(function() {
 
             pageSetUp();
 
