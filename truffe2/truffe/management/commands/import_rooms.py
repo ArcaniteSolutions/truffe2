@@ -63,6 +63,7 @@ class Command(BaseCommand):
                 else:
                     external_user = creator
                     external_unit = rdata['forWho']
+                    unit = None
 
                 title = u'Réservation truffe 1 #%s' % (rdata['id'],)
 
