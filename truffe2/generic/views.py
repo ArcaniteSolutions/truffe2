@@ -62,6 +62,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         edit_view = module.__name__ + '.views.' + base_name + '_edit'
         show_view = module.__name__ + '.views.' + base_name + '_show'
         deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
+        status_view = module.__name__ + '.views.' + base_name + '_switch_status'
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank)
         main_unit = None
@@ -95,7 +96,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
             objects = []
 
         return render(request, [module.__name__ + '/' + base_name + '/%s.html' % (template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], {
-            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view,
+            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'moderables': moderables, 'object_filter': objects,
         })
@@ -471,6 +472,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
         list_view = module.__name__ + '.views.' + base_name + '_list'
 
         dest_status = request.GET.get('dest_status')
+        from_list = request.GET.get('from_list') == 'from_list'
 
         if not hasattr(obj, 'MetaState') or dest_status not in obj.MetaState.states:
             raise Http404
@@ -507,6 +509,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
             'dest_status': dest_status, 'dest_status_message': obj.MetaState.states.get(dest_status),
             'status_view': status_view, 'list_view': list_view,
             'bonus_form': bonus_form() if bonus_form else None,
+            'from_list': from_list,
         })
 
     return _switch_status

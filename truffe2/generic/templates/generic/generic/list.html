@@ -112,7 +112,28 @@
 
 
     <br /><br />
+
+
+    {% if Model.MetaState.states %}
+        <div class="modal fade" id="modal-switch-status" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function disp_switch(obj_pk, id) {
+                $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+                $('#modal-switch-status').find('.modal-content').html('');
+                $('#modal-switch-status').removeData('bs.modal');
+                $('#modal-switch-status').modal({remote: '{% url status_view 42 %}'.replace('42', obj_pk) + '?from_list=from_list&dest_status=' + id});
+
+            }
+        </script>
+      {% endif %}
 {% endblock %}
+
 
 
 {% block menuid %}{{Model.MetaData.menu_id}}{% endblock %}

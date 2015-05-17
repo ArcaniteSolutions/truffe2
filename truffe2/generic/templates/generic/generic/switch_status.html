@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 {% load generic_extras %}
 
-<form id="switch-status-form" method="POST" action="{% url status_view obj.pk %}?dest_status={{dest_status}}">
+<form id="switch-status-form" method="POST" action="{% url status_view obj.pk %}?dest_status={{dest_status}}{% if from_list %}&from_list=from_list{% endif %}">
   {% csrf_token %}
 
     <div class="modal-content">
@@ -40,9 +40,9 @@
             {% endif %}
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">
+            <button type="button" class="btn btn-default" id="modal-switch-cancel" data-dismiss="modal">
                 {% trans "Annuler" %}
-                </button>
+            </button>
                 {% if can_switch %}<input type="submit" class="btn btn-primary" value="{% trans "Modifier" %}">{% endif %}
           </div>
         </div>
@@ -52,10 +52,16 @@
     <script type="text/javascript">
         $('#switch-status-form').ajaxForm({replaceTarget: true, target: '#switch-status-form'});
             {% if done %}
-                {% if no_more_access %}
-                    window.location = '{% url list_view %}';
+                {% if from_list %}
+                    refresh_list();
+                    $('#modal-switch-cancel').click();
+
                 {% else %}
-                    window.location.reload();
+                    {% if no_more_access %}
+                        window.location = '{% url list_view %}';
+                    {% else %}
+                        window.location.reload();
+                    {% endif %}
                 {% endif %}
             {% endif %}
      </script>
