@@ -140,7 +140,8 @@ def generate_list_json(module, base_name, model_class):
              'show_view': show_view,
              'edit_view': edit_view,
              'delete_view': delete_view,
-             'logs_view': logs_view
+             'logs_view': logs_view,
+             'list_display': model_class.MetaData.list_display,
             },
             True, model_class.MetaData.filter_fields,
             bonus_filter_function=filter_
@@ -181,17 +182,18 @@ def generate_list_related_json(module, base_name, model_class):
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
             raise Http404
 
-        return generic_list_json(request, model_class, [model_class.MetaState.unit_field.split('.')[0]] + [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_related_json.html', 'generic/generic/list_related_json.html'],
+        return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display_related] + ['pk'], [module.__name__ + '/' + base_name + '/list_related_json.html', 'generic/generic/list_related_json.html'],
             {'Model': model_class,
              'show_view': show_view,
              'edit_view': edit_view,
              'delete_view': delete_view,
-             'logs_view': logs_view
+             'logs_view': logs_view,
+             'list_display': model_class.MetaData.list_display_related,
             },
             True, model_class.MetaData.filter_fields,
             bonus_filter_function=filter_,
             bonus_filter_function_with_parameters=filter_object,
-            deca_one_status=True,
+            deca_one_status=True
         )
 
     return _generic_list_json

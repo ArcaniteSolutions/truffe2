@@ -7,6 +7,7 @@ from django.utils.html import escape
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
+from django.core.urlresolvers import reverse
 
 
 from rights.utils import UnitEditableModel, UnitExternalEditableModel
@@ -93,7 +94,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
 
     class MetaData:
 
-        list_display = [
+        list_display_base = [
             ('title', _('Titre')),
             ('get_unit_name', _(u'Non de l\'unité')),
             ('start_date', _('Date debut')),
@@ -101,7 +102,10 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
             ('status', _('Status')),
         ]
 
-        details_display = list_display + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
+        list_display = [list_display_base[0]] + [('room', _(u'Salle')), ] + list_display_base[1:]
+        list_display_related = [list_display_base[0]] + [('get_room_link', _(u'Salle')), ] + list_display_base[1:]
+
+        details_display = list_display_base + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
         base_title = _(u'Réservation de salle')
@@ -112,7 +116,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
 
-        safe_fields = ['get_unit_name']
+        safe_fields = ['get_unit_name', 'get_room_link']
 
         menu_id = 'menu-logistics-room-reservation'
         menu_id_related = 'menu-logistics-room-reservation-related'
@@ -138,7 +142,7 @@ Les réservations sont soumises à modération par l'unité lié à la salle.
 
 Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
-        not_sortable_colums = ['get_unit_name']
+        trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
@@ -194,6 +198,9 @@ Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
             return retour
 
+    def get_room_link(self):
+        return '<a href="%s">%s</a>' % (reverse('logistics.views.room_show', args=(self.room.pk,)), self.room,)
+
 
 class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo):
 
@@ -241,6 +248,7 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
         yes_or_no_fields = ['active', 'allow_externals']
         html_fields = ('description', 'conditions', 'conditions_externals')
 
+
         has_unit = True
 
         help_list = _(u"""La liste du matériel réservable, gérés par l'unité en cours.
@@ -275,7 +283,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
 
     class MetaData:
 
-        list_display = [
+        list_display_base = [
             ('title', _('Titre')),
             ('get_unit_name', _(u'Non de l\'unité')),
             ('start_date', _('Date debut')),
@@ -283,7 +291,10 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
             ('status', _('Status')),
         ]
 
-        details_display = list_display + [('get_supply_infos', _('Matériel')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
+        list_display = [list_display_base[0]] + [('supply', _(u'Matériel')), ] + list_display_base[1:]
+        list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] + list_display_base[1:]
+
+        details_display = list_display_base + [('get_supply_infos', _('Matériel')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
         filter_fields = ('title', 'start_date', 'end_date', 'status')
 
         base_title = _(u'Réservation de matériel')
@@ -294,7 +305,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-umbrella'
 
-        safe_fields = ['get_unit_name']
+        safe_fields = ['get_unit_name', 'get_supply_link']
 
         menu_id = 'menu-logistics-supply-reservation'
         menu_id_related = 'menu-logistics-supply-reservation-related'
@@ -320,7 +331,7 @@ Les réservations sont soumises à modération par l'unité lié à au matériel
 
 Tu peux gérer ici la liste de réservation du matériel de l'unité en cours.""")
 
-        not_sortable_colums = ['get_unit_name']
+        trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
@@ -352,6 +363,9 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité en cours.""
 
             if not self.unit and not data['supply'].allow_externals:
                 raise forms.ValidationError(_(u'Matériel non disponible'))
+
+    def get_supply_link(self):
+        return '<a href="%s">%s</a>' % (reverse('logistics.views.supply_show', args=(self.supply.pk,)), self.supply,)
 
     def get_supply_infos(self):
         """Affiche les infos sur le matériel pour une réserversation"""

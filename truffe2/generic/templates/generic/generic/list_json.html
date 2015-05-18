@@ -8,7 +8,7 @@
     {% for elem in list %}
       [
       {% block list_bonus %}{% endblock %}
-      {% for field, __ in Model.MetaData.list_display %}
+      {% for field, __ in list_display %}
       "{% nocrlf %}
         {% if forloop.first %}
             {% ifhasright elem user 'SHOW' %}

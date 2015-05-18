@@ -38,9 +38,11 @@
                         <thead>
                             <tr>
                                 {% block main_list_header %}{% endblock %}
-                                {% for col, display in Model.MetaData.list_display %}
-                                    <th>{{display}}</th>
-                                {% endfor %}
+                                {% block cols %}
+                                  {% for col, display in Model.MetaData.list_display %}
+                                      <th>{{display}}</th>
+                                  {% endfor %}
+                                {% endblock %}
                                 <th style="width: 200px;"></th>
                             </tr>
                         </thead>
