@@ -12,7 +12,7 @@
         }
 
         function dt_3_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/datatables/FixedColumns.min.js", dt_4_{{id}});
+          loadScript("{{MEDIA_URL}}js/plugin/datatables/dataTables.fixedHeader.js", dt_4_{{id}});
         }
 
         function dt_4_{{id}}() {
@@ -136,6 +136,10 @@
           obj_select2_filter();
 
         {% endif %}
+
+        new $.fn.dataTable.FixedHeader(data_table_{{id}}, {
+        "offsetTop": 90
+    });
     }
 
     </script>

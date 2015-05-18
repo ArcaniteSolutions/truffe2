@@ -619,9 +619,9 @@ class GenericExternalUnitAllowed():
     def get_unit_name(self):
 
         if self.unit:
-            return '<span class="label label-success">%s</span>' % (self.unit,)
+            return '<span class="label label-success" style="white-space: normal;">%s</span>' % (self.unit,)
 
-        return '<span class="label label-warning">%s (Externe, par %s)</span>' % (self.unit_blank_name, self.unit_blank_user)
+        return '<span class="label label-warning" style="white-space: normal;">%s (Externe, par %s)</span>' % (self.unit_blank_name, self.unit_blank_user)
 
 
 class GenericDelayValidableInfo():
