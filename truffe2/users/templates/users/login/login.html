@@ -59,7 +59,7 @@
   
                                 {% blocktrans %}
                                   Grâce à Truffe tu peux gérer ta commission, y compris ses accréditations, les documents comptables.
-                                  Tu peux aussi réserver du matériel ou une salle de l'AGEPOly.
+                                  Tu peux aussi réserver du matériel ou une salle de l'AGEPoly.
                                   Tu peux même rallonger se texte pour qu'il soit terminé parque c'est pas le cas :).
                                 {% endblocktrans %}
 
@@ -77,7 +77,7 @@
                               <h5 class="about-heading">{% trans "Ceci est une nouvelle version de truffe" %}</h5>
                                 <p>
                                   {% blocktrans %}
-                                    Cette version n'est pas encore en prod, il s'agit d'un test. Les données de l'application ne sont pas encore correctes et ne doivent pas être prises en compte !
+                                    Cette version est en pré-prod, des choses peuvent ne pas fonctionner. Signale les bugs aux authorités compétents ! (truffe [at] polylan.ch).
                                   {% endblocktrans %}
                                 </p>
                             </div>
@@ -94,7 +94,7 @@
 
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-4">
-                        <div class="well no-padding">
+                        <div class="well no-padding" id="compte-truffe" style="display: none;">
                             <form action="" method="POST" id="login-form" class="smart-form client-form">
                                 <header>
                                     {% trans "Se connecter (compte truffe)" %}
@@ -120,6 +120,7 @@
 
                                 </fieldset>
                                 <footer>
+                                    <a href="{% url 'app.tequila.login' %}" class="btn btn-default">Se connecter via tequila</a>
                                     <button type="submit" class="btn btn-primary">
                                         {% trans "Connection" %}
                                     </button>
@@ -127,12 +128,42 @@
                             </form>
 
                         </div>
-                        <h5 class="text-center"> - {% trans "Ou connectez vous avec" %} -</h5>
-                        <ul class="list-inline text-center">
-                            <li>
-                              <a href="{% url 'app.tequila.login' %}" class="btn btn-primary">Tequila</a>
-                            </li>
-                        </ul>
+                        <div class="well no-padding" id="compte-tequila">
+                            <form action="" method="POST" id="login-form" class="smart-form client-form">
+                                <header>
+                                    {% trans "Se connecter" %}
+                                </header>
+
+                                <fieldset>
+                                    <section>
+                                        <label class="label">
+                                            {% blocktrans %}
+                                                La connection se fait via tequila, le service de login de<br /> l'EPFL.
+                                            {% endblocktrans %}
+                                        </label>
+                                    </section>
+
+                                    <section>
+                                        <label class="label">
+                                            {% blocktrans %}
+                                                Si tu n'as pas de compte tequila, tu peux te logger via<br /> un compte truffe.
+                                            {% endblocktrans %}
+                                        </label>
+                                        <label class="input">
+                                            <button class="btn btn-xs btn-info" onclick="$('#compte-tequila').hide(); $('#compte-truffe').show(); return false;">{% trans "Connection non-tequila" %}</button>
+                                        </label>
+                                    </section>
+
+                                </fieldset>
+
+
+                                <footer>
+                                    <a href="{% url 'app.tequila.login' %}" class="btn btn-primary">Se connecter via tequila</a>
+                                </footer>
+                            </form>
+
+                        </div>
+
                     </div>
                 </div>
             </div>
