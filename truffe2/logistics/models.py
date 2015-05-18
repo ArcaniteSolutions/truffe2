@@ -96,10 +96,10 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
 
         list_display_base = [
             ('title', _('Titre')),
-            ('get_unit_name', _(u'Non de l\'unité')),
+            ('get_unit_name', _(u'Nom de l\'unité')),
             ('start_date', _('Date debut')),
             ('end_date', _('Date fin')),
-            ('status', _('Status')),
+            ('status', _('Statut')),
         ]
 
         list_display = [list_display_base[0]] + [('room', _(u'Salle')), ] + list_display_base[1:]
@@ -285,10 +285,10 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
 
         list_display_base = [
             ('title', _('Titre')),
-            ('get_unit_name', _(u'Non de l\'unité')),
+            ('get_unit_name', _(u'Nom de l\'unité')),
             ('start_date', _('Date debut')),
             ('end_date', _('Date fin')),
-            ('status', _('Status')),
+            ('status', _('Statut')),
         ]
 
         list_display = [list_display_base[0]] + [('supply', _(u'Matériel')), ] + list_display_base[1:]
