@@ -331,7 +331,7 @@ Les réservations sont soumises à modération par l'unité lié à au matériel
 
 Tu peux gérer ici la liste de réservation du matériel de l'unité en cours.""")
 
-        trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
+        trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'supply__title'}
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
