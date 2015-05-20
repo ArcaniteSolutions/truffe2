@@ -40,7 +40,7 @@ def room_search(request):
     if q:
         rooms = rooms.filter(title__icontains=q)
 
-    if init:
+    if init is not None:
         rooms = rooms.filter(pk=init)
 
     if unit_pk == "-1":

@@ -205,6 +205,10 @@ class GenericModel(models.Model):
         """Return the last log entry"""
         return self.logs.order_by('-when')[0]
 
+    def get_creator(self):
+        """Return the creator (based on logs)"""
+        return self.logs.filter(what='created').first().who
+
     def display_url(self):
         return reverse(str(self.__class__._show_view), args=(self.pk,))
 
@@ -312,16 +316,18 @@ class GenericStateValidableOrModerable(object):
 
         states_links = {
             '0_draft': ['1_asking', '3_archive'],
-            '1_asking': ['0_draft', '2_online', '3_archive'],
+            '1_asking': ['0_draft', '2_online', '3_archive', '4_deny'],
             '2_online': ['0_draft', '3_archive'],
             '3_archive': [],
+            '4_deny': ['1_asking', '3_archive'],
         }
 
         states_colors = {
             '0_draft': 'primary',
-            '1_asking': 'danger',
+            '1_asking': 'warning',
             '2_online': 'success',
             '3_archive': 'default',
+            '4_deny': 'danger',
         }
 
         states_icons = {
@@ -329,6 +335,15 @@ class GenericStateValidableOrModerable(object):
             '1_asking': '',
             '2_online': '',
             '3_archive': '',
+            '4_deny': '',
+        }
+
+        list_quick_switch = {
+            '0_draft': [('1_asking', 'fa fa-question', _(u'Demander à modérer')), ],
+            '1_asking': [('2_online', 'fa fa-check', _(u'Valider')), ('4_deny', 'fa fa-ban', _(u'Refuser'))],
+            '2_online': [],
+            '3_archive': [],
+            '4_deny': [],
         }
 
         states_default_filter = '0_draft,1_asking,2_online'
@@ -340,7 +355,7 @@ class GenericStateValidableOrModerable(object):
         if dest_state == '0_draft' and not super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return False
 
-        if self.rights_can('EDIT', user) or (self.status in ['1_asking', '2_online'] and dest_state != '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)):
+        if self.rights_can('EDIT', user) or (self.status in ['1_asking', '2_online'] and dest_state not in ['2_online', '4_deny'] and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)):
             return super(GenericStateValidableOrModerable, self).may_switch_to(user, dest_state)
 
         return False
@@ -352,6 +367,9 @@ class GenericStateValidableOrModerable(object):
 
         if dest_state == '2_online' and not self.rights_can('VALIDATE', user):
             return (False, _(u'Seul un modérateur peut valider cet object. Merci de passer cet object en status \'Modération en cours\' pour demander une validation.'))
+
+        if dest_state == '4_deny' and not self.rights_can('VALIDATE', user):
+            return (False, _(u'Seul un modérateur peut refuser cet object.'))
 
         if self.status == '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return (True, None)
@@ -428,6 +446,10 @@ class GenericStateValidableOrModerable(object):
         if dest_status == '1_asking':
             notify_people(request, '%s.moderation' % (self.__class__.__name__,), 'moderation', self, self.build_group_members_for_validators())
 
+        if dest_status == '4_deny':
+            unotify_people('%s.moderation' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.refused' % (self.__class__.__name__,), 'refused', self, self.build_group_members_for_editors())
+
         if dest_status == '2_online':
             unotify_people('%s.moderation' % (self.__class__.__name__,), self)
 
@@ -448,6 +470,7 @@ class GenericStateModerable(GenericStateValidableOrModerable):
             '1_asking': _(u'Modération en cours'),
             '2_online': _(u'En ligne'),
             '3_archive': _(u'Archivé'),
+            '4_deny': _(u'Refusé'),
         }
         default = '0_draft'
 
@@ -456,6 +479,7 @@ class GenericStateModerable(GenericStateValidableOrModerable):
             '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce status pour demander une modération !'),
             '2_online': _(u'L\'objet est publié. Il n\'est pas éditable.'),
             '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
+            '4_deny': _(u'La modération à été refusée.'),
         }
 
         states_quick_switch = {
@@ -476,6 +500,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             '1_asking': _(u'Validation en cours'),
             '2_online': _(u'Validé'),
             '3_archive': _(u'Archivé'),
+            '4_deny': _(u'Refusé'),
         }
         default = '0_draft'
 
@@ -484,6 +509,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce status pour demander une modération ! ATTENTION ! Tu accèptes par défaut les conditions de réservations liés !'),
             '2_online': _(u'La résevation est validée. Elle n\'est pas éditable.'),
             '3_archive': _(u'La réservation est archivée. Elle n\'est plus modifiable.'),
+            '4_deny': _(u'La modération à été refusée. L\'objet n\'était probablement pas disponible suite à un conflit.'),
         }
 
         states_quick_switch = {
@@ -556,7 +582,7 @@ class GenericGroupsModel():
             cls.groups.update(new_groups)
 
     def build_group_members_for_creator(self):
-        return [self.logs.filter(what='created').first().who]
+        return [self.get_creator()]
 
     def build_group_members_for_editors(self):
         retour = []
@@ -619,7 +645,7 @@ class GenericExternalUnitAllowed():
     def get_unit_name(self):
 
         if self.unit:
-            return '<span class="label label-success" style="white-space: normal;">%s</span>' % (self.unit,)
+            return '<span class="label label-success" style="white-space: normal;" title="Créateur: %s">%s</span>' % (self.get_creator(), self.unit,)
 
         return '<span class="label label-warning" style="white-space: normal;">%s (Externe, par %s)</span>' % (self.unit_blank_name, self.unit_blank_user)
 

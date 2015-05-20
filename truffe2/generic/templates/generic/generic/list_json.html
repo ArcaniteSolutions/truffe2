@@ -12,14 +12,14 @@
       "{% nocrlf %}
         {% if forloop.first %}
             {% ifhasright elem user 'SHOW' %}
-                <a href=\"{% url show_view elem.pk %}\">
+            <a href=\"{% url show_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\">
             {% endifhasright %}
         {% endif %}
         {% if field in Model.MetaData.yes_or_no_fields %}
             {% with val=elem|get_attr:field %}{% include "generic/yesorno.html" %}{% endwith %}
         {% else %}
             {% if field in Model.MetaData.datetime_fields %}
-                {{elem|get_attr:field|date:"Y.m.d"|force_escape|escapejs}} {{elem|get_attr:field|time:"H:i:s"|force_escape|escapejs}}
+                {{elem|get_attr:field|date:"d.m.Y"|force_escape|escapejs}} {{elem|get_attr:field|time:"H:i:s"|force_escape|escapejs}}
             {% else %}
                 {% if field == 'status' and elem.MetaState.states %}
                     <span class='label label-{{elem.status_color}}'><i class='{{elem.status_icon}}'></i> {{elem.get_status_display|force_escape|escapejs}}</span>
@@ -36,7 +36,7 @@
             {% ifhasright elem user 'SHOW' %}</a>{% endifhasright %}
         {% endif %}{% endnocrlf %}",
       {% endfor %}
-        "{% ifhasright elem user 'DELETE' %}<a href=\"{% url delete_view elem.pk %}\" class=\"btn btn-xs btn-danger\"><i class=\"fa fa-times\"></i> {% trans "Supprimer" %}</a>{% endifhasright %} {% ifhasright elem user 'EDIT' %}<a href=\"{% url edit_view elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endifhasright %}{% block buttons_bonus %}{% endblock %}"
+      "{% ifhasright elem user 'DELETE' %}<a href=\"{% url delete_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-danger\" title=\"{% trans "Supprimer" %}\"><i class=\"fa fa-times\"></i></a>{% endifhasright %} {% ifhasright elem user 'EDIT' %}<a href=\"{% url edit_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-default\" title=\"{% trans "Editer" %}\"><i class=\"fa fa-pencil\"></i></a>{% endifhasright %}{% if elem.MetaState.list_quick_switch %}{% spaceless %}{% include "generic/generic/list_json_quick_switch.html" %}{% endspaceless %}{% endif %}{% block buttons_bonus %}{% endblock %}"
       ]{% if not forloop.last %},{% endif %}
     {% endfor %}
 ]

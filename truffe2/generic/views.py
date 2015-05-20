@@ -189,6 +189,7 @@ def generate_list_related_json(module, base_name, model_class):
              'delete_view': delete_view,
              'logs_view': logs_view,
              'list_display': model_class.MetaData.list_display_related,
+             'upk_noswitch': True, 'from_related': True,
             },
             True, model_class.MetaData.filter_fields,
             bonus_filter_function=filter_,
@@ -205,7 +206,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
     @csrf_exempt
     def _generic_edit(request, pk):
         list_view = module.__name__ + '.views.' + base_name + '_list'
+        list_related_view = module.__name__ + '.views.' + base_name + '_list_related'
         show_view = module.__name__ + '.views.' + base_name + '_show'
+
+        related_mode = request.GET.get('_fromrelated') == '_'
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
@@ -298,11 +302,11 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
                     else:
                         return redirect(module.__name__ + '.views.' + base_name + '_edit', pk=obj.pk)
 
-                return redirect(module.__name__ + '.views.' + base_name + '_show', pk=obj.pk)
+                return HttpResponseRedirect('%s%s' % (reverse(module.__name__ + '.views.' + base_name + '_show', args=(obj.pk,)), '?_upkns=_&_fromrelated=_' if related_mode else ''))
         else:
             form = form_class(request.user, instance=obj)
 
-        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode})
+        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode, 'related_mode': related_mode, 'list_related_view': list_related_view})
 
     return _generic_edit
 
@@ -316,8 +320,11 @@ def generate_show(module, base_name, model_class, log_class):
         delete_view = module.__name__ + '.views.' + base_name + '_delete'
         log_view = module.__name__ + '.views.' + base_name + '_log'
         list_view = module.__name__ + '.views.' + base_name + '_list'
+        list_related_view = module.__name__ + '.views.' + base_name + '_list_related'
         status_view = module.__name__ + '.views.' + base_name + '_switch_status'
         contact_view = module.__name__ + '.views.' + base_name + '_contact'
+
+        related_mode = request.GET.get('_fromrelated') == '_'
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
@@ -345,11 +352,12 @@ def generate_show(module, base_name, model_class, log_class):
             contactables_groups = None
 
         return render(request, [module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
-            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view,
+            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view,
             'obj': obj, 'log_entires': log_entires,
             'rights': rights,
             'unit_mode': unit_mode, 'current_unit': current_unit,
-            'contactables_groups': contactables_groups
+            'contactables_groups': contactables_groups,
+            'related_mode': related_mode,
         })
 
     return _generic_show
@@ -362,6 +370,9 @@ def generate_delete(module, base_name, model_class, log_class):
 
         show_view = module.__name__ + '.views.' + base_name + '_show'
         list_view = module.__name__ + '.views.' + base_name + '_list'
+        list_related_view = module.__name__ + '.views.' + base_name + '_list_related'
+
+        related_mode = request.GET.get('_fromrelated') == '_'
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
@@ -388,11 +399,16 @@ def generate_delete(module, base_name, model_class, log_class):
             log_class(who=request.user, what='deleted', object=obj).save()
 
             messages.success(request, _(u'Élément supprimé !'))
-            return redirect(list_view)
+
+            if related_mode:
+                return redirect(list_related_view)
+            else:
+                return redirect(list_view)
 
         return render(request, [module.__name__ + '/' + base_name + '/delete.html', 'generic/generic/delete.html'], {
-            'Model': model_class, 'show_view': show_view, 'list_view': list_view,
+            'Model': model_class, 'show_view': show_view, 'list_view': list_view, 'list_related_view': list_related_view,
             'obj': obj, 'can_delete': can_delete, 'can_delete_message': can_delete_message,
+            'related_mode': related_mode,
         })
 
     return _generic_delete
@@ -463,8 +479,9 @@ def generate_switch_status(module, base_name, model_class, log_class):
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
-        if unit_mode:
-            update_current_unit(request, obj.unit.pk if obj.unit else -1)
+        # Don't switch when switching status
+        # if unit_mode:
+        #     update_current_unit(request, obj.unit.pk if obj.unit else -1)
 
         can_switch = True
         can_switch_message = ''

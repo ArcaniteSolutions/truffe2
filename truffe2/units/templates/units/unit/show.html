@@ -9,7 +9,7 @@
         <dl class="dl-horizontal">
             {% for accred in obj.current_accreds %}
                 <dt>{{accred.user.get_full_name}}</dt>
-                <dd>{{accred.role}} {% trans "depuis le" %} {{accred.start_date|date:"Y/m/d"}}</dd>
+                <dd>{{accred.role}} {% trans "depuis le" %} {{accred.start_date|date:"d.m.Y"}}</dd>
             {% endfor %}
         </dl>
 

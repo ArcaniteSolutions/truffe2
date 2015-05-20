@@ -2,4 +2,3 @@
 {% load rights_extras %}
 {% load i18n %}
 
-{% block buttons_bonus %} {% if elem.status == '1_asking' %}{% ifhasright elem user 'VALIDATE' %}<a href=\"#\" onclick=\"disp_switch('{{elem.pk}}', '2_online'); return false;\" class=\"btn btn-xs btn-success\"><i class=\"fa fa-check\"></i> {% trans "Valider" %}</a>{% endifhasright %}{% endif %}{% endblock %}

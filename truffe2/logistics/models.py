@@ -103,10 +103,25 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         ]
 
         list_display = [list_display_base[0]] + [('room', _(u'Salle')), ] + list_display_base[1:]
-        list_display_related = [list_display_base[0]] + [('get_room_link', _(u'Salle')), ] + list_display_base[1:]
+        list_display_related = [list_display_base[0]] + [('get_room_link', _(u'Salle')), ] + list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
+
+        forced_widths = {
+            '0': '15%',
+            '3': '150px',
+            '4': '150px',
+            '5': '150px',
+        }
+
+        forced_widths_related = {
+            '0': '15%',
+            '3': '150px',
+            '4': '150px',
+            '5': '150px',
+            '6': '80px',
+        }
 
         details_display = list_display_base + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
-        filter_fields = ('title', 'start_date', 'end_date', 'status')
+        filter_fields = ('title', 'start_date', 'end_date', 'status', 'room__title')
 
         base_title = _(u'Réservation de salle')
         list_title = _(u'Liste de toutes les réservations de salles')
@@ -116,7 +131,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
 
-        safe_fields = ['get_unit_name', 'get_room_link']
+        safe_fields = ['get_unit_name', 'get_room_link', 'get_conflits_list']
 
         menu_id = 'menu-logistics-room-reservation'
         menu_id_related = 'menu-logistics-room-reservation-related'
@@ -143,6 +158,7 @@ Les réservations sont soumises à modération par l'unité lié à la salle.
 Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
+        not_sortable_colums = ['get_conflits_list', ]
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
@@ -201,6 +217,21 @@ Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
     def get_room_link(self):
         return '<a href="%s">%s</a>' % (reverse('logistics.views.room_show', args=(self.room.pk,)), self.room,)
 
+    def get_conflits_list(self):
+
+        liste = self.room.roomreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
+
+        if not liste:
+            return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
+        else:
+
+            retour = ''
+
+            for elem in liste:
+                retour += u'%s, %s, pour %s du %s au %s, ' % (elem, elem.get_status_display(), elem.unit if elem.unit else elem.unit_blank_name, localtime(elem.start_date), localtime(elem.end_date),)
+
+            return '<span class="txt-color-red" title="%s"><i class="fa fa-warning"></i></span><ul>' % (retour[:-2], )
+
 
 class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo):
 
@@ -248,7 +279,6 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
         yes_or_no_fields = ['active', 'allow_externals']
         html_fields = ('description', 'conditions', 'conditions_externals')
 
-
         has_unit = True
 
         help_list = _(u"""La liste du matériel réservable, gérés par l'unité en cours.
@@ -292,10 +322,25 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         ]
 
         list_display = [list_display_base[0]] + [('supply', _(u'Matériel')), ] + list_display_base[1:]
-        list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] + list_display_base[1:]
+        list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] + list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
+
+        forced_widths = {
+            '0': '15%',
+            '3': '150px',
+            '4': '150px',
+            '5': '150px',
+        }
+
+        forced_widths_related = {
+            '0': '15%',
+            '3': '150px',
+            '4': '150px',
+            '5': '150px',
+            '6': '80px',
+        }
 
         details_display = list_display_base + [('get_supply_infos', _('Matériel')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
-        filter_fields = ('title', 'start_date', 'end_date', 'status')
+        filter_fields = ('title', 'start_date', 'end_date', 'status', 'supply__title')
 
         base_title = _(u'Réservation de matériel')
         list_title = _(u'Liste de toutes les réservations de matériel')
@@ -305,7 +350,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-umbrella'
 
-        safe_fields = ['get_unit_name', 'get_supply_link']
+        safe_fields = ['get_unit_name', 'get_supply_link', 'get_conflits_list']
 
         menu_id = 'menu-logistics-supply-reservation'
         menu_id_related = 'menu-logistics-supply-reservation-related'
@@ -332,6 +377,7 @@ Les réservations sont soumises à modération par l'unité lié à au matériel
 Tu peux gérer ici la liste de réservation du matériel de l'unité en cours.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'supply__title'}
+        not_sortable_colums = ['get_conflits_list', ]
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
@@ -389,3 +435,18 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité en cours.""
             retour += '</ul>'
 
             return retour
+
+    def get_conflits_list(self):
+
+        liste = self.supply.supplyreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
+
+        if not liste:
+            return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
+        else:
+
+            retour = ''
+
+            for elem in liste:
+                retour += u'%s, %s, pour %s du %s au %s, ' % (elem, elem.get_status_display(), elem.unit if elem.unit else elem.unit_blank_name, localtime(elem.start_date), localtime(elem.end_date),)
+
+            return '<span class="txt-color-red" title="%s"><i class="fa fa-warning"></i></span><ul>' % (retour[:-2], )

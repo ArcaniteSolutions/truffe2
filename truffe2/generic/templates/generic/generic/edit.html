@@ -7,9 +7,9 @@
 
 {% block ribbon %}
     {{block.super}}
-    <li><a href="{% url list_view %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
+    <li><a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
     {% if form.instance.pk %}
-        <li><a href="{% url show_view form.instance.pk %}"><i class="{{Model.MetaData.elem_icon}}"></i> {{form.instance}}</a></li>
+        <li><a href="{% url show_view form.instance.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}"><i class="{{Model.MetaData.elem_icon}}"></i> {{form.instance}}</a></li>
         <li><i class="fa fa-pencil"></i> {% trans "Edition" %}</li>
     {% else %}
         <li><i class="fa fa-plus"></i> {% trans "Creation" %}</li>
@@ -147,4 +147,4 @@
 {% endblock %}
 
 
-{% block menuid %}{{Model.MetaData.menu_id}}{% endblock %}
+{% block menuid %}{% if related_mode %}{{Model.MetaData.menu_id_related}}{% else %}{{Model.MetaData.menu_id}}{% endif %}{% endblock %}

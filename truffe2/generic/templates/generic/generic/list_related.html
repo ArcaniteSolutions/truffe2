@@ -12,7 +12,7 @@
 {% block buttons %}{% endblock %}
 {% block menuid %}{{Model.MetaData.menu_id_related}}{% endblock %}
 {% block datatables %}
-    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter_related states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id|add:"1" with_upk=unit_mode object_filter=object_filter object_filter_name=Model.MetaData.related_name object_col_id=0 %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter_related states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id|add:"1" with_upk=unit_mode object_filter=object_filter object_filter_name=Model.MetaData.related_name object_col_id=0 force_last_width=Model.MetaData.list_display_related|length force_width=Model.MetaData.forced_widths_related %}{% include "datatables.html" %}{% endwith %}
 {% endblock %}
 {% block bonus_unit_updated %}
     window.location = window.location.pathname + '?upk=' + $('.cgroupe').attr('pk');
