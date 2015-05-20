@@ -41,6 +41,8 @@ def room_search(request):
         rooms = rooms.filter(title__icontains=q)
 
     if init is not None:
+        if not init:
+            return HttpResponse(json.dumps([]))
         rooms = rooms.filter(pk=init)
 
     if unit_pk == "-1":
@@ -76,7 +78,9 @@ def supply_search(request):
     if q:
         supplies = supplies.filter(title__icontains=q)
 
-    if init:
+    if init is not None:
+        if not init:
+            return HttpResponse(json.dumps([]))
         supplies = supplies.filter(pk=init)
 
     if unit_pk == "-1":
