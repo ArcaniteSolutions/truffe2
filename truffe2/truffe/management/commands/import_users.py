@@ -17,8 +17,8 @@ class Command(BaseCommand):
             truffe_user, __ = TruffeUser.objects.get_or_create(username=user['username'])
 
             truffe_user.email = user['emailEpfl']
-            truffe_user.first_name = user['prenom'].capitalize()
-            truffe_user.last_name = user['nom'].capitalize()
+            truffe_user.first_name = user['prenom'].capwords()
+            truffe_user.last_name = user['nom'].capwords()
             truffe_user.is_active = True
             truffe_user.mobile = user['mobile']
             truffe_user.adresse = user['adresse']

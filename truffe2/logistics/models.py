@@ -89,7 +89,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
     start_date = models.DateTimeField(_(u'Date de début'))
     end_date = models.DateTimeField(_(u'Date de fin'))
 
-    raison = models.TextField(help_text=_(u'Explique pourquoi tu as besion (manifestation par ex.)'))
+    raison = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     class MetaData:
@@ -308,7 +308,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
     start_date = models.DateTimeField(_(u'Date de début'))
     end_date = models.DateTimeField(_(u'Date de fin'))
 
-    raison = models.TextField(help_text=_(u'Explique pourquoi tu as besion (manifestation par ex.)'))
+    raison = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     class MetaData:

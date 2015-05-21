@@ -254,7 +254,7 @@ class _Role(GenericModel, AgepolyEditableModel):
         help_list = _(u"""Les roles sont les différents type d'accéditations possible pour une unité.
 
 Certains roles donnent des accès particuliers.
-Par exemple, le role 'Trésorier' donne l'accès TRESORERIE. Les droits sont gérés en fonction des accês !""")
+Par exemple, le role 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont gérés en fonction des accês !""")
 
     class Meta:
         abstract = True
