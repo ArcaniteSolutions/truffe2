@@ -58,7 +58,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
 
         datetime_fields = ['start_date', 'end_date']
 
-        help_list = _(u"""Les news Truffe sont les nouvelles affichées sur la page d'acceuil de Truffe.""")
+        help_list = _(u"""Les news Truffe sont les nouvelles affichées sur la page d'accueil de Truffe.""")
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
