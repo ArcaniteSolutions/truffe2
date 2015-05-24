@@ -736,3 +736,36 @@ def generate_calendar_related_json(module, base_name, model_class):
         return HttpResponse(json.dumps(retour))
 
     return _generic_calendar_related_json
+
+
+def generate_directory(module, base_name, model_class):
+
+    @login_required
+    def _generic_directory(request):
+
+        if not model_class.static_rights_can('CREATE', request.user):
+            raise Http404
+
+        from units.models import Unit
+
+        edit_view = module.__name__ + '.views.' + base_name + '_edit'
+
+        units = model_class.get_linked_object_class().objects.order_by('unit__name').filter(deleted=False)
+
+        if request.user.is_external():
+            units = units.filter(allow_externals=True)
+
+        units = [Unit.objects.get(pk=u['unit']) for u in units.values('unit').distinct()]
+
+        for unit in units:
+            unit.directory_objects = model_class.get_linked_object_class().objects.filter(unit=unit, deleted=False).order_by('title')
+
+            if request.user.is_external():
+                unit.directory_objects = unit.directory_objects.filter(allow_externals=True)
+
+        return render(request, [module.__name__ + '/' + base_name + '/directory.html', 'generic/generic/directory.html'], {
+            'Model': model_class, 'edit_view': edit_view,
+            'units': units,
+        })
+
+    return _generic_directory

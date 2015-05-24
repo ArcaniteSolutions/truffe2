@@ -137,6 +137,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         menu_id_related = 'menu-logistics-room-reservation-related'
         menu_id_calendar = 'menu-logistics-room-reservation-calendar'
         menu_id_calendar_related = 'menu-logistics-room-reservation-calendar-related'
+        menu_id_directory = 'menu-logistics-room-reservation-directory'
 
         has_unit = True
 
@@ -356,6 +357,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         menu_id_related = 'menu-logistics-supply-reservation-related'
         menu_id_calendar = 'menu-logistics-supply-reservation-calendar'
         menu_id_calendar_related = 'menu-logistics-supply-reservation-calendar-related'
+        menu_id_directory = 'menu-logistics-supply-reservation-directory'
 
         has_unit = True
 

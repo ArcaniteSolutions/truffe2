@@ -6,10 +6,10 @@
     <div class="col-sm-12 col-md-12 col-lg-6 popover-no-padding">
         {% with w_title="Détails sur le matériel" %}{% include "widget/header.html" %}{% endwith %}
 
-        <h3 style="margin-top: 0px;">Description</h3>
+        <h3 style="margin-top: 0px;">{% trans "Description" %}</h3>
         {{obj.supply.description|html_check_and_safe}}
 
-        <h3>Conditions de réservation</h3>
+        <h3>{% trans "Conditions de réservation" %}</h3>
 
         <div class="alert alert-warning" style="margin-top: -15px; margin-bottom: 5px;">{% trans "La personne effectuant la réservation s'engage à respecter les conditions en demandant une validation de la réservation !" %}</div>
 
@@ -37,7 +37,7 @@
         {% endif %}
 
         {% if obj.unit or not obj.supply.conditions_externals %}
-            {{obj.supply.conditions|html_check_and_safe}}
+            {{obj.supply.conditions|html_check_and_safe|default:"<i>Pas de conditions</i>"}}
         {% else %}
             {{obj.supply.conditions_externals|html_check_and_safe}}
         {% endif %}

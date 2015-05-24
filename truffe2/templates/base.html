@@ -213,6 +213,11 @@
                                                 <a href="{% url 'logistics.views.roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
                                             </li>
                                         {% endifhasright %}
+                                        {% ifhasright 'logistics.models.RoomReservation' user 'CREATE' %}
+                                            <li id="menu-logistics-room-reservation-directory">
+                                                <a href="{% url 'logistics.views.roomreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des salles" %}</a>
+                                            </li>
+                                        {% endifhasright %}
 
                                         {% ifhasright 'logistics.models.Room' user 'LIST' %}
                                             <li id="menu-logistics-room">
@@ -244,6 +249,12 @@
                                             </li>
                                             <li id="menu-logistics-supply-reservation-calendar">
                                                 <a href="{% url 'logistics.views.supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.SupplyReservation' user 'CREATE' %}
+                                            <li id="menu-logistics-supply-reservation-directory">
+                                                <a href="{% url 'logistics.views.supplyreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste du matériel" %}</a>
                                             </li>
                                         {% endifhasright %}
 

@@ -14,6 +14,10 @@
             var old_id = $('#id_supply').attr('name');
             $('#id_supply').remove();
 
+            if (getUrlParameter('autoobjpk') != '' && val == '') {
+                val = getUrlParameter('autoobjpk');
+            }
+
             $(papa).append("<input id='id_supply' name='" + old_id + "' value='" + val + "' type='text'>");
 
             $('#id_supply').width('92%').select2({
@@ -43,7 +47,6 @@
                     return escapeMarkup(result.text) + ' <small class="label label-info">' + escapeMarkup(result.unit) + '</small>';
                 },
             }).on('change', function(e) {
-                console.log(e);
                 $('#id_supply').val(e.val);
             });
         });

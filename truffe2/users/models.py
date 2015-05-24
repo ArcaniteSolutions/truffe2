@@ -83,6 +83,9 @@ EMAIL;INTERNET:%s
     def active_accreds(self):
         return self.accreditation_set.filter(end_date=None).order_by('unit__name', 'role__ordre')
 
+    def is_external(self):
+        return not self.active_accreds()
+
     def old_accreds(self):
         return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__ordre')
 
