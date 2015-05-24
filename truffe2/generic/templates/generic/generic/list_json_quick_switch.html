@@ -3,7 +3,7 @@
 {% with qsdata=elem.MetaState.list_quick_switch|get_attr:elem.status %}
     {% if qsdata %}
         {% for status, icon, title in qsdata %}
-            <a class=\"btn btn-xs btn-{{elem.MetaState.states_colors|get_attr:status}}\" style=\"margin-left: 3px;\" title=\"{{title}}\" onclick=\"disp_switch('{{elem.pk}}', '{{status}}'); return false;\"><i class=\"{{icon}}\"></i></a>
+            <a class=\"btn btn-xs btn-{{elem.MetaState.states_colors|get_attr:status}}\" style=\"margin-left: 3px;\" title=\"{{title}}\" rel=\"tooltip\" onclick=\"disp_switch('{{elem.pk}}', '{{status}}'); return false;\"><i class=\"{{icon}}\"></i></a>
         {% endfor %}
     {% endif %}
 {% endwith %}

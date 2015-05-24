@@ -36,7 +36,7 @@
             {% ifhasright elem user 'SHOW' %}</a>{% endifhasright %}
         {% endif %}{% endnocrlf %}",
       {% endfor %}
-      "{% ifhasright elem user 'DELETE' %}<a href=\"{% url delete_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-danger\" title=\"{% trans "Supprimer" %}\"><i class=\"fa fa-times\"></i></a>{% endifhasright %} {% ifhasright elem user 'EDIT' %}<a href=\"{% url edit_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-default\" title=\"{% trans "Editer" %}\"><i class=\"fa fa-pencil\"></i></a>{% endifhasright %}{% if elem.MetaState.list_quick_switch %}{% spaceless %}{% include "generic/generic/list_json_quick_switch.html" %}{% endspaceless %}{% endif %}{% block buttons_bonus %}{% endblock %}"
+      "{% ifhasright elem user 'DELETE' %}<a href=\"{% url delete_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-danger\" title=\"{% trans "Supprimer" %}\" rel=\"tooltip\"><i class=\"fa fa-times\"></i></a>{% endifhasright %} {% ifhasright elem user 'EDIT' %}<a href=\"{% url edit_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-default\" title=\"{% trans "Editer" %}\" rel=\"tooltip\"><i class=\"fa fa-pencil\"></i></a>{% endifhasright %}{% if elem.MetaState.list_quick_switch %}{% spaceless %}{% include "generic/generic/list_json_quick_switch.html" %}{% endspaceless %}{% endif %}{% block buttons_bonus %}{% endblock %}"
       ]{% if not forloop.last %},{% endif %}
     {% endfor %}
 ]

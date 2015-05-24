@@ -33,7 +33,7 @@
 	$.enableJarvisWidgets = true;
 	
 	// Warning: Enabling mobile widgets could potentially crash your webApp if you have too many 
-	// 			widgets running at once (must have $.enableJarvisWidgets = true)
+	//			widgets running at once (must have $.enableJarvisWidgets = true)
 	$.enableMobileWidgets = false;
 
 
@@ -74,6 +74,10 @@ $(document).ready(function() {
 	if ($("[rel=tooltip]").length) {
 		$("[rel=tooltip]").tooltip();
 	}
+
+	$(document).arrive("[rel=tooltip]", function() {
+	    $(this).tooltip();
+	});
 
 	//TODO: was moved from window.load due to IE not firing consist
 	nav_page_height()
@@ -127,9 +131,9 @@ $(document).ready(function() {
 		var $this = $(this);
 
 		// if ($this.find('.badge').hasClass('bg-color-red')) {
-		// 	$this.find('.badge').removeClassPrefix('bg-color-');
-		// 	$this.find('.badge').text("0");
-		// 	// console.log("Ajax call for activity")
+		//	$this.find('.badge').removeClassPrefix('bg-color-');
+		//	$this.find('.badge').text("0");
+		//	// console.log("Ajax call for activity")
 		// }
 
 		if (!$this.next('.ajax-dropdown').is(':visible')) {
@@ -698,7 +702,7 @@ function runAllCharts() {
 	 */
 
 	/* Usage:
-	 * 		<div class="sparkline-line txt-color-blue" data-fill-color="transparent" data-sparkline-height="26px">
+	 *		<div class="sparkline-line txt-color-blue" data-fill-color="transparent" data-sparkline-height="26px">
 	 *			5,6,7,9,9,5,9,6,5,6,6,7,7,6,7,8,9,7
 	 *		</div>
 	 */
@@ -952,7 +956,7 @@ function runAllCharts() {
 	 * DEPENDENCY: js/plugins/easy-pie-chart/jquery.easy-pie-chart.min.js
 	 * Usage: <div class="easy-pie-chart txt-color-orangeDark" data-pie-percent="33" data-pie-size="72" data-size="72">
 	 *			<span class="percent percent-sign">35</span>
-	 * 	  	  </div>
+	 *		  </div>
 	 */
 
 	if ($.fn.easyPieChart) {
@@ -1272,8 +1276,8 @@ function loadURL(url, container) {
 			} 
 		},
 		/*complete: function(){
-	    	// Handle the complete event
-	    	// alert("complete")
+		// Handle the complete event
+		// alert("complete")
 		},*/
 		success : function(data) {
 			// cog replaced here...
