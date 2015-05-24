@@ -85,7 +85,7 @@
         });
 
         //Ensure the current unit is selectable
-        if ($('#unit-selector-{{CURRENT_UNIT_PK}}').length == 0 || $('#unit-selector-{{CURRENT_UNIT_PK}}').attr('style') == 'display: none;') {
+        if ($('#unit-selector-{{CURRENT_UNIT_PK}}').length == 0 || $('#unit-selector-{{CURRENT_UNIT_PK}}').attr('style') == 'display: none;' || $('#unit-selector-{{CURRENT_UNIT_PK}}').attr('cannot_select') == 'true') {
             if ($('.unit-displayed').length == 0) {
                 $('.unit-no-unit').show();
                 $('.unit-ok').hide();
