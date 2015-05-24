@@ -29,7 +29,7 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
             ('status', _('Status')),
         ]
         details_display = list_display + [('content', _('Content')), ('url', _('URL'))]
-        filter_fields = ('title', 'start_date', 'end_date', 'status')
+        filter_fields = ('title', 'status')
 
         base_title = _('News AGEPoly')
         list_title = _(u'Liste de toutes les news sur le site de l\'AGEPoly')
@@ -77,7 +77,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
             ('status', _('Status')),
         ]
         details_display = list_display + [('picture', _('Image'))]
-        filter_fields = ('title', 'start_date', 'end_date', 'status')
+        filter_fields = ('title', 'status')
 
         base_title = _(u'Slide à l\'AGEPoly')
         list_title = _(u'Liste de toutes les slides à l\'AGEPoly')

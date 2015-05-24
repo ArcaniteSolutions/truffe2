@@ -47,7 +47,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
             ('status', _('Status')),
         ]
         details_display = list_display + [('content', _('Content'))]
-        filter_fields = ('title', 'start_date', 'end_date', 'status')
+        filter_fields = ('title', 'status')
 
         base_title = _('News truffe')
         list_title = _(u'Liste de toutes les news truffe')

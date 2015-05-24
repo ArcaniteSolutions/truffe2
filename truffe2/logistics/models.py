@@ -121,7 +121,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         }
 
         details_display = list_display_base + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
-        filter_fields = ('title', 'start_date', 'end_date', 'status', 'room__title')
+        filter_fields = ('title', 'status', 'room__title')
 
         base_title = _(u'Réservation de salle')
         list_title = _(u'Liste de toutes les réservations de salles')
@@ -340,7 +340,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         }
 
         details_display = list_display_base + [('get_supply_infos', _('Matériel')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
-        filter_fields = ('title', 'start_date', 'end_date', 'status', 'supply__title')
+        filter_fields = ('title', 'status', 'supply__title')
 
         base_title = _(u'Réservation de matériel')
         list_title = _(u'Liste de toutes les réservations de matériel')
