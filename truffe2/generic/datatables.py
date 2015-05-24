@@ -3,7 +3,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 
 
-def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_colums=[]):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_colums=[], selector_column=False):
     """Generic function for json list"""
 
     if not filter_fields:
@@ -30,7 +30,8 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
 
             sdir = '-' if s_sort_dir == 'desc' else ''
 
-            sortcol = columns[i_sort_col]
+            sortcol = columns[i_sort_col + (-1 if selector_column else 0)]
+
             if isinstance(sortcol, list):
                 for sc in sortcol:
                     if sc not in not_sortable_colums_local:
@@ -66,7 +67,7 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
             qs = qs.filter(base)
 
         if hasattr(model, 'MetaState') and hasattr(model.MetaState, 'status_col_id'):
-            status_search = request.REQUEST.get('sSearch_%s' % (model.MetaState.status_col_id + (0 if not deca_one_status else 1),), None)
+            status_search = request.REQUEST.get('sSearch_%s' % (model.MetaState.status_col_id + (0 if not deca_one_status else 2) + (-1 if selector_column else 0),), None)
 
             if status_search == "null":
                 status_search = None

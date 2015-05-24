@@ -106,18 +106,18 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         list_display_related = [list_display_base[0]] + [('get_room_link', _(u'Salle')), ] + list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
 
         forced_widths = {
-            '0': '15%',
-            '3': '150px',
+            '1': '15%',
             '4': '150px',
             '5': '150px',
+            '6': '150px',
         }
 
         forced_widths_related = {
-            '0': '15%',
-            '3': '150px',
+            '1': '15%',
             '4': '150px',
             '5': '150px',
-            '6': '80px',
+            '6': '150px',
+            '7': '80px',
         }
 
         details_display = list_display_base + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -325,18 +325,18 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] + list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
 
         forced_widths = {
-            '0': '15%',
-            '3': '150px',
+            '1': '15%',
             '4': '150px',
             '5': '150px',
+            '6': '150px',
         }
 
         forced_widths_related = {
-            '0': '15%',
-            '3': '150px',
+            '1': '15%',
             '4': '150px',
             '5': '150px',
-            '6': '80px',
+            '6': '150px',
+            '7': '80px',
         }
 
         details_display = list_display_base + [('get_supply_infos', _('Matériel')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]

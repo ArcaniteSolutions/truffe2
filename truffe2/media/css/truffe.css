@@ -93,3 +93,11 @@
 .event .fc-event-inner {
   cursor: pointer;
 }
+
+.tr_selected > td {
+    background-color: #FFFFEB !important;
+}
+
+.tr_selected:hover > td {
+    background-color: #FFFFDB !important;
+}

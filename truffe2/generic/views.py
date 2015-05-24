@@ -144,7 +144,8 @@ def generate_list_json(module, base_name, model_class):
              'list_display': model_class.MetaData.list_display,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter_
+            bonus_filter_function=filter_,
+            selector_column=True,
         )
 
     return _generic_list_json
@@ -194,7 +195,8 @@ def generate_list_related_json(module, base_name, model_class):
             True, model_class.MetaData.filter_fields,
             bonus_filter_function=filter_,
             bonus_filter_function_with_parameters=filter_object,
-            deca_one_status=True
+            deca_one_status=True,
+            selector_column=True,
         )
 
     return _generic_list_json
@@ -374,31 +376,41 @@ def generate_delete(module, base_name, model_class, log_class):
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
-        obj = get_object_or_404(model_class, pk=pk, deleted=False)
+        objs = [get_object_or_404(model_class, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
 
-        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+        multi_obj = len(objs) > 1
 
-        if unit_mode:
-            update_current_unit(request, obj.unit.pk if obj.unit else -1)
+        for obj in objs:
+            unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
-        if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
-            raise Http404
+            if unit_mode:
+                update_current_unit(request, obj.unit.pk if obj.unit else -1)
+
+            if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
+                raise Http404
 
         can_delete = True
         can_delete_message = ''
+        prob_obj = None
 
-        if hasattr(obj, 'can_delete'):
-            (can_delete, can_delete_message) = obj.can_delete()
+        for obj in objs:
+            if hasattr(obj, 'can_delete'):
+                (can_delete, can_delete_message) = obj.can_delete()
+
+                if not can_delete:
+                    prob_obj = obj
 
         if can_delete and request.method == 'POST' and request.POST.get('do') == 'it':
-            obj.deleted = True
-            if hasattr(obj, 'delete_signal'):
-                obj.delete_signal()
-            obj.save()
 
-            log_class(who=request.user, what='deleted', object=obj).save()
+            for obj in objs:
+                obj.deleted = True
+                if hasattr(obj, 'delete_signal'):
+                    obj.delete_signal()
+                obj.save()
 
-            messages.success(request, _(u'Élément supprimé !'))
+                log_class(who=request.user, what='deleted', object=obj).save()
+
+                messages.success(request, _(u'Élément supprimé !'))
 
             if related_mode:
                 return redirect(list_related_view)
@@ -407,8 +419,8 @@ def generate_delete(module, base_name, model_class, log_class):
 
         return render(request, [module.__name__ + '/' + base_name + '/delete.html', 'generic/generic/delete.html'], {
             'Model': model_class, 'show_view': show_view, 'list_view': list_view, 'list_related_view': list_related_view,
-            'obj': obj, 'can_delete': can_delete, 'can_delete_message': can_delete_message,
-            'related_mode': related_mode,
+            'objs': objs, 'can_delete': can_delete, 'can_delete_message': can_delete_message,
+            'related_mode': related_mode, 'multi_obj': multi_obj, 'prob_obj': prob_obj
         })
 
     return _generic_delete
@@ -475,7 +487,9 @@ def generate_switch_status(module, base_name, model_class, log_class):
     @login_required
     def _switch_status(request, pk):
 
-        obj = get_object_or_404(model_class, pk=pk, deleted=False)
+        objs = [get_object_or_404(model_class, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
+
+        multi_obj = len(objs) > 1
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
@@ -486,6 +500,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
         can_switch = True
         can_switch_message = ''
         done = False
+        prob_obj = None
         no_more_access = False
         status_view = module.__name__ + '.views.' + base_name + '_switch_status'
         list_view = module.__name__ + '.views.' + base_name + '_list'
@@ -493,10 +508,14 @@ def generate_switch_status(module, base_name, model_class, log_class):
         dest_status = request.GET.get('dest_status')
         from_list = request.GET.get('from_list') == 'from_list'
 
-        if not hasattr(obj, 'MetaState') or dest_status not in obj.MetaState.states:
-            raise Http404
+        for obj in objs:
+            if not hasattr(obj, 'MetaState') or dest_status not in obj.MetaState.states:
+                raise Http404
 
-        (can_switch, can_switch_message) = obj.can_switch_to(request.user, dest_status)
+            (can_switch, can_switch_message) = obj.can_switch_to(request.user, dest_status)
+
+            if not can_switch:
+                prob_obj = obj
 
         bonus_form = None
 
@@ -504,31 +523,33 @@ def generate_switch_status(module, base_name, model_class, log_class):
             bonus_form = model_class.MetaState.states_bonus_form.get(dest_status, None)
 
         if can_switch and request.method == 'POST' and request.POST.get('do') == 'it':
-            old_status = obj.status
-            obj.status = dest_status
-            obj.save()
 
-            if isinstance(obj, BasicRightModel):
-                obj.rights_expire()
+            for obj in objs:
+                old_status = obj.status
+                obj.status = dest_status
+                obj.save()
 
-            if hasattr(obj, 'switch_status_signal'):
-                obj.switch_status_signal(request, old_status, dest_status)
+                if isinstance(obj, BasicRightModel):
+                    obj.rights_expire()
 
-            log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': unicode(obj.MetaState.states.get(old_status)), 'new': unicode(obj.MetaState.states.get(dest_status))})).save()
+                if hasattr(obj, 'switch_status_signal'):
+                    obj.switch_status_signal(request, old_status, dest_status)
 
-            messages.success(request, _(u'Status modifié !'))
-            done = True
-            no_more_access = not obj.rights_can('SHOW', request.user)
+                log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': unicode(obj.MetaState.states.get(old_status)), 'new': unicode(obj.MetaState.states.get(dest_status))})).save()
 
-            if no_more_access:
-                messages.warning(request, _(u'Vous avez perdu le droit de voir l\'objet !'))
+                messages.success(request, _(u'Status modifié !'))
+                done = True
+                no_more_access = not obj.rights_can('SHOW', request.user)
+
+                if no_more_access:
+                    messages.warning(request, _(u'Vous avez perdu le droit de voir l\'objet !'))
 
         return render(request, [module.__name__ + '/' + base_name + '/switch_status.html', 'generic/generic/switch_status.html'], {
-            'Model': model_class, 'obj': obj, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done, 'no_more_access': no_more_access,
-            'dest_status': dest_status, 'dest_status_message': obj.MetaState.states.get(dest_status),
+            'Model': model_class, 'objs': objs, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done, 'no_more_access': no_more_access,
+            'dest_status': dest_status, 'dest_status_message': objs[0].MetaState.states.get(dest_status),
             'status_view': status_view, 'list_view': list_view,
             'bonus_form': bonus_form() if bonus_form else None,
-            'from_list': from_list,
+            'from_list': from_list, 'multi_obj': multi_obj, 'prob_obj': prob_obj, 'pk': pk,
         })
 
     return _switch_status

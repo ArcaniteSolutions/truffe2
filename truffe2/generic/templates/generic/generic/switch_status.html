@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 {% load generic_extras %}
 
-<form id="switch-status-form" method="POST" action="{% url status_view obj.pk %}?dest_status={{dest_status}}{% if from_list %}&from_list=from_list{% endif %}">
+<form id="switch-status-form" method="POST" action="{% url status_view pk %}?dest_status={{dest_status}}{% if from_list %}&from_list=from_list{% endif %}">
   {% csrf_token %}
 
     <div class="modal-content">
@@ -19,12 +19,10 @@
             {% if can_switch %}
                 <input type="hidden" name="do" value="it">
 
-                {% blocktrans with obj=obj s=dest_status_message %}
-                    Vous êtes sur le point de passer {{obj}} vers le status <b>{{s}}</b>. Êtes vous sur de vouloir faire ça ?
-                {% endblocktrans %}
+                {% trans "Vous êtes sur le point de passer" %} {% for obj in objs %}{{obj}}{% if not forloop.last %}, {% endif %}{% endfor %} {% trans "vers le status" %} <b>{{dest_status_message}}</b>. {% trans "Êtes vous sur de vouloir faire ça ?" %}
 
                 <div class="alert alert-info">
-                    {{obj.MetaState.states_texts|get_attr:dest_status}}
+                    {{objs.0.MetaState.states_texts|get_attr:dest_status}}
                 </div>
 
                 {% if bonus_form %}
@@ -33,7 +31,7 @@
             {% else %}
 
                 <div class="alert alert-danger">
-                    {% trans "Impossible de modifier le status" %}<br /><br />
+                  {% trans "Impossible de modifier le status" %}{% if multi_obj %}({{prob_obj}}){% endif %}<br /><br />
                     {{can_switch_message}}
                 </div>
 

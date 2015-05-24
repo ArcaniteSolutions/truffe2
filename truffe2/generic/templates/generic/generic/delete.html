@@ -8,7 +8,12 @@
 {% block ribbon %}
     {{block.super}}
     <li><a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
-    <li><a href="{% url show_view obj.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}"><i class="{{Model.MetaData.elem_icon}}"></i> {{obj}}</a></li>
+    <li>
+        {% for obj in objs %}
+            <a href="{% url show_view obj.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}"><i class="{{Model.MetaData.elem_icon}}"></i> {{obj}}</a>
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </li>
     <li><i class="fa fa-times"></i> {% trans "Suppression" %}</li>
 
   {% endblock %}
@@ -26,7 +31,21 @@
                 <input type="hidden" name="do" value="it">
 
                 <div class="alert alert-block alert-warning">
-                    <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'objet" %} "{{obj}}" ({{Model.MetaData.base_title}})</h4>
+                    {% if not multi_obj %}
+                        <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'objet" %} "{{objs.0}}" ({{Model.MetaData.base_title}})</h4>
+
+                    {% else %}
+                        <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer les objets suivants:" %} ({{Model.MetaData.base_title}})</h4>
+
+                        <ul>
+                            {% for obj in objs %}
+                                <li>{{obj}}</li>
+                            {% endfor %}
+                        </ul>
+
+                        <br />
+
+                    {% endif %}
 
                     {% trans "Êtes vous sur de vouloir faire ça ?" %}
                 </div>
@@ -35,7 +54,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
-                            <a href="{% url show_view obj.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
+                            {% if not multi_obj %}
+                                <a href="{% url show_view objs.0.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
+                            {% endif %}
                             <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>
                         </div>
                     </div>
@@ -43,7 +64,7 @@
             </form>
           {% else %}
               <div class="alert alert-block alert-danger">
-                  <h4 class="alert-heading">{% trans "Impossible de supprimer l'objet" %} "{{obj}}" ({{Model.MetaData.base_title}})</h4>
+                  <h4 class="alert-heading">{% trans "Impossible de supprimer l'objet" %} "{{prob_obj}}" ({{Model.MetaData.base_title}})</h4>
                   {% trans can_delete_message %}
 
               </div>
@@ -51,7 +72,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
-                            <a href="{% url show_view obj.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
+                            {% if not multi_obj %}
+                                <a href="{% url show_view objs.0.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}" class="btn btn-success"><i class="fa fa-eye"></i> {% trans "Annuler" %}</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

@@ -151,7 +151,7 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/json$', base_views_name + '_list_json'),
                     url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/delete$', base_views_name + '_delete'),
+                    url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/delete$', base_views_name + '_delete'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/contact/(?P<key>.+)$', base_views_name + '_contact'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
                 )
@@ -161,7 +161,7 @@ class GenericModel(models.Model):
             if issubclass(model_class, GenericStateModel):
                 setattr(views_module, base_views_name + '_switch_status', views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/switch_status$', base_views_name + '_switch_status'),
+                    url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/switch_status$', base_views_name + '_switch_status'),
                 )
             if issubclass(model_class, GenericStateUnitValidable):
                 setattr(views_module, base_views_name + '_list_related', views.generate_list_related(module, base_views_name, real_model_class))
