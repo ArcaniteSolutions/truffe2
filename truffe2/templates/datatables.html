@@ -62,7 +62,7 @@
                 "bDeferRender": true,
                 "bProcessing": true,
                 "bServerSide": true,
-                "stateSave": true,
+                "bStateSave": true,
                 "sAjaxSource": "{% url json_url %}",
                 "fnInitComplete" : function(oSettings, json) {
                     $(this).closest('#dt_table_tools_wrapper').find('.DTTT.btn-group').addClass('table_tools_group').children('a.btn').each(function() {
