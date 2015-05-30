@@ -10,7 +10,12 @@
   {% endblock %}
 
 {% block content %}
-    <h1>{% trans "Liste de toutes les personnes" %}</h1>
+    <h1>
+        {% trans "Liste de toutes les personnes" %}
+        {% if can_create %}
+            <a href="{% url "users.views.users_create_external" %}" class="btn btn-sm btn-primary" style="float: right;">{% trans "Créer un nouveau compte" %}</a>
+        {% endif %}
+    </h1>
 
     <section id="widget-grid" class="">
         <div class="row">

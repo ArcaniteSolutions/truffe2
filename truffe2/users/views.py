@@ -9,6 +9,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import get_current_site
 from django.http import HttpResponseRedirect
 from django.db import connections
 from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
@@ -17,15 +18,17 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
+from django.utils.http import is_safe_url
 
 
 from users.models import TruffeUser, UserPrivacy
-from users.forms import TruffeUserForm
-
+from users.forms import TruffeUserForm, TruffeCreateUserForm, TruffePasswordResetForm
+from app.utils import send_templated_mail
 
 import phonenumbers
 
 from generic.datatables import generic_list_json
+import re
 import os
 import time
 import requests
@@ -37,21 +40,35 @@ def login(request):
 
     why = request.GET.get('why')
 
-    # from django.contrib.auth import login
-    #
-    # user = TruffeUser.objects.get(username=request.GET.get('username'))
-    # user.backend = 'app.tequila.Backend'
-    #
-    # login(request, user)
+    if request.method == 'POST':
+        from django.contrib.auth import login as auth_login
 
-    return render(request, 'users/login/login.html', {'why': why})
+        try:
+            user = TruffeUser.objects.get(username=request.POST.get('username'))
+            user.backend = 'app.tequila.Backend'
+            if user.check_password(request.POST.get('password')):
+                auth_login(request, user)
+
+                redirect_to = request.GET.get('next', '/')
+                if not is_safe_url(url=redirect_to, host=request.get_host()):
+                    redirect_to = '/'
+                return redirect(redirect_to)
+
+        except TruffeUser.DoesNotExist:
+            pass
+
+        why = "bad_credentials"
+
+    reset_form = TruffePasswordResetForm()
+    return render(request, 'users/login/login.html', {'why': why, 'reset_form': reset_form})
 
 
 @login_required
 def users_list(request):
     """Display the list of users"""
 
-    return render(request, 'users/users/list.html', {})
+    can_create = TruffeUser.static_rights_can('CREATE', request.user)
+    return render(request, 'users/users/list.html', {'can_create': can_create})
 
 
 @login_required
@@ -104,7 +121,7 @@ def users_edit(request, pk):
                 # At this point, the object should exist !
                 UserPrivacy.objects.filter(user=user, field=field).update(level=value)
 
-            messages.success(request, _(u'Profile sauvegardé !'))
+            messages.success(request, _(u'Profil sauvegardé !'))
 
             return redirect('users.views.users_profile', pk=user.pk)
     else:
@@ -168,3 +185,46 @@ def users_profile_picture(request, pk):
             shutil.copy(os.path.join(settings.MEDIA_ROOT, 'img', 'default_avatar.png'), file_cache)
 
     return HttpResponseRedirect(settings.MEDIA_URL + '/cache/users/' + str(user.pk) + '.png')
+
+@login_required
+def users_create_external(request):
+    """Create a new external user"""
+
+    if not TruffeUser.static_rights_can('CREATE', request.user):
+        raise Http404
+
+    if request.method == 'POST':
+        form = TruffeCreateUserForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            password = TruffeUser.objects.make_random_password()
+
+            # Automatically generate username based on firstname and lastname
+            firstname = ''.join((char for char in form.cleaned_data['first_name'].lower() if char.isalpha()))
+            lastname = ''.join((char for char in form.cleaned_data['last_name'].lower() if char.isalpha()))
+
+            # TODO Choisir la meilleure méthode
+            # V1: initiale prénom + 8 lettres nom de famille + nombre
+            trial = '{}{}'.format(firstname[0], lastname[:8])
+            similar_usernames = TruffeUser.objects.filter(username__contains=trial)
+            username = '{}{}'.format(trial, len(similar_usernames)+1) if similar_usernames else trial
+
+            # V2 : la version la moins utilisée jusqu'à présent parmi 5 possibilités
+            ## trials = ['{}{}'.format(firstname[:i], lastname[:j]) for (i,j) in [(1,8), (1, 10), (2, 8), (2, 10), (99, 99)]]
+            ## matches = map(lambda trial: TruffeUser.objects.filter(username__contains=trial).count(), trials)
+            ## min_idx = min(enumerate(matches), key=lambda (x, y): y)
+            ## username = trials[min_idx] if min_idx == 0 else '{}{}'.format(trials[min_idx], 1+matches[min_idx])
+
+            user = TruffeUser.objects.create_user(username, password=password, **form.cleaned_data)
+            send_templated_mail(request, _('Truffe :: Nouveau compte'), 'nobody@truffe.agepoly.ch', [user.email], 'users/users/mail/newuser', {'psw': password, 'domain': get_current_site(request).name})
+            return redirect('users.views.users_list')
+
+    else:
+        form = TruffeCreateUserForm()
+    return render(request, 'users/users/create_external.html', {'form': form})
+
+
+@login_required
+def password_change_done(request):
+    messages.success(request, _(u'Profil sauvegardé !'))
+    return redirect('users.views.users_profile', pk=request.user.pk)

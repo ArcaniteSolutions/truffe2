@@ -29,6 +29,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <a href="{% url 'users.views.users_profile' form.instance.pk %}" class="btn btn-default">{% trans "Annuler" %}</a>
+                        <a href="{% url 'password_change' %}" class="btn btn-primary"><i class="glyphicon glyphicon-lock"></i> {% trans "Changer de mot de passe" %}</a>
                         <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
                     </div>
                 </div>

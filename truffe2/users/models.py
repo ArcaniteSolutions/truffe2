@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
-
 from django.contrib.auth.models import BaseUserManager
-
 from django.core.cache import cache
+
+from rights.utils import ModelWithRight
+
 import time
 
 
@@ -30,18 +30,18 @@ class TruffeUserManager(BaseUserManager):
         return self._create_user(username, password, True, **extra_fields)
 
 
-class TruffeUser(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(_('Sciper or username'), max_length=255, unique=True)
-    email = models.EmailField(_('Email address'), max_length=255, blank=True)
-    first_name = models.CharField(_('First name'), max_length=100, blank=True)
-    last_name = models.CharField(_('Last name'), max_length=100, blank=True)
-    is_active = models.BooleanField(_('Active'), default=True, help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.'))
-    date_joined = models.DateTimeField(_('Date joined'), default=timezone.now)
+class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight):
+    username = models.CharField(_('Sciper ou username'), max_length=255, unique=True)
+    first_name = models.CharField(_(u'Prénom'), max_length=100, blank=True)
+    last_name = models.CharField(_('Nom de famille'), max_length=100, blank=True)
+    email = models.EmailField(_('Adresse email'), max_length=255, unique=True)
+    is_active = models.BooleanField(_('Actif'), default=True, help_text=_(u'Défini si cet utilisateur doit etre considéré comme actif. Désactiver ceci au lieu de supprimer le compte.'))
+    date_joined = models.DateTimeField(_('Date d\'inscription'), default=timezone.now)
 
     mobile = models.CharField(max_length=25, blank=True)
     adresse = models.TextField(blank=True)
-    nom_banque = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, met Postfinance. Sinon, met le nom de ta banque.'))
-    iban_ou_ccp = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, met ton CCP. Sinon, met ton IBAN'))
+    nom_banque = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, mets Postfinance. Sinon, mets le nom de ta banque.'))
+    iban_ou_ccp = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, mets ton CCP. Sinon, mets ton IBAN'))
 
     body = models.CharField(max_length=1, default='.')  # Saved body classes (to save layout options of the user)
 
@@ -53,6 +53,19 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = _('User')
         verbose_name_plural = _('Users')
+
+    class MetaRights(ModelWithRight.MetaRights):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super(TruffeUser, self).__init__(*args, **kwargs)
+
+        self.MetaRights.rights_update({
+            'CREATE': _(u'Peut créer un nouvel utilisateur'),
+        })
+
+    def rights_can_CREATE(self, user):
+        return self.rights_in_root_unit(user, access='INFORMATIQUE')
 
     def get_full_name(self):
         """Returns the first_name plus the last_name, with a space in between."""
