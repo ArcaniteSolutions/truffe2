@@ -1,4 +1,4 @@
-{% load i18n %}{% trans "Bonjour" %}
+{% load i18n %}{% trans "Bonjour," %}
 
 {% url 'password_change' as url_change_psw %}
 {% blocktrans with psw=psw link=url_change_psw domain=domain %}

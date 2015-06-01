@@ -24,7 +24,7 @@ class TruffePasswordResetForm(PasswordResetForm):
 class TruffeUserForm(ModelForm):
     class Meta:
         model = TruffeUser
-        exclude = ('username', 'first_name', 'last_name', 'password', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions', 'body')
+        exclude = ('username', 'first_name', 'last_name', 'email', 'password', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions', 'body')
 
     def __init__(self, current_user, *args, **kwargs):
         """Use or not the superuser field"""

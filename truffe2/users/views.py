@@ -9,6 +9,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login as auth_login
 from django.contrib.sites.models import get_current_site
 from django.http import HttpResponseRedirect
 from django.db import connections
@@ -40,9 +41,12 @@ def login(request):
 
     why = request.GET.get('why')
 
-    if request.method == 'POST':
-        from django.contrib.auth import login as auth_login
+    # Debuging code
+    # user = TruffeUser.objects.get(username=request.GET.get('username'))
+    # user.backend = 'app.tequila.Backend'
+    # auth_login(request, user)
 
+    if request.method == 'POST':
         try:
             user = TruffeUser.objects.get(username=request.POST.get('username'))
             user.backend = 'app.tequila.Backend'
