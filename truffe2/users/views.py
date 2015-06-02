@@ -39,6 +39,9 @@ import shutil
 def login(request):
     """View to display the login page"""
 
+    if request.user.is_authenticated():
+        return redirect('/')
+
     why = request.GET.get('why')
 
     # Debuging code
