@@ -8,6 +8,7 @@ from django.core.cache import cache
 
 from rights.utils import ModelWithRight
 
+import re
 import time
 
 
@@ -98,6 +99,9 @@ EMAIL;INTERNET:%s
 
     def is_external(self):
         return not self.active_accreds()
+
+    def username_is_sciper(self):
+        return re.match('\d{6}$', self.username)
 
     def old_accreds(self):
         return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__ordre')

@@ -12,9 +12,6 @@
 {% block content %}
     <h1>
         {% trans "Liste de toutes les personnes" %}
-        {% if can_create %}
-            <a href="{% url "users.views.users_create_external" %}" class="btn btn-sm btn-primary" style="float: right;">{% trans "Créer un nouveau compte" %}</a>
-        {% endif %}
     </h1>
 
     <section id="widget-grid" class="">
@@ -44,6 +41,10 @@
     </section>
 
     {% with id="main_list_table" json_url="users.views.users_list_json" %}{% include "datatables.html" %}{% endwith %}
+    {% if can_create %}
+            <a href="{% url "users.views.users_create_external" %}" class="btn btn-primary" style="float: right;">
+            <i class="fa fa-plus"></i> {% trans "Créer un nouveau compte" %}</a>
+        {% endif %}
 {% endblock %}
 
 

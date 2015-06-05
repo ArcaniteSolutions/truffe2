@@ -36,13 +36,13 @@ import requests
 import shutil
 
 
-def login(request):
+def login(request, why=None):
     """View to display the login page"""
 
     if request.user.is_authenticated():
         return redirect('/')
 
-    why = request.GET.get('why')
+    why = request.GET.get('why') or why
 
     # Debuging code
     # user = TruffeUser.objects.get(username=request.GET.get('username'))
@@ -50,21 +50,26 @@ def login(request):
     # auth_login(request, user)
 
     if request.method == 'POST':
-        try:
-            user = TruffeUser.objects.get(username=request.POST.get('username'))
-            user.backend = 'app.tequila.Backend'
-            if user.check_password(request.POST.get('password')):
-                auth_login(request, user)
+        username = request.POST.get('username')
 
-                redirect_to = request.GET.get('next', '/')
-                if not is_safe_url(url=redirect_to, host=request.get_host()):
-                    redirect_to = '/'
-                return redirect(redirect_to)
+        if re.match('^\d{6}$', username):
+            why = "username_is_sciper"
+        else:
+            try:
+                user = TruffeUser.objects.get(username=username)
+                user.backend = 'app.tequila.Backend'
+                if user.check_password(request.POST.get('password')):
+                    auth_login(request, user)
 
-        except TruffeUser.DoesNotExist:
-            pass
+                    redirect_to = request.GET.get('next', '/')
+                    if not is_safe_url(url=redirect_to, host=request.get_host()):
+                        redirect_to = '/'
+                    return redirect(redirect_to)
 
-        why = "bad_credentials"
+            except TruffeUser.DoesNotExist:
+                pass
+
+            why = "bad_credentials"
 
     reset_form = TruffePasswordResetForm()
     return render(request, 'users/login/login.html', {'why': why, 'reset_form': reset_form})
@@ -210,19 +215,15 @@ def users_create_external(request):
             firstname = ''.join((char for char in form.cleaned_data['first_name'].lower() if char.isalpha()))
             lastname = ''.join((char for char in form.cleaned_data['last_name'].lower() if char.isalpha()))
 
-            # TODO Choisir la meilleure méthode
-            # V1: initiale prénom + 8 lettres nom de famille + nombre
             trial = '{}{}'.format(firstname[0], lastname[:8])
-            similar_usernames = TruffeUser.objects.filter(username__contains=trial)
-            username = '{}{}'.format(trial, len(similar_usernames)+1) if similar_usernames else trial
+            int_trial = ''
+            while TruffeUser.objects.filter(username='{}{}'.format(trial, int_trial)).count():
+                if int_trial:
+                    int_trial += 1
+                else:
+                    int_trial = 1
 
-            # V2 : la version la moins utilisée jusqu'à présent parmi 5 possibilités
-            ## trials = ['{}{}'.format(firstname[:i], lastname[:j]) for (i,j) in [(1,8), (1, 10), (2, 8), (2, 10), (99, 99)]]
-            ## matches = map(lambda trial: TruffeUser.objects.filter(username__contains=trial).count(), trials)
-            ## min_idx = min(enumerate(matches), key=lambda (x, y): y)
-            ## username = trials[min_idx] if min_idx == 0 else '{}{}'.format(trials[min_idx], 1+matches[min_idx])
-
-            user = TruffeUser.objects.create_user(username, password=password, **form.cleaned_data)
+            user = TruffeUser.objects.create_user('{}{}'.format(trial, int_trial), password=password, **form.cleaned_data)
             send_templated_mail(request, _('Truffe :: Nouveau compte'), 'nobody@truffe.agepoly.ch', [user.email], 'users/users/mail/newuser', {'psw': password, 'domain': get_current_site(request).name})
             return redirect('users.views.users_list')
 
@@ -231,7 +232,17 @@ def users_create_external(request):
     return render(request, 'users/users/create_external.html', {'form': form})
 
 
+
+@login_required
+def password_change_check(request):
+    """Check that user has no sciper before allowing to change password"""
+    if request.user.username_is_sciper:
+        return redirect('users.views.users_profile', pk=request.user.pk)
+    return redirect('password_change')
+
+
 @login_required
 def password_change_done(request):
+    """Display validation message after changing password"""
     messages.success(request, _(u'Profil sauvegardé !'))
     return redirect('users.views.users_profile', pk=request.user.pk)

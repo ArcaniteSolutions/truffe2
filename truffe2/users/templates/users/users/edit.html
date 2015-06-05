@@ -9,63 +9,62 @@
     <li><a href="{% url 'users.views.users_list' %}"><i class="fa fa-group"></i> {% trans "Annuaire global" %}</a></li>
     <li><a href="{% url 'users.views.users_profile' form.instance.pk %}"><i class="fa fa-user"></i> {{form.instance.get_full_name}}</a></li>
     <li><i class="fa fa-pencil"></i> {% trans "Edition" %}</li>
-  {% endblock %}
+{% endblock %}
 
 {% block content %}
-      <h1>{{form.instance.get_full_name}}</h1>
-  <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-7">
-      <div class="well">
-          <form class="form-horizontal" method="POST">
-            {% csrf_token %}
+    <h1>{{form.instance.get_full_name}}</h1>
 
-            <div class="alert alert-danger">
-              {% trans "Les utilistateurs sont actuellement syncronisés depuis truffe1: Les modifications ne sont pas prise en compte et seront effacées !" %}
-            </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-7">
+            <div class="well">
+                <form class="form-horizontal" method="POST">
+                    {% csrf_token %}
 
-            {% bootstrap_form form layout='horizontal' %}
-
-            <div class="form-actions">
-                <div class="row">
-                    <div class="col-md-12">
-                        <a href="{% url 'users.views.users_profile' form.instance.pk %}" class="btn btn-default">{% trans "Annuler" %}</a>
-                        <a href="{% url 'password_change' %}" class="btn btn-primary"><i class="glyphicon glyphicon-lock"></i> {% trans "Changer de mot de passe" %}</a>
-                        <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
+                    <div class="alert alert-danger">
+                        {% trans "Les utilistateurs sont actuellement syncronisés depuis truffe1: Les modifications ne sont pas prise en compte et seront effacées !" %}
                     </div>
-                </div>
+
+                    {% bootstrap_form form layout='horizontal' %}
+
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="{% url 'users.views.users_profile' form.instance.pk %}" class="btn btn-default">{% trans "Annuler" %}</a>
+                                {% if not user.username_is_sciper %}
+                                    <a href="{% url 'users.views.password_change_check' %}" class="btn btn-primary"><i class="glyphicon glyphicon-lock"></i> {% trans "Changer de mot de passe" %}</a>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
-      </div>
-    </div>
+        </div>
 
-      <script type="text/javascript">
-          // Add privacy elements
-          function add_priv_buttons() {
-              $('.form-group input, .form-group textarea').each(function(__, element) {
+        <script type="text/javascript">
+            // Add privacy elements
+            function add_priv_buttons() {
+                $('.form-group input:text, .form-group textarea').each(function(__, element) {
 
-                if ($(element).attr('id') == 'id_is_superuser')
-                    return;
+                    if (['id_username', 'id_first_name', 'id_last_name'].indexOf($(element).attr('id')) > -1)
+                        return;
 
-                $(element).wrap('<div class="input-group"></div>');
-                $(element).after('<span class="input-group-btn"><button class="btn btn-default dropdown-toggle" id="priv_val_' + $(element).attr('name') + '" tabindex="-1" data-toggle="dropdown" type="button"><span class="status">Privé</span> <span class="caret"></span><input name="priv_val_' + $(element).attr('name') + '" type="hidden"></button><ul class="dropdown-menu pull-right" role="menu"><li class="dropdown-header">{% trans "Visibilité" %}</li><li class="divider"></li>{% for level in privacy_choices %}<li><a href="#" onclick="switch_val(\'{{level.0}}\', \'' + $(element).attr('name') + '\');" id="priv_level_{{level.0}}">{{level.1}}</a></li>{% endfor %}</ul></span>');
+                    $(element).wrap('<div class="input-group"></div>');
+                    $(element).after('<span class="input-group-btn"><button class="btn btn-default dropdown-toggle" id="priv_val_' + $(element).attr('name') + '" tabindex="-1" data-toggle="dropdown" type="button"><span class="status">Privé</span> <span class="caret"></span><input name="priv_val_' + $(element).attr('name') + '" type="hidden"></button><ul class="dropdown-menu pull-right" role="menu"><li class="dropdown-header">{% trans "Visibilité" %}</li><li class="divider"></li>{% for level in privacy_choices %}<li><a href="#" onclick="switch_val(\'{{level.0}}\', \'' + $(element).attr('name') + '\');" id="priv_level_{{level.0}}">{{level.1}}</a></li>{% endfor %}</ul></span>');
+                });
+            }
 
-              });
+            function switch_val(value, id) {
+                $('#priv_val_' + id + ' .status').html($('#priv_level_' + value).html());
+                $('#priv_val_' + id + ' input').val(value);
+            }
 
-          }
+            add_priv_buttons();
 
-          function switch_val(value, id) {
-
-              $('#priv_val_' + id + ' .status').html($('#priv_level_' + value).html());
-              $('#priv_val_' + id + ' input').val(value);
-
-          }
-
-          add_priv_buttons();
-
-          {% for field, value in privacy_values.iteritems %}
-              switch_val('{{value}}', '{{field}}');
-          {% endfor %}
-      </script>
+            {% for field, value in privacy_values.iteritems %}
+                switch_val('{{value}}', '{{field}}');
+            {% endfor %}
+        </script>
     </div>
 {% endblock %}
 

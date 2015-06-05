@@ -23,7 +23,7 @@ class AccreditationAddForm(ModelForm):
 
     def clean_user(self):
         data = self.cleaned_data['user']
-        if not re.match('\d{6}', data):
+        if not re.match('^\d{6}$', data):
             raise ValidationError(_('Pas un sciper'))
 
         return data

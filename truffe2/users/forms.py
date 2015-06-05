@@ -1,8 +1,7 @@
-from django.forms import ModelForm, widgets
+from django.forms import ModelForm, widgets, Textarea
 from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import PasswordResetForm
 from django.utils.translation import ugettext
-
 
 from users.models import TruffeUser
 
@@ -24,7 +23,10 @@ class TruffePasswordResetForm(PasswordResetForm):
 class TruffeUserForm(ModelForm):
     class Meta:
         model = TruffeUser
-        exclude = ('username', 'first_name', 'last_name', 'email', 'password', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions', 'body')
+        exclude = ('password', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions', 'body')
+        widgets = {
+            'adresse': Textarea(attrs={'rows': 3}),
+        }
 
     def __init__(self, current_user, *args, **kwargs):
         """Use or not the superuser field"""
@@ -33,6 +35,17 @@ class TruffeUserForm(ModelForm):
 
         if not current_user.is_superuser:
             del self.fields['is_superuser']
+            del self.fields['username']
+
+    def save(self, commit=True):
+        instance = super(TruffeUserForm, self).save(commit=False)
+
+        if instance.username_is_sciper():
+            instance.password = ''
+
+        if commit:
+            instance.save()
+        return instance
 
 class TruffeCreateUserForm(ModelForm):
     class Meta:
