@@ -104,7 +104,7 @@ def users_edit(request, pk):
                 # At this point, the object should exist !
                 UserPrivacy.objects.filter(user=user, field=field).update(level=value)
 
-            messages.success(request, _(u'Profile sauvegardé !'))
+            messages.success(request, _(u'Profil sauvegardé !'))
 
             return redirect('users.views.users_profile', pk=user.pk)
     else:

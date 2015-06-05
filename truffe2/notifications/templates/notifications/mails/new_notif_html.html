@@ -1,7 +1,8 @@
 {% extends "generic/generic/mail/base_html.html" %}
+{% load i18n %}
 
 {% block content %}
-    <p>{% trans "Vous avez une nouvelle notification sur truffe !" %}</p>
+    <p>{% trans "Vous avez une nouvelle notification sur Truffe !" %}</p>
 
     <p>{% include notification.get_email_template %}</p>
 

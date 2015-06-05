@@ -1,4 +1,5 @@
 {% extends "generic/generic/mail/base_html.html" %}
+{% load i18n %}
 
 {% block content %}
     <p>
@@ -8,7 +9,7 @@
 
     {% endblocktrans %}
 
-    <a href="https://{{site.domain}}{% url show_view obj.pk %}">Détails</a>
+    <a href="https://{{site.domain}}{% url show_view obj.pk %}">{% trans "Détails" %}</a>
 
 
     {{message|linebreaks}}

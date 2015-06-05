@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load bootstrap3 %}
+{% load i18n bootstrap3 %}
 
 <form id="add-accred-form" method="POST" action="{% url 'units.views.accreds_add' %}?upk={{unit.pk}}">
   {% csrf_token %}

@@ -24,11 +24,11 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
     class MetaData:
         list_display = [
             ('title', _('Titre')),
-            ('start_date', _('Date debut')),
+            ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
-            ('status', _('Status')),
+            ('status', _('Statut')),
         ]
-        details_display = list_display + [('content', _('Content')), ('url', _('URL'))]
+        details_display = list_display + [('content', _('Contenu')), ('url', _('URL'))]
         filter_fields = ('title', 'status')
 
         base_title = _('News AGEPoly')
@@ -72,15 +72,15 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
     class MetaData:
         list_display = [
             ('title', _('Titre')),
-            ('start_date', _('Date debut')),
+            ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
-            ('status', _('Status')),
+            ('status', _('Statut')),
         ]
         details_display = list_display + [('picture', _('Image'))]
         filter_fields = ('title', 'status')
 
         base_title = _(u'Slide à l\'AGEPoly')
-        list_title = _(u'Liste de toutes les slides à l\'AGEPoly')
+        list_title = _(u'Liste de tous les slides à l\'AGEPoly')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-bullhorn'
 
@@ -91,7 +91,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
 
         has_unit = True
 
-        help_list = _(u"""Les slides à l'AGEPoly sont affichés de manière alléatoire sur les écrans à l'AGEPoly.
+        help_list = _(u"""Les slides à l'AGEPoly sont affichés de manière aléatoire sur les écrans à l'AGEPoly.
 
 Ils sont soumis à modération par le responsable communication de l'AGEPoly avant d'être visibles.""")
 

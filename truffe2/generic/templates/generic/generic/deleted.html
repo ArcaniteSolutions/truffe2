@@ -23,7 +23,7 @@
                             <tr>
                                 <th>{% trans "Élément" %}</th>
                                 <th>{% trans "Date suppression" %}</th>
-                                <th>{% trans "Auteur suppresion" %}</th>
+                                <th>{% trans "Auteur suppression" %}</th>
                                 <th style="width: 200px;"></th>
                             </tr>
                         </thead>
@@ -33,7 +33,7 @@
                                     <td>{{elem}}</td>
                                     <td>{{elem.last_log.when|date:"y.m.d"}} {{elem.last_log.when|date:"H:i:s"}}</td>
                                     <td>{{elem.last_log.who.get_full_name}}</td>
-                                    <td><form action="" method="POST">{% csrf_token %}<input type="hidden" value="{{elem.pk}}" name="pk"><button type="submit" onclick="return confirm('{% trans "Êtes vous sur de vouloir faire ceci ? Les conséquences peuvent être non-négliables !" %}');" class="btn btn-warning"><i class="glyphicon glyphicon-repeat"></i> {% trans "Restaurer" %}</button></td>
+                                    <td><form action="" method="POST">{% csrf_token %}<input type="hidden" value="{{elem.pk}}" name="pk"><button type="submit" onclick="return confirm('{% trans "Êtes-vous sûr de vouloir faire ceci ? Les conséquences peuvent être non-négligeables !" %}');" class="btn btn-warning"><i class="glyphicon glyphicon-repeat"></i> {% trans "Restaurer" %}</button></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

@@ -219,7 +219,7 @@ class GenericModel(models.Model):
 
 
 class GenericStateModel(object):
-    """Un modele generic avec une notiion de status"""
+    """Un modele generic avec une notion de statut"""
 
     @staticmethod
     def do(module, models_module, model_class, cache):
@@ -276,12 +276,12 @@ class GenericLogEntry(models.Model):
     who = models.ForeignKey(TruffeUser)
 
     LOG_TYPES = (
-        ('imported', _(u'Importé depuis truffe 1')),
+        ('imported', _(u'Importé depuis Truffe 1')),
         ('created', _(u'Creation')),
         ('edited', _(u'Edité')),
         ('deleted', _(u'Supprimé')),
         ('restored', _(u'Restauré')),
-        ('state_changed', _(u'Status changé'))
+        ('state_changed', _(u'Statut changé'))
     )
 
     what = models.CharField(max_length=64, choices=LOG_TYPES)
@@ -294,7 +294,7 @@ class GenericLogEntry(models.Model):
 
 
 class GenericStateValidableOrModerable(object):
-    """Un système de status générique pour de la modération/validation"""
+    """Un système de statut générique pour de la modération/validation"""
 
     moderable_object = True
     moderable_state = '1_asking'
@@ -368,22 +368,22 @@ class GenericStateValidableOrModerable(object):
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé'))
 
         if dest_state == '2_online' and not self.rights_can('VALIDATE', user):
-            return (False, _(u'Seul un modérateur peut valider cet object. Merci de passer cet object en status \'Modération en cours\' pour demander une validation.'))
+            return (False, _(u'Seul un modérateur peut valider cet élément. Merci de passer cet élément dans le statut \'Modération en cours\' pour demander une validation.'))
 
         if dest_state == '4_deny' and not self.rights_can('VALIDATE', user):
-            return (False, _(u'Seul un modérateur peut refuser cet object.'))
+            return (False, _(u'Seul un modérateur peut refuser cet élément.'))
 
         if self.status == '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return (True, None)
 
         if dest_state == '0_draft' and not super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
-            return (False, _(u'Les modérateurs ne peuvent pas repasser en brouillion un object qui ne leur appartiens pas'))
+            return (False, _(u'Les modérateurs ne peuvent pas repasser en brouillon un élément qui ne leur appartient pas.'))
 
         if dest_state == '0_draft' and self.status == '1_asking' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return (True, None)
 
         if not self.rights_can('EDIT', user):
-            return (False, _('Pas les droits'))
+            return (False, _('Pas les droits.'))
 
         return super(GenericStateValidableOrModerable, self).can_switch_to(user, dest_state)
 
@@ -432,7 +432,7 @@ class GenericStateValidableOrModerable(object):
 
     def rights_can_DELETE(self, user):
 
-        # ! Pas de supression même si on est modérateur
+        # ! Pas de suppression même si on est modérateur
         if self.status == '3_archive':
             return False
 
@@ -478,7 +478,7 @@ class GenericStateModerable(GenericStateValidableOrModerable):
 
         states_texts = {
             '0_draft': _(u'L\'objet est en cours de création et n\'est pas public.'),
-            '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce status pour demander une modération !'),
+            '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce statut pour demander une modération !'),
             '2_online': _(u'L\'objet est publié. Il n\'est pas éditable.'),
             '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
             '4_deny': _(u'La modération à été refusée.'),
@@ -507,8 +507,8 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         default = '0_draft'
 
         states_texts = {
-            '0_draft': _(u'La réservation est en cours de création et n\'est pas public.'),
-            '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce status pour demander une modération ! ATTENTION ! Tu accèptes par défaut les conditions de réservations liés !'),
+            '0_draft': _(u'La réservation est en cours de création et n\'est pas publique.'),
+            '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce statut pour demander une modération ! ATTENTION ! Tu acceptes par défaut les conditions de réservation liées !'),
             '2_online': _(u'La résevation est validée. Elle n\'est pas éditable.'),
             '3_archive': _(u'La réservation est archivée. Elle n\'est plus modifiable.'),
             '4_deny': _(u'La modération à été refusée. L\'objet n\'était probablement pas disponible suite à un conflit.'),
@@ -574,7 +574,7 @@ class GenericGroupsModel():
     class MetaGroups:
         groups = {
             'creator': _(u'Créateur de cet élément'),
-            'editors': _(u'Personnes ayant modifié cet élément (y compris le status)'),
+            'editors': _(u'Personnes ayant modifié cet élément (y compris le statut)'),
             'canedit': _(u'Personnes pouvant éditer cet élément')
         }
 
@@ -659,14 +659,14 @@ class GenericDelayValidableInfo():
         """Execute code at startup"""
 
         return {
-            'max_days': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours'), default=0),
-            'max_days_externals': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre défini de jours, pour les unités externes'), default=0),
+            'max_days': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation'), help_text=_(u'Si supérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre de jours défini.'), default=0),
+            'max_days_externals': models.PositiveIntegerField(_(u'Nombre maximum de jours de réservation (externes)'), help_text=_(u'Si supérieur à zéro, empêche de demander une réservation si la longeur de la réservation dure plus longtemps que le nombre de jours défini, pour les unités externes.'), default=0),
 
-            'minimum_days_before': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours'), default=0),
-            'minimum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes'), default=0),
+            'minimum_days_before': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation'), help_text=_(u'Si supérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours.'), default=0),
+            'minimum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours minimum avant réservation (externes)'), help_text=_(u'Si supérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes.'), default=0),
 
-            'maximum_days_before': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au moins dans X jours'), default=0),
-            'maximum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation (externes)'), help_text=_(u'Si suppérieur à zéro, empêche de demander une réservation si la réservation n\'est pas au plus dans X jours, pour les externes'), default=0),
+            'maximum_days_before': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation'), help_text=_(u'Si supérieur à zéro, empêche de demander une réservation si la réservation est dans plus de X jours.'), default=0),
+            'maximum_days_before_externals': models.PositiveIntegerField(_(u'Nombre de jours maximum avant réservation (externes)'), help_text=_(u'Si supérieur à zéro, empêche de demander une réservation si la réservation est dans plus de X jours, pour les externes.'), default=0),
         }
 
 
@@ -689,9 +689,9 @@ class GenericDelayValidable(object):
                 return (False, _(u'La résevation est trop longue ! Maximium %s jours !') % (max_days,))
 
             if min_in_days > 0 and in_days < min_in_days:
-                return (False, _(u'La résevation est pas assez dans le futur ! Minimum %s jours (%s) !') % (min_in_days, now() + timedelta(days=min_in_days)))
+                return (False, _(u'La résevation est trop proche d\'aujourd\'hui ! Minimum %s jours (%s) !') % (min_in_days, now() + timedelta(days=min_in_days)))
 
             if max_in_days > 0 and in_days > max_in_days:
-                return (False, _(u'La résevation est trop dans le futur ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
+                return (False, _(u'La résevation est trop loin d\'aujourd\'hui ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
 
         return super(GenericDelayValidable, self).can_switch_to(user, dest_state)

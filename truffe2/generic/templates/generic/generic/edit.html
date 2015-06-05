@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load l10n %}
-{% load bootstrap3 %}
+{% load i18n l10n bootstrap3 %}
 
 {% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% if form.instance.pk %}{% trans "Edition" %}{% else %}{% trans "Création" %}{% endif %}{% endblock %}
 
@@ -12,7 +10,7 @@
         <li><a href="{% url show_view form.instance.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}"><i class="{{Model.MetaData.elem_icon}}"></i> {{form.instance}}</a></li>
         <li><i class="fa fa-pencil"></i> {% trans "Edition" %}</li>
     {% else %}
-        <li><i class="fa fa-plus"></i> {% trans "Creation" %}</li>
+        <li><i class="fa fa-plus"></i> {% trans "Création" %}</li>
     {% endif %}
 
   {% endblock %}
