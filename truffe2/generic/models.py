@@ -143,7 +143,6 @@ class GenericModel(models.Model):
                 setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_deleted', views.generate_deleted(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_contact', views.generate_contact(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
                 urls_module.urlpatterns += patterns(views_module.__name__,
@@ -152,7 +151,6 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/delete$', base_views_name + '_delete'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/contact/(?P<key>.+)$', base_views_name + '_contact'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
                 )
 
@@ -163,6 +161,7 @@ class GenericModel(models.Model):
                 urls_module.urlpatterns += patterns(views_module.__name__,
                     url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/switch_status$', base_views_name + '_switch_status'),
                 )
+
             if issubclass(model_class, GenericStateUnitValidable):
                 setattr(views_module, base_views_name + '_list_related', views.generate_list_related(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_list_related_json', views.generate_list_related_json(module, base_views_name, real_model_class))
@@ -186,6 +185,12 @@ class GenericModel(models.Model):
             if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderables_things:
                 moderables_things.append(real_model_class)
 
+            if issubclass(model_class, GenericContactableModel):
+                setattr(views_module, base_views_name + '_contact', views.generate_contact(module, base_views_name, real_model_class, logging_class))
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/contact/(?P<key>.+)$', base_views_name + '_contact'),
+                )
+
     def build_state(self):
         """Return the current state of the object. Used for diffs."""
         retour = {}
@@ -195,7 +200,7 @@ class GenericModel(models.Model):
                 if not getattr(self, f.name):
                     retour[f.name] = None
                 else:
-                    loc = getattr(self, f.name).astimezone(timezone('Europe/Berlin'))
+                    loc = getattr(self, f.name).astimezone(timezone(settings.TIME_ZONE))
                     retour[f.name] = loc.strftime("%Y-%m-%d %H:%M:%S")
 
             else:
