@@ -60,7 +60,7 @@ def send_templated_mail(request, subject, email_from, emails_to, template, conte
     plaintext = get_template('%s_plain.txt' % (template, ))
     htmly = get_template('%s_html.html' % (template, ))
 
-    context.update({'site': get_current_site(request)})
+    context.update({'site': get_current_site(request), 'subject': subject})
 
     d = Context(context)
     text_content = plaintext.render(d)
