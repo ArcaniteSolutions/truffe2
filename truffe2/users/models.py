@@ -101,7 +101,7 @@ EMAIL;INTERNET:%s
         return not self.active_accreds()
 
     def username_is_sciper(self):
-        return re.match('\d{6}$', self.username)
+        return re.match('^\d{6}$', self.username)
 
     def old_accreds(self):
         return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__ordre')
