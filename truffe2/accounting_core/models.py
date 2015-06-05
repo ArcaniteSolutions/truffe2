@@ -21,9 +21,21 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     class MetaState_:
 
-        unit_field = '!root'  # !root for the root unit, or the field with an unit
+        states = {
+            '0_preparing': _(u'En préparation'),
+            '1_active': _(u'Année active'),
+            '2_closing': _(u'En clôture'),
+            '3_archived': _(u'Année archivée'),
+        }
 
         default = '0_preparing'
+
+        states_texts = {
+            '0_preparing': _(u'L\'année est en cours de création et n\'est pas publique.'),
+            '1_active': _(u'L\'année est active.'),
+            '2_closing': _(u'L\'année est en train d\'être clôturée.'),
+            '3_archived': _(u'L\'année est archivé. Il n\'est plus possible de faire des modifications.'),
+        }
 
         states_links = {
             '0_preparing': ['1_active'],
