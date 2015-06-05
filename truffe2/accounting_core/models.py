@@ -19,7 +19,29 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     end_date = models.DateTimeField(blank=True, null=True)
 
 
-    class MetaState_:
+    class MetaData:
+        list_display = [
+            ('name', _('Nom de l\'année comptable')),
+            ('start_date', _(u'Date début')),
+            ('end_date', _('Date fin')),
+            ('status', _('Statut')),
+        ]
+        details_display = list_display
+        filter_fields = ('name', 'status')
+
+        base_title = _(u'Années Comptables')
+        list_title = _(u'Liste des années comptables')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-calendar-o'
+
+        menu_id = 'menu-compta-anneecomptable'
+
+        datetime_fields = ['start_date', 'end_date']
+
+        help_list = _(u"""Les années comptables définissent les périodes d'exercices dans tous les documents comptables.""")
+
+
+    class MetaState:
 
         states = {
             '0_preparing': _(u'En préparation'),
@@ -85,3 +107,12 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
             return (False, _('Pas les droits.'))
 
         return super(_AccountingYear, self).can_switch_to(user, dest_state)
+
+    class MetaEdit:
+        datetime_fields = ['start_date', 'end_date']
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.name

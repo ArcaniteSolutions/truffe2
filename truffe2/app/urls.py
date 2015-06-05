@@ -4,6 +4,7 @@ from django.conf import settings
 
 urlpatterns = patterns('',
     url(r'', include('main.urls')),
+    url(r'^accounting/core/', include('accounting_core.urls')),
     url(r'^users/', include('users.urls')),
     url(r'^units/', include('units.urls')),
     url(r'^communication/', include('communication.urls')),
