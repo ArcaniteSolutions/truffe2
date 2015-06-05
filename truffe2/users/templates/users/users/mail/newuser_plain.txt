@@ -1,0 +1,14 @@
+{% load i18n %}{% trans "Bonjour," %}
+
+{% url 'password_change' as url_change_psw %}
+{% blocktrans with psw=psw link=url_change_psw domain=domain %}
+Un compte vient d'etre créé avec ton adresse email.
+Le mot de passe a été généré automatiquement : {{psw}}
+N'oublies pas de le changer lors de ta première connexion ici : http://{{domain}}{{link}}.
+{% endblocktrans %}
+
+{{message}}
+
+{% trans "Bonne journée," %}
+
+{% trans "Le système de contact de Truffe" %}

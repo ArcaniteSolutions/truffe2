@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Utilisateurs" %} :: {% trans "Profil" %}}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url 'users.views.users_list' %}"><i class="fa fa-group"></i> {% trans "Annuaire global" %}</a></li>
+    <li><i class="fa fa-user"></i> {% trans "Création d'utilisateur" %}</li>
+  {% endblock %}
+
+{% block content %}
+<h1>{% trans "Création d'un compte" %}</h1>
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                {% with w_title="Informations sur l'utilisateur" %}{% include "widget/header.html" %}{% endwith %}
+                <form action="" method="POST" class="form-horizontal">
+                    {% csrf_token %}
+                    {% bootstrap_form form layout='horizontal' %}
+                    
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="{% url 'users.views.users_list' %}" class="btn btn-default">{% trans "Annuler" %}</a>
+                                <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Créer" %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block menuid %}{% if user_to_display.pk == user.pk %}l-gens-monprofile{% else %}menu-gens-annuaire{% endif %}{% endblock %}
