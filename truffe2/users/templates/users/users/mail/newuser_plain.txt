@@ -4,7 +4,7 @@
 {% blocktrans with psw=psw link=url_change_psw domain=domain %}
 Un compte vient d'etre créé avec ton adresse email.
 Le mot de passe a été généré automatiquement : {{psw}}
-N'oublies pas de le changer lors de ta première connexion ici : http://{{ domain }}{{ link }}.
+N'oublies pas de le changer lors de ta première connexion ici : http://{{domain}}{{link}}.
 {% endblocktrans %}
 
 {{message}}
