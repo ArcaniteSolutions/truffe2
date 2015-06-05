@@ -30,14 +30,14 @@ class _Unit(GenericModel, AgepolyEditableModel):
     is_commission = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une commission de l\'AGEPoly'))
     is_equipe = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une équipe de l\'AGEPoly'))
 
-    parent_herachique = models.ForeignKey('Unit', blank=True, null=True, help_text=_(u'Pour les commissions et les équipes, sélectionner le comité de l\'AGEPoly. Pour les sous-commisions, sélectionner la commission parente. Pour un coaching de section, sélectionner la commission Coaching. Pour le comité de l\'AGEPoly, ne rien mettre.'))
+    parent_hierarchique = models.ForeignKey('Unit', blank=True, null=True, help_text=_(u'Pour les commissions et les équipes, sélectionner le comité de l\'AGEPoly. Pour les sous-commisions, sélectionner la commission parente. Pour un coaching de section, sélectionner la commission Coaching. Pour le comité de l\'AGEPoly, ne rien mettre.'))
 
     class MetaData:
         list_display = [
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('parent_herachique', _('Parent')),
+            ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président'))
         ]
 
@@ -45,7 +45,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('parent_herachique', _('Parent')),
+            ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président')),
             ('id_epfl', _('ID EPFL')),
             ('description', _('Description')),
@@ -159,8 +159,8 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
                     if access in access_delegation.access and (not parent_mode or access_delegation.valid_for_sub_units):
                         return True
 
-        if self.parent_herachique and not no_parent:
-            return self.parent_herachique.is_user_in_groupe(user, access, True)
+        if self.parent_hierarchique and not no_parent:
+            return self.parent_hierarchique.is_user_in_groupe(user, access, True)
         return False
 
     def users_with_access(self, access=None, no_parent=False):
