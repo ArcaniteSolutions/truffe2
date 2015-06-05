@@ -42,15 +42,15 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
     class MetaData:
         list_display = [
             ('title', _('Titre')),
-            ('start_date', _('Date debut')),
+            ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
-            ('status', _('Status')),
+            ('status', _('Statut')),
         ]
         details_display = list_display + [('content', _('Content'))]
         filter_fields = ('title', 'status')
 
-        base_title = _('News truffe')
-        list_title = _(u'Liste de toutes les news truffe')
+        base_title = _('News Truffe')
+        list_title = _(u'Liste de toutes les news Truffe')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-bullhorn'
 
@@ -66,7 +66,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
     class MetaState:
         states = {
             '0_draft': _('Brouillon'),
-            '1_online': _(u'En ligne'),
+            '1_online': _('En ligne'),
             '2_archive': _(u'Archivé'),
         }
         default = '0_draft'
@@ -90,9 +90,9 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         }
 
         states_texts = {
-            '0_draft': _(u'La news est en cours de création et n\'est pas affichée sur la home page.'),
-            '1_online': _(u'La news est finalisée et affichée sur la home page aux date prévues.'),
-            '2_archive': _(u'La news est archivée et n\'est plus affichée sur la home page. Elle n\'est plus modifiable.'),
+            '0_draft': _(u'La news est en cours de création et n\'est pas affichée sur la page d\'accueil.'),
+            '1_online': _(u'La news est finalisée et sera affichée sur la page d\'accueil aux dates prévues.'),
+            '2_archive': _(u'La news est archivée et n\'est plus affichée sur la page d\'accueil. Elle n\'est plus modifiable.'),
         }
 
         states_default_filter = '0_draft,1_online'

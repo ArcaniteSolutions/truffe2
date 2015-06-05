@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load bootstrap3 %}
+{% load i18n bootstrap3 %}
 
 {% block title %}{{block.super}} :: {% trans "Utilisateurs" %} :: {% trans "Edition" %}}{% endblock %}
 
@@ -20,7 +19,7 @@
             {% csrf_token %}
 
             <div class="alert alert-danger">
-              {% trans "Les utilistateurs sont actuellement syncronisés depuis truffe1: Les modifications ne sont pas prise en compte et seront effacées !" %}
+              {% trans "Les utilistateurs sont actuellement synchronisés depuis Truffe1: Les modifications ne sont pas prises en compte et seront effacées !" %}
             </div>
 
             {% bootstrap_form form layout='horizontal' %}

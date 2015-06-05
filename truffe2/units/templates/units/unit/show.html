@@ -4,7 +4,7 @@
 {% block bonus_box %}
 
 <div class="col-sm-12 col-md-12 col-lg-6">
-    {% with w_title="Personnes accédités" %}{% include "widget/header.html" %}{% endwith %}
+    {% with w_title="Personnes accréditées" %}{% include "widget/header.html" %}{% endwith %}
 
         <dl class="dl-horizontal">
             {% for accred in obj.current_accreds %}
@@ -13,7 +13,7 @@
             {% endfor %}
         </dl>
 
-        <a href="{% url 'units.views.accreds_list' %}?upk={{obj.pk}}" class="btn btn-primary pull-right"><i class="fa fa-key"></i> {% trans "Page d'accrédiation" %}</a>
+        <a href="{% url 'units.views.accreds_list' %}?upk={{obj.pk}}" class="btn btn-primary pull-right"><i class="fa fa-key"></i> {% trans "Page d'accréditation" %}</a>
         <br />
         <br />
 

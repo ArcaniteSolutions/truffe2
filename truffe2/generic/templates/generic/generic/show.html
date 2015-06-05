@@ -1,8 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load generic_extras %}
-{% load rights_extras %}
-{% load thumbnail %}
+{% load i18n generic_extras rights_extras thumbnail %}
 
 {% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Détails" %}{% endblock %}
 

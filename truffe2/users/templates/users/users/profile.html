@@ -69,7 +69,7 @@
                     {% include "widget/footer.html" %}
                 {% endif %}
 
-                {% with w_title="Accrédiations" %}{% include "widget/header.html" %}{% endwith %}
+                {% with w_title="Accréditations" %}{% include "widget/header.html" %}{% endwith %}
                       <dl class="dl-horizontal">
                           {% for accred in user_to_display.active_accreds %}
                             <dt><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>

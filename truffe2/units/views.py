@@ -158,7 +158,7 @@ def accreds_add(request):
 
             accred.user.clear_rights_cache()
 
-            messages.success(request, _(u'Accréditation sauvegardé !'))
+            messages.success(request, _(u'Accréditation sauvegardée !'))
 
             done = True
 

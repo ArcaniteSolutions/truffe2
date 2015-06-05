@@ -1,12 +1,13 @@
-{% load i18n %}{% trans "Bonjour" %}
+{% load i18n %}
+{% trans "Bonjour," %}
 
 {% blocktrans with notification=notification %}
-Vous avez une nouvelle notification sur truffe !
+Vous avez une nouvelle notification sur Truffe !
 {% endblocktrans %}
 
 {% include notification.get_email_template %}
 
-Détails: https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}
+{% trans "Détails :" %} https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}
 
 {% trans "Bonne journée," %}
 

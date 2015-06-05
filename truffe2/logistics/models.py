@@ -23,12 +23,12 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayVal
     description = models.TextField()
     unit = FalseFK('units.models.Unit')
 
-    active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver'), default=True)
+    active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver.'), default=True)
 
-    conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser les conditions de réservations pour la salle. Tu peux par exemple mettre un lien vers un contrat.'), blank=True)
+    conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser les conditions de réservation pour la salle. Tu peux par exemple mettre un lien vers un contrat.'), blank=True)
 
-    allow_externals = models.BooleanField(_(u'Autoriser les externes'), help_text=_(u'Permet aux externes (pas dans l\'AGEPoly) de réserver la salle'), default=False)
-    conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation de la salle pour les externes. Remplace le champ \'Conditions\' pour les externe si remplis.'), blank=True)
+    allow_externals = models.BooleanField(_(u'Autoriser les externes'), help_text=_(u'Permet aux externes (pas dans l\'AGEPoly) de réserver la salle.'), default=False)
+    conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation de la salle pour les externes. Remplace le champ \'Conditions\' pour les externe si rempli.'), blank=True)
 
     class MetaData:
         list_display = [
@@ -62,7 +62,7 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayVal
 
         has_unit = True
 
-        help_list = _(u"""Les salles sont la liste des salles réservables, gérés par l'unité en cours.
+        help_list = _(u"""Les salles sont la liste des salles réservables, gérés par l'unité active.
 
 N'importe quelle unité peut mettre à disposition des salles et est responsable de la modération des réservations.""")
 
@@ -97,7 +97,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         list_display_base = [
             ('title', _('Titre')),
             ('get_unit_name', _(u'Nom de l\'unité')),
-            ('start_date', _('Date debut')),
+            ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
             ('status', _('Statut')),
         ]
@@ -148,15 +148,15 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
 
         help_list = _(u"""Les réservation de salles.
 
-Les réservations sont soumises à modération par l'unité lié à la salle.
+Les réservations sont soumises à modération par l'unité liée à la salle.
 
-Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une unité externe).""")
+Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une unité externe).""")
 
         help_list_related = _(u"""Les réservation des salles de l'unité.
 
-Les réservations sont soumises à modération par l'unité lié à la salle.
+Les réservations sont soumises à modération par l'unité liée à la salle.
 
-Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
+Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
         not_sortable_colums = ['get_conflits_list', ]
@@ -193,7 +193,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité en cours.""")
                 raise forms.ValidationError(_('Salle non disponible'))
 
     def get_room_infos(self):
-        """Affiche les infos sur la salle pour une réserversation"""
+        """Affiche les infos sur la salle pour une réservation"""
 
         tpl = mark_safe('<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div>' % (escape(self.room.title), _(u'gérée par'), escape(self.room.unit.name),))
 
@@ -243,12 +243,12 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
     description = models.TextField()
     unit = FalseFK('units.models.Unit')
 
-    active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver'), default=True)
+    active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver.'), default=True)
 
-    conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser les conditions de réservations pour la salle. Tu peux par exemple mettre un lien vers un contrat.'), blank=True)
+    conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser les conditions de réservations pour le matériel. Tu peux par exemple mettre un lien vers un contrat.'), blank=True)
 
-    allow_externals = models.BooleanField(_(u'Autoriser les externes'), help_text=_(u'Permet aux externes (pas dans l\'AGEPoly) de réserver la salle'), default=False)
-    conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation de la salle pour les externes. Remplace le champ \'Conditions\' pour les externe si remplis.'), blank=True)
+    allow_externals = models.BooleanField(_(u'Autoriser les externes'), help_text=_(u'Permet aux externes (pas dans l\'AGEPoly) de réserver le matériel.'), default=False)
+    conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation du matériel pour les externes. Remplace le champ \'Conditions\' pour les externe si rempli.'), blank=True)
 
     class MetaData:
         list_display = [
@@ -282,7 +282,7 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
 
         has_unit = True
 
-        help_list = _(u"""La liste du matériel réservable, gérés par l'unité en cours.
+        help_list = _(u"""La liste du matériel réservable, gérés par l'unité active.
 
 N'importe quelle unité peut mettre à disposition du matériel et est responsable de la modération des réservations.""")
 
@@ -317,7 +317,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         list_display_base = [
             ('title', _('Titre')),
             ('get_unit_name', _(u'Nom de l\'unité')),
-            ('start_date', _('Date debut')),
+            ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
             ('status', _('Statut')),
         ]
@@ -368,15 +368,15 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
 
         help_list = _(u"""Les réservation de matériel.
 
-Les réservations sont soumises à modération par l'unité lié au matériel.
+Les réservations sont soumises à modération par l'unité liée au matériel.
 
-Tu peux gérer ici la liste de tes réservation pour l'unité en cours (ou une unité externe).""")
+Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une unité externe).""")
 
         help_list_related = _(u"""Les réservation du matériel de l'unité.
 
-Les réservations sont soumises à modération par l'unité lié à au matériel.
+Les réservations sont soumises à modération par l'unité liée au matériel.
 
-Tu peux gérer ici la liste de réservation du matériel de l'unité en cours.""")
+Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'supply__title'}
         not_sortable_colums = ['get_conflits_list', ]
