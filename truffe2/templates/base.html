@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load rights_extras %}
+{% load i18n rights_extras %}
 <!DOCTYPE html>
 <html lang="en-us">
     <head>
@@ -57,7 +56,7 @@
                 <div class="ajax-dropdown"></div>
             </div>
 
-                <span style="font-weight: bold; font-size: 140%; color: #FF2383; margin-top: 30px; padding-top: 15px; margin-left: 40px; text-decoration: underline;">ATTENTION - APPLICATION EN COURS DE DEVELOPEMENT</span>
+                <span style="font-weight: bold; font-size: 140%; color: #FF2383; margin-top: 30px; padding-top: 15px; margin-left: 40px; text-decoration: underline;">{% trans "ATTENTION - APPLICATION EN COURS DE DEVELOPEMENT" %}</span>
 <!--             <!&#45;&#45; projects dropdown &#45;&#45;> -->
 <!--             <div id="project&#45;context"> -->
 <!--  -->
@@ -170,7 +169,7 @@
                             </li>
                             {% if user and user.pk %}
                                 <li id="menu-gens-monprofile">
-                                    <a href="{% url 'users.views.users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profile" %}</a>
+                                    <a href="{% url 'users.views.users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profil" %}</a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -180,7 +179,7 @@
                         <ul>
                             {% ifhasright 'main.models.HomePageNews' user 'LIST' %}
                                 <li id="menu-communication-homepagenews">
-                                    <a href="{% url 'main.views.homepagenews_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "News truffe" %}</a>
+                                    <a href="{% url 'main.views.homepagenews_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "News Truffe" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'communication.models.WebsiteNews' user 'LIST' %}
@@ -279,7 +278,7 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="#"><i class="fa fa-lg fa-fw fa-suitcase"></i> <span class="menu-item-parent">{% trans "Unités&Acreds" %}</span></a>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-suitcase"></i> <span class="menu-item-parent">{% trans "Unités&Accreds" %}</span></a>
                         <ul>
                             {% ifhasright 'units.models.Unit' user 'LIST' %}
                                 <li id="menu-units-units">
@@ -288,7 +287,7 @@
                             {% endifhasright %}
                             {% ifhasright 'units.models.Role' user 'LIST' %}
                                 <li id="menu-units-roles">
-                                    <a href="{% url 'units.views.role_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Roles" %}</a>
+                                    <a href="{% url 'units.views.role_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Rôles" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'units.models.Accreditation' user 'LIST' %}
@@ -344,7 +343,7 @@
         </div>
         <!-- END MAIN PANEL -->
 
-        <div class="footer">&copy; Copyright 2014 AGEPoly / Maximilien Cuony - Lionel Martin - Yann Beaud / PolyLAN</div>
+        <div class="footer">&copy; Copyright 2014-2015 AGEPoly / Maximilien Cuony - Lionel Martin - Yann Beaud / PolyLAN</div>
 
         <!--================================================== -->
 

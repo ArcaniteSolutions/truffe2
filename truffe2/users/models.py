@@ -36,7 +36,7 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight):
     first_name = models.CharField(_(u'Prénom'), max_length=100, blank=True)
     last_name = models.CharField(_('Nom de famille'), max_length=100, blank=True)
     email = models.EmailField(_('Adresse email'), max_length=255, unique=True)
-    is_active = models.BooleanField(_('Actif'), default=True, help_text=_(u'Défini si cet utilisateur doit etre considéré comme actif. Désactiver ceci au lieu de supprimer le compte.'))
+    is_active = models.BooleanField(_('Actif'), default=True, help_text=_(u'Défini si cet utilisateur doit être considéré comme actif. Désactiver ceci au lieu de supprimer le compte.'))
     date_joined = models.DateTimeField(_('Date d\'inscription'), default=timezone.now)
 
     mobile = models.CharField(max_length=25, blank=True)
@@ -120,15 +120,15 @@ class UserPrivacy(models.Model):
         ('mobile', _('Mobile')),
         ('adresse', _('Adresse')),
         ('nom_banque', _('Nom banque')),
-        ('iban_ou_ccp', _('Iban ou ccp'))
+        ('iban_ou_ccp', _('IBAN ou CCP'))
     )
 
     field = models.CharField(max_length=64, choices=FIELD_CHOICES)
 
     LEVEL_CHOICES = (
         ('prive', _(u'Privé')),
-        ('groupe', _(u'Membre de mes groupes')),
-        ('member', _(u'Acredité AGEPoly')),
+        ('groupe', _(u'Membres de mes groupes')),
+        ('member', _(u'Accrédités AGEPoly')),
         ('public', _(u'Public'))
     )
 

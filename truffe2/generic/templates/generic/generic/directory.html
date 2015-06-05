@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load rights_extras %}
-{% load generic_extras %}
+{% load i18n rights_extras generic_extras %}
 
 {% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Éléments disponibles" %}{% endblock %}
 

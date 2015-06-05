@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.db import models
-from generic.models import GenericModel, FalseFK
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from generic.models import GenericModel, FalseFK
+from rights.utils import AgepolyEditableModel, UnitEditableModel
 from users.models import TruffeUser
 
 import datetime
 from multiselectfield import MultiSelectField
-
-from rights.utils import AgepolyEditableModel, UnitEditableModel
-
-from django.conf import settings
-
-from django.db.models import Q
 
 
 class _Unit(GenericModel, AgepolyEditableModel):
@@ -23,30 +20,30 @@ class _Unit(GenericModel, AgepolyEditableModel):
         world_ro_access = True
 
     name = models.CharField(max_length=255)
-    id_epfl = models.CharField(max_length=64, blank=True, null=True, help_text=_(u'Utilisé pour la syncronisation des accréditations'))
+    id_epfl = models.CharField(max_length=64, blank=True, null=True, help_text=_(u'Utilisé pour la synchronisation des accréditations'))
     description = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
 
     is_commission = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une commission de l\'AGEPoly'))
     is_equipe = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une équipe de l\'AGEPoly'))
 
-    parent_herachique = models.ForeignKey('Unit', blank=True, null=True, help_text=_(u'Pour les commission, sélectionner le comité de l\'AGEPoly. Pour les sous-commisions, sélectionner la commission parente. Pour un sous-coaching, sélectionner la commission coaching. Pour le comité de l\'AGEPoly, ne rien mettre.'))
+    parent_hierarchique = models.ForeignKey('Unit', blank=True, null=True, help_text=_(u'Pour les commissions et les équipes, sélectionner le comité de l\'AGEPoly. Pour les sous-commisions, sélectionner la commission parente. Pour un coaching de section, sélectionner la commission Coaching. Pour le comité de l\'AGEPoly, ne rien mettre.'))
 
     class MetaData:
         list_display = [
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('parent_herachique', _('Parent')),
-            ('president', _('President'))
+            ('parent_hierarchique', _('Parent')),
+            ('president', _(u'Président'))
         ]
 
         details_display = [
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('parent_herachique', _('Parent')),
-            ('president', _('President')),
+            ('parent_hierarchique', _('Parent')),
+            ('president', _(u'Président')),
             ('id_epfl', _('ID EPFL')),
             ('description', _('Description')),
             ('url', _('URL')),
@@ -63,9 +60,9 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
         menu_id = 'menu-units-units'
 
-        help_list = _(u"""Les unités sont les différents groups de l'AGEPoly (Comité de l'AGEPoly, commissions, équipes, etc.)
+        help_list = _(u"""Les unités sont les différents groupes de l'AGEPoly (Comité de l'AGEPoly, commissions, équipes, etc.)
 
-Les unités sont organisées en arbre hérachique, avec le Comité de l'AGEPoly au sommet.""")
+Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPoly au sommet.""")
 
     class Meta:
         abstract = True
@@ -159,8 +156,8 @@ Les unités sont organisées en arbre hérachique, avec le Comité de l'AGEPoly 
                     if access in access_delegation.access and (not parent_mode or access_delegation.valid_for_sub_units):
                         return True
 
-        if self.parent_herachique and not no_parent:
-            return self.parent_herachique.is_user_in_groupe(user, access, True)
+        if self.parent_hierarchique and not no_parent:
+            return self.parent_hierarchique.is_user_in_groupe(user, access, True)
         return False
 
     def users_with_access(self, access=None, no_parent=False):
@@ -205,17 +202,17 @@ class _Role(GenericModel, AgepolyEditableModel):
         world_ro_access = True
 
     name = models.CharField(max_length=255)
-    id_epfl = models.CharField(max_length=255, null=True, blank=True, help_text=_(u'Mettre ici l\'ID accred du role pour la syncronisation EPFL'))
+    id_epfl = models.CharField(max_length=255, null=True, blank=True, help_text=_(u'Mettre ici l\'ID accred du rôle pour la synchronisation EPFL'))
     description = models.TextField(null=True, blank=True)
-    ordre = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'acréditer la même personne dans la même unité plusieurs fois. Le role avec le plus PETIT ordre sera prit en compte'))
+    ordre = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'accréditer la même personne dans la même unité plusieurs fois. Le rôle avec le plus PETIT ordre sera pris en compte'))
 
     ACCESS_CHOICES = (
-        ('PRESIDENCE', ('Présidence')),
-        ('TRESORERIE', ('Trésorerie')),
-        ('COMMUNICATION', ('Communication')),
-        ('INFORMATIQUE', ('Informatique')),
-        ('LOGISTIQUE', ('Logistique')),
-        ('SECRETARIAT', ('Secrétariat'))
+        ('PRESIDENCE', _(u'Présidence')),
+        ('TRESORERIE', _(u'Trésorerie')),
+        ('COMMUNICATION', _('Communication')),
+        ('INFORMATIQUE', _('Informatique')),
+        ('LOGISTIQUE', _('Logistique')),
+        ('SECRETARIAT', _('Secrétariat'))
     )
 
     access = MultiSelectField(choices=ACCESS_CHOICES, blank=True, null=True)
@@ -231,30 +228,30 @@ class _Role(GenericModel, AgepolyEditableModel):
         list_display = [
             ('name', _('Nom')),
             ('id_epfl', _('ID EPFL ?')),
-            ('ordre', _(u'Ordre'))
+            ('ordre', _('Ordre'))
         ]
 
         details_display = [
             ('name', _('Nom')),
             ('description', _('Description')),
             ('id_epfl', _('ID EPFL ?')),
-            ('ordre', _(u'Ordre')),
+            ('ordre', _('Ordre')),
             ('get_access', _(u'Accès')),
         ]
 
         filter_fields = ('name', 'id_epfl', 'description')
 
-        base_title = _(u'Roles')
-        list_title = _(u'Liste de toutes les roles')
+        base_title = _(u'Rôles')
+        list_title = _(u'Liste de tous les rôles')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-group'
 
         menu_id = 'menu-units-roles'
 
-        help_list = _(u"""Les roles sont les différents type d'accéditations possible pour une unité.
+        help_list = _(u"""Les rôles sont les différents type d'accréditations possibles pour une unité.
 
-Certains roles donnent des accès particuliers.
-Par exemple, le role 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont gérés en fonction des accês !""")
+Certains rôles donnent des accès particuliers.
+Par exemple, le rôle 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont gérés en fonction des accès !""")
 
     class Meta:
         abstract = True
@@ -262,7 +259,7 @@ Par exemple, le role 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont g�
     def can_delete(self):
 
         if self.accreditation_set.count():
-            return (False, _(u'Au moins une accéditation existe avec ce role, impossible de supprimer le role (NB: Historique compris)'))
+            return (False, _(u'Au moins une accréditation existe avec ce rôle, impossible de supprimer le rôle (NB: Historique compris)'))
 
         return (True, None)
 
@@ -276,9 +273,9 @@ class Accreditation(models.Model, UnitEditableModel):
     end_date = models.DateTimeField(blank=True, null=True)
     validation_date = models.DateTimeField(auto_now_add=True)
 
-    display_name = models.CharField(max_length=255, blank=True, null=True, help_text=_(u'Le nom a afficher dans truffe. Peut être utilisé pour préciser la fonction'))
+    display_name = models.CharField(max_length=255, blank=True, null=True, help_text=_(u'Le nom à afficher dans Truffe. Peut être utilisé pour préciser la fonction'))
 
-    no_epfl_sync = models.BooleanField(default=False, help_text=_(u'Checker cette coche pour ne pas sycroniser cette accrédiation au niveau EPFL'))
+    no_epfl_sync = models.BooleanField(default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
@@ -315,10 +312,10 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
     unit = FalseFK('units.models.Unit')
 
     access = MultiSelectField(choices=_Role.ACCESS_CHOICES, blank=True, null=True)
-    valid_for_sub_units = models.BooleanField(_(u'Valide pour les sous-unités'), default=False, help_text=_(u'Si sélectionné, les accès supplémentaires dans l\'unit courrante seront aussi valide dans les sous-unités'))
+    valid_for_sub_units = models.BooleanField(_(u'Valide pour les sous-unités'), default=False, help_text=_(u'Si sélectionné, les accès supplémentaires dans l\'unité courante seront aussi valides dans les sous-unités'))
 
-    user = models.ForeignKey(TruffeUser, blank=True, null=True, help_text=_(u'(Optionnel !) L\'utilisateur concerné. L\'utilisateur doit disposer d\'une accréditation dans l\'unité'))
-    role = FalseFK('units.models.Role', blank=True, null=True, help_text=_(u'(Optionnel !) Le role concerné.'))
+    user = models.ForeignKey(TruffeUser, blank=True, null=True, help_text=_(u'(Optionnel !) L\'utilisateur concerné. L\'utilisateur doit disposer d\'une accréditation dans l\'unité.'))
+    role = FalseFK('units.models.Role', blank=True, null=True, help_text=_(u'(Optionnel !) Le rôle concerné.'))
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
@@ -327,14 +324,14 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
     class MetaData:
         list_display = [
             ('id', ''),
-            ('user', _('User')),
-            ('role', _('Role')),
-            ('get_access', _(u'Acces'))
+            ('user', _('Utilisateur')),
+            ('role', _(u'Rôle')),
+            ('get_access', _(u'Accès'))
         ]
 
         details_display = [
-            ('user', _('User')),
-            ('role', _('Role')),
+            ('user', _('Utilisateur')),
+            ('role', _('Rôle')),
             ('get_access', _(u'Accès supplémentaires')),
             ('valid_for_sub_units', _(u'Valide pour les sous-unités'))
         ]
@@ -342,7 +339,7 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
         filter_fields = ()
 
         base_title = _(u'Délégation d\'accès')
-        list_title = _(u'Liste de toutes les délégations d\'access')
+        list_title = _(u'Liste de toutes les délégations d\'accès')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-group'
 
@@ -355,11 +352,11 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
         help_list = _(u"""Les délégations d'accès permettent de donner des accès supplémentaires dans une unité.
 
 Les accès sont normalement déterminés en fonction des accréditations, au niveau global.
-Par exemple, une personne accréditée en temps que Trésorier dans une unité disposera de l'accès TRÉSOERIE pour l'unité.
+Par exemple, une personne accréditée en temps que 'Trésorier' dans une unité disposera de l'accès TRÉSOERIE pour l'unité.
 
 Avec les délégations d'accês, il est par exemple possible de donner l'accès "COMMUNICATION" à tout les membres d'une unité en créant une délégations d'accès.
 
-Il est aussi possible de restraindre une délégations â un utilisateurs ou à un role particulier.""")
+Il est aussi possible de restreindre une délégation â un utilisateur ou à un rôle particulier.""")
 
     class Meta:
         abstract = True

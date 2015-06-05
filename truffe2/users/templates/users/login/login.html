@@ -17,7 +17,7 @@
 
                 <div class="login-app-icons">
                     <a href="https://agepoly.ch" class="btn btn-danger btn-sm">{% trans "Site de l'AGEPoly" %}</a>
-                </div>
+               </div>
             </div>
 
             <img src="{{MEDIA_URL}}img/agep_logo.png" class="pull-right display-image" alt="" style="margin-top: 60px; width:210px">
@@ -25,10 +25,10 @@
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-                <h5 class="about-heading">{% trans "Ceci est une nouvelle version de truffe" %}</h5>
+              <h5 class="about-heading">{% trans "Ceci est une nouvelle version de Truffe" %}</h5>
                 <p>
                   {% blocktrans %}
-                    Cette version est en pré-prod, des choses peuvent ne pas fonctionner. Signale les bugs aux authorités compétents ! (truffe [at] polylan.ch).
+                    Cette version est en pré-prod, des choses peuvent ne pas fonctionner. Signale les bugs aux autorités compétentes ! (truffe [at] polylan.ch).
                   {% endblocktrans %}
                 </p>
             </div>
@@ -36,7 +36,7 @@
                 <h5 class="about-heading">{% trans "Connexion" %}</h5>
                 <p>
                   {% blocktrans %}
-                    Tu veux probablement te logger avec ton compte Tequila. Les comptes truffes sont réservé aux externes qui n'ont pas de compte Tequila.
+                    Tu veux probablement te logger avec ton compte Tequila. Les comptes Truffe sont réservés aux externes qui n'ont pas de compte Tequila.
                     Clique sur le bouton bleu en dessous du formulaire de login !
                   {% endblocktrans %}
                 </p>
@@ -49,7 +49,7 @@
             <form action="" method="POST" id="login-form" class="smart-form client-form">
                 {% csrf_token %}
                 <header>
-                    {% trans "Se connecter (compte truffe)" %}
+                    {% trans "Se connecter (compte Truffe)" %}
                 </header>
 
                 <fieldset>
@@ -73,7 +73,7 @@
                 </fieldset>
                 <footer>
                     <a href="{% url 'app.tequila.login' %}" class="btn btn-default">{% trans "Se connecter via Tequila" %}</a>
-                    <button type="submit" class="btn btn-primary">{% trans "Connexion" %}
+                    <button type="submit" class="btn btn-primary">{% trans "Connexion" %}</button>
                 </footer>
             </form>
 
@@ -86,12 +86,11 @@
                 <fieldset>
                     {{reset_form}}
                     <div class="note">
-                        <a href="#" onclick="$('#password-reset-form').hide(); $('#login-form').show();">{% trans "Mot de passe retrouvé!" %}</a>
+                        <a href="#" onclick="$('#password-reset-form').hide(); $('#login-form').show();">{% trans "Mot de passe retrouvé !" %}</a>
                     </div>
                 </fieldset>
                 <footer>
-                    <button type="submit" class="btn btn-primary">{% trans "Récupérer le mot de passe" %}
-                    </button>
+                    <button type="submit" class="btn btn-primary">{% trans "Récupérer le mot de passe" %}</button>
                 </footer>
             </form>
         </div>
@@ -114,7 +113,7 @@
                     <section>
                         <label class="label">
                             {% blocktrans %}
-                                Si tu n'as pas de compte Tequila, tu peux te logger via<br /> un compte truffe.
+                                Si tu n'as pas de compte Tequila, tu peux te logger via<br /> un compte Truffe.
                             {% endblocktrans %}
                         </label>
                         <label class="input">
@@ -129,6 +128,7 @@
                     <a href="{% url 'app.tequila.login' %}" class="btn btn-primary">{% trans "Se connecter via Tequila" %}</a>
                 </footer>
             </form>
+
         </div>
     </div>
 {% endblock %}

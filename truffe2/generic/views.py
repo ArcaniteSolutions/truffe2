@@ -537,7 +537,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
 
                 log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': unicode(obj.MetaState.states.get(old_status)), 'new': unicode(obj.MetaState.states.get(dest_status))})).save()
 
-                messages.success(request, _(u'Status modifié !'))
+                messages.success(request, _(u'Statut modifié !'))
                 done = True
                 no_more_access = not obj.rights_can('SHOW', request.user)
 
