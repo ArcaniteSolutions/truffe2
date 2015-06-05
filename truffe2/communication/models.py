@@ -26,7 +26,7 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
             ('title', _('Titre')),
             ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
-            ('status', _('Statut'),
+            ('status', _('Statut')),
         ]
         details_display = list_display + [('content', _('Contenu')), ('url', _('URL'))]
         filter_fields = ('title', 'status')

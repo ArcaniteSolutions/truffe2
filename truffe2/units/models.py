@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.db import models
-from generic.models import GenericModel, FalseFK
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from generic.models import GenericModel, FalseFK
+from rights.utils import AgepolyEditableModel, UnitEditableModel
 from users.models import TruffeUser
 
 import datetime
 from multiselectfield import MultiSelectField
-
-from rights.utils import AgepolyEditableModel, UnitEditableModel
-
-from django.conf import settings
-
-from django.db.models import Q
 
 
 class _Unit(GenericModel, AgepolyEditableModel):
