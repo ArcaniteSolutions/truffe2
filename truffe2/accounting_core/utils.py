@@ -19,14 +19,14 @@ class AccountingYearLinked(object):
         if not user.is_superuser and self.accounting_year.status in ['3_archived']:
             return False
 
-        if not user.is_superuser and self.accounting_year.status in ['0_preparing'] and not self.rights_peoples_in_EDIT(user, 'TRESORERIE'):
+        if not user.is_superuser and self.accounting_year.status in ['0_preparing'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
             return False
 
         return super(AccountingYearLinked, self).rights_can_EDIT(user)
 
     def rights_can_SHOW(self, user):
 
-        if not user.is_superuser and self.accounting_year.status in ['0_preparing'] and not self.rights_peoples_in_EDIT(user, 'TRESORERIE'):
+        if not user.is_superuser and self.accounting_year.status in ['0_preparing'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
             return False
 
         return super(AccountingYearLinked, self).rights_can_SHOW(user)

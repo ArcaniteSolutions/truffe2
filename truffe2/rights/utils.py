@@ -36,7 +36,7 @@ class ModelWithRight(object):
 
         from accounting_core.utils import AccountingYearLinked
 
-        if isinstance(dummy, AccountingYearLinked):
+        if year_to_link and isinstance(dummy, AccountingYearLinked):
             dummy.accounting_year = year_to_link
 
         return dummy.rights_can(right, user)
