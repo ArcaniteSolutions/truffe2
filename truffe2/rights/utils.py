@@ -73,7 +73,10 @@ class ModelWithRight(object):
             unit_pk = 'NOUPK'
 
         if isinstance(self, AccountingYearLinked):
-            accounting_year_pk = self.accounting_year.pk
+            try:
+                accounting_year_pk = self.accounting_year.pk
+            except:
+                accounting_year_pk = 'NOYPK'
         else:
             accounting_year_pk = 'NOYPK'
 
