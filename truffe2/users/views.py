@@ -198,6 +198,7 @@ def users_profile_picture(request, pk):
 
     return HttpResponseRedirect(settings.MEDIA_URL + '/cache/users/' + str(user.pk) + '.png')
 
+
 @login_required
 def users_create_external(request):
     """Create a new external user"""
@@ -224,13 +225,13 @@ def users_create_external(request):
                     int_trial = 1
 
             user = TruffeUser.objects.create_user('{}{}'.format(trial, int_trial), password=password, **form.cleaned_data)
-            send_templated_mail(request, _('Truffe :: Nouveau compte'), 'nobody@truffe.agepoly.ch', [user.email], 'users/users/mail/newuser', {'psw': password, 'domain': get_current_site(request).name})
+            send_templated_mail(request, _('Truffe :: Nouveau compte'), 'nobody@truffe.agepoly.ch', [user.email], 'users/users/mail/newuser', {'username': user.username, 'psw': password, 'domain': get_current_site(request).name})
+
             return redirect('users.views.users_list')
 
     else:
         form = TruffeCreateUserForm()
     return render(request, 'users/users/create_external.html', {'form': form})
-
 
 
 @login_required
