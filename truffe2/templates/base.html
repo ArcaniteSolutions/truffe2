@@ -302,7 +302,14 @@
                             {% endifhasright %}
                         </ul>
                     </li>
-
+                    <li>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-gear"></i> <span class="menu-item-parent">{% trans "Comptabilité (Gestion)" %}</span></a>
+                        <ul>
+                            <li id="menu-compta-anneecomptable">
+                                <a href="{% url 'accounting_core.views.accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
+                            </li>
+                        </ul>
+                    </li>
                     <li id="menu-notifications">
                         <a href="{% url 'notifications.views.notification_center' %}">
                             <i class="fa fa-lg fa-fw fa-bell"></i>

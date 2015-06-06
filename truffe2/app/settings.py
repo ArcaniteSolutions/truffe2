@@ -126,6 +126,7 @@ INSTALLED_APPS = (
     'communication',
     'notifications',
     'logistics',
+    'accounting_core',
 
     'generic',
 
