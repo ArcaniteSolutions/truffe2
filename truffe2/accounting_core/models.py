@@ -121,3 +121,37 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
             return super(_AccountingYear, self).rights_can_EDIT(user)
 
         return False
+
+
+class _DummyPony(GenericModel, AgepolyEditableModel):
+    """Ceci est une class de démo pour implémenter AccountingYearLinked avant la finalisation des autres modules comptables
+
+    Il faudra supprimer ce modèle en phase de production
+    """
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'TRESORERIE'
+
+    name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.name
+
+    class MetaData:
+        list_display = [
+            ('name', _('Nom')),
+        ]
+        details_display = list_display
+        filter_fields = ('name')
+
+        base_title = _(u'Poney comptable')
+        list_title = _(u'Liste des poneys comptables')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-smile-o'
+
+        menu_id = 'menu-compta-dummypony'
+
+        help_list = _(u"""Class de test pour AccoutingYearLinked""")

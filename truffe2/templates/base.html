@@ -311,6 +311,11 @@
                                         <a href="{% url 'accounting_core.views.accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
                                     </li>
                                 {% endifhasright %}
+                                {% ifhasright 'accounting_core.models.DummyPony' user 'LIST' %}
+                                    <li id="menu-compta-dummypony">
+                                        <a href="{% url 'accounting_core.views.dummypony_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Poneys comtables" %}</a>
+                                    </li>
+                                {% endifhasright %}
                             </ul>
                         </li>
                     {% endif %}
