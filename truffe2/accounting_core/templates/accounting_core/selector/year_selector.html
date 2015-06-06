@@ -1,0 +1,47 @@
+{% load i18n generic_extras %}
+
+{% with w_title="Année comptable" %}{% include "widget/header.html" %}{% endwith %}
+
+
+<div class="year-ok">
+
+    {% trans "Tu travailles actuellement avec l'année comptable" %}<br /><br />
+
+    <center><b class="cyear" pk="{{CURRENT_YEAR_PK}}">{{CURRENT_YEAR_NAME}}</b></center><br />
+
+    <span style="float: right;">
+        <div class="dropdown">
+        <a class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">{% trans "Changer" %} <span class="caret"></span></a>
+        <ul class="dropdown-menu dropdown-menu-right" id="year-selector">
+
+            {% for year in years_available %}
+                <li>
+                    <a href="#" onclick="select_year({{year.pk}}, '{{year|escapejs}}');"><span class="label label-{{year.MetaState.states_colors|get_attr:year.status}}">{{year}}</span> ({{year.get_status_display}})</a>
+                </li>
+            {% endfor %}
+
+        </ul>
+        </div>
+    </span>
+
+    <br />
+
+</div>
+
+
+<script type="text/javascript">
+
+    function select_year(pk, name) {
+
+        $('.cyear').text(name);
+        $('.cyear').attr("pk", pk);
+
+        {% if function_to_call %}
+            {{function_to_call}}(pk, name);
+        {% endif %}
+
+    }
+
+</script>
+
+{% include "widget/footer.html" %}

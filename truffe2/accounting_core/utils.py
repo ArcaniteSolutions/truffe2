@@ -13,3 +13,20 @@ class AccountingYearLinked(object):
         return {
             'accounting_year': models.ForeignKey(cache['accounting_core.models.AccountingYear']),
         }
+
+    def rights_can_EDIT(self, user):
+
+        if not user.is_superuser and self.accounting_year.status in ['3_archived']:
+            return False
+
+        if not user.is_superuser and self.accounting_year.status in ['0_preparing'] and not self.rights_peoples_in_EDIT(user, 'TRESORERIE'):
+            return False
+
+        return super(AccountingYearLinked, self).rights_can_EDIT(user)
+
+    def rights_can_SHOW(self, user):
+
+        if not user.is_superuser and self.accounting_year.status in ['0_preparing'] and not self.rights_peoples_in_EDIT(user, 'TRESORERIE'):
+            return False
+
+        return super(AccountingYearLinked, self).rights_can_SHOW(user)

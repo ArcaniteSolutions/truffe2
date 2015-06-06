@@ -24,7 +24,7 @@ class ModelWithRight(object):
             cls.rights.update(new_rights)
 
     @classmethod
-    def static_rights_can(cls, right, user, unit_to_link=None):
+    def static_rights_can(cls, right, user, unit_to_link=None, year_to_link=None):
 
         dummy = cls()
 
@@ -33,6 +33,11 @@ class ModelWithRight(object):
 
         if unit_to_link and hasattr(dummy, 'generic_set_dummy_unit'):
             dummy.generic_set_dummy_unit(unit_to_link)
+
+        from accounting_core.utils import AccountingYearLinked
+
+        if isinstance(dummy, AccountingYearLinked):
+            dummy.accounting_year = year_to_link
 
         return dummy.rights_can(right, user)
 
@@ -43,6 +48,8 @@ class ModelWithRight(object):
         cache.set(cache_key_last, cached_last)
 
     def rights_can(self, right, user):
+
+        from accounting_core.utils import AccountingYearLinked
 
         if right not in self.MetaRights.rights or not hasattr(self, 'rights_can_%s' % (right,)):
             return False
@@ -65,7 +72,12 @@ class ModelWithRight(object):
         else:
             unit_pk = 'NOUPK'
 
-        cache_key = 'right_%s.%s_%s_%s_%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY', user.pk, right, unit_pk)
+        if isinstance(self, AccountingYearLinked):
+            accounting_year_pk = self.accounting_year.pk
+        else:
+            accounting_year_pk = 'NOYPK'
+
+        cache_key = 'right_%s.%s_%s_%s_%s_%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY', user.pk, right, unit_pk, accounting_year_pk)
         cache_key_last = 'right~last_%s.%s_%s' % (inspect.getmodule(self).__name__, self.__class__.__name__, self.pk or 'DUMMY')
         cache_key_user_last = 'right~user_%s' % (user.pk, )
 

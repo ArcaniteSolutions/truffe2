@@ -95,13 +95,13 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can(right_to_check, request.user, unit))
-            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can(right_to_check_edit, request.user, unit))
+            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can(right_to_check, request.user, unit, current_year))
+            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can(right_to_check_edit, request.user, unit, current_year))
         else:
             # The LIST right is not verified here if we're in unit mode. We
             # need to test (in the view) in another unit is available for LIST
             # if the current unit isn't !
-            if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can(right_to_check, request.user, current_unit):
+            if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can(right_to_check, request.user, current_unit, current_year):
                 raise Http404
 
         if hasattr(model_class, 'moderable_object') and model_class.moderable_object:  # If the object is moderable, list all moderable things by the current user
@@ -162,7 +162,7 @@ def generate_list_json(module, base_name, model_class):
         else:
             filter__ = filter_
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
             raise Http404
 
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_json.html', 'generic/generic/list_json.html'],
@@ -215,7 +215,7 @@ def generate_list_related_json(module, base_name, model_class):
             else:
                 return qs
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit, current_year):
             raise Http404
 
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display_related] + ['pk'], [module.__name__ + '/' + base_name + '/list_related_json.html', 'generic/generic/list_related_json.html'],
@@ -291,8 +291,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('CREATE', request.user, unit))
-            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('CREATE', request.user, unit))
+            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('CREATE', request.user, unit, current_year))
+            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('CREATE', request.user, unit, current_year))
         else:
             main_unit = None
 
@@ -498,7 +498,7 @@ def generate_deleted(module, base_name, model_class, log_class):
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('RESTORE', request.user, current_unit):
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('RESTORE', request.user, current_unit, current_year):
             raise Http404
 
         if unit_mode:
@@ -506,8 +506,8 @@ def generate_deleted(module, base_name, model_class, log_class):
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit))
-            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit))
+            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit, current_year))
+            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit, current_year))
         else:
             main_unit = None
 
@@ -717,7 +717,7 @@ def generate_calendar_json(module, base_name, model_class):
         else:
             filter__ = filter_
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
             raise Http404
 
         start = request.GET.get('start')
@@ -782,7 +782,7 @@ def generate_calendar_related_json(module, base_name, model_class):
         else:
             filter___ = lambda x: x
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit, current_year):
             raise Http404
 
         start = request.GET.get('start')
