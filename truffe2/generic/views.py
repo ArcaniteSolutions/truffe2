@@ -27,7 +27,7 @@ import pytz
 
 from generic.datatables import generic_list_json
 from generic.forms import ContactForm
-from app.utils import update_current_unit, get_current_unit, send_templated_mail
+from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail
 from rights.utils import BasicRightModel
 
 
@@ -53,6 +53,27 @@ def get_unit_data(model_class, request, allow_blank=True):
     return unit_mode, current_unit, unit_blank
 
 
+def get_year_data(model_class, request):
+
+    from accounting_core.utils import AccountingYearLinked
+    from accounting_core.models import AccountingYear
+
+    year_mode = issubclass(model_class, AccountingYearLinked)
+    current_year = None
+
+    if year_mode:
+
+        if request.GET.get('ypk'):
+            update_current_year(request, request.GET.get('ypk'))
+
+        if request.POST.get('ypk'):
+            update_current_year(request, request.POST.get('ypk'))
+
+        current_year = get_current_year(request)
+
+    return year_mode, current_year, AccountingYear
+
+
 def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False):
 
     @login_required
@@ -63,6 +84,8 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         show_view = module.__name__ + '.views.' + base_name + '_show'
         deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
         status_view = module.__name__ + '.views.' + base_name + '_switch_status'
+
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank)
         main_unit = None
@@ -98,6 +121,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         return render(request, [module.__name__ + '/' + base_name + '/%s.html' % (template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
+            'year_mode': year_mode, 'years_available': AccountingYear.build_year_menu('LIST', request.user),
             'moderables': moderables, 'object_filter': objects,
         })
 
@@ -119,6 +143,7 @@ def generate_list_json(module, base_name, model_class):
         delete_view = module.__name__ + '.views.' + base_name + '_delete'
         logs_view = module.__name__ + '.views.' + base_name + '_logs'
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
@@ -132,6 +157,11 @@ def generate_list_json(module, base_name, model_class):
         else:
             filter_ = lambda x: x
 
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
+        else:
+            filter__ = filter_
+
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
             raise Http404
 
@@ -144,12 +174,11 @@ def generate_list_json(module, base_name, model_class):
              'list_display': model_class.MetaData.list_display,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter_,
+            bonus_filter_function=filter__,
             selector_column=True,
         )
 
     return _generic_list_json
-
 
 
 def generate_list_related(module, base_name, model_class):
@@ -167,12 +196,18 @@ def generate_list_related_json(module, base_name, model_class):
         delete_view = module.__name__ + '.views.' + base_name + '_delete'
         logs_view = module.__name__ + '.views.' + base_name + '_logs'
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
 
         if unit_mode:
             filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
+
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
+        else:
+            filter__ = filter_
 
         def filter_object(qs, request):
             if request.POST.get('sSearch_0'):
@@ -193,7 +228,7 @@ def generate_list_related_json(module, base_name, model_class):
              'upk_noswitch': True, 'from_related': True,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter_,
+            bonus_filter_function=filter__,
             bonus_filter_function_with_parameters=filter_object,
             deca_one_status=True,
             selector_column=True,
@@ -213,6 +248,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         try:
@@ -221,6 +257,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
             if unit_mode:
                 update_current_unit(request, obj.unit.pk if obj.unit else -1)
                 current_unit = obj.unit
+
+            if year_mode:
+                update_current_year(request, obj.accounting_year.pk)
+                current_year = obj.accounting_year
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('EDIT', request.user):
                 raise Http404
@@ -232,6 +272,16 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
                 if unit_blank and not current_unit:
                     obj.unit_blank_user = request.user
                 obj.unit = current_unit
+
+            if year_mode:
+
+                # Est-ce qu'on va tenter de créer un truc dans une année
+                # comptable pas possible ?
+                if current_year not in AccountingYear.build_year_menu('CREATE', request.user):
+                    update_current_year(request, None)
+                    ___, current_year, ___ = get_year_data(model_class, request)
+
+                obj.accounting_year = current_year
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('CREATE', request.user):
                 raise Http404
@@ -308,7 +358,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         else:
             form = form_class(request.user, instance=obj)
 
-        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode, 'related_mode': related_mode, 'list_related_view': list_related_view})
+        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view,
+                                                                                                                 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode,
+          'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user),
+                                                                                                                 'related_mode': related_mode, 'list_related_view': list_related_view})
 
     return _generic_edit
 
@@ -330,11 +383,16 @@ def generate_show(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
             update_current_unit(request, obj.unit.pk if obj.unit else -1)
             current_unit = obj.unit
+
+        if year_mode:
+            update_current_year(request, obj.accounting_year.pk)
+            current_year = obj.accounting_year
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
             raise Http404
@@ -358,6 +416,7 @@ def generate_show(module, base_name, model_class, log_class):
             'obj': obj, 'log_entires': log_entires,
             'rights': rights,
             'unit_mode': unit_mode, 'current_unit': current_unit,
+            'year_mode': year_mode, 'current_year': current_year,
             'contactables_groups': contactables_groups,
             'related_mode': related_mode,
         })
@@ -382,9 +441,12 @@ def generate_delete(module, base_name, model_class, log_class):
 
         for obj in objs:
             unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
-
+            year_mode, current_year, AccountingYear = get_year_data(model_class, request)
             if unit_mode:
                 update_current_unit(request, obj.unit.pk if obj.unit else -1)
+
+            if year_mode:
+                update_current_year(request, obj.accounting_year.pk)
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
                 raise Http404
@@ -433,6 +495,7 @@ def generate_deleted(module, base_name, model_class, log_class):
 
         list_view = module.__name__ + '.views.' + base_name + '_list'
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('RESTORE', request.user, current_unit):
@@ -453,6 +516,8 @@ def generate_deleted(module, base_name, model_class, log_class):
 
             if unit_mode:
                 update_current_unit(request, obj.unit.pk if obj.unit else -1)
+            if year_mode:
+                update_current_year(request, obj.accounting_year.pk)
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('RESTORE', request.user):
                 raise Http404
@@ -470,13 +535,17 @@ def generate_deleted(module, base_name, model_class, log_class):
         liste = model_class.objects.filter(deleted=True).annotate(Max('logs__when')).order_by('-logs__when__max')
 
         if unit_mode:
-            liste = liste.filter(unit=current_unit).all()
+            liste = liste.filter(unit=current_unit)
+
+        if year_mode:
+            liste = liste.filter(accounting_year=current_year)
         else:
             liste = liste.all()
 
         return render(request, [module.__name__ + '/' + base_name + '/deleted.html', 'generic/generic/deleted.html'], {
             'Model': model_class, 'list_view': list_view, 'liste': liste,
-            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit
+            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit,
+            'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('RESTORE', request.user),
         })
 
     return _generic_deleted
@@ -566,9 +635,13 @@ def generate_contact(module, base_name, model_class, log_class):
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode:
             update_current_unit(request, obj.unit.pk if obj.unit else -1)
+
+        if year_mode:
+            update_current_year(request, obj.accounting_year.pk)
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
             raise Http404
@@ -626,6 +699,7 @@ def generate_calendar_json(module, base_name, model_class):
     def _generic_calendar_json(request):
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode:
             if not current_unit:
@@ -638,6 +712,11 @@ def generate_calendar_json(module, base_name, model_class):
         else:
             filter_ = lambda x: x
 
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
+        else:
+            filter__ = filter_
+
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
             raise Http404
 
@@ -647,7 +726,7 @@ def generate_calendar_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
+        liste = filter__(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
 
         retour = []
 
@@ -686,16 +765,22 @@ def generate_calendar_related_json(module, base_name, model_class):
     def _generic_calendar_related_json(request):
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode:
             filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
 
-        if request.GET.get('filter_object'):
-            filter__ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
         else:
-            filter__ = lambda x: x
+            filter__ = filter_
+
+        if request.GET.get('filter_object'):
+            filter___ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+        else:
+            filter___ = lambda x: x
 
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
             raise Http404
@@ -707,7 +792,7 @@ def generate_calendar_related_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter__(filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
+        liste = filter___(filter__(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
 
         retour = []
 

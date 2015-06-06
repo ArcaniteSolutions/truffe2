@@ -13,6 +13,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
+        world_ro_access = True
 
     name = models.CharField(max_length=255, unique=True)
     start_date = models.DateTimeField(blank=True, null=True)
@@ -123,6 +124,26 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
         return False
 
+    @classmethod
+    def build_year_menu(cls, mode, user):
+
+        retour = []
+
+        retour += list(cls.objects.filter(status='1_active').order_by('-end_date'))
+        retour += list(cls.objects.filter(status='2_closing').order_by('-end_date'))
+
+        # On peut sélectionner les années en préparation que si on est
+        # trésorie du comité agepoly ou super_user
+        if user.is_superuser or cls().rights_in_root_unit(user, 'TRESORERIE'):
+            retour += list(cls.objects.filter(status='0_preparing').order_by('-end_date'))
+
+        # On peut sélectionner les années archivée qu'en list (sauf si on est
+        # super_user)
+        if mode == 'LIST' or user.is_superuser:
+            retour += list(cls.objects.filter(status='3_archived').order_by('-end_date'))
+
+        return retour
+
 
 class _DummyPony(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     """Ceci est une class de démo pour implémenter AccountingYearLinked avant la finalisation des autres modules comptables
@@ -132,6 +153,7 @@ class _DummyPony(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
+        world_ro_access = True
 
     name = models.CharField(max_length=255, unique=True)
 
