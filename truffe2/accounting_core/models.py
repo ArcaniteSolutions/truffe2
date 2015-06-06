@@ -113,3 +113,11 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     def __unicode__(self):
         return self.name
+
+    def rights_can_EDIT(self, user):
+        # On ne peut éditer/supprimer que les années en préparation
+
+        if self.status == '0_preparing':
+            return super(_AccountingYear, self).rights_can_EDIT(user)
+
+        return False
