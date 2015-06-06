@@ -13,11 +13,9 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
 
-
     name = models.CharField(max_length=255, unique=True)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-
 
     class MetaData:
         list_display = [
@@ -39,7 +37,6 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         datetime_fields = ['start_date', 'end_date']
 
         help_list = _(u"""Les années comptables définissent les périodes d'exercices dans tous les documents comptables.""")
-
 
     class MetaState:
 
