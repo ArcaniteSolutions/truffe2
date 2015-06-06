@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from generic.models import GenericModel, GenericStateModel
 from rights.utils import AgepolyEditableModel
+from accounting_core.utils import AccountingYearLinked
 
 
 class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
@@ -123,7 +124,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         return False
 
 
-class _DummyPony(GenericModel, AgepolyEditableModel):
+class _DummyPony(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     """Ceci est une class de démo pour implémenter AccountingYearLinked avant la finalisation des autres modules comptables
 
     Il faudra supprimer ce modèle en phase de production
@@ -154,4 +155,4 @@ class _DummyPony(GenericModel, AgepolyEditableModel):
 
         menu_id = 'menu-compta-dummypony'
 
-        help_list = _(u"""Class de test pour AccoutingYearLinked""")
+        help_list = _(u"""Class de test pour AccountingYearLinked""")

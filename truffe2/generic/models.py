@@ -34,6 +34,8 @@ class FalseFK():
 
 
 def build_models_list_of(Class):
+
+
     retour = []
     already_returned = []
     for app in settings.INSTALLED_APPS:
@@ -54,7 +56,7 @@ def build_models_list_of(Class):
                 data = (module, (views_module, urls_module, models_module, forms_module), model_class)
 
                 # Special case for unit, who must be loaded first
-                if model_name in ['_Unit', '_Role']:
+                if model_name in ['_Unit', '_Role', '_AccountingYear']:
                     retour.insert(0, data)
                 else:
                     retour.append(data)
@@ -72,6 +74,8 @@ class GenericModel(models.Model):
     @staticmethod
     def startup():
         """Execute code at startup"""
+
+        from accounting_core.utils import AccountingYearLinked
 
         classes = build_models_list_of(GenericModel)
 
@@ -94,6 +98,9 @@ class GenericModel(models.Model):
             if issubclass(model_class, GenericDelayValidableInfo):
                 extra_data.update(GenericDelayValidableInfo.do(module, models_module, model_class, cache))
 
+            if issubclass(model_class, AccountingYearLinked):
+                extra_data.update(AccountingYearLinked.do(module, models_module, model_class, cache))
+
             for key, value in model_class.__dict__.iteritems():
                 if hasattr(value, '__class__') and value.__class__ == FalseFK:
                     extra_data.update({key: models.ForeignKey(cache[value.model], *value.args, **value.kwargs)})
@@ -112,15 +119,15 @@ class GenericModel(models.Model):
             def generate_meta(Model):
                 class Meta():
                     model = Model
-                    exclude = ('deleted', 'status')
+                    exclude = ('deleted', 'status', 'accounting_year')
 
                 class MetaNoUnit():
                     model = Model
-                    exclude = ('deleted', 'status', 'unit')
+                    exclude = ('deleted', 'status', 'accounting_year', 'unit')
 
                 class MetaNoUnitExternal():
                     model = Model
-                    exclude = ('deleted', 'status', 'unit', 'unit_blank_user')
+                    exclude = ('deleted', 'status', 'accounting_year', 'unit', 'unit_blank_user')
 
                 if hasattr(model_class.MetaData, 'has_unit') and model_class.MetaData.has_unit:
                     if issubclass(model_class, GenericExternalUnitAllowed):
