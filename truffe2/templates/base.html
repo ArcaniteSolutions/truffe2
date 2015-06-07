@@ -209,7 +209,7 @@
                                                 <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de salle" %}</a>
                                             </li>
                                             <li id="menu-logistics-room-reservation-calendar">
-                                                <a href="{% url 'logistics.views.roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
+                                                <a href="{% url 'logistics.views.roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
                                             </li>
                                         {% endifhasright %}
                                         {% ifhasright 'logistics.models.RoomReservation' user 'CREATE' %}
@@ -247,7 +247,7 @@
                                                 <a href="{% url 'logistics.views.supplyreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de matériel" %}</a>
                                             </li>
                                             <li id="menu-logistics-supply-reservation-calendar">
-                                                <a href="{% url 'logistics.views.supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier des réservations" %}</a>
+                                                <a href="{% url 'logistics.views.supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
                                             </li>
                                         {% endifhasright %}
 

@@ -126,7 +126,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         base_title = _(u'Réservation de salle')
         list_title = _(u'Liste de toutes les réservations de salles')
         list_related_title = _(u'Liste de toutes les réservations des salles de mon unité')
-        calendar_title = _(u'Calendrier des réservations de salles')
+        calendar_title = _(u'Calendrier de mes réservations de salles')
         calendar_related_title = _(u'Calendrier des réservations des salles de mon unité')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
@@ -346,7 +346,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         base_title = _(u'Réservation de matériel')
         list_title = _(u'Liste de toutes les réservations de matériel')
         list_related_title = _(u'Liste de toutes les réservations du matériel de mon unité')
-        calendar_title = _(u'Calendrier des réservations de matériel')
+        calendar_title = _(u'Calendrier de mes réservations de matériel')
         calendar_related_title = _(u'Calendrier des réservations du matériel de mon unité')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-umbrella'
