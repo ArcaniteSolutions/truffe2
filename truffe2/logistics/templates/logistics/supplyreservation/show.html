@@ -8,6 +8,9 @@
         <h3 style="margin-top: 0px;">{% trans "Description" %}</h3>
         {{obj.supply.description|html_check_and_safe}}
 
+        <h5>{% trans "Quantité réservable" %}</h5>
+        {{obj.supply.quantity}}
+
         <h3>{% trans "Conditions de réservation" %}</h3>
 
         <div class="alert alert-warning" style="margin-top: -15px; margin-bottom: 5px;">{% trans "La personne effectuant la réservation s'engage à respecter les conditions en demandant une validation de la réservation !" %}</div>
