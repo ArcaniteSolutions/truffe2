@@ -65,9 +65,11 @@
             {% if unit_mode or Model.MetaData.help_list %}
                 <div class="col-sm-12 col-md-2 col-lg-2">
                     {% if unit_mode %}
-                      {% with function_to_call="unit_updated" %}
-                          {% include "units/selector/unit_selector.html" %}
-                      {% endwith %}
+                      {% block unit_selector %}
+                        {% with function_to_call="unit_updated" %}
+                            {% include "units/selector/unit_selector.html" %}
+                        {% endwith %}
+                      {% endblock %}
                     {% endif %}
 
                     {% if Model.MetaData.help_list %}
@@ -107,7 +109,7 @@
                 lang: 'fr',
 
                 events: {
-                    url: '{% url json_view %}',
+                    url: '{% block url_json_view %}{% url json_view %}{% endblock %}',
                     data: function () {
                         return {
                           upk: $('.cgroupe').attr('pk'),

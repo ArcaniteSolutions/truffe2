@@ -53,10 +53,10 @@ def get_unit_data(model_class, request, allow_blank=True):
     return unit_mode, current_unit, unit_blank
 
 
-def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False):
+def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False, bonus_args_transformator=None):
 
     @login_required
-    def _generic_generic_list(request):
+    def _generic_generic_list(request, **bonus_args):
 
         json_view = module.__name__ + '.views.' + base_name + json_view_suffix
         edit_view = module.__name__ + '.views.' + base_name + '_edit'
@@ -95,11 +95,20 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         else:
             objects = []
 
-        return render(request, [module.__name__ + '/' + base_name + '/%s.html' % (template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], {
+        if bonus_args_transformator:
+            extra_data = bonus_args_transformator(request, **bonus_args) or {}
+        else:
+            extra_data = {}
+
+        data = {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'moderables': moderables, 'object_filter': objects,
-        })
+        }
+
+        data.update(extra_data)
+
+        return render(request, [module.__name__ + '/' + base_name + '/%s.html' % (template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], data)
 
     return _generic_generic_list
 
@@ -738,6 +747,76 @@ def generate_calendar_related_json(module, base_name, model_class):
     return _generic_calendar_related_json
 
 
+def generate_calendar_specific(module, base_name, model_class):
+
+    def _check_and_add_context(request, pk):
+        base_model = model_class.get_linked_object_class()
+
+        cobject = get_object_or_404(base_model, pk=pk, deleted=False, allow_calendar=True)
+
+        if not cobject.allow_externals and request.user.is_external():
+            raise Http404()
+
+        return {'cobject': cobject}
+
+    return generate_generic_list(module, base_name, model_class, '_calendar_specific_json', 'SHOW', 'SHOW', 'calendar_specific', False, bonus_args_transformator=_check_and_add_context)
+
+
+def generate_calendar_specific_json(module, base_name, model_class):
+
+    @login_required
+    @csrf_exempt
+    def _generic_calendar_specific_json(request, pk):
+
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
+
+        base_model = model_class.get_linked_object_class()
+
+        cobject = get_object_or_404(base_model, pk=pk, deleted=False, allow_calendar=True)
+
+        if not cobject.allow_externals and request.user.is_external():
+            raise Http404()
+
+        filter_ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): cobject.pk})
+
+        start = request.GET.get('start')
+
+        end = request.GET.get('end')
+
+        start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
+        end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
+
+        liste = filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
+
+        retour = []
+
+        for l in liste:
+            if l.unit:
+                par = l.unit.name
+            else:
+                par = u'%s (%s)' % (l.unit_blank_name, l.unit_blank_user)
+
+            if l.status == '1_asking':
+                icon = 'fa-question'
+                className = ["event", "bg-color-redLight"]
+            else:
+                icon = 'fa-check'
+                className = ["event", "bg-color-greenLight"]
+
+            if l.rights_can('SHOW', request.user):
+                url = l.display_url()
+            else:
+                url = ''
+
+            titre = par
+
+            retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
+
+        return HttpResponse(json.dumps(retour))
+
+    return _generic_calendar_specific_json
+
+
 def generate_directory(module, base_name, model_class):
 
     @login_required
@@ -749,6 +828,7 @@ def generate_directory(module, base_name, model_class):
         from units.models import Unit
 
         edit_view = module.__name__ + '.views.' + base_name + '_edit'
+        calendar_specific_view = module.__name__ + '.views.' + base_name + '_calendar_specific'
 
         units = model_class.get_linked_object_class().objects.order_by('unit__name').filter(deleted=False)
 
@@ -764,7 +844,7 @@ def generate_directory(module, base_name, model_class):
                 unit.directory_objects = unit.directory_objects.filter(allow_externals=True)
 
         return render(request, [module.__name__ + '/' + base_name + '/directory.html', 'generic/generic/directory.html'], {
-            'Model': model_class, 'edit_view': edit_view,
+            'Model': model_class, 'edit_view': edit_view, 'calendar_specific_view': calendar_specific_view,
             'units': units,
         })
 

@@ -169,6 +169,8 @@ class GenericModel(models.Model):
                 setattr(views_module, base_views_name + '_calendar_json', views.generate_calendar_json(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_calendar_related', views.generate_calendar_related(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_calendar_related_json', views.generate_calendar_related_json(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_calendar_specific', views.generate_calendar_specific(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_calendar_specific_json', views.generate_calendar_specific_json(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_directory', views.generate_directory(module, base_views_name, real_model_class))
 
                 urls_module.urlpatterns += patterns(views_module.__name__,
@@ -179,6 +181,8 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/calendar/json$', base_views_name + '_calendar_json'),
                     url(r'^' + base_views_name + '/related/calendar/$', base_views_name + '_calendar_related'),
                     url(r'^' + base_views_name + '/related/calendar/json$', base_views_name + '_calendar_related_json'),
+                    url(r'^' + base_views_name + '/specific/(?P<pk>[0-9~]+)/calendar/$', base_views_name + '_calendar_specific'),
+                    url(r'^' + base_views_name + '/specific/(?P<pk>[0-9~]+)/calendar/json$', base_views_name + '_calendar_specific_json'),
                     url(r'^' + base_views_name + '/directory/$', base_views_name + '_directory'),
                 )
 
