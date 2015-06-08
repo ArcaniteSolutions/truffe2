@@ -1,0 +1,10 @@
+{% extends "generic/generic/calendar.html" %}
+{% load i18n %}
+
+{% block content_title %}{{Model.MetaData.calendar_specific_title}} {{cobject}}{% endblock %}
+
+{% block help %}{{Model.MetaData.help_calendar_specific|linebreaksbr}}{% endblock %}
+{% block buttons %}{% endblock %}
+{% block menuid %}{{Model.MetaData.menu_id_directory}}{% endblock %}
+{% block unit_selector %}{% endblock %}
+{% block url_json_view %}{% url json_view cobject.pk %}{% endblock %}

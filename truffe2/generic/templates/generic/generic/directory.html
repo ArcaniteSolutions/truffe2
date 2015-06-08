@@ -76,6 +76,11 @@
                                                               <a href="{{obj.display_url}}" class="btn btn-info">{% trans "Détails" %}</a>
                                                           {% endifhasright %}
 
+                                                          {% if obj.allow_calendar %}
+
+                                                              <a href="{% url calendar_specific_view obj.pk %}" class="btn btn-info">{% trans "Calendrier" %}</a>
+                                                          {% endif %}
+
                                                           <!-- Le droit est nécessaire -->
                                                           <a href="{% url edit_view '~' %}?autoobjpk={{obj.pk}}" class="btn btn-primary">{% trans "Réserver" %}</a>
                                                       </div>

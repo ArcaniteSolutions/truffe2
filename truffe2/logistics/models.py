@@ -30,6 +30,8 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayVal
     allow_externals = models.BooleanField(_(u'Autoriser les externes'), help_text=_(u'Permet aux externes (pas dans l\'AGEPoly) de réserver la salle.'), default=False)
     conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation de la salle pour les externes. Remplace le champ \'Conditions\' pour les externe si rempli.'), blank=True)
 
+    allow_calendar = models.BooleanField(_(u'Autoriser tout le monde à voir le calendrier'), help_text=_(u'Permet à tout le monde d\'afficher le calendrier des réservations de la salle'), default=True)
+
     class MetaData:
         list_display = [
             ('title', _('Titre')),
@@ -128,6 +130,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         list_related_title = _(u'Liste de toutes les réservations des salles de mon unité')
         calendar_title = _(u'Calendrier de mes réservations de salles')
         calendar_related_title = _(u'Calendrier des réservations des salles de mon unité')
+        calendar_specific_title = _(u'Calendrier des réservations de la salle')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
 
@@ -157,6 +160,8 @@ Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une un
 Les réservations sont soumises à modération par l'unité liée à la salle.
 
 Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
+
+        help_calendar_specific = _(u"""Les réservation d'un type de salle particulier.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
         not_sortable_colums = ['get_conflits_list', ]
@@ -251,6 +256,8 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
 
     allow_externals = models.BooleanField(_(u'Autoriser les externes'), help_text=_(u'Permet aux externes (pas dans l\'AGEPoly) de réserver le matériel.'), default=False)
     conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation du matériel pour les externes. Remplace le champ \'Conditions\' pour les externe si rempli.'), blank=True)
+
+    allow_calendar = models.BooleanField(_(u'Autoriser tout le monde à voir le calendrier'), help_text=_(u'Permet à tout le monde d\'afficher le calendrier des réservations du matériel'), default=True)
 
     class MetaData:
         list_display = [
@@ -351,6 +358,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         list_related_title = _(u'Liste de toutes les réservations du matériel de mon unité')
         calendar_title = _(u'Calendrier de mes réservations de matériel')
         calendar_related_title = _(u'Calendrier des réservations du matériel de mon unité')
+        calendar_specific_title = _(u'Calendrier des réservations du matériel')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-umbrella'
 
@@ -380,6 +388,8 @@ Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une un
 Les réservations sont soumises à modération par l'unité liée au matériel.
 
 Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
+
+        help_calendar_specific = _(u"""Les réservation d'un type de matériel particulier.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'supply__title'}
         not_sortable_colums = ['get_conflits_list', ]
