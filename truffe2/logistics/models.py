@@ -243,6 +243,8 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
     description = models.TextField()
     unit = FalseFK('units.models.Unit')
 
+    quantity = models.PositiveIntegerField(_(u'Quantité'), help_text=_(u'Le nombre de fois que tu as l\'objet à disposition'), default=1)
+
     active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver.'), default=True)
 
     conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser les conditions de réservations pour le matériel. Tu peux par exemple mettre un lien vers un contrat.'), blank=True)
@@ -258,6 +260,7 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
         ]
 
         details_display = list_display + [
+            ('quantity', _(u'Quantité')),
             ('description', _('Description')),
             ('conditions', _('Conditions')),
             ('conditions_externals', _('Conditions pour les externes')),
@@ -426,9 +429,10 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         liste = self.supply.supplyreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
 
-        if not liste:
+        if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
             return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))
         else:
+
             retour = '<span class="txt-color-red"><i class="fa fa-warning"></i> %s</span><ul>' % (unicode(_(u'Il y a d\'autres réservations en même temps !')),)
 
             for elem in liste:
@@ -442,7 +446,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         liste = self.supply.supplyreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
 
-        if not liste:
+        if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
             return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
         else:
 
