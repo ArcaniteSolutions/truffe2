@@ -128,7 +128,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         base_title = _(u'Réservation de salle')
         list_title = _(u'Liste de toutes les réservations de salles')
         list_related_title = _(u'Liste de toutes les réservations des salles de mon unité')
-        calendar_title = _(u'Calendrier des réservations de salles')
+        calendar_title = _(u'Calendrier de mes réservations de salles')
         calendar_related_title = _(u'Calendrier des réservations des salles de mon unité')
         calendar_specific_title = _(u'Calendrier des réservations de la salle')
         base_icon = 'fa fa-list'
@@ -248,6 +248,8 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
     description = models.TextField()
     unit = FalseFK('units.models.Unit')
 
+    quantity = models.PositiveIntegerField(_(u'Quantité'), help_text=_(u'Le nombre de fois que tu as l\'objet à disposition'), default=1)
+
     active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver.'), default=True)
 
     conditions = models.TextField(_(u'Conditions de réservation'), help_text=_(u'Si tu veux préciser les conditions de réservations pour le matériel. Tu peux par exemple mettre un lien vers un contrat.'), blank=True)
@@ -265,6 +267,7 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
         ]
 
         details_display = list_display + [
+            ('quantity', _(u'Quantité')),
             ('description', _('Description')),
             ('conditions', _('Conditions')),
             ('conditions_externals', _('Conditions pour les externes')),
@@ -353,7 +356,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         base_title = _(u'Réservation de matériel')
         list_title = _(u'Liste de toutes les réservations de matériel')
         list_related_title = _(u'Liste de toutes les réservations du matériel de mon unité')
-        calendar_title = _(u'Calendrier des réservations de matériel')
+        calendar_title = _(u'Calendrier de mes réservations de matériel')
         calendar_related_title = _(u'Calendrier des réservations du matériel de mon unité')
         calendar_specific_title = _(u'Calendrier des réservations du matériel')
         base_icon = 'fa fa-list'
@@ -436,9 +439,10 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         liste = self.supply.supplyreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
 
-        if not liste:
+        if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
             return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))
         else:
+
             retour = '<span class="txt-color-red"><i class="fa fa-warning"></i> %s</span><ul>' % (unicode(_(u'Il y a d\'autres réservations en même temps !')),)
 
             for elem in liste:
@@ -452,7 +456,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         liste = self.supply.supplyreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
 
-        if not liste:
+        if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
             return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
         else:
 

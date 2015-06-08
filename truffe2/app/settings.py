@@ -196,6 +196,7 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
     "app.utils.add_current_unit",
+    "app.utils.add_current_year",
     "notifications.views.notifications_count",
 )
 

@@ -27,7 +27,7 @@ import pytz
 
 from generic.datatables import generic_list_json
 from generic.forms import ContactForm
-from app.utils import update_current_unit, get_current_unit, send_templated_mail
+from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail
 from rights.utils import BasicRightModel
 
 
@@ -53,6 +53,27 @@ def get_unit_data(model_class, request, allow_blank=True):
     return unit_mode, current_unit, unit_blank
 
 
+def get_year_data(model_class, request):
+
+    from accounting_core.utils import AccountingYearLinked
+    from accounting_core.models import AccountingYear
+
+    year_mode = issubclass(model_class, AccountingYearLinked)
+    current_year = None
+
+    if year_mode:
+
+        if request.GET.get('ypk'):
+            update_current_year(request, request.GET.get('ypk'))
+
+        if request.POST.get('ypk'):
+            update_current_year(request, request.POST.get('ypk'))
+
+        current_year = get_current_year(request)
+
+    return year_mode, current_year, AccountingYear
+
+
 def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False, bonus_args_transformator=None):
 
     @login_required
@@ -64,6 +85,8 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         deleted_view = '%s.views.%s_deleted' % (module.__name__, base_name)
         status_view = '%s.views.%_switch_status' % (module.__name__, base_name)
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
+
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank)
         main_unit = None
 
@@ -72,13 +95,13 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can(right_to_check, request.user, unit))
-            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can(right_to_check_edit, request.user, unit))
+            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can(right_to_check, request.user, unit, current_year))
+            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can(right_to_check_edit, request.user, unit, current_year))
         else:
             # The LIST right is not verified here if we're in unit mode. We
             # need to test (in the view) in another unit is available for LIST
             # if the current unit isn't !
-            if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can(right_to_check, request.user, current_unit):
+            if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can(right_to_check, request.user, current_unit, current_year):
                 raise Http404
 
         if hasattr(model_class, 'moderable_object') and model_class.moderable_object:  # If the object is moderable, list all moderable things by the current user
@@ -103,12 +126,13 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         data = {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
+            'year_mode': year_mode, 'years_available': AccountingYear.build_year_menu('LIST', request.user),
             'moderables': moderables, 'object_filter': objects,
         }
 
         data.update(extra_data)
 
-        return render(request, [module.__name__ + '/' + base_name + '/%s.html' % (template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], data)
+        return render(request, ['%s/%s/%s.html' % (module.__name__, base_name, template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], data)
 
     return _generic_generic_list
 
@@ -129,6 +153,7 @@ def generate_list_json(module, base_name, model_class):
         delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
         logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
@@ -142,7 +167,12 @@ def generate_list_json(module, base_name, model_class):
         else:
             filter_ = lambda x: x
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
+        else:
+            filter__ = filter_
+
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
             raise Http404
 
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_json.html', 'generic/generic/list_json.html'],
@@ -154,7 +184,7 @@ def generate_list_json(module, base_name, model_class):
              'list_display': model_class.MetaData.list_display,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter_,
+            bonus_filter_function=filter__,
             selector_column=True,
         )
 
@@ -177,6 +207,7 @@ def generate_list_related_json(module, base_name, model_class):
         delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
         logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
 
         if unit_mode:
@@ -184,13 +215,18 @@ def generate_list_related_json(module, base_name, model_class):
         else:
             filter_ = lambda x: x
 
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
+        else:
+            filter__ = filter_
+
         def filter_object(qs, request):
             if request.POST.get('sSearch_0'):
                 return qs.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.POST.get('sSearch_0'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
             else:
                 return qs
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit, current_year):
             raise Http404
 
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display_related] + ['pk'], [module.__name__ + '/' + base_name + '/list_related_json.html', 'generic/generic/list_related_json.html'],
@@ -203,7 +239,7 @@ def generate_list_related_json(module, base_name, model_class):
              'upk_noswitch': True, 'from_related': True,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter_,
+            bonus_filter_function=filter__,
             bonus_filter_function_with_parameters=filter_object,
             deca_one_status=True,
             selector_column=True,
@@ -224,6 +260,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         try:
@@ -232,6 +269,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
             if unit_mode:
                 update_current_unit(request, obj.unit.pk if obj.unit else -1)
                 current_unit = obj.unit
+
+            if year_mode:
+                update_current_year(request, obj.accounting_year.pk)
+                current_year = obj.accounting_year
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('EDIT', request.user):
                 raise Http404
@@ -244,6 +285,16 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
                     obj.unit_blank_user = request.user
                 obj.unit = current_unit
 
+            if year_mode:
+
+                # Est-ce qu'on va tenter de créer un truc dans une année
+                # comptable pas possible ?
+                if current_year not in AccountingYear.build_year_menu('CREATE', request.user):
+                    update_current_year(request, None)
+                    ___, current_year, ___ = get_year_data(model_class, request)
+
+                obj.accounting_year = current_year
+
             if isinstance(obj, BasicRightModel) and not obj.rights_can('CREATE', request.user):
                 raise Http404
 
@@ -252,8 +303,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('CREATE', request.user, unit))
-            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('CREATE', request.user, unit))
+            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('CREATE', request.user, unit, current_year))
+            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('CREATE', request.user, unit, current_year))
         else:
             main_unit = None
 
@@ -319,7 +370,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         else:
             form = form_class(request.user, instance=obj)
 
-        return render(request, [module.__name__ + '/' + base_name + '/edit.html', 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode, 'related_mode': related_mode, 'list_related_view': list_related_view})
+        return render(request, ['%s/%s/edit.html' % (module.__name__, base_name), 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view,
+                                                                                                                 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode,
+          'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user),
+                                                                                                                 'related_mode': related_mode, 'list_related_view': list_related_view})
 
     return _generic_edit
 
@@ -341,11 +395,16 @@ def generate_show(module, base_name, model_class, log_class):
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
             update_current_unit(request, obj.unit.pk if obj.unit else -1)
             current_unit = obj.unit
+
+        if year_mode:
+            update_current_year(request, obj.accounting_year.pk)
+            current_year = obj.accounting_year
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
             raise Http404
@@ -364,11 +423,12 @@ def generate_show(module, base_name, model_class, log_class):
         else:
             contactables_groups = None
 
-        return render(request, [module.__name__ + '/' + base_name + '/show.html', 'generic/generic/show.html'], {
+        return render(request, ['%s/%s/show.html' % (module.__name__, base_name), 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view,
             'obj': obj, 'log_entires': log_entires,
             'rights': rights,
             'unit_mode': unit_mode, 'current_unit': current_unit,
+            'year_mode': year_mode, 'current_year': current_year,
             'contactables_groups': contactables_groups,
             'related_mode': related_mode,
         })
@@ -393,9 +453,12 @@ def generate_delete(module, base_name, model_class, log_class):
 
         for obj in objs:
             unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
-
+            year_mode, current_year, AccountingYear = get_year_data(model_class, request)
             if unit_mode:
                 update_current_unit(request, obj.unit.pk if obj.unit else -1)
+
+            if year_mode:
+                update_current_year(request, obj.accounting_year.pk)
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('DELETE', request.user):
                 raise Http404
@@ -428,7 +491,7 @@ def generate_delete(module, base_name, model_class, log_class):
             else:
                 return redirect(list_view)
 
-        return render(request, [module.__name__ + '/' + base_name + '/delete.html', 'generic/generic/delete.html'], {
+        return render(request, ['%s/%s/delete.html' % (module.__name__, base_name), 'generic/generic/delete.html'], {
             'Model': model_class, 'show_view': show_view, 'list_view': list_view, 'list_related_view': list_related_view,
             'objs': objs, 'can_delete': can_delete, 'can_delete_message': can_delete_message,
             'related_mode': related_mode, 'multi_obj': multi_obj, 'prob_obj': prob_obj
@@ -444,9 +507,10 @@ def generate_deleted(module, base_name, model_class, log_class):
 
         list_view = '%s.views.%s_list' % (module.__name__, base_name)
 
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('RESTORE', request.user, current_unit):
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('RESTORE', request.user, current_unit, current_year):
             raise Http404
 
         if unit_mode:
@@ -454,8 +518,8 @@ def generate_deleted(module, base_name, model_class, log_class):
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit))
-            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit))
+            main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit, current_year))
+            main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit, current_year))
         else:
             main_unit = None
 
@@ -464,6 +528,8 @@ def generate_deleted(module, base_name, model_class, log_class):
 
             if unit_mode:
                 update_current_unit(request, obj.unit.pk if obj.unit else -1)
+            if year_mode:
+                update_current_year(request, obj.accounting_year.pk)
 
             if isinstance(obj, BasicRightModel) and not obj.rights_can('RESTORE', request.user):
                 raise Http404
@@ -481,13 +547,17 @@ def generate_deleted(module, base_name, model_class, log_class):
         liste = model_class.objects.filter(deleted=True).annotate(Max('logs__when')).order_by('-logs__when__max')
 
         if unit_mode:
-            liste = liste.filter(unit=current_unit).all()
+            liste = liste.filter(unit=current_unit)
+
+        if year_mode:
+            liste = liste.filter(accounting_year=current_year)
         else:
             liste = liste.all()
 
-        return render(request, [module.__name__ + '/' + base_name + '/deleted.html', 'generic/generic/deleted.html'], {
+        return render(request, ['%s/%s/deleted.html' % (module.__name__, base_name), 'generic/generic/deleted.html'], {
             'Model': model_class, 'list_view': list_view, 'liste': liste,
-            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit
+            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit,
+            'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('RESTORE', request.user),
         })
 
     return _generic_deleted
@@ -556,7 +626,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
                 if no_more_access:
                     messages.warning(request, _(u'Vous avez perdu le droit de voir l\'objet !'))
 
-        return render(request, [module.__name__ + '/' + base_name + '/switch_status.html', 'generic/generic/switch_status.html'], {
+        return render(request, ['%s/%s/switch_status.html' % (module.__name__, base_name), 'generic/generic/switch_status.html'], {
             'Model': model_class, 'objs': objs, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done, 'no_more_access': no_more_access,
             'dest_status': dest_status, 'dest_status_message': objs[0].MetaState.states.get(dest_status),
             'status_view': status_view, 'list_view': list_view,
@@ -578,9 +648,13 @@ def generate_contact(module, base_name, model_class, log_class):
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode:
             update_current_unit(request, obj.unit.pk if obj.unit else -1)
+
+        if year_mode:
+            update_current_year(request, obj.accounting_year.pk)
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
             raise Http404
@@ -614,7 +688,7 @@ def generate_contact(module, base_name, model_class, log_class):
         else:
             form = ContactForm(contactables_groups, initial={'key': key})
 
-        return render(request, [module.__name__ + '/' + base_name + '/contact.html', 'generic/generic/contact.html'], {
+        return render(request, ['%s/%s/contact.html' % (module.__name__, base_name), 'generic/generic/contact.html'], {
             'Model': model_class, 'obj': obj, 'contact_view': contact_view, 'form': form, 'done': done
         })
 
@@ -638,6 +712,7 @@ def generate_calendar_json(module, base_name, model_class):
     def _generic_calendar_json(request):
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode:
             if not current_unit:
@@ -650,7 +725,12 @@ def generate_calendar_json(module, base_name, model_class):
         else:
             filter_ = lambda x: x
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit):
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
+        else:
+            filter__ = filter_
+
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
             raise Http404
 
         start = request.GET.get('start')
@@ -659,7 +739,7 @@ def generate_calendar_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter_(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
+        liste = filter__(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
 
         retour = []
 
@@ -677,7 +757,7 @@ def generate_calendar_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (%s)' % (l.get_linked_object(), l.get_linked_object().unit)
+            titre = u'%s (Géré par %s)' % (l.get_linked_object(), l.get_linked_object().unit)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
@@ -698,18 +778,24 @@ def generate_calendar_related_json(module, base_name, model_class):
     def _generic_calendar_related_json(request):
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode:
             filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
 
-        if request.GET.get('filter_object'):
-            filter__ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+        if year_mode:
+            filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
         else:
-            filter__ = lambda x: x
+            filter__ = filter_
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit):
+        if request.GET.get('filter_object'):
+            filter___ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+        else:
+            filter___ = lambda x: x
+
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('VALIDATE', request.user, current_unit, current_year):
             raise Http404
 
         start = request.GET.get('start')
@@ -719,7 +805,7 @@ def generate_calendar_related_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter__(filter_(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
+        liste = filter___(filter__(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
 
         retour = []
 
@@ -741,7 +827,7 @@ def generate_calendar_related_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (%s)' % (l.get_linked_object(), par)
+            titre = u'%s (Réservé par %s)' % (l.get_linked_object(), par)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
@@ -846,7 +932,7 @@ def generate_directory(module, base_name, model_class):
             if request.user.is_external():
                 unit.directory_objects = unit.directory_objects.filter(allow_externals=True)
 
-        return render(request, [module.__name__ + '/' + base_name + '/directory.html', 'generic/generic/directory.html'], {
+        return render(request, ['%s/%s/directory.html' % (module.__name__, base_name), 'generic/generic/directory.html'], {
             'Model': model_class, 'edit_view': edit_view, 'calendar_specific_view': calendar_specific_view,
             'units': units,
         })

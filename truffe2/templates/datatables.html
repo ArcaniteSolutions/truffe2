@@ -79,7 +79,7 @@
                     oSettings.jqXHR = $.ajax( {
                         "dataType": 'json',
                         "method": 'POST',
-                        "url": sSource{% if with_upk %} + "?upk=" + $('.cgroupe').attr('pk'){% endif %}{% if with_extradata %} + {{with_extradata}}(){% endif %},
+                        "url": sSource{% if with_upk %} + "?upk=" + $('.cgroupe').attr('pk'){% endif %}{% if with_ypk %} + "{% if with_upk %}&{% else %}?{% endif %}ypk=" + $('.cyear').attr('pk'){% endif %}{% if with_extradata %} + {{with_extradata}}(){% endif %},
                         "data": aoData,
                         "success": function(data) {
                         if (typeof post_process_data_{{id}} !== 'undefined')
