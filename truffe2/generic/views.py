@@ -665,7 +665,7 @@ def generate_calendar_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (%s)' % (l.get_linked_object(), l.get_linked_object().unit)
+            titre = u'%s (Géré par %s)' % (l.get_linked_object(), l.get_linked_object().unit)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
@@ -729,7 +729,7 @@ def generate_calendar_related_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (%s)' % (l.get_linked_object(), par)
+            titre = u'%s (Réservé par %s)' % (l.get_linked_object(), par)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
