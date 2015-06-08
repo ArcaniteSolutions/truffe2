@@ -161,7 +161,7 @@ Les réservations sont soumises à modération par l'unité liée à la salle.
 
 Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
 
-        help_calendar_specific = _(u"""Les réservation d'un type de salle particulière.""")
+        help_calendar_specific = _(u"""Les réservation d'un type de salle particulier.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
         not_sortable_colums = ['get_conflits_list', ]
