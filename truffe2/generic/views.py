@@ -656,7 +656,7 @@ def generate_calendar_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
+        liste = filter_(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
 
         retour = []
 
@@ -716,7 +716,7 @@ def generate_calendar_related_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter__(filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
+        liste = filter__(filter_(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online'))))
 
         retour = []
 
@@ -786,7 +786,7 @@ def generate_calendar_specific_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter_(model_class.objects.filter((Q(start_date__gt=start) & Q(start_date__lt=end)) | (Q(end_date__gt=start) & Q(end_date__lt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
+        liste = filter_(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online')))
 
         retour = []
 
