@@ -83,7 +83,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
         show_view = '%s.views.%s_show' % (module.__name__, base_name)
         deleted_view = '%s.views.%s_deleted' % (module.__name__, base_name)
-        status_view = '%s.views.%_switch_status' % (module.__name__, base_name)
+        status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
@@ -585,7 +585,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
         no_more_access = False
 
         list_view = '%s.views.%s_list' % (module.__name__, base_name)
-        status_view = '%s.views.%_switch_status' % (module.__name__, base_name)
+        status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
 
         dest_status = request.GET.get('dest_status')
         from_list = request.GET.get('from_list') == 'from_list'
