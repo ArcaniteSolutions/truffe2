@@ -212,7 +212,7 @@ class _Role(GenericModel, AgepolyEditableModel):
         ('COMMUNICATION', _('Communication')),
         ('INFORMATIQUE', _('Informatique')),
         ('LOGISTIQUE', _('Logistique')),
-        ('SECRETARIAT', _('Secrétariat'))
+        ('SECRETARIAT', _(u'Secrétariat'))
     )
 
     access = MultiSelectField(choices=ACCESS_CHOICES, blank=True, null=True)

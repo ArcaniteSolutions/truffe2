@@ -48,6 +48,46 @@ def update_current_unit(request, unit_pk):
     request.session['current_unit_pk'] = unit_pk
 
 
+def add_current_year(request):
+    """Template context processor to add current year"""
+
+    from accounting_core.models import AccountingYear
+
+    current_year = get_current_year(request)
+
+    current_year_pk = current_year.pk if current_year else -1
+    current_year_name = current_year.name if current_year else _(u'?')
+
+    return {'CURRENT_YEAR': current_year, 'CURRENT_YEAR_NAME': current_year_name, 'CURRENT_YEAR_PK': current_year_pk}
+
+
+def get_current_year(request):
+    """Return the current year"""
+
+    from accounting_core.models import AccountingYear
+
+    current_year_pk = request.session.get('current_year_pk')
+
+    try:
+        current_year = AccountingYear.objects.get(pk=current_year_pk)
+    except AccountingYear.DoesNotExist:
+        try:
+            current_year = AccountingYear.objects.filter(status='1_active').first()
+        except:
+            current_year = None
+
+    return current_year
+
+
+def update_current_year(request, year_pk):
+    """Update the current year"""
+
+    if request.GET.get('_ypkns') == '_':
+        return
+
+    request.session['current_year_pk'] = year_pk
+
+
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context

@@ -6,18 +6,18 @@ from django.utils.translation import ugettext_lazy as _
 
 from generic.models import GenericModel, GenericStateModel
 from rights.utils import AgepolyEditableModel
+from accounting_core.utils import AccountingYearLinked
 
 
 class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
-
+        world_ro_access = True
 
     name = models.CharField(max_length=255, unique=True)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-
 
     class MetaData:
         list_display = [
@@ -39,7 +39,6 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         datetime_fields = ['start_date', 'end_date']
 
         help_list = _(u"""Les années comptables définissent les périodes d'exercices dans tous les documents comptables.""")
-
 
     class MetaState:
 
@@ -116,3 +115,66 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     def __unicode__(self):
         return self.name
+
+    def rights_can_EDIT(self, user):
+        # On ne peut éditer/supprimer que les années en préparation
+
+        if self.status == '0_preparing':
+            return super(_AccountingYear, self).rights_can_EDIT(user)
+
+        return False
+
+    @classmethod
+    def build_year_menu(cls, mode, user):
+
+        retour = []
+
+        retour += list(cls.objects.filter(status='1_active').order_by('-end_date'))
+        retour += list(cls.objects.filter(status='2_closing').order_by('-end_date'))
+
+        # On peut sélectionner les années en préparation que si on est
+        # trésorie du comité agepoly ou super_user
+        if user.is_superuser or cls().rights_in_root_unit(user, 'TRESORERIE'):
+            retour += list(cls.objects.filter(status='0_preparing').order_by('-end_date'))
+
+        # On peut sélectionner les années archivée qu'en list (sauf si on est
+        # super_user)
+        if mode == 'LIST' or user.is_superuser:
+            retour += list(cls.objects.filter(status='3_archived').order_by('-end_date'))
+
+        return retour
+
+
+class _DummyPony(GenericModel, AccountingYearLinked, AgepolyEditableModel):
+    """Ceci est une class de démo pour implémenter AccountingYearLinked avant la finalisation des autres modules comptables
+
+    Il faudra supprimer ce modèle en phase de production
+    """
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'TRESORERIE'
+        world_ro_access = True
+
+    name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.name
+
+    class MetaData:
+        list_display = [
+            ('name', _('Nom')),
+        ]
+        details_display = list_display
+        filter_fields = ('name')
+
+        base_title = _(u'Poney comptable')
+        list_title = _(u'Liste des poneys comptables')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-smile-o'
+
+        menu_id = 'menu-compta-dummypony'
+
+        help_list = _(u"""Class de test pour AccountingYearLinked""")

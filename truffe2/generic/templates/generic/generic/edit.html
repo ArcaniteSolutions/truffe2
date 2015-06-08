@@ -49,39 +49,56 @@
             {% if unit_mode %}
                 <input type="hidden" id="input_upk" name="upk" value="{{form.instance.unit.pk}}">
             {% endif %}
+            {% if year_mode %}
+                <input type="hidden" id="input_ypk" name="ypk" value="{{form.instance.accounting_year.pk}}">
+            {% endif %}
         </form>
       </div>
     </div>
 
-    {% if unit_mode %}
+    {% if unit_mode or year_mode %}
 
         <div class="col-sm-12 col-md-2 col-lg-2">
 
-          {% if form.instance.pk %}
-          
-            {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
+            {% if unit_mode %}
+              {% if form.instance.pk %}
+                {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
+                    {% trans "Cet object est lié à l'unité" %}<br /><br />
+                    <center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
+                {% include "widget/footer.html" %}
 
-                {% trans "Cet object est lié à l'unité" %}<br /><br />
+              {% else %}
+                  {% with function_to_call="unit_updated" %}
+                      {% include "units/selector/unit_selector.html" %}
+                  {% endwith %}
 
-                <center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
+                  <script type="text/javascript">
+                      function unit_updated(pk, name, can_edit) {
+                        $('#input_upk').val(pk);
+                      }
+                  </script>
+              {% endif %}
+            {% endif %}
 
-            {% include "widget/footer.html" %}
+            {% if year_mode %}
+              {% if form.instance.pk %}
+                {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
+                    {% trans "Cet object est lié à l'année comptable" %}<br /><br />
+                    <center><b class="cyear" pk="{{CURRENT_YEAR.pk}}">{{CURRENT_YEAR.name}}</b></center><br />
+                {% include "widget/footer.html" %}
 
+              {% else %}
+                  {% with function_to_call="year_updated" %}
+                      {% include "accounting_core/selector/year_selector.html" %}
+                  {% endwith %}
 
-          {% else %}
-              {% with function_to_call="unit_updated" %}
-                  {% include "units/selector/unit_selector.html" %}
-              {% endwith %}
-
-              <script type="text/javascript">
-                  function unit_updated(pk, name, can_edit) {
-                    $('#input_upk').val(pk);
-                  }
-
-
-              </script>
-          {% endif %}
-
+                  <script type="text/javascript">
+                      function year_updated(pk, name) {
+                        $('#input_ypk').val(pk);
+                      }
+                  </script>
+              {% endif %}
+            {% endif %}
 
         </div>
 
