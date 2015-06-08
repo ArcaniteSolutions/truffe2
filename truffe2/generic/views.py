@@ -58,11 +58,11 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
     @login_required
     def _generic_generic_list(request, **bonus_args):
 
-        json_view = module.__name__ + '.views.' + base_name + json_view_suffix
-        edit_view = module.__name__ + '.views.' + base_name + '_edit'
-        show_view = module.__name__ + '.views.' + base_name + '_show'
-        deleted_view = module.__name__ + '.views.' + base_name + '_deleted'
-        status_view = module.__name__ + '.views.' + base_name + '_switch_status'
+        json_view = '%s.views.%s%s' % (module.__name__, base_name, json_view_suffix)
+        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
+        show_view = '%s.views.%s_show' % (module.__name__, base_name)
+        deleted_view = '%s.views.%s_deleted' % (module.__name__, base_name)
+        status_view = '%s.views.%_switch_status' % (module.__name__, base_name)
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank)
         main_unit = None
@@ -123,10 +123,11 @@ def generate_list_json(module, base_name, model_class):
     @login_required
     @csrf_exempt
     def _generic_list_json(request):
-        show_view = module.__name__ + '.views.' + base_name + '_show'
-        edit_view = module.__name__ + '.views.' + base_name + '_edit'
-        delete_view = module.__name__ + '.views.' + base_name + '_delete'
-        logs_view = module.__name__ + '.views.' + base_name + '_logs'
+
+        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
+        show_view = '%s.views.%s_show' % (module.__name__, base_name)
+        delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
+        logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
@@ -160,7 +161,6 @@ def generate_list_json(module, base_name, model_class):
     return _generic_list_json
 
 
-
 def generate_list_related(module, base_name, model_class):
 
     return generate_generic_list(module, base_name, model_class, '_list_related_json', 'VALIDATE', 'VALIDATE', 'list_related', False, True)
@@ -171,10 +171,11 @@ def generate_list_related_json(module, base_name, model_class):
     @login_required
     @csrf_exempt
     def _generic_list_json(request):
-        show_view = module.__name__ + '.views.' + base_name + '_show'
-        edit_view = module.__name__ + '.views.' + base_name + '_edit'
-        delete_view = module.__name__ + '.views.' + base_name + '_delete'
-        logs_view = module.__name__ + '.views.' + base_name + '_logs'
+
+        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
+        show_view = '%s.views.%s_show' % (module.__name__, base_name)
+        delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
+        logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
 
@@ -216,9 +217,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
     @login_required
     @csrf_exempt
     def _generic_edit(request, pk):
-        list_view = module.__name__ + '.views.' + base_name + '_list'
-        list_related_view = module.__name__ + '.views.' + base_name + '_list_related'
-        show_view = module.__name__ + '.views.' + base_name + '_show'
+
+        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+        list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
+        show_view = '%s.views.%s_show' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -327,13 +329,13 @@ def generate_show(module, base_name, model_class, log_class):
     @login_required
     def _generic_show(request, pk):
 
-        edit_view = module.__name__ + '.views.' + base_name + '_edit'
-        delete_view = module.__name__ + '.views.' + base_name + '_delete'
-        log_view = module.__name__ + '.views.' + base_name + '_log'
-        list_view = module.__name__ + '.views.' + base_name + '_list'
-        list_related_view = module.__name__ + '.views.' + base_name + '_list_related'
-        status_view = module.__name__ + '.views.' + base_name + '_switch_status'
-        contact_view = module.__name__ + '.views.' + base_name + '_contact'
+        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
+        delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
+        log_view = '%s.views.%s_log' % (module.__name__, base_name)
+        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+        list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
+        status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
+        contact_view = '%s.views.%s_contact' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -379,9 +381,9 @@ def generate_delete(module, base_name, model_class, log_class):
     @login_required
     def _generic_delete(request, pk):
 
-        show_view = module.__name__ + '.views.' + base_name + '_show'
-        list_view = module.__name__ + '.views.' + base_name + '_list'
-        list_related_view = module.__name__ + '.views.' + base_name + '_list_related'
+        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+        list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
+        show_view = '%s.views.%s_show' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -440,7 +442,7 @@ def generate_deleted(module, base_name, model_class, log_class):
     @login_required
     def _generic_deleted(request):
 
-        list_view = module.__name__ + '.views.' + base_name + '_list'
+        list_view = '%s.views.%s_list' % (module.__name__, base_name)
 
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
@@ -511,8 +513,9 @@ def generate_switch_status(module, base_name, model_class, log_class):
         done = False
         prob_obj = None
         no_more_access = False
-        status_view = module.__name__ + '.views.' + base_name + '_switch_status'
-        list_view = module.__name__ + '.views.' + base_name + '_list'
+
+        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+        status_view = '%s.views.%_switch_status' % (module.__name__, base_name)
 
         dest_status = request.GET.get('dest_status')
         from_list = request.GET.get('from_list') == 'from_list'
@@ -569,8 +572,8 @@ def generate_contact(module, base_name, model_class, log_class):
     @login_required
     def _contact(request, pk, key):
 
-        contact_view = module.__name__ + '.views.' + base_name + '_contact'
-        show_view = module.__name__ + '.views.' + base_name + '_show'
+        contact_view = '%s.views.%s_contact' % (module.__name__, base_name)
+        show_view = '%s.views.%s_show' % (module.__name__, base_name)
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
@@ -827,8 +830,8 @@ def generate_directory(module, base_name, model_class):
 
         from units.models import Unit
 
-        edit_view = module.__name__ + '.views.' + base_name + '_edit'
-        calendar_specific_view = module.__name__ + '.views.' + base_name + '_calendar_specific'
+        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
+        calendar_specific_view = '%s.views.%s_calendar_specific' % (module.__name__, base_name)
 
         units = model_class.get_linked_object_class().objects.order_by('unit__name').filter(deleted=False)
 
