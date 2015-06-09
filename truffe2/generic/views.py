@@ -106,7 +106,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
         if hasattr(model_class, 'moderable_object') and model_class.moderable_object:  # If the object is moderable, list all moderable things by the current user
             # List all moderiables in the 'todo' satate
-            moderables = model_class.objects.filter(status=model_class.moderable_state)
+            moderables = model_class.objects.filter(status=model_class.moderable_state).exclude(deleted=True)
 
             # Filter to check if user has rights
             moderables = filter(lambda m: m.rights_can('VALIDATE', request.user), moderables)
