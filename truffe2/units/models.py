@@ -146,6 +146,12 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
 
                 # If role has acces, ok
                 if accreditation.role.access:
+                    if type(access) is list:
+                        for acc in access:
+                            if acc in accreditation.role.access:
+                                return True
+                        return False
+
                     if access in accreditation.role.access:
                         return True
 
@@ -153,8 +159,15 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
                 access_delegations = self.accessdelegation_set.filter((Q(user=user) | Q(user=None)) & (Q(role=accreditation.role) | Q(role=None))).all()
 
                 for access_delegation in access_delegations:
-                    if access in access_delegation.access and (not parent_mode or access_delegation.valid_for_sub_units):
-                        return True
+                    if not parent_mode or access_delegation.valid_for_sub_units:
+                        if type(access) is list:
+                            for acc in access:
+                                if acc in access_delegation.access:
+                                    return True
+                            return False
+
+                        if access in access_delegation.access:
+                            return True
 
         if self.parent_hierarchique and not no_parent:
             return self.parent_hierarchique.is_user_in_groupe(user, access, True)
