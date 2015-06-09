@@ -41,7 +41,7 @@ def get_to_moderate(request):
 
     for model_class in moderables_things:
 
-        moderable = model_class.objects.order_by('-pk').filter(status='1_asking')
+        moderable = model_class.objects.order_by('-pk').filter(status='1_asking').exclude(deleted=True)
         moderable = filter(lambda x: x.rights_can('VALIDATE', request.user), moderable)
 
         if moderable:
