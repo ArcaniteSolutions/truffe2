@@ -273,9 +273,11 @@ class Accreditation(models.Model, UnitEditableModel):
     end_date = models.DateTimeField(blank=True, null=True)
     validation_date = models.DateTimeField(auto_now_add=True)
 
-    display_name = models.CharField(max_length=255, blank=True, null=True, help_text=_(u'Le nom à afficher dans Truffe. Peut être utilisé pour préciser la fonction'))
+    display_name = models.CharField(_(u'Titre'), max_length=255, blank=True, null=True, help_text=_(u'Le nom à afficher dans Truffe. Peut être utilisé pour préciser la fonction'))
 
-    no_epfl_sync = models.BooleanField(default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
+    no_epfl_sync = models.BooleanField(_(u'Désactiver syncronisation EPFL'), default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
+    hidden_in_epfl = models.BooleanField(_(u'Cacher au niveau EPFL'), default=False, help_text=_(u'A cocher ne pas rendre public l\'accréditation au niveau EPFL'))
+    hidden_in_truffe = models.BooleanField(_(u'Cacher dans Truffe'), default=False, help_text=_(u'A cocher ne pas rendre public l\'accréditation au niveau truffe (sauf aux accréditeurs)'))
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
