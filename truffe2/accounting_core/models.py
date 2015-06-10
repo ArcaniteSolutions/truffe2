@@ -16,7 +16,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         world_ro_access = True
 
     name = models.CharField(_('Nom'), max_length=255, unique=True)
-    start_date = models.DateTimeField(_('Date de début'), blank=True, null=True)
+    start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
     end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
 
     class MetaData:

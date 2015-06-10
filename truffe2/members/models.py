@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 from django.db import models
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -7,11 +10,13 @@ from rights.utils import UnitEditableModel
 
 
 class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditableModel):
+
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['INFORMATIQUE', 'PRESIDENCE']
         world_ro_access = True
 
     name = models.CharField(_('Nom'), max_length=255, unique=True)
+    unit = FalseFK('units.models.Unit', verbose_name=_(u'Unité'))
     generates_accred = models.BooleanField(_(u'Génère des accreds'), default=True)
     ldap_visible = models.BooleanField(_(u'Rend les accreds visibles dans l\'annuaire'), default=False)
     handle_fees = models.BooleanField(_(u'Gère les cotisations'), default=False)
@@ -29,10 +34,14 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
 
         base_title = _('Groupes de Membres')
         list_title = _('Liste des groupes de membre')
-        base_icon = 'fa fa-users'
-        elem_icon = 'fa fa-child'
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-male'
 
-        menu_id = 'menu-membres-membreset'
+        menu_id = 'menu-members-memberset'
+
+        yes_or_no_fields = ['generates_accred', 'ldap_visible', 'handle_fees']
+
+        has_unit = True
 
         help_list = _(u"""Les groupes de membres représentent l'ensemble des membres des différentes unités de l'AGEPoly.
 Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les membres qui cotisent.""")
@@ -42,7 +51,7 @@ Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les mem
         states = {
             '0_preparing': _(u'En préparation'),
             '1_active': _(u'Actif'),
-            '2_achived': _(u'Archivé'),
+            '2_archived': _(u'Archivé'),
         }
 
         default = '0_preparing'
@@ -102,7 +111,7 @@ Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les mem
         abstract = True
 
     def __unicode__(self):
-        return self.name
+        return "{} ({})".format(self.name, self.unit)
 
     def rights_can_EDIT(self, user):
         # On ne peut pas éditer/supprimer les groupes archivés.
@@ -112,40 +121,11 @@ Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les mem
         return super(_MemberSet, self).rights_can_EDIT(user)
 
 
-class _Membership(GenericModel, GenericGroupsModel, UnitEditableModel):
-    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
-        access = ['INFORMATIQUE', 'PRESIDENCE']
-        world_ro_access = True
-
-    user = FalseFK('users.models.TruffeUser', verbose_name=_('Membre'))
-    group = FalseFK('members.models.MemberSet', verbose_name=_('Groupe de membres'))
+class Membership(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    group = models.ForeignKey('MemberSet', verbose_name=_('Groupe de membres'))
     adding_date = models.DateTimeField(_('Date d\'ajout au groupe'), auto_now_add=True)
-    payed_fees = models.BooleanField(_('A payé sa cotisation'), default=False)
-
-
-    class MetaData:
-        list_display = [
-            ('user', _('Membre du groupe')),
-            ('generates_accred', _(u'Génère une accréditation EPFL')),
-            ('ldap_visible', _(u'Rend l\'accréditation visible dans l\'annuaire EPFL')),
-            ('handle_fees', _(u'Gère les cotisations des membres')),
-            ('status', _('Statut')),
-        ]
-        details_display = list_display
-        filter_fields = ('user', 'status')
-
-        base_title = _('Gestion des membres')
-        list_title = _('Liste des membres du groupe')
-        base_icon = 'fa fa-users'
-        elem_icon = 'fa fa-child'
-
-        menu_id = 'menu-membres-membreship'
-
-        help_list = _(u"""Les groupes de membres représentent l'ensemble des membres des différentes unités de l'AGEPoly.
-Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les membres qui cotisent.""")
-
-    class Meta:
-        abstract = True
+    payed_fees = models.BooleanField(_(u'A payé sa cotisation'), default=False)
 
     def __unicode__(self):
         return self.name

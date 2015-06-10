@@ -1,0 +1,19 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        $(function() {
+
+            // Manage visibility in accred
+            $('#id_generates_accred').click(function() {
+                var new_state = $('#id_generates_accred').prop('checked');
+                if (! new_state) {
+                    $('#id_ldap_visible').prop('checked', false);
+                }
+                $('#id_ldap_visible').attr('disabled', ! new_state);
+            });
+        });
+    </script>
+{% endblock %}
