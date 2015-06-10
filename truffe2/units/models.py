@@ -178,7 +178,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
 
     @property
     def president(self):
-        return ', '.join([u.user.get_full_name() for u in list(self.accreditation_set.filter(end_date=None, role__pk=settings.PRESIDENT_ROLE_PK))])
+        return ', '.join([u.user.get_full_name() for u in list(self.accreditation_set.filter(end_date=None, role__pk=settings.PRESIDENT_ROLE_PK, hidden_in_truffe=False))])
 
     def can_delete(self):
 
@@ -277,7 +277,7 @@ class Accreditation(models.Model, UnitEditableModel):
 
     no_epfl_sync = models.BooleanField(_(u'Désactiver syncronisation EPFL'), default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
     hidden_in_epfl = models.BooleanField(_(u'Cacher au niveau EPFL'), default=False, help_text=_(u'A cocher ne pas rendre public l\'accréditation au niveau EPFL'))
-    hidden_in_truffe = models.BooleanField(_(u'Cacher dans Truffe'), default=False, help_text=_(u'A cocher ne pas rendre public l\'accréditation au niveau truffe (sauf aux accréditeurs)'))
+    hidden_in_truffe = models.BooleanField(_(u'Cacher dans Truffe'), default=False, help_text=_(u'A cocher ne pas rendre public l\'accréditation au niveau truffe (sauf aux accréditeurs sur la page d\'accréditation)'))
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
