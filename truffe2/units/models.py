@@ -26,6 +26,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
     is_commission = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une commission de l\'AGEPoly'))
     is_equipe = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une équipe de l\'AGEPoly'))
+    is_hidden = models.BooleanField(default=False, help_text=_(u'Cocher rend l\'unité inselectionnable au niveau du contexte d\'unité, sauf pour les administrateurs et les perosnnes accréditées comité de l\'AGEPoly'))
 
     parent_hierarchique = models.ForeignKey('Unit', blank=True, null=True, help_text=_(u'Pour les commissions et les équipes, sélectionner le comité de l\'AGEPoly. Pour les sous-commisions, sélectionner la commission parente. Pour un coaching de section, sélectionner la commission Coaching. Pour le comité de l\'AGEPoly, ne rien mettre.'))
 
@@ -34,6 +35,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
+            ('is_hidden', _(u'Caché ?')),
             ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président'))
         ]
@@ -42,6 +44,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
+            ('is_hidden', _(u'Caché ?')),
             ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président')),
             ('id_epfl', _('ID EPFL')),
@@ -49,7 +52,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('url', _('URL')),
         ]
 
-        yes_or_no_fields = ['is_commission', 'is_equipe']
+        yes_or_no_fields = ['is_commission', 'is_equipe', 'is_hidden']
 
         filter_fields = ('name', )
 
@@ -94,9 +97,21 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         self.rights_can_edit = __tmp
         self._rights_can_edit = f
 
+    _can_use_hidden = False  # Internal property
+
+    def check_if_can_use_hidden(self, user):
+        self._can_use_hidden = user.is_superuser or self.rights_in_root_unit(user)
+
+        return self._can_use_hidden
+
     def has_sub(self):
         """Return true if the unit has subunits"""
-        return self.unit_set.filter(deleted=False).order_by('name').count() > 0
+        liste = self.unit_set.filter(deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        return liste.order_by('name').count() > 0
 
     def only_one_sub_type(self):
         tt = 0
@@ -113,31 +128,55 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
     def sub_com(self):
         """Return the sub units, but only commissions"""
         retour = []
-        for unit in self.unit_set.filter(is_commission=True).filter(deleted=False).order_by('name'):
+
+        liste = self.unit_set.filter(is_commission=True).filter(deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        for unit in liste.order_by('name'):
             unit.set_rights_can_select(self._rights_can_select)
             unit.set_rights_can_edit(self._rights_can_edit)
+            unit._can_use_hidden = self._can_use_hidden
             retour.append(unit)
         return retour
 
     def sub_eqi(self):
         """Return the sub units, but only groups"""
         retour = []
-        for unit in self.unit_set.exclude(is_commission=True).filter(is_equipe=True).filter(deleted=False).order_by('name'):
+
+        liste = self.unit_set.exclude(is_commission=True).filter(is_equipe=True).filter(deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        for unit in liste.order_by('name'):
             unit.set_rights_can_select(self._rights_can_select)
+            unit.set_rights_can_edit(self._rights_can_edit)
+            unit._can_use_hidden = self._can_use_hidden
             retour.append(unit)
         return retour
 
     def sub_grp(self):
         """Return the sub units, without groups or commissions"""
         retour = []
-        for unit in self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False).order_by('name'):
+
+        liste = self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        for unit in liste.order_by('name'):
             unit.set_rights_can_select(self._rights_can_select)
+            unit.set_rights_can_edit(self._rights_can_edit)
+            unit._can_use_hidden = self._can_use_hidden
             retour.append(unit)
         return retour
 
     def is_user_in_groupe(self, user, access=None, parent_mode=False, no_parent=False):
 
         for accreditation in self.accreditation_set.filter(user=user, end_date=None):
+
             if accreditation.is_valid():
 
                 # No acces: Only an accred is needed
@@ -192,6 +231,12 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
 
     def get_users(self):
         return [a.user for a in self.current_accreds()]
+
+    def rights_can_SHOW(self, user):
+        if self.is_hidden and not self.check_if_can_use_hidden(user):
+            return False
+
+        return super(_Unit, self).rights_can_SHOW(user)
 
 
 class _Role(GenericModel, AgepolyEditableModel):

@@ -39,6 +39,7 @@ def accreds_list(request):
 
     main_unit.set_rights_can_select(lambda unit: Accreditation.static_rights_can('LIST', request.user, unit))
     main_unit.set_rights_can_edit(lambda unit: Accreditation.static_rights_can('CREATE', request.user, unit))
+    main_unit.check_if_can_use_hidden(request.user)
 
     if request.GET.get('upk'):
         update_current_unit(request, request.GET.get('upk'))
@@ -75,7 +76,7 @@ def accreds_list_json(request):
     if request.GET.get('h', '0') == '0':
         filter2 = lambda x: filter_(filter__(x)).filter(end_date=None)
     else:
-        filter2 = filter_(filter__)
+        filter2 = lambda x: filter_(filter__(x))
 
     return generic_list_json(request, Accreditation, ['user', 'get_role_or_display_name', 'start_date', 'exp_date', 'no_epfl_sync', 'pk'], 'units/accreds/list_json.html', filter_fields=['user__first_name', 'user__last_name', 'role__name'], bonus_filter_function=filter2, not_sortable_colums=['get_role_or_display_name'])
 
