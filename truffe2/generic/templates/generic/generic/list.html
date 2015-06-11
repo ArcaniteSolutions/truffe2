@@ -64,6 +64,24 @@
                     <hr style="clear: both; visibility: hidden;">
 
                 {% include "widget/footer.html" %}
+
+                {% block buttons %}
+                    <div style="float: right;">
+
+                        {% ifhasright Model user '!RESTORE' %}
+                          <a href="{% url deleted_view %}" class="btn btn-info">
+                            <i class="fa fa-list"></i>
+                            {% trans "Élements supprimés" %}
+                          </a>
+                        {% endifhasright %}
+                        {% ifhasright Model user '!CREATE' %}
+                          <a href="{% url edit_view '~' %}" class="btn btn-primary">
+                            <i class="fa fa-plus"></i>
+                            {% trans "Ajouter" %}
+                          </a>
+                        {% endifhasright %}
+                    </div>
+                {% endblock %}
             </div>
 
             {% if unit_mode or Model.MetaData.help_list or year_mode %}
@@ -125,24 +143,6 @@
 
     {% block datatables %}
         {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id with_upk=unit_mode with_ypk=year_mode force_last_width=Model.MetaData.list_display|length|add:"1" force_width=Model.MetaData.forced_widths force_first_width=True draw_callback="update_multi_do" %}{% include "datatables.html" %}{% endwith %}
-    {% endblock %}
-
-    {% block buttons %}
-        <div style="float: right;">
-
-            {% ifhasright Model user '!RESTORE' %}
-              <a href="{% url deleted_view %}" class="btn btn-info">
-                <i class="fa fa-list"></i>
-                {% trans "Élements supprimés" %}
-              </a>
-            {% endifhasright %}
-            {% ifhasright Model user '!CREATE' %}
-              <a href="{% url edit_view '~' %}" class="btn btn-primary">
-                <i class="fa fa-plus"></i>
-                {% trans "Ajouter" %}
-              </a>
-            {% endifhasright %}
-        </div>
     {% endblock %}
 
 

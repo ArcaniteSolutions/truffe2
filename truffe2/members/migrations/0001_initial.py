@@ -27,6 +27,7 @@ class Migration(SchemaMigration):
             ('ldap_visible', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('handle_fees', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('status', self.gf('django.db.models.fields.CharField')(default='0_preparing', max_length=255)),
+            ('generated_accred_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['units.Role'], null=True, blank=True)),
             ('unit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['units.Unit'])),
         ))
         db.send_create_signal(u'members', ['MemberSet'])
@@ -78,6 +79,7 @@ class Migration(SchemaMigration):
         u'members.memberset': {
             'Meta': {'object_name': 'MemberSet'},
             'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'generated_accred_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['units.Role']", 'null': 'True', 'blank': 'True'}),
             'generates_accred': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'handle_fees': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -102,6 +104,16 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'payed_fees': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
+        },
+        u'units.role': {
+            'Meta': {'object_name': 'Role'},
+            'access': ('multiselectfield.db.fields.MultiSelectField', [], {'max_length': '71', 'null': 'True', 'blank': 'True'}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'id_epfl': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'ordre': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         u'units.unit': {
             'Meta': {'object_name': 'Unit'},

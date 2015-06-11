@@ -64,7 +64,7 @@
                 "bProcessing": true,
                 "bServerSide": true,
                 "bStateSave": true,
-                "sAjaxSource": "{% url json_url %}",
+                "sAjaxSource": "{% if json_url_manual %}{{json_url_manual}}{% else %}{% url json_url %}{% endif %}",
                 "fnDrawCallback": function(oSettings) {
                     {% if draw_callback %}
                         {{draw_callback}}(oSettings);

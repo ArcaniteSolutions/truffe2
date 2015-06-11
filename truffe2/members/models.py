@@ -18,6 +18,7 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
     name = models.CharField(_('Nom'), max_length=255, unique=True)
     unit = FalseFK('units.models.Unit', verbose_name=_(u'Unité'))
     generates_accred = models.BooleanField(_(u'Génère des accreds'), default=True)
+    generated_accred_type = FalseFK('units.models.Role', blank=True, null=True, verbose_name=_(u'Accréditation générée pour les membres'))
     ldap_visible = models.BooleanField(_(u'Rend les accreds visibles dans l\'annuaire'), default=False)
     handle_fees = models.BooleanField(_(u'Gère les cotisations'), default=False)
 
@@ -29,7 +30,7 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
             ('handle_fees', _(u'Gère les cotisations des membres')),
             ('status', _('Statut')),
         ]
-        details_display = list_display
+        details_display = list_display + [('generated_accred_type', _(u'Accréditation générée pour les membres'))]
         filter_fields = ('name', 'status')
 
         base_title = _('Groupes de Membres')
@@ -127,5 +128,8 @@ class Membership(models.Model):
     adding_date = models.DateTimeField(_('Date d\'ajout au groupe'), auto_now_add=True)
     payed_fees = models.BooleanField(_(u'A payé sa cotisation'), default=False)
 
-    def __unicode__(self):
-        return self.name
+    def payed_due_fees(self):
+        """Return the status of fees if MemberSet handle fees."""
+        if self.group.handle_fees:
+            return self.payed_fees
+        return None
