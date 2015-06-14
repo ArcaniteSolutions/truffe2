@@ -1,0 +1,6 @@
+{% load i18n %}
+{% trans "Les accréditations suivantes dans l'unité" %} {{notification.linked_object}} ont été supprimées !
+
+{% for accred in notification.get_metadata.accreds %}
+    - {{accred.user}} ({{accred.role}})
+{% endfor %}

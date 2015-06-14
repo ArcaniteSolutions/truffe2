@@ -1,0 +1,6 @@
+{% load i18n %}
+{% trans "Les accréditations suivantes dans l'unité" %} {{notification.linked_object}} {% trans "vont expirer dans " %}{{notification.get_metadata.jours}} jours !
+
+{% for accred in notification.get_metadata.accreds %}
+    - {{accred.user}} ({{accred.role}})
+{% endfor %}

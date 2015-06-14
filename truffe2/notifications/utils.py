@@ -5,15 +5,19 @@ from django.utils.translation import ugettext_lazy as _
 from app.utils import send_templated_mail
 
 
-def notify_people(request, key, species, obj, users):
+def notify_people(request, key, species, obj, users, metadata=None):
 
     for user in users:
 
-        if user == request.user:
+        if request and user == request.user:
             continue
 
         n = Notification(key=key, species=species, linked_object=obj, user=user)
         n.save()
+
+        if metadata:
+            n.set_metadata(metadata)
+            n.save()
 
         notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=user, key=key)
         notification_restriction_all, __ = NotificationRestriction.objects.get_or_create(user=user, key='')

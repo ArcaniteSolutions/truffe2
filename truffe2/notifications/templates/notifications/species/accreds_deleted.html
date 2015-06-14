@@ -1,0 +1,28 @@
+{% load i18n %}
+<em class="badge padding-5 no-border-radius bg-color-redLight pull-left margin-right-5">
+    <i class="fa fa-question fa-fw fa-2x"></i>
+</em>
+
+<span>
+    {% trans "Les accréditations suivantes dans l'unité" %} <span class="text-primary">{{notification.linked_object}}</span> {% trans "ont été supprimées !" %}
+
+    <ul>
+        {% for accred in notification.get_metadata.accreds %}
+            <li>{{accred.user}} ({{accred.role}})</li>
+        {% endfor %}
+    </ul>
+
+    <br />
+    <span class="pull-right">
+        <button onclick="notification_ignore({{notification.pk}});" class="btn btn-xs btn-warning margin-top-5">
+            <i class="fa fa-times"></i> {% trans "Ignorer" %}
+        </button>
+        <button onclick="window.location = '{% url 'notifications.views.goto' notification.pk %}?next={% url 'units.views.accreds_list' %}?upk={{notification.linked_object.pk}}';" class="btn btn-xs btn-primary margin-top-5">
+            <i class="fa fa-eye"></i> {% trans "Détails" %}
+        </button>
+    </span>
+
+    <br>
+    <br>
+    <span class="pull-right font-xs text-muted"><i>{{notification.creation_date|timesince}}</i></span>
+</span>
