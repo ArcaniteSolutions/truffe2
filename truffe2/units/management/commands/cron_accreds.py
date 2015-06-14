@@ -6,23 +6,21 @@ from django.utils.timezone import now
 
 
 import datetime
-import pytz
-import sys
 
 
 from notifications.utils import notify_people
-from units.models import Accreditation, Unit
+from units.models import Unit
 
 
 class Command(BaseCommand):
-    help = 'Do accreds related-stuff who should be done dailly'
+    help = 'Do accreds timeout-related-stuff who should be done dailly'
 
     def handle(self, *args, **options):
 
         days_before_warnings = [30, 15, 7, 3]
 
         # On travaille par unité
-        for u in Unit.objects.filter(deleted=False).all():
+        for u in Unit.objects.filter(deleted=False):
 
             # Les destinataires
             dest_users = u.users_with_access('INFORMATIQUE', no_parent=True)
@@ -35,7 +33,7 @@ class Command(BaseCommand):
             to_delete = []
 
             # Toutes les accreds encore valides
-            for a in u.accreditation_set.filter(end_date=None).all():
+            for a in u.accreditation_set.filter(end_date=None):
 
                 # Nombre de jours avant l'expiration
                 delta = ((a.validation_date + datetime.timedelta(days=365)) - now()).days
