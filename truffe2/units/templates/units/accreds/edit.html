@@ -1,0 +1,38 @@
+{% load i18n bootstrap3 %}
+
+<form id="edit-accred-form" method="POST" action="{% url 'units.views.accreds_edit' form.instance.pk %}">
+  {% csrf_token %}
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Modification d'accréditation" %}</h4>
+      </div>
+
+        <div class="modal-body">
+
+          {% bootstrap_form form %}
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                {% trans "Annuler" %}
+                </button>
+                <input type="submit" class="btn btn-primary" value="{% trans "Sauvegarder" %}">
+          </div>
+        </div>
+
+    </div><!-- /.modal-content -->
+    
+  <script type="text/javascript">
+      $('#edit-accred-form').ajaxForm({replaceTarget: true, target: '#edit-accred-form'});
+      {# $('#id_role').css('width', '100%').addClass('select2').removeClass('form-control').select2(); #}
+        {% if done %}
+            window.location.reload();
+        {% endif %}
+
+  </script>
+</form>
+

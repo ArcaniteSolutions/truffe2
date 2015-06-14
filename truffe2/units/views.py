@@ -99,6 +99,36 @@ def accreds_renew(request, pk):
 
 
 @login_required
+def accreds_edit(request, pk):
+
+    accred = get_object_or_404(Accreditation, pk=pk)
+
+    if not accred.rights_can('EDIT', request.user):
+        raise Http404
+
+    from units.forms2 import AccreditationEditForm
+
+    done = False
+
+    if request.method == 'POST':  # If the form has been submitted...
+        form = AccreditationEditForm(request.POST, instance=accred)
+
+        if form.is_valid():  # If the form is valid
+            accred = form.save()
+
+            accred.user.clear_rights_cache()
+
+            messages.success(request, _(u'Accréditation sauvegardée !'))
+
+            done = True
+
+    else:
+        form = AccreditationEditForm(instance=accred)
+
+    return render(request, 'units/accreds/edit.html', {'form': form, 'done': done})
+
+
+@login_required
 def accreds_delete(request, pk):
     """Delete an accred"""
 

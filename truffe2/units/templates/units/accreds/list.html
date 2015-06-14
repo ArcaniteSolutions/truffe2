@@ -23,14 +23,14 @@
                     <table id="main_list_table" class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th width="16.666%">{% trans "Personne" %}</th>
-                                    <th width="16.666%">{% trans "Rôle" %}</th>
-                                    <th width="16.666%">{% trans "Début" %}</th>
+                                    <th width="15%">{% trans "Personne" %}</th>
+                                    <th width="15%">{% trans "Rôle" %}</th>
+                                    <th width="15%">{% trans "Début" %}</th>
                                     <th width="200px">{% trans "Synchronisation EPFL" %}</th>
                                     <th width="200px">{% trans "Visible EPFL" %}</th>
                                     <th width="200px">{% trans "Visible Truffe" %}</th>
-                                    <th width="16.666%">{% trans "Expiration automatique" %}</th>
-                                    <th width="16.666%"></th>
+                                    <th width="15%">{% trans "Expiration automatique" %}</th>
+                                    <th style="width: 350px;"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -78,11 +78,21 @@
       }
 
       function disp_add() {
-        //Allow usage of select2
-        $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+          //Allow usage of select2
+          $.fn.modal.Constructor.prototype.enforceFocus = function () {};
           $('#modal-add-accred').find('.modal-content').html('');
           $('#modal-add-accred').removeData('bs.modal');
           $('#modal-add-accred').modal({remote: $('#add-accred-button').attr('data-remote')});
+
+      }
+
+      function disp_edit(url) {
+
+          //Allow usage of select2
+          $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+          $('#modal-edit-accred').find('.modal-content').html('');
+          $('#modal-edit-accred').removeData('bs.modal');
+          $('#modal-edit-accred').modal({remote: url});
 
       }
 
@@ -107,6 +117,13 @@
     <br /><br />
 
     <div class="modal fade" id="modal-add-accred" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modal-edit-accred" role="dialog" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
         </div>
