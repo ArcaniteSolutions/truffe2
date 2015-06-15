@@ -40,9 +40,9 @@
                 <div class="row">
                     <div class="col-md-12">
                         <a href="{% if form.instance.pk %}{% url show_view form.instance.pk %}{% else %}{% url list_view %}{% endif %}" class="btn btn-default">{% trans "Annuler" %}</a>
-                        <button type="submit" class="btn btn-primary" onclick="$('#post-save-dest').val('new');"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et créer un nouveau" %}</button>
-                        <button type="submit" class="btn btn-primary" onclick="$('#post-save-dest').val('continue');"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et continuer l'édition" %}</button>
-                        <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
+                        <button type="submit" class="btn btn-primary" id="save_and_new" onclick="$('#post-save-dest').val('new');"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et créer un nouveau" %}</button>
+                        <button type="submit" class="btn btn-primary" id="save_and_edit" onclick="$('#post-save-dest').val('continue');"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et continuer l'édition" %}</button>
+                        <button type="submit" class="btn btn-primary" id="save"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
                     </div>
                 </div>
             </div>

@@ -1,8 +1,10 @@
 from django.forms import ModelForm, CharField, ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from units.models import Accreditation
+from users.models import TruffeUser
+
 import re
-from django.utils.translation import ugettext_lazy as _
 
 
 class AccreditationAddForm(ModelForm):
@@ -24,6 +26,9 @@ class AccreditationAddForm(ModelForm):
     def clean_user(self):
         data = self.cleaned_data['user']
         if not re.match('^\d{6}$', data):
-            raise ValidationError(_('Pas un sciper'))
+            try:
+                TruffeUser.objects.get(username=data)
+            except TruffeUser.DoesNotExist:
+                raise ValidationError(_('Pas un username valide'))
 
         return data

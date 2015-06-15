@@ -19,10 +19,28 @@
                 if (! new_state) {
                     $('#id_ldap_visible').prop('checked', false);
                 }
-                $('#id_ldap_visible').attr('disabled', ! new_state);
-                $('#id_generated_accred_type').attr('disabled', ! new_state);
+                $('#id_ldap_visible').attr('disabled', !new_state);
+                $('#id_generated_accred_type').attr('disabled', !new_state);
+                if($('#id_generated_accred_type').attr('disabled')) {
+                    $('#id_generated_accred_type').val('');
+                    $('#s2id_id_generated_accred_type .select2-chosen').text('---------');
+                }
 
             });
+
+            // Manage initial visibility of accred block
+            if(! $('#id_generates_accred').prop('checked')) {
+                $('#id_ldap_visible').attr('disabled', true);
+                $('#id_generated_accred_type').attr('disabled', true);
+            }
+
+            // Check on client side that an accred has been selected if requires creation.
+            /*$('form').submit(function(){
+                if($('#id_generates_accred').prop('checked') && $('#id_generated_accred_type').val() === '') {
+                    alert(" {% trans "Tu dois choisir un type d'accréditation si tu veux en générer pour les membres." %}");
+                    return false;
+                }
+            });*/
         });
     </script>
 {% endblock %}

@@ -76,7 +76,7 @@
                                         {% endifhasright %}
 
                                         {% ifhasright Model user '!CREATE' %}
-                                          <a href="{% url 'members.views.membership_edit' '~' %}" class="btn btn-primary">
+                                          <a href="#" onclick="disp_add();" data-remote="{% url 'members.views.membership_add' obj.pk %}" base-data-remote="{% url 'members.views.membership_add' obj.pk %}" id="add-accred-button" class="btn btn-primary">
                                             <i class="fa fa-plus"></i>
                                             {% trans "Ajouter" %}
                                           </a>
@@ -95,7 +95,7 @@
                                 {% endif %}
                             </div>
                         </section>
-                        {% url 'members.views.membership_list_json' obj.pk as json_url_memberset%}
+                        {% url 'members.views.membership_list_json' obj.pk as json_url_memberset %}
                         {% with id="main_list_table" json_url_manual=json_url_memberset %}{% include "datatables.html" %}{% endwith %}
                     </div>
                     <div class="tab-pane fade active in" id="hr2">
@@ -105,6 +105,15 @@
                 </div> <!-- end widget body text-->
             </div> <!-- end widget content -->
         </div> <!-- end widget div -->
+    </div>
+
+    <br /><br />
+
+    <div class="modal fade" id="modal-add-accred" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -120,7 +129,7 @@
             $('#widget-tab-memberset li:first a').click();
 
             // Call the list content for List panel
-            $.ajax("{% url 'members.views.load_list' obj.pk %}", {'dataType': 'json'}).success(function (data) {
+            $.ajax("{% url 'members.views.membership_load_list' obj.pk %}", {'dataType': 'json'}).success(function (data) {
                 var headers = '';
                 for(var head_elem of data.header) {
                     headers += '<th>' + head_elem + '</th>';
@@ -136,5 +145,13 @@
                 }*/
             });
         });
+
+        function disp_add() {
+            //Allow usage of select2
+            $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+            $('#modal-add-accred').find('.modal-content').html('');
+            $('#modal-add-accred').removeData('bs.modal');
+            $('#modal-add-accred').modal({remote: $('#add-accred-button').attr('data-remote')});
+        }
     </script>
 {% endblock %}

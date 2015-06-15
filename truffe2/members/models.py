@@ -30,7 +30,8 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
             ('handle_fees', _(u'Gère les cotisations des membres')),
             ('status', _('Statut')),
         ]
-        details_display = list_display + [('generated_accred_type', _(u'Accréditation générée pour les membres'))]
+        details_display = list_display
+        details_display.insert(2, ('generated_accred_type', _(u'Accréditation générée pour les membres')))
         filter_fields = ('name', 'status')
 
         base_title = _('Groupes de Membres')
@@ -91,6 +92,26 @@ Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les mem
         states_default_filter_related = '1_active,2_archived'
         status_col_id = 3
 
+    def genericFormExtraClean(self, data, form):
+        """Check if accred corresponds to generation constraints"""
+
+        from django import forms
+
+        if 'generates_accred' in form.fields:
+            if data['generates_accred'] and data['generated_accred_type'] is None:
+                raise forms.ValidationError(_(u'Accréditation nécessaire pour l\'attribuer aux membres.'))
+
+            if 'generates_accred' not in data:  # If no accred generation, both other fields are Blank/False
+                data['generated_accred_type'] = ''
+                if 'ldap_visible' in data:
+                    del data['ldap_visible']
+
+    def genericFormExtraInit(self, form):
+        """Reduce the list of possible accreds to the official ones at EPFL"""
+        from units.models import Role
+
+        form.fields['generated_accred_type'].queryset = Role.objects.exclude(id_epfl='')
+
     def may_switch_to(self, user, dest_state):
 
         return self.rights_can('EDIT', user)
@@ -125,7 +146,8 @@ Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les mem
 class Membership(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     group = models.ForeignKey('MemberSet', verbose_name=_('Groupe de membres'))
-    adding_date = models.DateTimeField(_('Date d\'ajout au groupe'), auto_now_add=True)
+    start_date = models.DateTimeField(_('Date d\'ajout au groupe'), auto_now_add=True)
+    end_date = models.DateTimeField(_('Date de retrait du groupe'), blank=True, null=True)
     payed_fees = models.BooleanField(_(u'A payé sa cotisation'), default=False)
 
     def payed_due_fees(self):

@@ -1,39 +1,32 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import RequestContext
-from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
+from django.http import Http404, HttpResponse
 from django.utils.encoding import smart_str
 from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from django.contrib.sites.models import get_current_site
 from django.http import HttpResponseRedirect
-from django.db import connections
-from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
-from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
-from django.utils.timezone import now
 from django.utils.http import is_safe_url
 
-
+from app.utils import send_templated_mail
+from app.ldaputils import search_sciper
+from generic.datatables import generic_list_json
 from users.models import TruffeUser, UserPrivacy
 from users.forms import TruffeUserForm, TruffeCreateUserForm, TruffePasswordResetForm
-from app.utils import send_templated_mail
 
-import phonenumbers
-
-from generic.datatables import generic_list_json
-import re
+import json
 import os
-import time
+import phonenumbers
+import re
 import requests
 import shutil
+import time
 
 
 def login(request, why=None):
@@ -247,3 +240,22 @@ def password_change_done(request):
     """Display validation message after changing password"""
     messages.success(request, _(u'Profil sauvegardé !'))
     return redirect('users.views.users_profile', pk=request.user.pk)
+
+
+@login_required
+def ldap_search(request):
+
+    query = request.GET.get('q')
+    results = search_sciper(query)
+
+    retour = map(lambda (sciper, data): {'id': sciper, 'text': '%s - %s %s (%s)' % data}, results.iteritems())
+
+    internal = TruffeUser.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(email__icontains=query))
+    print internal
+    internal = filter(lambda x: not x.username_is_sciper(), internal)
+    print internal
+    retour += map(lambda x: {'id': x.username, 'text': '%s - %s %s (%s)' % (x.username, x.first_name, x.last_name, x.email)}, internal)
+
+    print retour
+
+    return HttpResponse(json.dumps(retour))

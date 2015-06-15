@@ -13,7 +13,8 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
             ('group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['members.MemberSet'])),
-            ('adding_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('start_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('end_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('payed_fees', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal(u'members', ['Membership'])
@@ -99,10 +100,11 @@ class Migration(SchemaMigration):
         },
         u'members.membership': {
             'Meta': {'object_name': 'Membership'},
-            'adding_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['members.MemberSet']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'payed_fees': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'start_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
         },
         u'units.role': {

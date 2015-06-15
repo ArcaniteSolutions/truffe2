@@ -1,40 +1,38 @@
-{% load i18n %}
-{% load generic_extras %}
+{% load i18n generic_extras %}
 
-  <script type="text/javascript">
-      $(function() { loadDataTableScripts_{{id}}()});
-      function loadDataTableScripts_{{id}}() {
+<script type="text/javascript">
+    $(function() { loadDataTableScripts_{{id}}()});
 
+    function loadDataTableScripts_{{id}}() {
         loadScript("{{MEDIA_URL}}js/plugin/datatables/jquery.dataTables-cust.min.js", dt_2_{{id}});
 
         function dt_2_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/datatables/ColReorder.min.js", dt_3_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/datatables/ColReorder.min.js", dt_3_{{id}});
         }
 
         function dt_3_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/datatables/dataTables.fixedHeader.js", dt_4_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/datatables/dataTables.fixedHeader.js", dt_4_{{id}});
         }
 
         function dt_4_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/datatables/ColVis.min.js", dt_5_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/datatables/ColVis.min.js", dt_5_{{id}});
         }
 
         function dt_5_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/datatables/ZeroClipboard.js", dt_6_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/datatables/ZeroClipboard.js", dt_6_{{id}});
         }
 
         function dt_6_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/datatables/media/js/TableTools.min.js", dt_7_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/datatables/media/js/TableTools.min.js", dt_7_{{id}});
         }
 
         function dt_7_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/select2/select2.min.js", dt_8_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/select2/select2.min.js", dt_8_{{id}});
         }
 
         function dt_8_{{id}}() {
-          loadScript("{{MEDIA_URL}}js/plugin/datatables/DT_bootstrap.js", runDataTables_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/datatables/DT_bootstrap.js", runDataTables_{{id}});
         }
-
     }
 
     var data_table_{{id}} = undefined;
@@ -54,11 +52,11 @@
                         "aButtons" : []
                     {% endif %}
                 },
-            "aoColumnDefs": [
-                {% if force_last_width %}{ "sWidth": "140px", "aTargets": [{{force_last_width}}] }, {% endif %}
-                {% if force_first_width %}{ "sWidth": "10px", "aTargets": [0] }, {% endif %}
-                {% if force_width %}{% for pos, width in force_width.iteritems %}{ "sWidth": "{{width}}", "aTargets": [{{pos}}] }, {% endfor %} {% endif %}
-            ],
+                "aoColumnDefs": [
+                    {% if force_last_width %}{ "sWidth": "140px", "aTargets": [{{force_last_width}}] }, {% endif %}
+                    {% if force_first_width %}{ "sWidth": "10px", "aTargets": [0] }, {% endif %}
+                    {% if force_width %}{% for pos, width in force_width.iteritems %}{ "sWidth": "{{width}}", "aTargets": [{{pos}}] }, {% endfor %} {% endif %}
+                ],
                 "bAutoWidth": false,
                 "bDeferRender": true,
                 "bProcessing": true,
@@ -101,56 +99,52 @@
             "sPaginationType" : "bootstrap_full"
         });
 
-
         {% if status_filter %}
-          $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px;">/select>');
+            $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px;">/select>');
 
-          var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
+            var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
 
-          {% for id_, text in states.iteritems %}
-            select_{{id}}.append('<option value="{{id_}}" {% if id_ in status_filter %}selected{% endif %}>{{text|escapejs}}</option>"');
-          {% endfor %}
+            {% for id_, text in states.iteritems %}
+                select_{{id}}.append('<option value="{{id_}}" {% if id_ in status_filter %}selected{% endif %}>{{text|escapejs}}</option>"');
+            {% endfor %}
 
-          select_{{id}}.select2(); //.css('width', '300px')
+            select_{{id}}.select2(); //.css('width', '300px')
 
-          function select2_filter() {
-            data_table_{{id}}.fnFilter(select_{{id}}.val(), {{status_col_id}});
-          }
+            function select2_filter() {
+                data_table_{{id}}.fnFilter(select_{{id}}.val(), {{status_col_id}});
+            }
 
-          select_{{id}}.on('change', function() {
+            select_{{id}}.on('change', function() {
+                select2_filter();
+            });
+
             select2_filter();
-          });
-
-          select2_filter();
-
         {% endif %}
 
         {% if object_filter %}
-        $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select class="select2 object_filter" type="text" placeholder="{{object_filter_name}}" style="position: absolute; top: 0px; right: 5px; width: 200px;"><option value="">&nbsp;</option>/select>');
+            $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select class="select2 object_filter" type="text" placeholder="{{object_filter_name}}" style="position: absolute; top: 0px; right: 5px; width: 200px;"><option value="">&nbsp;</option>/select>');
 
-          var obj_select_{{id}} = $('#{{id}}').parent().parent().find('.object_filter');
+            var obj_select_{{id}} = $('#{{id}}').parent().parent().find('.object_filter');
 
-          {% for obj in object_filter %}
-            obj_select_{{id}}.append('<option value="{{obj.pk}}">{{obj|escapejs}}</option>"');
-          {% endfor %}
+            {% for obj in object_filter %}
+                obj_select_{{id}}.append('<option value="{{obj.pk}}">{{obj|escapejs}}</option>"');
+            {% endfor %}
 
-          obj_select_{{id}}.select2({allowClear: true}); //.css('width', '300px')
+            obj_select_{{id}}.select2({allowClear: true}); //.css('width', '300px')
 
-          function obj_select2_filter() {
-            data_table_{{id}}.fnFilter(obj_select_{{id}}.val(), {{object_col_id}});
-          }
+            function obj_select2_filter() {
+                data_table_{{id}}.fnFilter(obj_select_{{id}}.val(), {{object_col_id}});
+            }
 
-          obj_select_{{id}}.on('change', function() {
-              obj_select2_filter();
-          });
+            obj_select_{{id}}.on('change', function() {
+                obj_select2_filter();
+            });
 
-          obj_select2_filter();
-
+            obj_select2_filter();
         {% endif %}
 
         new $.fn.dataTable.FixedHeader(data_table_{{id}}, {
-        "offsetTop": 90
-    });
+            "offsetTop": 90
+        });
     }
-
-    </script>
+</script>
