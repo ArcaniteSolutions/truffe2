@@ -75,7 +75,7 @@ def membership_delete(request, pk):
 
         messages.success(request, _(u'Membre retiré !'))
 
-        return redirect('members.views.memberset_show', pk)
+        return redirect('members.views.memberset_show', membership.group.pk)
 
     return render(request, 'members/membership/delete.html', {'membership': membership})
 
@@ -94,29 +94,7 @@ def membership_toggle_fees(request, pk):
 
     messages.success(request, _(u'Cotisation mise à jour !'))
 
-    return redirect('members.views.memberset_show', pk)
-
-@login_required
-def membership_load_list(request, pk):
-    """Charge la liste des membres dans le groupe donné en argument"""
-    from members.models import MemberSet
-
-    memberset = MemberSet.objects.get(pk=pk)
-
-    if not memberset.rights_can('SHOW', request.user):
-        raise Http404
-
-    header = [ugettext('Utilisateur'), ugettext('Date d\'ajout')]
-    memberships = memberset.membership_set.filter(end_date=None)
-    body = map(lambda membership: [membership.pk, membership.user.get_full_name(),
-                                   str(membership.start_date)], memberships)
-
-    if memberset.handle_fees:
-        header += [ugettext(u'Cotisation payée')]
-        body = map(lambda membership: [membership.pk, membership.user.get_full_name(),
-                                       str(membership.start_date), membership.payed_fees], memberships)
-
-    return HttpResponse(json.dumps({'header': header, 'body': body}))
+    return redirect('members.views.memberset_show', membership.group.pk)
 
 
 @login_required
@@ -137,8 +115,8 @@ def membership_list_json(request, pk):
     if not memberset.rights_can('SHOW', request.user):
         raise Http404
 
-    # Filter by unit
-    filter2 = lambda x: x.filter(group=memberset)
+    # Filter by group and check they are still in the group
+    filter2 = lambda x: x.filter(group=memberset, end_date=None)
 
     return generic_list_json(request, Membership, ['user', 'start_date', 'payed_fees', 'group', 'pk'], 'members/membership/list_json.html', bonus_data={'handle_fees': memberset.handle_fees}, filter_fields=['user__first_name', 'user__last_name', 'user__username'], bonus_filter_function=filter2)
 

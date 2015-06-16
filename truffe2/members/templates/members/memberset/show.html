@@ -39,6 +39,9 @@
                                         <thead>
                                             <tr>
                                                 <th><input type="checkbox" class="dt_main_checkbox"></th>
+                                                <th>{% trans "Utilisateur" %}</th>
+                                                <th>{% trans "Date d'ajout" %}</th>
+                                                {% if obj.handle_fees %}<th>{% trans "Cotisation payée ?" %}</th>{% endif %}
                                                 <th style="width: 200px;"></th>
                                             </tr>
                                         </thead>
@@ -97,6 +100,7 @@
                         </section>
                         {% url 'members.views.membership_list_json' obj.pk as json_url_memberset %}
                         {% with id="main_list_table" json_url_manual=json_url_memberset %}{% include "datatables.html" %}{% endwith %}
+
                     </div>
                     <div class="tab-pane fade active in" id="hr2">
                         {{block.super}}
@@ -127,23 +131,6 @@
 
             // Activate list panel after load, in order to display status correctly on management panel.
             $('#widget-tab-memberset li:first a').click();
-
-            // Call the list content for List panel
-            $.ajax("{% url 'members.views.membership_load_list' obj.pk %}", {'dataType': 'json'}).success(function (data) {
-                var headers = '';
-                for(var head_elem of data.header) {
-                    headers += '<th>' + head_elem + '</th>';
-                }
-                $('thead th:first').after(headers);
-
-                /*for(var body_elem of data.body) {
-                    var body_row = '<tr class="member-pk-' + body_elem[0] + '">';
-                    for(var idx = 1; idx < body_elem.length; idx++) {
-                        body_row += '<td>' + body_elem[idx] + '</td>';
-                    }
-                    $('tbody').append(body_row + '</tr>');
-                }*/
-            });
         });
 
         function disp_add() {

@@ -27,11 +27,11 @@
         }
 
         function dt_7_{{id}}() {
-            loadScript("{{MEDIA_URL}}js/plugin/select2/select2.min.js", dt_8_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/datatables/DT_bootstrap.js", dt_8_{{id}});
         }
 
         function dt_8_{{id}}() {
-            loadScript("{{MEDIA_URL}}js/plugin/datatables/DT_bootstrap.js", runDataTables_{{id}});
+            loadScript("{{MEDIA_URL}}js/plugin/select2/select2.min.js", runDataTables_{{id}});
         }
     }
 
@@ -132,12 +132,12 @@
 
             obj_select_{{id}}.select2({allowClear: true}); //.css('width', '300px')
 
-            function obj_select2_filter() {
+            function obj_select2_filter_{{id}}() {
                 data_table_{{id}}.fnFilter(obj_select_{{id}}.val(), {{object_col_id}});
             }
 
             obj_select_{{id}}.on('change', function() {
-                obj_select2_filter();
+                obj_select2_filter_{{id}}();
             });
 
             obj_select2_filter();
