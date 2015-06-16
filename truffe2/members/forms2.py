@@ -19,7 +19,6 @@ class MembershipAddForm(forms.ModelForm):
 
     def __init__(self, current_user, group, *args, **kwargs):
         """"""
-        print "{!r}".format(group)
         super(MembershipAddForm, self).__init__(*args, **kwargs)
 
         if not group or not group.handle_fees:
