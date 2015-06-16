@@ -31,7 +31,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <a href="{% url "members.views.memberset_show" membership.group.pk %}" class="btn btn-success"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
-                                {% if not cannot_last_prez %}<button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>{% endif %}
+                                <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i> {% trans "Supprimer" %}</button>
                             </div>
                         </div>
                     </div>

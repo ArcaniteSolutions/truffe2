@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django import forms
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -46,7 +47,8 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
         has_unit = True
 
         help_list = _(u"""Les groupes de membres représentent l'ensemble des membres des différentes unités de l'AGEPoly.
-Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les membres qui cotisent.""")
+Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les membres qui cotisent.
+Les groupes peuvent générer une accréditation EPFL pour leurs membres et gérer les cotisations suivant leur état.""")
 
     class MetaState:
 
@@ -95,8 +97,6 @@ Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les mem
     def genericFormExtraClean(self, data, form):
         """Check if accred corresponds to generation constraints"""
 
-        from django import forms
-
         if 'generates_accred' in form.fields:
             if data['generates_accred'] and data['generated_accred_type'] is None:
                 raise forms.ValidationError(_(u'Accréditation nécessaire pour l\'attribuer aux membres.'))
@@ -106,7 +106,7 @@ Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les mem
                 if 'ldap_visible' in data:
                     del data['ldap_visible']
 
-    def genericFormExtraInit(self, form):
+    def genericFormExtraInit(self, form, *args, **kwargs):
         """Reduce the list of possible accreds to the official ones at EPFL"""
         from units.models import Role
 

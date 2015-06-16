@@ -16,7 +16,7 @@
             // Manage visibility in accred block
             $('#id_generates_accred').click(function() {
                 var new_state = $('#id_generates_accred').prop('checked');
-                if (! new_state) {
+                if (!new_state) {
                     $('#id_ldap_visible').prop('checked', false);
                 }
                 $('#id_ldap_visible').attr('disabled', !new_state);
@@ -29,7 +29,7 @@
             });
 
             // Manage initial visibility of accred block
-            if(! $('#id_generates_accred').prop('checked')) {
+            if(!$('#id_generates_accred').prop('checked')) {
                 $('#id_ldap_visible').attr('disabled', true);
                 $('#id_generated_accred_type').attr('disabled', true);
             }

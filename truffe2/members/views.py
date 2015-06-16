@@ -28,7 +28,7 @@ def membership_add(request, pk):
 
     done = False
     if request.method == 'POST':
-        form = MembershipAddForm(request.user, request.POST, group=memberset)
+        form = MembershipAddForm(request.user, memberset, request.POST)
 
         if form.is_valid():
             # Try to find the user. If he dosen't exists, create it.
@@ -53,7 +53,7 @@ def membership_add(request, pk):
             done = True
 
     else:
-        form = MembershipAddForm(request.user, group=memberset)
+        form = MembershipAddForm(request.user, memberset)
 
     return render(request, 'members/membership/add.html', {'form': form, 'done': done, 'group': memberset})
 
@@ -147,7 +147,7 @@ def import_members(request, pk):
 
     done = False
     if request.method == 'POST':
-        form = MembershipImportForm(request.user, request.POST, request.FILES, group=memberset)
+        form = MembershipImportForm(request.user, memberset, request.POST, request.FILES)
 
         if form.is_valid():
 
@@ -174,12 +174,11 @@ def import_members(request, pk):
 
                         edition_extra_data[user.get_full_name()] = ["None", "Membre"]
 
-            print json.dumps(edition_extra_data)
             MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": %s}' % (json.dumps(edition_extra_data),)).save()
             messages.success(request, _(u'Membres importés !'))
             done = True
 
     else:
-        form = MembershipImportForm(request.user, group=memberset)
+        form = MembershipImportForm(request.user, memberset)
 
     return render(request, 'members/membership/import.html', {'form': form, 'done': done, 'group': memberset})

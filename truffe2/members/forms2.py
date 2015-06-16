@@ -17,9 +17,9 @@ class MembershipAddForm(forms.ModelForm):
         model = Membership
         exclude = ('start_date', 'end_date', 'user', 'group')
 
-    def __init__(self, current_user, *args, **kwargs):
+    def __init__(self, current_user, group, *args, **kwargs):
         """"""
-        group = kwargs.pop('group')
+        print "{!r}".format(group)
         super(MembershipAddForm, self).__init__(*args, **kwargs)
 
         if not group or not group.handle_fees:
@@ -39,7 +39,7 @@ class MembershipAddForm(forms.ModelForm):
         cleaned_data = super(MembershipAddForm, self).clean()
 
         if cleaned_data.get('generates_accred') and cleaned_data.get('generated_accred_type') is None:
-            raise forms.ValidationError(u"Ne peut pas avoir un type nul si une accréditation est générée.")
+            raise forms.ValidationError(u"Le type d'accréditation généré ne peut pas avoir un type nul si une accréditation est générée.")
 
         return cleaned_data
 
@@ -49,9 +49,8 @@ class MembershipImportForm(forms.Form):
     imported = forms.FileField()
     copy_fees_status = forms.BooleanField(required=False)
 
-    def __init__(self, current_user, *args, **kwargs):
+    def __init__(self, current_user, group, *args, **kwargs):
         """"""
-        group = kwargs.pop('group')
         super(MembershipImportForm, self).__init__(*args, **kwargs)
 
         if not group or not group.handle_fees:
