@@ -25,13 +25,13 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
     class MetaData:
         list_display = [
             ('name', _('Nom du groupe de membres')),
-            ('generates_accred', _(u'Génère une accréditation EPFL')),
-            ('ldap_visible', _(u'Rend l\'accréditation visible dans l\'annuaire EPFL')),
-            ('handle_fees', _(u'Gère les cotisations des membres')),
+            ('generates_accred', _(u'Génère une accréditation')),
+            ('ldap_visible', _(u'Visible dans l\'annuaire EPFL')),
+            ('handle_fees', _(u'Gère les cotisations')),
             ('status', _('Statut')),
         ]
         details_display = list_display
-        details_display.insert(2, ('generated_accred_type', _(u'Accréditation générée pour les membres')))
+        details_display.insert(2, ('generated_accred_type', _(u'Type généré')))
         filter_fields = ('name', 'status')
 
         base_title = _('Groupes de Membres')

@@ -33,14 +33,6 @@
                 $('#id_ldap_visible').attr('disabled', true);
                 $('#id_generated_accred_type').attr('disabled', true);
             }
-
-            // Check on client side that an accred has been selected if requires creation.
-            /*$('form').submit(function(){
-                if($('#id_generates_accred').prop('checked') && $('#id_generated_accred_type').val() === '') {
-                    alert(" {% trans "Tu dois choisir un type d'accréditation si tu veux en générer pour les membres." %}");
-                    return false;
-                }
-            });*/
         });
     </script>
 {% endblock %}

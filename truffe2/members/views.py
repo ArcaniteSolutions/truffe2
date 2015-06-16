@@ -5,22 +5,22 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 
 from app.ldaputils import get_attrs_of_sciper
-from app.utils import update_current_unit, get_current_unit
-from members.forms2 import MembershipAddForm
-from generic.views import generate_edit
+from app.utils import update_current_unit
+from members.forms2 import MembershipAddForm, MembershipImportForm
 from generic.datatables import generic_list_json
 from users.models import TruffeUser
 
 import json
+import re
 
 
 @login_required
 def membership_add(request, pk):
-    from members.models import MemberSet
+    from members.models import MemberSet, MemberSetLogging
 
     memberset = get_object_or_404(MemberSet, pk=pk)
     if not memberset.rights_can('EDIT', request.user):
@@ -31,25 +31,24 @@ def membership_add(request, pk):
         form = MembershipAddForm(request.user, request.POST, group=memberset)
 
         if form.is_valid():
-            membership = form.save(commit=False)
-            membership.group = memberset
-
             # Try to find the user. If he dosen't exists, create it.
             try:
                 user = TruffeUser.objects.get(username=form.cleaned_data['user'])
             except TruffeUser.DoesNotExist:
-                user = TruffeUser()
-                user.username = form.cleaned_data['user']
+                user = TruffeUser(username=form.cleaned_data['user'], is_active=True)
                 user.last_name, user.first_name, user.email = get_attrs_of_sciper(user.username)
-                user.is_active = True
                 user.save()
 
-            membership.user = user
-            membership.save()
+            if memberset.membership_set.filter(user=user).count():
+                messages.error(request, _(u'Cette personne est déjà membre du groupe !'))
+            else:
+                membership = form.save(commit=False)
+                membership.group = memberset
+                membership.user = user
+                membership.save()
 
-            membership.user.clear_rights_cache()
-
-            messages.success(request, _(u'Membre ajouté !'))
+                MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": {"%s": ["None", "Membre"]}}' % (user.get_full_name(),)).save()
+                messages.success(request, _(u'Membre ajouté !'))
 
             done = True
 
@@ -62,7 +61,7 @@ def membership_add(request, pk):
 @login_required
 def membership_delete(request, pk):
     """Delete a membership"""
-    from members.models import Membership
+    from members.models import Membership, MemberSetLogging
 
     membership = get_object_or_404(Membership, pk=pk)
 
@@ -73,6 +72,7 @@ def membership_delete(request, pk):
         membership.end_date = now()
         membership.save()
 
+        MemberSetLogging(who=request.user, what='edited', object=membership.group, extra_data='{"edited": {"%s": ["Membre", "None"]}}' % (membership.user.get_full_name(),)).save()
         messages.success(request, _(u'Membre retiré !'))
 
         return redirect('members.views.memberset_show', membership.group.pk)
@@ -82,7 +82,7 @@ def membership_delete(request, pk):
 
 @login_required
 def membership_toggle_fees(request, pk):
-    from members.models import Membership
+    from members.models import Membership, MemberSetLogging
 
     membership = get_object_or_404(Membership, pk=pk)
 
@@ -92,6 +92,8 @@ def membership_toggle_fees(request, pk):
     membership.payed_fees = not membership.payed_fees
     membership.save()
 
+    MemberSetLogging(who=request.user, what='edited', object=membership.group,
+                     extra_data='{"edited": {"Cotisation %s": ["%s ", "%s"]}}' % (membership.user.get_full_name(), not membership.payed_fees, membership.payed_fees)).save()
     messages.success(request, _(u'Cotisation mise à jour !'))
 
     return redirect('members.views.memberset_show', membership.group.pk)
@@ -106,12 +108,10 @@ def membership_list_json(request, pk):
     # Update current unit
     update_current_unit(request, request.GET.get('upk'))
 
-    unit = get_current_unit(request)
-
     # Get the MemberSet
     memberset = get_object_or_404(MemberSet, pk=pk)
 
-    # Check unit access
+    # Check user access
     if not memberset.rights_can('SHOW', request.user):
         raise Http404
 
@@ -130,17 +130,56 @@ def export_members(request, pk):
     if not memberset.rights_can('EDIT', request.user):
         raise Http404
 
-    list_users = map(lambda membership: membership.user, memberset.membership_set.all())
-    export_list = []
-    for user in list_users:
-        if user.username_is_sciper():
-            export_list.append(user.username)
-        else:
-            export_list.append([user.first_name, user.last_name, user.email])
+    list_users = map(lambda mship: (mship.user.username, mship.payed_fees), memberset.membership_set.filter(end_date=None))
 
-    return json.dumps(export_list)
+    response = HttpResponse(json.dumps(list_users), mimetype='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename=export.json'
+    return response
 
 
 @login_required
 def import_members(request, pk):
-    pass
+    from members.models import MemberSet, Membership, MemberSetLogging
+
+    memberset = get_object_or_404(MemberSet, pk=pk)
+    if not memberset.rights_can('EDIT', request.user):
+        raise Http404
+
+    done = False
+    if request.method == 'POST':
+        form = MembershipImportForm(request.user, request.POST, request.FILES, group=memberset)
+
+        if form.is_valid():
+
+            edition_extra_data = {}
+            for user_data in json.loads(request.FILES['imported'].read()):
+                try:
+                    user = TruffeUser.objects.get(username=user_data[0])
+                except TruffeUser.DoesNotExist:
+                    sciper = user_data[0]
+                    if re.match('^\d{6}$', sciper):
+                        user = TruffeUser(username=sciper, is_active=True)
+                        user.last_name, user.first_name, user.email = get_attrs_of_sciper(sciper)
+                        user.save()
+                    else:
+                        messages.error(request, _(u'Impossible de créer l\'utilisateur %s' % (sciper,)))
+
+                if user:
+                    if memberset.membership_set.filter(user=user).count():
+                        messages.warning(request, _(u"%s est déjà membre du groupe !" % (user,)))
+                    else:
+                        # Copy the fees status if asked
+                        payed_fees = form.cleaned_data.get('copy_fees_status', False) and user_data[1]
+                        Membership(group=memberset, user=user, payed_fees=payed_fees).save()
+
+                        edition_extra_data[user.get_full_name()] = ["None", "Membre"]
+
+            print json.dumps(edition_extra_data)
+            MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": %s}' % (json.dumps(edition_extra_data),)).save()
+            messages.success(request, _(u'Membres importés !'))
+            done = True
+
+    else:
+        form = MembershipImportForm(request.user, group=memberset)
+
+    return render(request, 'members/membership/import.html', {'form': form, 'done': done, 'group': memberset})

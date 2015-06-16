@@ -1,6 +1,6 @@
 {% load i18n bootstrap3 %}
 
-<form id="add-membership-form" method="POST" action="{% url 'members.views.membership_add' group.pk %}">
+<form id="import-membership-form" method="POST" action="{% url 'members.views.import_members' group.pk %}" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="modal-content">
@@ -9,7 +9,7 @@
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                 &times;
             </button>
-            <h4 class="modal-title" id="myModalLabel">{% trans "Nouveau membre" %}</h4>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Import de membres" %}</h4>
         </div>
 
         <div class="modal-body">
@@ -37,22 +37,7 @@
     </div><!-- /.modal-content -->
     
   <script type="text/javascript">
-        $('#add-membership-form').ajaxForm({replaceTarget: true, target: '#add-membership-form'});
-        $('#id_user').css('width', '100%').addClass('select2').attr('type', 'hidden').removeClass('form-control').select2({
-            minimumInputLength: 3,
-            ajax: {
-                url: "{% url 'users.views.ldap_search' %}",
-                dataType: 'json',
-                data: function (term, page) {
-                    return {
-                    q: term
-                    };
-                },
-                results: function (data, page) {
-                    return { results: data };
-                }
-            }
-        });
+        $('#import-membership-form').ajaxForm({replaceTarget: true, target: '#import-membership-form'});
 
         {% if done %}
             window.location.reload();

@@ -72,14 +72,14 @@
                                         {% endifhasright %}
 
                                         {% ifhasright Model user '!CREATE' %}
-                                          <a href="{% url 'members.views.import_members' obj.pk %}" class="btn btn-default">
+                                          <a href="#" onclick="disp_import();" data-remote="{% url 'members.views.import_members' obj.pk %}" base-data-remote="{% url 'members.views.import_members' obj.pk %}" id="import-membership-button" class="btn btn-default">
                                             <i class="fa fa-upload"></i>
                                             {% trans "Importer" %}
                                           </a>
                                         {% endifhasright %}
 
                                         {% ifhasright Model user '!CREATE' %}
-                                          <a href="#" onclick="disp_add();" data-remote="{% url 'members.views.membership_add' obj.pk %}" base-data-remote="{% url 'members.views.membership_add' obj.pk %}" id="add-accred-button" class="btn btn-primary">
+                                          <a href="#" onclick="disp_add();" data-remote="{% url 'members.views.membership_add' obj.pk %}" base-data-remote="{% url 'members.views.membership_add' obj.pk %}" id="add-membership-button" class="btn btn-primary">
                                             <i class="fa fa-plus"></i>
                                             {% trans "Ajouter" %}
                                           </a>
@@ -113,7 +113,14 @@
 
     <br /><br />
 
-    <div class="modal fade" id="modal-add-accred" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="modal-add-membership" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-import-membership" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
             </div>
@@ -136,9 +143,17 @@
         function disp_add() {
             //Allow usage of select2
             $.fn.modal.Constructor.prototype.enforceFocus = function () {};
-            $('#modal-add-accred').find('.modal-content').html('');
-            $('#modal-add-accred').removeData('bs.modal');
-            $('#modal-add-accred').modal({remote: $('#add-accred-button').attr('data-remote')});
+            $('#modal-add-membership').find('.modal-content').html('');
+            $('#modal-add-membership').removeData('bs.modal');
+            $('#modal-add-membership').modal({remote: $('#add-membership-button').attr('data-remote')});
+        }
+
+        function disp_import() {
+            //Allow usage of select2
+            $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+            $('#modal-import-membership').find('.modal-content').html('');
+            $('#modal-import-membership').removeData('bs.modal');
+            $('#modal-import-membership').modal({remote: $('#import-membership-button').attr('data-remote')});
         }
     </script>
 {% endblock %}
