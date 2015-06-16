@@ -103,29 +103,48 @@ def accreds_edit(request, pk):
 
     accred = get_object_or_404(Accreditation, pk=pk)
 
+    base_role = accred.role
+
     if not accred.rights_can('EDIT', request.user):
         raise Http404
 
     from units.forms2 import AccreditationEditForm
 
     done = False
+    cannot_last_prez = False
 
     if request.method == 'POST':  # If the form has been submitted...
         form = AccreditationEditForm(request.POST, instance=accred)
 
         if form.is_valid():  # If the form is valid
-            accred = form.save()
 
-            accred.user.clear_rights_cache()
+            if base_role.pk == settings.PRESIDENT_ROLE_PK and not accred.rights_can('INGORE_PREZ', request.user) and accred.unit.accreditation_set.filter(role__pk=settings.PRESIDENT_ROLE_PK, end_date=None).count() <= 1 and form.cleaned_data['role'].pk != settings.PRESIDENT_ROLE_PK:
+                cannot_last_prez = True
+            else:
 
-            messages.success(request, _(u'Accréditation sauvegardée !'))
+                accred = form.save(commit=False)
 
-            done = True
+                if accred.role.pk != base_role.pk:
+                    # On termine l'accrédiation
+                    accred.end_date = now()
+                    accred.save()
+
+                    # Et on clone la nouvelle
+                    accred.pk = None
+                    accred.end_date = None
+
+                accred.save()
+
+                accred.user.clear_rights_cache()
+
+                messages.success(request, _(u'Accréditation sauvegardée !'))
+
+                done = True
 
     else:
         form = AccreditationEditForm(instance=accred)
 
-    return render(request, 'units/accreds/edit.html', {'form': form, 'done': done})
+    return render(request, 'units/accreds/edit.html', {'form': form, 'done': done, 'cannot_last_prez': cannot_last_prez})
 
 
 @login_required

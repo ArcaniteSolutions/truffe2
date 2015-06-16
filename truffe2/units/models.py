@@ -348,8 +348,8 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def get_role_or_display_name(self):
         if self.display_name:
-            return str(self.role) + " (" + self.display_name + ")"
-        return str(self.role)
+            return u'%s (%s)' % (self.role, self.display_name)
+        return u'%s' % (self.role,)
 
     def rights_can_INGORE_PREZ(self, user):
         return self.rights_in_root_unit(user, self.MetaRightsUnit.access)

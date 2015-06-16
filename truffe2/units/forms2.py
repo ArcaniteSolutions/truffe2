@@ -33,4 +33,4 @@ class AccreditationEditForm(ModelForm):
 
     class Meta:
         model = Accreditation
-        exclude = ('start_date', 'end_date', 'validation_date', 'unit', 'user', 'role')
+        exclude = ('start_date', 'end_date', 'validation_date', 'unit', 'user')
