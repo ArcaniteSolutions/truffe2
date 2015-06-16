@@ -45,7 +45,24 @@ class Command(BaseCommand):
 
                     writer.writerow([a.user.username.strip(), u.id_epfl, a.role.id_epfl, "False" if a.hidden_in_epfl else "True", smart_str(a.user.first_name), smart_str(a.user.last_name), smart_str(u.name), smart_str(a.role.name), 'Acred'])
 
-                # TODO: Members
+                # Tous les membres encore actifs
+                for mset in u.memberset_set.filter(status='1_active', generates_accred=True):
+                    role_id = mset.generated_accred_type.id_epfl
+
+                    if not role_id:
+                        continue
+
+                    for mship in mset.membership_set.filter(end_date=None):
+                        if not mship.user.username_is_sciper():
+                            continue
+
+                        if mship.user in already_accredited:
+                            continue
+
+                        already_accredited.append(mship.user)
+
+                        writer.writerow([mship.user.username.strip(), u.id_epfl, role_id, "True" if mset.ldap_visible else "False", smart_str(mship.user.first_name), smart_str(mship.user.last_name), smart_str(u.name), smart_str(mset.generated_accred_type.name), 'Membre'])
+
 
         # TODO
         # os.system("scp /tmp/generateListAccredsForDIT collecte@cadibatch.epfl.ch:agepoly/")
