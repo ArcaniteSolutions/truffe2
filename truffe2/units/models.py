@@ -26,7 +26,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
     is_commission = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une commission de l\'AGEPoly'))
     is_equipe = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une équipe de l\'AGEPoly'))
-    is_hidden = models.BooleanField(default=False, help_text=_(u'Cocher rend l\'unité inselectionnable au niveau du contexte d\'unité, sauf pour les administrateurs et les perosnnes accréditées comité de l\'AGEPoly'))
+    is_hidden = models.BooleanField(default=False, help_text=_(u'Cocher rend l\'unité inselectionnable au niveau du contexte d\'unité, sauf pour les administrateurs et les personnes accréditées comité de l\'AGEPoly'))
 
     parent_hierarchique = models.ForeignKey('Unit', blank=True, null=True, help_text=_(u'Pour les commissions et les équipes, sélectionner le comité de l\'AGEPoly. Pour les sous-commisions, sélectionner la commission parente. Pour un coaching de section, sélectionner la commission Coaching. Pour le comité de l\'AGEPoly, ne rien mettre.'))
 
@@ -35,7 +35,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('is_hidden', _(u'Caché ?')),
+            ('is_hidden', _(u'Cachée ?')),
             ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président'))
         ]
@@ -44,7 +44,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
-            ('is_hidden', _(u'Caché ?')),
+            ('is_hidden', _(u'Cachée ?')),
             ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président')),
             ('id_epfl', _('ID EPFL')),
@@ -111,7 +111,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         if not self._can_use_hidden:
             liste = liste.filter(is_hidden=False)
 
-        return liste.order_by('name').count() > 0
+        return liste.count() > 0
 
     def only_one_sub_type(self):
         tt = 0
@@ -129,7 +129,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         """Return the sub units, but only commissions"""
         retour = []
 
-        liste = self.unit_set.filter(is_commission=True).filter(deleted=False)
+        liste = self.unit_set.filter(is_commission=True, deleted=False)
 
         if not self._can_use_hidden:
             liste = liste.filter(is_hidden=False)
@@ -145,7 +145,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         """Return the sub units, but only groups"""
         retour = []
 
-        liste = self.unit_set.exclude(is_commission=True).filter(is_equipe=True).filter(deleted=False)
+        liste = self.unit_set.exclude(is_commission=True, is_equipe=True).filter(deleted=False)
 
         if not self._can_use_hidden:
             liste = liste.filter(is_hidden=False)
@@ -161,7 +161,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         """Return the sub units, without groups or commissions"""
         retour = []
 
-        liste = self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False)
+        liste = self.unit_set.filter(is_commission=False, is_equipe=False).filter(deleted=False)
 
         if not self._can_use_hidden:
             liste = liste.filter(is_hidden=False)
@@ -321,8 +321,8 @@ class Accreditation(models.Model, UnitEditableModel):
     display_name = models.CharField(_(u'Titre'), max_length=255, blank=True, null=True, help_text=_(u'Le nom à afficher dans Truffe. Peut être utilisé pour préciser la fonction'))
 
     no_epfl_sync = models.BooleanField(_(u'Désactiver syncronisation EPFL'), default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
-    hidden_in_epfl = models.BooleanField(_(u'Cacher au niveau EPFL'), default=False, help_text=_(u'A cocher ne pas rendre public l\'accréditation au niveau EPFL'))
-    hidden_in_truffe = models.BooleanField(_(u'Cacher dans Truffe'), default=False, help_text=_(u'A cocher ne pas rendre public l\'accréditation au niveau truffe (sauf aux accréditeurs sur la page d\'accréditation)'))
+    hidden_in_epfl = models.BooleanField(_(u'Cacher au niveau EPFL'), default=False, help_text=_(u'A cocher pour ne pas rendre public l\'accréditation au niveau EPFL'))
+    hidden_in_truffe = models.BooleanField(_(u'Cacher dans Truffe'), default=False, help_text=_(u'A cocher pour ne pas rendre public l\'accréditation au niveau truffe (sauf aux accréditeurs sur la page d\'accréditation)'))
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True

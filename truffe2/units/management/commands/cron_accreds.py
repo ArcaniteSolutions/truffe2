@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        days_before_warnings = [30, 15, 7, 3]
+        days_before_warnings = [30, 15, 7, 3, 2, 1]
 
         # On travaille par unité
         for u in Unit.objects.filter(deleted=False):

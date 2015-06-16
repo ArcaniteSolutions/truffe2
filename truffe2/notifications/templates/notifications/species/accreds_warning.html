@@ -4,7 +4,7 @@
 </em>
 
 <span>
-    {% trans "Les accréditations suivantes dans l'unité" %} <span class="text-primary">{{notification.linked_object}}</span> {% trans "vont expirer dans " %} <span class="text-primary">{{notification.get_metadata.jours}}</span> jours !
+    {% trans "Les accréditations suivantes dans l'unité" %} <span class="text-primary">{{notification.linked_object}}</span> {% trans "vont expirer dans " %} <span class="text-primary">{{notification.get_metadata.jours}}</span> {% trans "jours !" %}
 
     <ul>
         {% for accred in notification.get_metadata.accreds %}
