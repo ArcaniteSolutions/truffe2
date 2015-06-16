@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 from generic.models import GenericModel, FalseFK
 from rights.utils import AgepolyEditableModel, UnitEditableModel
@@ -251,6 +252,8 @@ class _Role(GenericModel, AgepolyEditableModel):
     description = models.TextField(null=True, blank=True)
     ordre = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'accréditer la même personne dans la même unité plusieurs fois. Le rôle avec le plus PETIT ordre sera pris en compte'))
 
+    need_validation = models.BooleanField(_(u'Nécessite validation'), default=False, help_text=_(u'A cocher pour indiquer que le comité de l\'AGEPoly doit valider l\'attribution du rôle'))
+
     ACCESS_CHOICES = (
         ('PRESIDENCE', _(u'Présidence')),
         ('TRESORERIE', _(u'Trésorerie')),
@@ -273,6 +276,7 @@ class _Role(GenericModel, AgepolyEditableModel):
         list_display = [
             ('name', _('Nom')),
             ('id_epfl', _('ID EPFL ?')),
+            ('need_validation', _('Validation ?')),
             ('ordre', _('Ordre'))
         ]
 
@@ -280,11 +284,14 @@ class _Role(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('description', _('Description')),
             ('id_epfl', _('ID EPFL ?')),
+            ('need_validation', _('Validation ?')),
             ('ordre', _('Ordre')),
             ('get_access', _(u'Accès')),
         ]
 
         filter_fields = ('name', 'id_epfl', 'description')
+
+        yes_or_no_fields = ['need_validation']
 
         base_title = _(u'Rôles')
         list_title = _(u'Liste de tous les rôles')
@@ -324,6 +331,8 @@ class Accreditation(models.Model, UnitEditableModel):
     hidden_in_epfl = models.BooleanField(_(u'Cacher au niveau EPFL'), default=False, help_text=_(u'A cocher pour ne pas rendre public l\'accréditation au niveau EPFL'))
     hidden_in_truffe = models.BooleanField(_(u'Cacher dans Truffe'), default=False, help_text=_(u'A cocher pour ne pas rendre public l\'accréditation au niveau truffe (sauf aux accréditeurs sur la page d\'accréditation)'))
 
+    need_validation = models.BooleanField(default=False)
+
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
         access = 'INFORMATIQUE'
@@ -336,6 +345,7 @@ class Accreditation(models.Model, UnitEditableModel):
 
         self.MetaRights.rights_update({
             'INGORE_PREZ': _(u'Peut supprimer le dernier président'),
+            'VALIDATE': _(u'Valider les changements'),
         })
 
     def exp_date(self):
@@ -353,6 +363,29 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def rights_can_INGORE_PREZ(self, user):
         return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+
+    def rights_can_VALIDATE(self, user):
+        return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+
+    def check_if_validation_needed(self, request):
+
+        if not self.role.need_validation:
+            return
+
+        if self.rights_can('VALIDATE', request.user):
+            return
+
+        self.need_validation = True
+
+        from notifications.utils import notify_people
+        dest_users = self.people_in_root_unit('INFORMATIQUE')
+        notify_people(request, 'Accreds.ToValidate', 'accreds_tovalidate', self, dest_users)
+
+    def __unicode__(self):
+        return '%s (%s)' % (self.user, self.get_role_or_display_name())
+
+    def display_url(self):
+        return '%s?upk=%s' % (reverse('units.views.accreds_list'), self.unit.pk,)
 
 
 class _AccessDelegation(GenericModel, UnitEditableModel):

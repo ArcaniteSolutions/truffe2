@@ -73,7 +73,7 @@
                       <dl class="dl-horizontal">
                           {% for accred in user_to_display.active_accreds %}
                             <dt><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>
-                            <dd><span class="label label-success">{{accred.role}}</span> {% trans "depuis le" %} {{accred.start_date|date:"d.m.Y"}}</dd>
+                            <dd><span class="label label-success">{{accred.role}}</span> {% trans "depuis le" %} {{accred.start_date|date:"d.m.Y"}} {% if accred.need_validation %} <span class="text-warning"><i class="fa fa-warning"></i> {% trans "Pas validé par le comité de l\'AGEPoly !" %}</span>{% endif %}</dd>
                           {% endfor %}
                           {% for accred in user_to_display.old_accreds %}
                             <dt><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>

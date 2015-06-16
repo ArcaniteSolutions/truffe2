@@ -133,6 +133,9 @@ def accreds_edit(request, pk):
                     accred.pk = None
                     accred.end_date = None
 
+                    accred.save()
+                    accred.check_if_validation_needed(request)
+
                 accred.save()
 
                 accred.user.clear_rights_cache()
@@ -175,6 +178,32 @@ def accreds_delete(request, pk):
 
 
 @login_required
+def accreds_validate(request, pk):
+    """Delete an accred"""
+
+    accred = get_object_or_404(Accreditation, pk=pk)
+
+    if not accred.rights_can('VALIDATE', request.user):
+        raise Http404
+
+    if request.method == 'POST':
+        accred.need_validation = False
+        accred.save()
+
+        accred.user.clear_rights_cache()
+
+        messages.success(request, _(u'Accréditation validée !'))
+
+        from notifications.utils import notify_people
+        dest_users = accred.unit.users_with_access('INFORMATIQUE', no_parent=True)
+        notify_people(request, 'Accreds.Validated', 'accreds_validated', accred, dest_users)
+
+        return redirect('units.views.accreds_list')
+
+    return render(request, 'units/accreds/validate.html', {'accred': accred})
+
+
+@login_required
 def accreds_add(request):
 
     update_current_unit(request, request.GET.get('upk'))
@@ -210,6 +239,10 @@ def accreds_add(request):
                 user.save()
 
             accred.user = user
+            accred.save()
+
+            # Check if validation is needed
+            accred.check_if_validation_needed(request)
             accred.save()
 
             accred.user.clear_rights_cache()

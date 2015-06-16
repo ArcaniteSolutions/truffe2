@@ -6,13 +6,13 @@
     {% for elem in list %}
     [
       "<a href=\"{% url "users.views.users_profile" elem.user.pk %}\">{{elem.user.get_full_name|force_escape|escapejs}}</a>",
-        "{{elem.get_role_or_display_name|force_escape|escapejs}}",
+      "{{elem.get_role_or_display_name|force_escape|escapejs}}{% if elem.need_validation %} <span class=\"text-warning\"><i class=\"fa fa-warning\"></i> {% trans "Pas validé par le comité de l\'AGEPoly !" %}</span>{% endif %}",
         "{{elem.start_date|date:"d.m.Y"|force_escape|escapejs}}",
         "{% with val=elem.no_epfl_sync invert=True %}{% include "generic/yesorno.html" %}{% endwith %}",
         "{% with val=elem.hidden_in_epfl invert=True %}{% include "generic/yesorno.html" %}{% endwith %}",
         "{% with val=elem.hidden_in_truffe invert=True %}{% include "generic/yesorno.html" %}{% endwith %}",
         "{% if elem.is_valid %}{{elem.exp_date|date:"d.m.Y"|force_escape|escapejs}} ({{elem.exp_date|timeuntil|force_escape|escapejs}}){% else %}{% trans "Accréditation échue le" %} {{elem.end_date|date:"d.m.Y"|force_escape|escapejs}}{% endif %}",
-        "{% if elem.is_valid %}{% ifhasright elem user 'DELETE' %}<a href=\"{% url "units.views.accreds_delete" elem.pk %}\" class=\"btn btn-xs btn-danger\" rel=\"tooltip\" title=\"{% trans "Supprimer" %}\"><i class=\"fa fa-times\"></i> </a>{% endifhasright %}{% ifhasright elem user 'EDIT' %} <a href=\"{% url "units.views.accreds_renew" elem.pk %}\" class=\"btn btn-xs btn-default\" rel=\"tooltip\" title=\"{% trans "Renouveller pour un an !" %}\"><i class=\"fa fa-refresh\"></i> </a>{% endifhasright %}{% ifhasright elem user 'EDIT' %} <a href=\"{% url "units.views.accreds_edit" elem.pk %}\" onclick=\"disp_edit($(this).attr('href')); return false;\" class=\"btn btn-xs btn-primary\" rel=\"tooltip\" title=\"{% trans "Modifier" %}\"><i class=\"fa fa-pencil\"></i> </a>{% endifhasright %}{% endif %}"
+        "{% if elem.is_valid %}{% ifhasright elem user 'DELETE' %}<a href=\"{% url "units.views.accreds_delete" elem.pk %}\" class=\"btn btn-xs btn-danger\" rel=\"tooltip\" title=\"{% trans "Supprimer" %}\"><i class=\"fa fa-times\"></i> </a>{% endifhasright %}{% ifhasright elem user 'EDIT' %} <a href=\"{% url "units.views.accreds_renew" elem.pk %}\" class=\"btn btn-xs btn-default\" rel=\"tooltip\" title=\"{% trans "Renouveller pour un an !" %}\"><i class=\"fa fa-refresh\"></i> </a>{% endifhasright %}{% ifhasright elem user 'EDIT' %} <a href=\"{% url "units.views.accreds_edit" elem.pk %}\" onclick=\"disp_edit($(this).attr('href')); return false;\" class=\"btn btn-xs btn-primary\" rel=\"tooltip\" title=\"{% trans "Modifier" %}\"><i class=\"fa fa-pencil\"></i> </a>{% endifhasright %}{% if elem.need_validation %}{% ifhasright elem user 'VALIDATE' %} <a href=\"{% url "units.views.accreds_validate" elem.pk %}\" class=\"btn btn-xs btn-success\" rel=\"tooltip\" title=\"{% trans "Valider" %}\"><i class=\"fa fa-check\"></i> </a>{% endifhasright %}{% endif %}{% endif %}"
       ]{% if not forloop.last %},{% endif %}
     {% endfor %}
 ]
