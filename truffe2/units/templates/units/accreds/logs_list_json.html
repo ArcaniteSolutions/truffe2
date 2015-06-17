@@ -1,0 +1,16 @@
+{% extends "generic/datatables_json.html" %}
+{% load i18n rights_extras %}
+
+{% block data %}
+[
+    {% for elem in list %}
+    [
+        "{{elem.accreditation.user.get_full_name|force_escape|escapejs}}: {{elem.accreditation.get_role_or_display_name|force_escape|escapejs}}",
+        "{{elem.who.get_full_name|force_escape|escapejs}}",
+        "{{elem.get_type_display|force_escape|escapejs}}",
+        "{{elem.when|date:"d.m.Y"|force_escape|escapejs}} {{elem.when|time|force_escape|escapejs}}",
+        "{{elem.what|default:""|force_escape|escapejs}}"
+      ]{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+{% endblock %}

@@ -58,6 +58,18 @@
                       <hr style="clear: both; visibility: hidden;">
 
                 {% include "widget/footer.html" %}
+
+                <div style="float: right;">
+
+                  <a class="btn btn-info" href="{% url 'units.views.accreds_logs_list' %}">
+                    <i class="fa fa-list"></i> {% trans "Logs" %}
+                  </a>
+
+                  <button class="btn btn-primary" onclick="disp_add();" data-remote="{% url 'units.views.accreds_add' %}?upk={{CURRENT_UNIT.pk}}" base-data-remote="{% url 'units.views.accreds_add' %}?upk=" id="add-accred-button">
+                    <i class="fa fa-plus"></i> {% trans "Ajouter une accréditation" %}
+                  </button>
+
+                </div>
             </div>
             <div class="col-sm-12 col-md-2 col-lg-2">
                 {% with function_to_call="unit_updated" %}
@@ -214,13 +226,6 @@
 
     {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" force_first_width=True %}{% include "datatables.html" %}{% endwith %}
 
-    <div style="float: right;">
-
-      <button class="btn btn-primary" onclick="disp_add();" data-remote="{% url 'units.views.accreds_add' %}?upk={{CURRENT_UNIT.pk}}" base-data-remote="{% url 'units.views.accreds_add' %}?upk=" id="add-accred-button">
-        <i class="fa fa-plus"></i> {% trans "Ajouter une accréditation" %}
-      </button>
-
-    </div>
 
     <br /><br />
 

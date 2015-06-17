@@ -338,7 +338,7 @@ class Accreditation(models.Model, UnitEditableModel):
         access = 'INFORMATIQUE'
 
     class MetaRights(UnitEditableModel.MetaRights):
-        pass
+        linked_unit_property = 'unit'
 
     def __init__(self, *args, **kwargs):
         super(Accreditation, self).__init__(*args, **kwargs)
@@ -386,6 +386,24 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def display_url(self):
         return '%s?upk=%s' % (reverse('units.views.accreds_list'), self.unit.pk,)
+
+
+class AccreditationLog(models.Model):
+
+    accreditation = models.ForeignKey(Accreditation)
+    who = models.ForeignKey(TruffeUser)
+    when = models.DateTimeField(auto_now_add=True)
+    what = models.TextField(blank=True, null=True)
+
+    TYPE_CHOICES = [
+        ('created', _(u'Créé')),
+        ('edited', _(u'Modifié')),
+        ('deleted', _(u'Supprimé')),
+        ('renewed', _(u'Renouvellé')),
+        ('validated', _(u'Validé')),
+    ]
+
+    type = models.CharField(max_length=32, choices=TYPE_CHOICES)
 
 
 class _AccessDelegation(GenericModel, UnitEditableModel):

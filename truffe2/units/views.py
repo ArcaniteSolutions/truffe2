@@ -21,7 +21,7 @@ from django.utils.timezone import now
 
 from generic.datatables import generic_list_json
 
-from units.models import Accreditation
+from units.models import Accreditation, AccreditationLog
 from app.utils import update_current_unit, get_current_unit
 from app.ldaputils import search_sciper, get_attrs_of_sciper
 from users.models import TruffeUser
@@ -82,6 +82,52 @@ def accreds_list_json(request):
 
 
 @login_required
+def accreds_logs_list(request):
+    """Display the list of accreds"""
+
+    from units.models import Unit
+
+    main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
+
+    main_unit.set_rights_can_select(lambda unit: Accreditation.static_rights_can('LIST', request.user, unit))
+    main_unit.set_rights_can_edit(lambda unit: Accreditation.static_rights_can('CREATE', request.user, unit))
+    main_unit.check_if_can_use_hidden(request.user)
+
+    if request.GET.get('upk'):
+        update_current_unit(request, request.GET.get('upk'))
+
+    return render(request, 'units/accreds/logs_list.html', {'main_unit': main_unit})
+
+
+@login_required
+@csrf_exempt
+def accreds_logs_list_json(request):
+    """Display the list of accreds, json call for the list"""
+
+    # Update current unit
+    update_current_unit(request, request.GET.get('upk'))
+
+    unit = get_current_unit(request)
+
+    # Check unit access
+    if not Accreditation.static_rights_can('LIST', request.user, unit):
+        raise Http404
+
+    # Filter by unit
+    filter_ = lambda x: x.filter(accreditation__unit=unit)
+
+    # Si pas le droit de créer, filtrage des accreds invisibles
+    if not Accreditation.static_rights_can('CREATE', request.user, get_current_unit(request)):
+        filter__ = lambda x: x.filter(accreditation__hidden_in_truffe=False)
+    else:
+        filter__ = lambda x: x
+
+    filter2 = lambda x: filter_(filter__(x))
+
+    return generic_list_json(request, AccreditationLog, ['pk', 'user', 'type', 'when', 'what'], 'units/accreds/logs_list_json.html', filter_fields=['accred__user__first_name', 'accred__user__last_name', 'accred__role__name', 'who__first_name', 'who__last_name'], bonus_filter_function=filter2, columns_mapping={'pk': 'accreditation__user__first_name'})
+
+
+@login_required
 def accreds_renew(request, pk):
     """Renew an accreds"""
 
@@ -97,6 +143,8 @@ def accreds_renew(request, pk):
         for accred in accreds:
             accred.validation_date = now()
             accred.save()
+
+            AccreditationLog(accreditation=accred, who=request.user, type='renewed').save()
 
         if multi_obj:
             messages.success(request, _(u'Accréditations renouvellées !'))
@@ -114,6 +162,7 @@ def accreds_edit(request, pk):
     accred = get_object_or_404(Accreditation, pk=pk)
 
     base_role = accred.role
+    old_accred_data = accred.__dict__.copy()
 
     if not accred.rights_can('EDIT', request.user):
         raise Http404
@@ -139,12 +188,42 @@ def accreds_edit(request, pk):
                     accred.end_date = now()
                     accred.save()
 
+                    AccreditationLog(accreditation=accred, who=request.user, type='deleted').save()
+
                     # Et on clone la nouvelle
                     accred.pk = None
                     accred.end_date = None
 
                     accred.save()
                     accred.check_if_validation_needed(request)
+
+                    AccreditationLog(accreditation=accred, who=request.user, type='created').save()
+
+                else:
+                    changes = ""  # NB: Pas traduit, au cas ou besion de parsing
+
+                    if accred.display_name != old_accred_data['display_name']:
+                        changes += "DisplayName \"%s\" -> \"%s\"\n" % (old_accred_data['display_name'], accred.display_name,)
+
+                    if accred.no_epfl_sync != old_accred_data['no_epfl_sync']:
+                        if accred.no_epfl_sync:
+                            changes += 'Now NoEpflSync\n'
+                        else:
+                            changes += 'Now EpflSync\n'
+
+                    if accred.hidden_in_epfl != old_accred_data['hidden_in_epfl']:
+                        if accred.hidden_in_epfl:
+                            changes += 'Now EpflHidden\n'
+                        else:
+                            changes += 'Now EpflShown\n'
+
+                    if accred.hidden_in_truffe != old_accred_data['hidden_in_truffe']:
+                        if accred.hidden_in_truffe:
+                            changes += 'Now TruffeHidden\n'
+                        else:
+                            changes += 'Now TruffeShown\n'
+
+                    AccreditationLog(accreditation=accred, who=request.user, type='edited', what=changes).save()
 
                 accred.save()
 
@@ -186,6 +265,8 @@ def accreds_delete(request, pk):
             accred.end_date = now()
             accred.save()
 
+            AccreditationLog(accreditation=accred, who=request.user, type='deleted').save()
+
             accred.user.clear_rights_cache()
 
         if multi_obj:
@@ -217,6 +298,8 @@ def accreds_validate(request, pk):
             accred.save()
 
             accred.user.clear_rights_cache()
+
+            AccreditationLog(accreditation=accred, who=request.user, type='validated').save()
 
             from notifications.utils import notify_people
             dest_users = accred.unit.users_with_access('INFORMATIQUE', no_parent=True)
@@ -269,6 +352,8 @@ def accreds_add(request):
 
             accred.user = user
             accred.save()
+
+            AccreditationLog(accreditation=accred, who=request.user, type='created').save()
 
             # Check if validation is needed
             accred.check_if_validation_needed(request)
