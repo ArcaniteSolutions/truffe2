@@ -93,15 +93,19 @@ def accreds_renew(request, pk):
         if not accred.rights_can('EDIT', request.user):
             raise Http404
 
-        accred.validation_date = now()
-        accred.save()
+    if request.method == 'POST':
+        for accred in accreds:
+            accred.validation_date = now()
+            accred.save()
 
-    if multi_obj:
-        messages.success(request, _(u'Accréditations renouvellées !'))
-    else:
-        messages.success(request, _(u'Accréditation renouvellée !'))
+        if multi_obj:
+            messages.success(request, _(u'Accréditations renouvellées !'))
+        else:
+            messages.success(request, _(u'Accréditation renouvellée !'))
 
-    return redirect('units.views.accreds_list')
+        return redirect('units.views.accreds_list')
+
+    return render(request, 'units/accreds/renew.html', {'accreds': accreds, 'multi_obj': multi_obj})
 
 
 @login_required
