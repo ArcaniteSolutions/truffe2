@@ -46,12 +46,14 @@ class MembershipAddForm(forms.ModelForm):
 
 class MembershipImportForm(forms.Form):
 
-    imported = forms.FileField()
-    copy_fees_status = forms.BooleanField(required=False)
+    imported = forms.FileField(label=_(u'Fichier à importer'))
+    copy_fees_status = forms.BooleanField(label=_(u'Copier les cotisations ?'), required=False)
 
     def __init__(self, current_user, group, *args, **kwargs):
         """"""
         super(MembershipImportForm, self).__init__(*args, **kwargs)
+
+        self.fields['imported'].help_text = _(u'Accepte les fichiers JSON composés de listes de username ou de listes de couples (username, cotisation_payée)')
 
         if not group or not group.handle_fees:
             del self.fields['copy_fees_status']

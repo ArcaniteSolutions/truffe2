@@ -21,14 +21,14 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
     generates_accred = models.BooleanField(_(u'Génère des accreds'), default=True)
     generated_accred_type = FalseFK('units.models.Role', blank=True, null=True, verbose_name=_(u'Accréditation générée pour les membres'))
     ldap_visible = models.BooleanField(_(u'Rend les accreds visibles dans l\'annuaire'), default=False)
-    handle_fees = models.BooleanField(_(u'Gère les cotisations'), default=False)
+    handle_fees = models.BooleanField(_(u'Gestion des cotisations'), default=False)
 
     class MetaData:
         list_display = [
             ('name', _('Nom du groupe de membres')),
             ('generates_accred', _(u'Génère une accréditation')),
             ('ldap_visible', _(u'Visible dans l\'annuaire EPFL')),
-            ('handle_fees', _(u'Gère les cotisations')),
+            ('handle_fees', _(u'Gestion des cotisations')),
             ('status', _('Statut')),
         ]
         details_display = list_display

@@ -81,6 +81,7 @@ def membership_delete(request, pk):
 
 
 @login_required
+@csrf_exempt
 def membership_toggle_fees(request, pk):
     from members.models import Membership, MemberSetLogging
 
@@ -145,40 +146,52 @@ def import_members(request, pk):
     if not memberset.rights_can('EDIT', request.user):
         raise Http404
 
-    done = False
+    logs = []
+
     if request.method == 'POST':
         form = MembershipImportForm(request.user, memberset, request.POST, request.FILES)
 
         if form.is_valid():
 
             edition_extra_data = {}
-            for user_data in json.loads(request.FILES['imported'].read()):
-                try:
-                    user = TruffeUser.objects.get(username=user_data[0])
-                except TruffeUser.DoesNotExist:
-                    sciper = user_data[0]
-                    if re.match('^\d{6}$', sciper):
-                        user = TruffeUser(username=sciper, is_active=True)
-                        user.last_name, user.first_name, user.email = get_attrs_of_sciper(sciper)
-                        user.save()
+            try:
+                imp_file = json.loads(request.FILES['imported'].read())
+                for user_data in imp_file:
+                    if isinstance(user_data, (int, str, unicode)):
+                        username = str(user_data)
+                        fees = False
+                    elif type(user_data) is list:
+                        username = user_data[0]
+                        fees = len(user_data) > 1 and user_data[1]
                     else:
-                        messages.error(request, _(u'Impossible de créer l\'utilisateur %s' % (sciper,)))
+                        continue
 
-                if user:
-                    if memberset.membership_set.filter(user=user).count():
-                        messages.warning(request, _(u"%s est déjà membre du groupe !" % (user,)))
-                    else:
-                        # Copy the fees status if asked
-                        payed_fees = form.cleaned_data.get('copy_fees_status', False) and user_data[1]
-                        Membership(group=memberset, user=user, payed_fees=payed_fees).save()
+                    try:
+                        user = TruffeUser.objects.get(username=username)
+                    except TruffeUser.DoesNotExist:
+                        if re.match('^\d{6}$', username):
+                            user = TruffeUser(username=username, is_active=True)
+                            user.last_name, user.first_name, user.email = get_attrs_of_sciper(username)
+                            user.save()
+                        else:
+                            logs.append(('danger', username, _(u'Impossible de créer l\'utilisateur')))
+                            user = None
 
-                        edition_extra_data[user.get_full_name()] = ["None", "Membre"]
-
-            MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": %s}' % (json.dumps(edition_extra_data),)).save()
-            messages.success(request, _(u'Membres importés !'))
-            done = True
+                    if user:
+                        if memberset.membership_set.filter(user=user).count():
+                            logs.append(('warning', user, _(u'L\'utilisateur est déjà membre de ce groupe')))
+                        else:
+                            # Copy the fees status if asked
+                            payed_fees = form.cleaned_data.get('copy_fees_status', False) and fees
+                            Membership(group=memberset, user=user, payed_fees=payed_fees).save()
+                            logs.append(('success', user, _(u'Utilisateur ajouté avec succès')))
+                            edition_extra_data[user.get_full_name()] = ["None", "Membre"]
+                MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": %s}' % (json.dumps(edition_extra_data),)).save()
+            except ValueError:
+                logs.append(('danger', _(u'ERREUR'), _(u'Le fichier ne peut pas être lu correctement, l\'import a été annulé')))
 
     else:
         form = MembershipImportForm(request.user, memberset)
 
-    return render(request, 'members/membership/import.html', {'form': form, 'done': done, 'group': memberset})
+    logs.sort(key=lambda x: x[0])
+    return render(request, 'members/membership/import.html', {'form': form, 'logs': logs, 'group': memberset, 'display_list_panel': True})

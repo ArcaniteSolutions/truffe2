@@ -136,8 +136,10 @@
             $('#hr2 h1').remove();
             $('#hr2 hr').remove();
 
-            // Activate list panel after load, in order to display status correctly on management panel.
-            $('#widget-tab-memberset li:first a').click();
+            // Activate list panel after load if requested to display this one.
+            {% if display_list_panel %}
+                $('#widget-tab-memberset li:first a').click();
+            {% endif %}
         });
 
         function disp_add() {
@@ -154,6 +156,10 @@
             $('#modal-import-membership').find('.modal-content').html('');
             $('#modal-import-membership').removeData('bs.modal');
             $('#modal-import-membership').modal({remote: $('#import-membership-button').attr('data-remote')});
+        }
+
+        function toggle_fees(mship_id) {
+            $.post("{% url "members.views.membership_toggle_fees" 9999429999 %}".replace(9999429999, mship_id));
         }
     </script>
 {% endblock %}
