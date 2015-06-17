@@ -9,7 +9,7 @@ import datetime
 
 
 from notifications.utils import notify_people
-from units.models import Unit
+from units.models import Unit, AccreditationLog
 
 
 class Command(BaseCommand):
@@ -42,6 +42,8 @@ class Command(BaseCommand):
                 if delta <= 0:
                     a.end_date = now()
                     a.save()
+
+                    AccreditationLog(accreditation=a, who=a.user, what='autodeleted').save()
 
                     to_delete.append(a)
 

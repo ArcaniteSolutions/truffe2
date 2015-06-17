@@ -399,6 +399,7 @@ class AccreditationLog(models.Model):
         ('created', _(u'Créé')),
         ('edited', _(u'Modifié')),
         ('deleted', _(u'Supprimé')),
+        ('autodeleted', _(u'Supprimé automatiquement')),
         ('renewed', _(u'Renouvellé')),
         ('validated', _(u'Validé')),
     ]
