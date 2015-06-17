@@ -29,7 +29,14 @@ def home(request):
 
     news = filter(lambda s: (not s.start_date or s.start_date <= now()) and (not s.end_date or s.end_date >= now()), list(news))
 
-    return render(request, 'main/home.html', {'news': news})
+    from units.models import Accreditation
+
+    if Accreditation.static_rights_can('VALIDATE', request.user):
+        accreds_to_validate = Accreditation.objects.filter(end_date=None, need_validation=True)
+    else:
+        accreds_to_validate = []
+
+    return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate})
 
 
 @login_required
