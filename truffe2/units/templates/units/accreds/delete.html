@@ -22,14 +22,25 @@
 
                     {% if cannot_last_prez %}
                         <div class="alert alert-block alert-danger">
-                            <h4 class="alert-heading">{% trans "Impossible de supprimer l'accréditation de" %} {{accred.user.get_full_name}} {% trans "dans l'unité" %} {{accred.unit}}</h4>
+                            <h4 class="alert-heading">{% trans "Impossible de supprimer l'accréditation de" %} {{cannot_last_prez_accred.user.get_full_name}}  ({{accreds.0.get_role_or_display_name}}){% trans "dans l'unité" %} {{cannot_last_prez_accred.unit}}</h4>
 
                             {% trans "Il faut au moins un président accrédité !" %}
                         </div>
                     {% else %}
-                    
+
                         <div class="alert alert-block alert-warning">
-                            <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'accréditation de" %} {{accred.user.get_full_name}} {% trans "dans l'unité" %} {{accred.unit}}</h4>
+                            {% if not multi_obj %}
+                                <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer l'accréditation de" %} {{accreds.0.user.get_full_name}} {% trans "dans l'unité" %} {{accreds.0.unit}}</h4>
+                            {% else %}
+                                <h4 class="alert-heading">{% trans "Vous êtes sur le point de supprimer les accréditations suivantes dans l'unité" %} {{accreds.0.unit}}</h4>
+
+                                <ul>
+                                    {% for accred in accreds %}
+                                        <li>{{accred.user.get_full_name}} ({{accred.get_role_or_display_name}})</li>
+                                    {% endfor %}
+                                </ul>
+
+                            {% endif %}
 
                             {% trans "Êtes-vous sûr de vouloir faire ça ?" %}
                         </div>

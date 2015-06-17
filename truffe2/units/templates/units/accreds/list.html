@@ -23,6 +23,7 @@
                     <table id="main_list_table" class="table table-striped table-hover">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" class="dt_main_checkbox"></th>
                                     <th width="15%">{% trans "Personne" %}</th>
                                     <th width="15%">{% trans "Rôle" %}</th>
                                     <th width="15%">{% trans "Début" %}</th>
@@ -36,6 +37,23 @@
                             <tbody>
                             </tbody>
                           </table>
+
+
+                    <div style="padding: 5px; display: none;" id="doable_block">
+                        <div class="pull-right" style="margin-right: 5px;">
+                          {% trans "Effectuer une action sur les <span id='doable_nb'></span> accrédiations(s) sélectionné(s) :" %}
+
+                          <div id="doable_buttons" style="text-align: right;">
+                            <a href="#" id="doable_delete" class="btn btn-danger" base_href="{% url "units.views.accreds_delete" 9904299 %}"><i class="fa fa-times"></i> {% trans "Supprimer" %}</a>
+                              <a href="#" id="doable_renew" class="btn btn-default" base_href="{% url "units.views.accreds_renew" 9904299 %}"><i class="fa fa-refresh"></i> {% trans "Renouveller" %}</a>
+                              <a href="#" id="doable_validate" class="btn btn-success" base_href="{% url "units.views.accreds_validate" 9904299 %}"><i class="fa fa-check"></i> {% trans "Valider" %}</a>
+                          </div>
+
+
+                        </div>
+
+                    </div>
+
 
                       <hr style="clear: both; visibility: hidden;">
 
@@ -102,9 +120,99 @@
         return "&h=" + ($('#myonoffswitchaccredlist').is(":checked") ? 1 : 0);
       }
 
+      $(document).on("change", ".dt_list_checkbox", function(elem) {
+          if ($(elem.target).is(':checked')) {
+              $(elem.target).parent().parent().addClass('tr_selected');
+          } else {
+              $(elem.target).parent().parent().removeClass('tr_selected');
+          }
+
+          update_multi_do();
+
+      });
+
+      $('.dt_main_checkbox').on('change', function () {
+
+          var need_check = $('.dt_main_checkbox').is(':checked');
+
+          if (need_check) {
+              $('.dt_list_checkbox:not(:checked)').click();
+          } else {
+              $('.dt_list_checkbox:checked').click();
+          }
+
+      });
+
+
+      $('.dt_main_checkbox').on('click', function (e) {
+          e.stopPropagation();
+      });
+
+      function update_multi_do() {
+          var doables_pk = [];
+
+          var btn_delete = true;
+          var btn_validate = true;
+          var btn_renew = true;
+
+          var doables = $('.dt_list_checkbox:checked');
+
+
+          $('.dt_list_checkbox:checked').each(function (__, elem) {
+
+              if ($(elem).parent().parent().find('.button-delete').length == 0)
+                 btn_delete = false;
+              if ($(elem).parent().parent().find('.button-renew').length == 0)
+                 btn_renew = false;
+              if ($(elem).parent().parent().find('.button-validate').length == 0)
+                 btn_validate = false;
+
+          });
+
+
+          if ((btn_delete || btn_renew || btn_validate) && $('.dt_list_checkbox:checked').length > 1) {
+              $('#doable_block').show();
+              $('#doable_nb').html($('.dt_list_checkbox:checked').length);
+
+              if (btn_delete) {
+                  $('#doable_delete').show();
+              } else {
+                  $('#doable_delete').hide();
+              }
+
+              if (btn_renew) {
+                  $('#doable_renew').show();
+              } else {
+                  $('#doable_renew').hide();
+              }
+
+              if (btn_validate) {
+                  $('#doable_validate').show();
+              } else {
+                  $('#doable_validate').hide();
+              }
+
+
+              var pks = '';
+
+              $('.dt_list_checkbox:checked').each(function (_, e) {
+                  pks += $(e).attr('pk') + ',';
+              });
+
+              $('#doable_delete').attr('href', $('#doable_delete').attr('base_href').replace('9904299', pks));
+              $('#doable_renew').attr('href', $('#doable_renew').attr('base_href').replace('9904299', pks));
+              $('#doable_validate').attr('href', $('#doable_validate').attr('base_href').replace('9904299', pks));
+
+          } else {
+              $('#doable_block').hide();
+          }
+
+      }
+
+
     </script>
 
-    {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" force_first_width=True %}{% include "datatables.html" %}{% endwith %}
 
     <div style="float: right;">
 

@@ -78,22 +78,28 @@ def accreds_list_json(request):
     else:
         filter2 = lambda x: filter_(filter__(x))
 
-    return generic_list_json(request, Accreditation, ['user', 'get_role_or_display_name', 'start_date', 'exp_date', 'no_epfl_sync', 'pk'], 'units/accreds/list_json.html', filter_fields=['user__first_name', 'user__last_name', 'role__name'], bonus_filter_function=filter2, not_sortable_colums=['get_role_or_display_name'])
+    return generic_list_json(request, Accreditation, ['pk', 'user', 'get_role_or_display_name', 'start_date', 'no_epfl_sync', 'hidden_in_epfl', 'hidden_in_truffe', 'validation_date', 'pk'], 'units/accreds/list_json.html', filter_fields=['user__first_name', 'user__last_name', 'role__name'], bonus_filter_function=filter2, columns_mapping={'get_role_or_display_name': 'role__name', 'user': 'user__first_name'})
 
 
 @login_required
 def accreds_renew(request, pk):
     """Renew an accreds"""
 
-    accred = get_object_or_404(Accreditation, pk=pk)
+    accreds = [get_object_or_404(Accreditation, pk=pk_, end_date=None) for pk_ in filter(lambda x: x, pk.split(','))]
 
-    if not accred.rights_can('EDIT', request.user):
-        raise Http404
+    multi_obj = len(accreds) > 1
 
-    accred.validation_date = now()
-    accred.save()
+    for accred in accreds:
+        if not accred.rights_can('EDIT', request.user):
+            raise Http404
 
-    messages.success(request, _(u'Accréditation renouvellée !'))
+        accred.validation_date = now()
+        accred.save()
+
+    if multi_obj:
+        messages.success(request, _(u'Accréditations renouvellées !'))
+    else:
+        messages.success(request, _(u'Accréditation renouvellée !'))
 
     return redirect('units.views.accreds_list')
 
@@ -154,53 +160,72 @@ def accreds_edit(request, pk):
 def accreds_delete(request, pk):
     """Delete an accred"""
 
-    accred = get_object_or_404(Accreditation, pk=pk)
+    accreds = [get_object_or_404(Accreditation, pk=pk_, end_date=None) for pk_ in filter(lambda x: x, pk.split(','))]
 
-    if not accred.rights_can('DELETE', request.user):
-        raise Http404
+    multi_obj = len(accreds) > 1
 
     cannot_last_prez = False
+    cannot_last_prez_accred = None
 
-    if accred.role.pk == settings.PRESIDENT_ROLE_PK and not accred.rights_can('INGORE_PREZ', request.user) and accred.unit.accreditation_set.filter(role__pk=settings.PRESIDENT_ROLE_PK, end_date=None).count() <= 1:
-        cannot_last_prez = True
+    for accred in accreds:
+
+        if not accred.rights_can('DELETE', request.user):
+            raise Http404
+
+        if accred.role.pk == settings.PRESIDENT_ROLE_PK and not accred.rights_can('INGORE_PREZ', request.user) and accred.unit.accreditation_set.filter(role__pk=settings.PRESIDENT_ROLE_PK, end_date=None).count() <= 1:
+            cannot_last_prez = True
+            cannot_last_prez_accred = accred
 
     if not cannot_last_prez and request.method == 'POST':
-        accred.end_date = now()
-        accred.save()
 
-        accred.user.clear_rights_cache()
+        for accred in accreds:
+            accred.end_date = now()
+            accred.save()
 
-        messages.success(request, _(u'Accréditation supprimée !'))
+            accred.user.clear_rights_cache()
+
+        if multi_obj:
+            messages.success(request, _(u'Accréditations supprimées !'))
+        else:
+            messages.success(request, _(u'Accréditation supprimée !'))
 
         return redirect('units.views.accreds_list')
 
-    return render(request, 'units/accreds/delete.html', {'accred': accred, 'cannot_last_prez': cannot_last_prez})
+    return render(request, 'units/accreds/delete.html', {'accreds': accreds, 'cannot_last_prez': cannot_last_prez, 'multi_obj': multi_obj, 'cannot_last_prez_accred': cannot_last_prez_accred})
 
 
 @login_required
 def accreds_validate(request, pk):
-    """Delete an accred"""
+    """Validate an accred"""
 
-    accred = get_object_or_404(Accreditation, pk=pk)
+    accreds = [get_object_or_404(Accreditation, pk=pk_, end_date=None) for pk_ in filter(lambda x: x, pk.split(','))]
 
-    if not accred.rights_can('VALIDATE', request.user):
-        raise Http404
+    multi_obj = len(accreds) > 1
+
+    for accred in accreds:
+        if not accred.rights_can('VALIDATE', request.user):
+            raise Http404
 
     if request.method == 'POST':
-        accred.need_validation = False
-        accred.save()
 
-        accred.user.clear_rights_cache()
+        for accred in accreds:
+            accred.need_validation = False
+            accred.save()
 
-        messages.success(request, _(u'Accréditation validée !'))
+            accred.user.clear_rights_cache()
 
-        from notifications.utils import notify_people
-        dest_users = accred.unit.users_with_access('INFORMATIQUE', no_parent=True)
-        notify_people(request, 'Accreds.Validated', 'accreds_validated', accred, dest_users)
+            from notifications.utils import notify_people
+            dest_users = accred.unit.users_with_access('INFORMATIQUE', no_parent=True)
+            notify_people(request, 'Accreds.Validated', 'accreds_validated', accred, dest_users)
+
+        if multi_obj:
+            messages.success(request, _(u'Accréditations validées !'))
+        else:
+            messages.success(request, _(u'Accréditation validée !'))
 
         return redirect('units.views.accreds_list')
 
-    return render(request, 'units/accreds/validate.html', {'accred': accred})
+    return render(request, 'units/accreds/validate.html', {'accreds': accreds, 'multi_obj': multi_obj})
 
 
 @login_required
