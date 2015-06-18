@@ -13,14 +13,8 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.EmailField')(max_length=255, null=True, blank=True),
                       keep_default=False)
 
-        # Adding unique constraint on 'TruffeUser', fields ['email']
-        db.create_unique(u'users_truffeuser', ['email'])
-
 
     def backwards(self, orm):
-        # Removing unique constraint on 'TruffeUser', fields ['email']
-        db.delete_unique(u'users_truffeuser', ['email'])
-
         # Deleting field 'TruffeUser.email_perso'
         db.delete_column(u'users_truffeuser', 'email_perso')
 
