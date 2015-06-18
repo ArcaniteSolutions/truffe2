@@ -14,6 +14,21 @@
 
         <div class="modal-body">
 
+            {% if done %}
+                {% if done_user %}
+                    <div class="alert alert-success">
+                        {{done_user}} {% trans "ajouté avec success !" %}
+                {% else %}
+                    <div class="alert alert-danger">
+                        {% trans "Cette personne est déjà membre du groupe !" %}
+                {% endif %}
+
+                        <button type="button" class="btn btn-default btn-xs" data-dismiss="modal">
+                            {% trans "Fermer" %}
+                        </button>
+                    </div>
+            {% endif %}
+
             <div class="form-group">
                 <label>
                     {% trans "Groupe" %}
@@ -28,15 +43,15 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">
-                    {% trans "Annuler" %}
+                    {% trans "Fermer" %}
                 </button>
                 <input type="submit" class="btn btn-primary" value="{% trans "Ajouter" %}">
             </div>
         </div>
 
     </div><!-- /.modal-content -->
-    
-  <script type="text/javascript">
+
+    <script type="text/javascript">
         $('#add-membership-form').ajaxForm({replaceTarget: true, target: '#add-membership-form'});
         $('#id_user').css('width', '100%').addClass('select2').attr('type', 'hidden').removeClass('form-control').select2({
             minimumInputLength: 3,
@@ -52,10 +67,10 @@
                     return { results: data };
                 }
             }
-        });
+        }).select2('open');
 
         {% if done %}
-            window.location.reload();
+            data_table_main_list_table._fnAjaxUpdate();
         {% endif %}
 
   </script>

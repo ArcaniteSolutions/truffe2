@@ -28,6 +28,8 @@ def membership_add(request, pk):
         raise Http404
 
     done = False
+    done_user = None
+
     if request.method == 'POST':
         form = MembershipAddForm(request.user, memberset, request.POST)
 
@@ -41,7 +43,7 @@ def membership_add(request, pk):
                 user.save()
 
             if memberset.membership_set.filter(user=user).count():
-                messages.error(request, _(u'Cette personne est déjà membre du groupe !'))
+                pass
             else:
                 membership = form.save(commit=False)
                 membership.group = memberset
@@ -49,14 +51,16 @@ def membership_add(request, pk):
                 membership.save()
 
                 MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": {"%s": ["None", "Membre"]}}' % (user.get_full_name(),)).save()
-                messages.success(request, _(u'Membre ajouté !'))
+
+                done_user = user
 
             done = True
+            form = MembershipAddForm(request.user, memberset)
 
     else:
         form = MembershipAddForm(request.user, memberset)
 
-    return render(request, 'members/membership/add.html', {'form': form, 'done': done, 'group': memberset})
+    return render(request, 'members/membership/add.html', {'form': form, 'done': done, 'done_user': done_user, 'group': memberset})
 
 
 @login_required
