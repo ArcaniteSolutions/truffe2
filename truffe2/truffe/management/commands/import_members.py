@@ -46,7 +46,7 @@ class Command(BaseCommand):
                     MemberSet.objects.filter(name=mset_data['name'], unit=unit).delete()
 
                     mset, __ = MemberSet.objects.get_or_create(name=mset_data['name'], unit=unit, handle_fees=True, ldap_visible=False)
-                    mset.generates_accred = (role.name == "None")
+                    mset.generates_accred = (role.name != "None")
                     if mset.generates_accred:
                         mset.generated_accred_type = role
                     mset.save()
