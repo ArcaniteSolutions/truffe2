@@ -81,7 +81,6 @@ def membership_delete(request, pk):
 
 
 @login_required
-@csrf_exempt
 def membership_toggle_fees(request, pk):
     from members.models import Membership, MemberSetLogging
 

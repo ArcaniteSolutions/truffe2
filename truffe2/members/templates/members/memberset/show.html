@@ -72,14 +72,14 @@
                                         {% endifhasright %}
 
                                         {% ifhasright Model user '!CREATE' %}
-                                          <a href="#" onclick="disp_import();" data-remote="{% url 'members.views.import_members' obj.pk %}" base-data-remote="{% url 'members.views.import_members' obj.pk %}" id="import-membership-button" class="btn btn-default">
+                                          <a href="#hr1" onclick="disp_import();" data-remote="{% url 'members.views.import_members' obj.pk %}" base-data-remote="{% url 'members.views.import_members' obj.pk %}" id="import-membership-button" class="btn btn-default">
                                             <i class="fa fa-upload"></i>
                                             {% trans "Importer" %}
                                           </a>
                                         {% endifhasright %}
 
                                         {% ifhasright Model user '!CREATE' %}
-                                          <a href="#" onclick="disp_add();" data-remote="{% url 'members.views.membership_add' obj.pk %}" base-data-remote="{% url 'members.views.membership_add' obj.pk %}" id="add-membership-button" class="btn btn-primary">
+                                          <a href="#hr1" onclick="disp_add();" data-remote="{% url 'members.views.membership_add' obj.pk %}" base-data-remote="{% url 'members.views.membership_add' obj.pk %}" id="add-membership-button" class="btn btn-primary">
                                             <i class="fa fa-plus"></i>
                                             {% trans "Ajouter" %}
                                           </a>
@@ -131,16 +131,41 @@
 {% block bonus_box %}
     <script type="text/javascript">
 
+        var csrftoken;
+
         $(function() {
             // Remove title in super SHOW from generic
             $('#hr2 h1').remove();
             $('#hr2 hr').remove();
 
             // Activate list panel after load if requested to display this one.
-            {% if display_list_panel %}
+            if(window.location.hash == '#hr1')
                 $('#widget-tab-memberset li:first a').click();
-            {% endif %}
+
+            csrftoken = getCookie('csrftoken');
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {xhr.setRequestHeader("X-CSRFToken", csrftoken);}
+            });
+
+            window.setTimeout($('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove(), 5000);
         });
+
+        // Get CSRF Cookie
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
         function disp_add() {
             //Allow usage of select2
@@ -159,7 +184,9 @@
         }
 
         function toggle_fees(mship_id) {
-            $.post("{% url "members.views.membership_toggle_fees" 9999429999 %}".replace(9999429999, mship_id));
+            $.post("{% url "members.views.membership_toggle_fees" 99942999 %}".replace(99942999, mship_id),
+                   function(){data_table_main_list_table._fnAjaxUpdate()}
+            );
         }
     </script>
 {% endblock %}
