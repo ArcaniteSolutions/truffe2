@@ -37,6 +37,7 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight):
     first_name = models.CharField(_(u'Prénom'), max_length=100, blank=True)
     last_name = models.CharField(_('Nom de famille'), max_length=100, blank=True)
     email = models.EmailField(_('Adresse email'), max_length=255, unique=True)
+    email_perso = models.EmailField(_(u'Adresse email privée'), max_length=255, blank=True, null=True)
     is_active = models.BooleanField(_('Actif'), default=True, help_text=_(u'Défini si cet utilisateur doit être considéré comme actif. Désactiver ceci au lieu de supprimer le compte.'))
     date_joined = models.DateTimeField(_('Date d\'inscription'), default=timezone.now)
 
