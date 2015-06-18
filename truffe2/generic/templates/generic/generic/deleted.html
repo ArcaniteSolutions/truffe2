@@ -50,6 +50,7 @@
                         {% with function_to_call="unit_updated" %}
                             {% include "units/selector/unit_selector.html" %}
                         {% endwith %}
+                    {% endif %}
 
                     {% if year_mode %}
                         {% with function_to_call="year_updated" %}
@@ -61,7 +62,7 @@
         </div>
     </section>
 
-    {% with id="deleted_list_table"  datatable_simple=True %}{% include "datatables.html" %}{% endwith %}
+    {% with id="deleted_list_table" datatable_simple=True %}{% include "datatables.html" %}{% endwith %}
 
     <div style="float: right;">
         <a href="{% url list_view %}" class="btn btn-primary">

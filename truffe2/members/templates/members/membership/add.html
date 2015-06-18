@@ -1,6 +1,6 @@
 {% load i18n bootstrap3 %}
 
-<form id="add-accred-form" method="POST" action="{% url 'units.views.accreds_add' %}?upk={{unit.pk}}">
+<form id="add-membership-form" method="POST" action="{% url 'members.views.membership_add' group.pk %}">
     {% csrf_token %}
 
     <div class="modal-content">
@@ -9,18 +9,33 @@
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                 &times;
             </button>
-            <h4 class="modal-title" id="myModalLabel">{% trans "Nouvelle accréditation" %}</h4>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Nouveau membre" %}</h4>
         </div>
 
         <div class="modal-body">
 
+            {% if done %}
+                {% if done_user %}
+                    <div class="alert alert-success">
+                        {{done_user}} {% trans "ajouté avec success !" %}
+                {% else %}
+                    <div class="alert alert-danger">
+                        {% trans "Cette personne est déjà membre du groupe !" %}
+                {% endif %}
+
+                        <button type="button" class="btn btn-default btn-xs" data-dismiss="modal">
+                            {% trans "Fermer" %}
+                        </button>
+                    </div>
+            {% endif %}
+
             <div class="form-group">
                 <label>
-                    {% trans "Unité" %}
+                    {% trans "Groupe" %}
                 </label>
-                <input disabled class="form-control" value="{{unit}}">
+                <input disabled class="form-control" value="{{group}}">
                 <span class="help-block">
-                    {% trans "Ferme cette fenêtre et utilise le sélecteur en haut à droite si tu veux changer d'unité" %}
+                    {% trans "Ferme cette fenêtre et selectionne le bon groupe si tu veux en changer" %}
                 </span>
             </div>
 
@@ -28,17 +43,16 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">
-                    {% trans "Annuler" %}
+                    {% trans "Fermer" %}
                 </button>
                 <input type="submit" class="btn btn-primary" value="{% trans "Ajouter" %}">
             </div>
         </div>
 
     </div><!-- /.modal-content -->
-    
-  <script type="text/javascript">
-        $('#add-accred-form').ajaxForm({replaceTarget: true, target: '#add-accred-form'});
-        $('#id_role').css('width', '100%').addClass('select2').removeClass('form-control').select2();
+
+    <script type="text/javascript">
+        $('#add-membership-form').ajaxForm({replaceTarget: true, target: '#add-membership-form'});
         $('#id_user').css('width', '100%').addClass('select2').attr('type', 'hidden').removeClass('form-control').select2({
             minimumInputLength: 3,
             ajax: {
@@ -53,10 +67,10 @@
                     return { results: data };
                 }
             }
-        });
+        }).select2('open');
 
         {% if done %}
-            window.location.reload();
+            data_table_main_list_table._fnAjaxUpdate();
         {% endif %}
 
   </script>

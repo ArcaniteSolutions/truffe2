@@ -1,0 +1,38 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        // Move generated_accred_type up
+        var generated_accred_type = $('#id_generated_accred_type').parents('.form-group').remove();
+        $('#id_generates_accred').parents('.form-group').after(generated_accred_type);
+
+        $(function() {
+            // Transform id_generated_accred_type in select2
+            $('#id_generated_accred_type').removeClass('form-control');
+            $('#id_generated_accred_type').width('72%').select2();
+
+            // Manage visibility in accred block
+            $('#id_generates_accred').click(function() {
+                var new_state = $('#id_generates_accred').prop('checked');
+                if (!new_state) {
+                    $('#id_ldap_visible').prop('checked', false);
+                }
+                $('#id_ldap_visible').attr('disabled', !new_state);
+                $('#id_generated_accred_type').attr('disabled', !new_state);
+                if($('#id_generated_accred_type').attr('disabled')) {
+                    $('#id_generated_accred_type').val('');
+                    $('#s2id_id_generated_accred_type .select2-chosen').text('---------');
+                }
+
+            });
+
+            // Manage initial visibility of accred block
+            if(!$('#id_generates_accred').prop('checked')) {
+                $('#id_ldap_visible').attr('disabled', true);
+                $('#id_generated_accred_type').attr('disabled', true);
+            }
+        });
+    </script>
+{% endblock %}

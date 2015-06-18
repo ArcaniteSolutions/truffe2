@@ -315,7 +315,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
         if request.method == 'POST':  # If the form has been submitted...
             form = form_class(request.user, request.POST, request.FILES, instance=obj)
-
+            form.truffe_request = request
             if form.is_valid():  # If the form is valid
 
                 obj = form.save()

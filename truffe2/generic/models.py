@@ -35,7 +35,6 @@ class FalseFK():
 
 def build_models_list_of(Class):
 
-
     retour = []
     already_returned = []
     for app in settings.INSTALLED_APPS:

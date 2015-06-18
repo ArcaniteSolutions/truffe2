@@ -130,12 +130,24 @@ class ModelWithRight(object):
             raise e
             return False
 
+        if type(access) is list:
+            for acc in access:
+                if self.rights_in_unit(user, unit, acc):
+                    return True
+            return False
+
         return self.rights_in_unit(user, unit, access)
 
     def rights_in_root_unit(self, user, access=None):
         from units.models import Unit
 
         unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
+
+        if type(access) is list:
+            for acc in access:
+                if self.rights_in_unit(user, unit, acc):
+                    return True
+            return False
 
         return self.rights_in_unit(user, unit, access)
 
