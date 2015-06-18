@@ -147,9 +147,9 @@ def accreds_renew(request, pk):
             AccreditationLog(accreditation=accred, who=request.user, type='renewed').save()
 
         if multi_obj:
-            messages.success(request, _(u'Accréditations renouvellées !'))
+            messages.success(request, _(u'Accréditations renouvelées !'))
         else:
-            messages.success(request, _(u'Accréditation renouvellée !'))
+            messages.success(request, _(u'Accréditation renouvelée !'))
 
         return redirect('units.views.accreds_list')
 

@@ -22,7 +22,7 @@
 
                     {% if cannot_last_prez %}
                         <div class="alert alert-block alert-danger">
-                            <h4 class="alert-heading">{% trans "Impossible de supprimer l'accréditation de" %} {{cannot_last_prez_accred.user.get_full_name}}  ({{accreds.0.get_role_or_display_name}}){% trans "dans l'unité" %} {{cannot_last_prez_accred.unit}}</h4>
+                            <h4 class="alert-heading">{% trans "Impossible de supprimer l'accréditation de" %} {{cannot_last_prez_accred.user.get_full_name}}  ({{cannot_last_prez_accred.get_role_or_display_name}}){% trans "dans l'unité" %} {{cannot_last_prez_accred.unit}}</h4>
 
                             {% trans "Il faut au moins un président accrédité !" %}
                         </div>

@@ -162,7 +162,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         """Return the sub units, without groups or commissions"""
         retour = []
 
-        liste = self.unit_set.filter(is_commission=False, is_equipe=False).filter(deleted=False)
+        liste = self.unit_set.filter(is_commission=False, is_equipe=False, deleted=False)
 
         if not self._can_use_hidden:
             liste = liste.filter(is_hidden=False)
@@ -396,12 +396,12 @@ class AccreditationLog(models.Model):
     what = models.TextField(blank=True, null=True)
 
     TYPE_CHOICES = [
-        ('created', _(u'Créé')),
-        ('edited', _(u'Modifié')),
-        ('deleted', _(u'Supprimé')),
-        ('autodeleted', _(u'Supprimé automatiquement')),
-        ('renewed', _(u'Renouvellé')),
-        ('validated', _(u'Validé')),
+        ('created', _(u'Créée')),
+        ('edited', _(u'Modifiée')),
+        ('deleted', _(u'Supprimée')),
+        ('autodeleted', _(u'Supprimée automatiquement')),
+        ('renewed', _(u'Renouvelée')),
+        ('validated', _(u'Validée')),
     ]
 
     type = models.CharField(max_length=32, choices=TYPE_CHOICES)
