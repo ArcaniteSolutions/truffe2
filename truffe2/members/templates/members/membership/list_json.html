@@ -5,7 +5,6 @@
 [
     {% for elem in list %}
     [
-      "<input type=\"checkbox\" class=\"dt_list_checkbox\" pk=\"{{elem.pk}}\">",
       "<a href=\"{% url "users.views.users_profile" elem.user.pk %}\">{{elem.user.get_full_name|force_escape|escapejs}}</a>",
         "{{elem.start_date|date:"d.m.Y"|force_escape|escapejs}}",
         {% if handle_fees %}"{% filter addslashes %}{% with v=elem.payed_fees %}{% include "yesorno.html" %}{% endwith %}{% endfilter %} {% ifhasright elem.group user 'EDIT' %} <a href=\"#\" onclick=\"toggle_fees('{{elem.pk}}')\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-edit\"></i> {% trans "Changer le statut de la cotisation" %}</a>{% endifhasright %}",{% endif %}

@@ -38,7 +38,6 @@
                                     <table id="main_list_table" class="table table-striped table-hover">
                                         <thead>
                                             <tr>
-                                                <th><input type="checkbox" class="dt_main_checkbox"></th>
                                                 <th>{% trans "Utilisateur" %}</th>
                                                 <th>{% trans "Date d'ajout" %}</th>
                                                 {% if obj.handle_fees %}<th>{% trans "Cotisation payée ?" %}</th>{% endif %}
@@ -148,7 +147,9 @@
                 beforeSend: function(xhr, settings) {xhr.setRequestHeader("X-CSRFToken", csrftoken);}
             });
 
-            window.setTimeout($('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove(), 5000);
+            window.setTimeout("$('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove()", 100);
+            window.setTimeout("$('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove()", 1000);
+            window.setTimeout("$('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove()", 2000);
         });
 
         // Get CSRF Cookie
