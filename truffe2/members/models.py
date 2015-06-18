@@ -5,7 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-
+from app.utils import get_current_unit
 from generic.models import GenericModel, GenericStateModel, GenericGroupsModel, FalseFK
 from rights.utils import UnitEditableModel
 
@@ -95,7 +95,8 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
         status_col_id = 3
 
     def genericFormExtraClean(self, data, form):
-        """Check if accred corresponds to generation constraints"""
+        """Check if accred corresponds to generation constraints & that unique_together is fulfiled"""
+        from members.models import MemberSet
 
         if 'generates_accred' in form.fields:
             if data['generates_accred'] and data['generated_accred_type'] is None:
@@ -105,6 +106,9 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
                 data['generated_accred_type'] = ''
                 if 'ldap_visible' in data:
                     del data['ldap_visible']
+
+        if MemberSet.objects.filter(unit=get_current_unit(form.truffe_request), name=data['name']).count():
+            raise forms.ValidationError(_(u'L\'unité possède déjà un groupe avec ce nom.'))  # Potentiellement parmi les supprimées
 
     def genericFormExtraInit(self, form, *args, **kwargs):
         """Reduce the list of possible accreds to the official ones at EPFL"""
@@ -131,7 +135,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
 
     class Meta:
         abstract = True
-        # unique_together = ("name", "unit",)
+        unique_together = ("name", "unit")
 
     def __unicode__(self):
         return "{} ({})".format(self.name, self.unit)
