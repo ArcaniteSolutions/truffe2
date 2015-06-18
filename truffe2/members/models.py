@@ -16,7 +16,7 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
         access = ['INFORMATIQUE', 'PRESIDENCE']
         world_ro_access = True
 
-    name = models.CharField(_('Nom'), max_length=255, unique=True)
+    name = models.CharField(_('Nom'), max_length=255)
     unit = FalseFK('units.models.Unit', verbose_name=_(u'Unité'))
     generates_accred = models.BooleanField(_(u'Génère des accreds'), default=True)
     generated_accred_type = FalseFK('units.models.Role', blank=True, null=True, verbose_name=_(u'Accréditation générée pour les membres'))
@@ -131,6 +131,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
 
     class Meta:
         abstract = True
+        # unique_together = ("name", "unit",)
 
     def __unicode__(self):
         return "{} ({})".format(self.name, self.unit)
