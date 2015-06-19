@@ -122,7 +122,8 @@ class UserPrivacy(models.Model):
         ('mobile', _('Mobile')),
         ('adresse', _('Adresse')),
         ('nom_banque', _('Nom banque')),
-        ('iban_ou_ccp', _('IBAN ou CCP'))
+        ('iban_ou_ccp', _('IBAN ou CCP')),
+        ('email_perso', _(u'Adresse email privée'))
     )
 
     field = models.CharField(max_length=64, choices=FIELD_CHOICES)
