@@ -358,6 +358,15 @@
 
             <!-- MAIN CONTENT -->
             <div id="content">
+
+                {% if not user.is_profile_ok %}
+                    <div class="alert alert-danger">
+                        {% trans "Ton profile n'est pas correctement remplis: Il faut au moins indiquer ton téléphone portable et ton IBAN !" %}
+
+                        <a href="{% url 'users.views.users_profile' user.pk %}" class="btn btn-xs btn-primary">{% trans "Modifier" %}</a>
+                    </div>
+                {% endif %}
+
                 {% block content %}
                 {% endblock %}
             </div>
@@ -366,7 +375,7 @@
         </div>
         <!-- END MAIN PANEL -->
 
-        <div class="footer">&copy; Copyright 2014-2015 AGEPoly / Maximilien Cuony - Lionel Martin - Yann Beaud / PolyLAN</div>
+        <div class="footer">&copy; Copyright 2015 AGEPoly / Maximilien Cuony - Lionel Martin - Yann Beaud / PolyLAN</div>
 
         <!--================================================== -->
 

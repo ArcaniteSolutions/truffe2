@@ -119,6 +119,9 @@ EMAIL;INTERNET:%s
     def __unicode__(self):
         return '%s (%s)' % (self.get_full_name(), self.username)
 
+    def is_profile_ok(self):
+        return self.iban_ou_ccp and self.mobile
+
 
 class UserPrivacy(models.Model):
     user = models.ForeignKey(TruffeUser)

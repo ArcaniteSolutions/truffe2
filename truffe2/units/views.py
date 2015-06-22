@@ -335,11 +335,11 @@ def accreds_add(request):
 
             # Try to find the user. If he dosen't exists, create it.
             try:
-                user = TruffeUser.objects.get(username=form.cleaned_data['user'])
+                user = TruffeUser.objects.get(username=form.cleaned_data['user'].strip())
             except TruffeUser.DoesNotExist:
                 user = TruffeUser()
 
-                user.username = form.cleaned_data['user']
+                user.username = form.cleaned_data['user'].strip()
 
                 user.last_name, user.first_name, user.email = get_attrs_of_sciper(user.username)
 
