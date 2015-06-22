@@ -299,7 +299,7 @@ def accreds_validate(request, pk):
             AccreditationLog(accreditation=accred, who=request.user, type='validated').save()
 
             from notifications.utils import notify_people
-            dest_users = accred.unit.users_with_access('INFORMATIQUE', no_parent=True)
+            dest_users = accred.unit.users_with_access('ACCREDITATION', no_parent=True)
             notify_people(request, 'Accreds.Validated', 'accreds_validated', accred, dest_users)
 
         if multi_obj:

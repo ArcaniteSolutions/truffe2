@@ -272,6 +272,7 @@ class _Role(GenericModel, AgepolyEditableModel):
         ('TRESORERIE', _(u'Trésorerie')),
         ('COMMUNICATION', _('Communication')),
         ('INFORMATIQUE', _('Informatique')),
+        ('ACCREDITATION', _(u'Accrédiations')),
         ('LOGISTIQUE', _('Logistique')),
         ('SECRETARIAT', _(u'Secrétariat'))
     )
@@ -348,7 +349,7 @@ class Accreditation(models.Model, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
-        access = 'INFORMATIQUE'
+        access = 'ACCREDITATION'
 
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'unit'
@@ -388,10 +389,13 @@ class Accreditation(models.Model, UnitEditableModel):
         if self.rights_can('VALIDATE', request.user):
             return
 
+        if not self.unit.is_commission:  # Seulement pour les commisions !
+            return
+
         self.need_validation = True
 
         from notifications.utils import notify_people
-        dest_users = self.people_in_root_unit('INFORMATIQUE')
+        dest_users = self.people_in_root_unit('ACCREDITATION')
         notify_people(request, 'Accreds.ToValidate', 'accreds_tovalidate', self, dest_users)
 
     def __unicode__(self):
@@ -431,7 +435,7 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
-        access = 'INFORMATIQUE'
+        access = 'ACCREDITATION'
 
     class MetaData:
         list_display = [
