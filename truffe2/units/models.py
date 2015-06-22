@@ -338,7 +338,7 @@ class Accreditation(models.Model, UnitEditableModel):
     end_date = models.DateTimeField(blank=True, null=True)
     renewal_date = models.DateTimeField(auto_now_add=True)
 
-    display_name = models.CharField(_(u'Titre'), max_length=255, blank=True, null=True, help_text=_(u'Le nom à afficher dans Truffe. Peut être utilisé pour préciser la fonction'))
+    display_name = models.CharField(_(u'Titre'), max_length=255, blank=True, null=True, help_text=_(u'Précision optionnelle à afficher dans Truffe. Peut être utilisé pour préciser la fonction, par example: "Responsable Réseau" pour une accrédiation de Responsable Informatique.'))
 
     no_epfl_sync = models.BooleanField(_(u'Désactiver syncronisation EPFL'), default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
     hidden_in_epfl = models.BooleanField(_(u'Cacher au niveau EPFL'), default=False, help_text=_(u'A cocher pour ne pas rendre public l\'accréditation au niveau EPFL'))
