@@ -13,38 +13,44 @@ from app.utils import update_current_year
 def copy_accounting_year(request, pk):
     from accounting_core.models import AccountingYear, AccountCategory
 
-    accounting_year = get_object_or_404(AccountingYear, pk=pk)
-    if not accounting_year.rights_can('EDIT', request.user):
-        raise Http404
+    accounting_years = [get_object_or_404(AccountingYear, pk=pk_) for pk_ in filter(lambda x: x, pk.split(','))]
 
-    account_categories = accounting_year.accountcategory_set.all()
-    accounts = accounting_year.account_set.all()
-    cost_centers = accounting_year.costcenter_set.all()
+    for ay in accounting_years:
+        if not ay.rights_can('EDIT', request.user):
+            raise Http404
 
-    accounting_year.name = 'Copy of {}'.format(accounting_year.name)
-    accounting_year.id = None
-    accounting_year.save()
+        account_categories = ay.accountcategory_set.all()
+        accounts = ay.account_set.all()
+        cost_centers = ay.costcenter_set.all()
 
-    copiable_objects = (account_categories, accounts, cost_centers)
-    for idx in range(len(copiable_objects)):
-        liste = copiable_objects[idx]
+        ay.name = 'Copy of {}'.format(ay.name)
+        ay.id = None
+        ay.save()
 
-        # Create the new objects
-        for elem in liste:
-            elem.accounting_year = accounting_year
-            elem.id = None
-            elem.save()
+        copiable_objects = (account_categories, accounts, cost_centers)
+        for idx in range(len(copiable_objects)):
+            liste = copiable_objects[idx]
 
-        if idx == 2:
-            break
-
-        # Correct dependencies on the new objects
-        field_name = 'parent_hierarchique' if idx == 0 else 'category'
-        for elem in liste:
-            if getattr(elem, field_name):  # if it was None, remains None
-                setattr(elem, field_name, AccountCategory.objects.get(accounting_year=accounting_year, name=getattr(elem, field_name).name))
+            # Create the new objects
+            for elem in liste:
+                elem.accounting_year = ay
+                elem.id = None
                 elem.save()
 
+            if idx == 2:
+                break
+
+            # Correct dependencies on the new objects
+            field_name = 'parent_hierarchique' if idx == 0 else 'category'
+            for elem in liste:
+                if getattr(elem, field_name):  # if it was None, remains None
+                    setattr(elem, field_name, AccountCategory.objects.get(accounting_year=ay, name=getattr(elem, field_name).name))
+                    elem.save()
+
     messages.success(request, _(u'Copie terminée avec succès'))
-    update_current_year(request, accounting_year.pk)
-    return redirect('accounting_core.views.accountingyear_edit', accounting_year.pk)
+
+    if len(accounting_years) == 1:
+        update_current_year(request, accounting_years[0].pk)
+        return redirect('accounting_core.views.accountingyear_edit', accounting_years[0].pk)
+    else:
+        return redirect('accounting_core.views.accountingyear_list')
