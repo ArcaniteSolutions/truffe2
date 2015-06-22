@@ -44,10 +44,19 @@ def build_models_list_of(Class):
             views_module = importlib.import_module('.views', app)
             urls_module = importlib.import_module('.urls', app)
             forms_module = importlib.import_module('.forms', app)
-        except Exception as e:
+        except Exception:
             continue
 
         clsmembers = inspect.getmembers(models_module, inspect.isclass)
+
+        # sorted by line numbers instead of names when possible
+        linecls = {}
+        for cls in clsmembers:
+            try:
+                linecls[cls[0]] = inspect.getsourcelines(cls[1])[1]
+            except:
+                linecls[cls[0]] = -1
+        clsmembers = sorted(clsmembers, key=lambda cls: linecls[cls[0]])
 
         for model_name, model_class in clsmembers:
             if issubclass(model_class, Class) and model_class != Class and model_class not in already_returned:
@@ -107,7 +116,6 @@ class GenericModel(models.Model):
             real_model_class = type(model_class.__name__[1:], (model_class,), extra_data)
 
             setattr(models_module, real_model_class.__name__, real_model_class)
-
             cache['%s.%s' % (models_module.__name__, real_model_class.__name__)] = real_model_class
 
             # Add the logging model

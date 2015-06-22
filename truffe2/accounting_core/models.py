@@ -4,9 +4,10 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel
+from generic.models import GenericModel, GenericStateModel, FalseFK
 from rights.utils import AgepolyEditableModel
 from accounting_core.utils import AccountingYearLinked
+from app.utils import get_current_year
 
 
 class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
@@ -145,36 +146,168 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         return retour
 
 
-class _DummyPony(GenericModel, AccountingYearLinked, AgepolyEditableModel):
-    """Ceci est une class de démo pour implémenter AccountingYearLinked avant la finalisation des autres modules comptables
-
-    Il faudra supprimer ce modèle en phase de production
-    """
+class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
         world_ro_access = True
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(_(u'Nom du centre de coût'), max_length=255)
+    account_number = models.SmallIntegerField(_(u'Numéro associé au centre de coût'))
+    unit = FalseFK('units.models.Unit', verbose_name=_(u'Appartient à'))
+    description = models.TextField(_('Description'), blank=True, null=True)
 
     class Meta:
         abstract = True
+        unique_together = (("name", "accounting_year"), ("account_number", "accounting_year"))
 
     def __unicode__(self):
-        return self.name
+        return "{} - {}".format(self.account_number, self.name)
 
     class MetaData:
         list_display = [
-            ('name', _('Nom')),
+            ('account_number', _(u'Numéro')),
+            ('name', _('Nom du centre de coût')),
+            ('unit', _(u'Appartient à'))
         ]
-        details_display = list_display
-        filter_fields = ('name')
 
-        base_title = _(u'Poney comptable')
-        list_title = _(u'Liste des poneys comptables')
+        details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
+        filter_fields = ('name', 'account_number', 'unit')
+
+        base_title = _(u'Centres de coût')
+        list_title = _(u'Liste des centres de coût')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-smile-o'
 
-        menu_id = 'menu-compta-dummypony'
+        menu_id = 'menu-compta-centrecouts'
 
-        help_list = _(u"""Class de test pour AccountingYearLinked""")
+        help_list = _(u"""Les centres de coût sont les différents comptes qui appartiennent aux unités de l'AGEPoly (commissions, équipes, sous-commissions, Comité de Direction).""")
+
+    def genericFormExtraClean(self, data, form):
+        """Check that unique_together is fulfiled"""
+        from accounting_core.models import CostCenter
+
+        if CostCenter.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+            raise forms.ValidationError(_(u'Un centre de coûts avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+        if CostCenter.objects.filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
+            raise forms.ValidationError(_(u'Un centre de coûts avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+
+class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel):
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'TRESORERIE'
+        world_ro_access = False
+
+    name = models.CharField(_(u'Nom de la catégorie'), max_length=255)
+    description = models.TextField(_('Description'), blank=True, null=True)
+    parent_hierarchique = models.ForeignKey('AccountCategory', null=True, blank=True, help_text=_(u'Catégorie parente pour la hiérarchie'))
+
+    class Meta:
+        abstract = True
+        unique_together = ("name", "accounting_year")
+
+    def __unicode__(self):
+        return "{} ({})".format(self.name, self.accounting_year)
+
+    class MetaData:
+        list_display = [
+            ('name', _(u'Nom de la catégorie')),
+            ('parent_hierarchique', _(u'Catégorie parente'))
+        ]
+
+        details_display = list_display + [('accounting_year', _(u'Année Comptable')), ('description', _(u'Description'))]
+        filter_fields = ('name', 'parent_hierarchique')
+
+        base_title = _(u'Catégories des comptes de CG')
+        list_title = _(u'Liste des catégories')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-smile-o'
+
+        menu_id = 'menu-compta-categoriescompteCG'
+
+        help_list = _(u"""Les catégories des comptes de comptabilité générale servent à classer les comptes de CG dans les différents documents comptables.""")
+
+    def genericFormExtraInit(self, form, *args, **kwargs):
+        """Reduce the list of possible parents to those on the same accounting year."""
+        from accounting_core.models import AccountCategory
+        form.fields['parent_hierarchique'].queryset = AccountCategory.objects.filter(accounting_year=self.accounting_year)
+
+    def genericFormExtraClean(self, data, form):
+        """Check that unique_together is fulfiled"""
+        from accounting_core.models import AccountCategory
+
+        if AccountCategory.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+            raise forms.ValidationError(_(u'Une catégorie avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+    def get_children_categories(self):
+        """Return the categories whose parent is self."""
+        from accounting_core.models import AccountCategory
+        return AccountCategory.objects.filter(parent_hierarchique=self)
+
+
+class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'TRESORERIE'
+        world_ro_access = True
+
+    VISIBILITY_CHOICES = (
+        ('all', _(u'Visible à tous')),
+        ('cdd', _(u'Visible au Comité de Direction uniquement')),
+        ('root', _(u'Visible aux personnes qui gère la comptabilité générale')),
+        ('none', _(u'Visible à personne')),
+    )
+
+    name = models.CharField(_('Nom du compte'), max_length=255)
+    account_number = models.SmallIntegerField(_(u'Numéro du compte'))
+    visibility = models.CharField(_(u'Visibilité dans les documents comptables'), max_length=50, choices=VISIBILITY_CHOICES)
+    description = models.TextField(_('Description'), blank=True, null=True)
+    category = FalseFK('accounting_core.models.AccountCategory', verbose_name=_(u'Catégorie'))
+
+    class Meta:
+        abstract = True
+        unique_together = (("name", "accounting_year"), ("account_number", "accounting_year"))
+
+    def __unicode__(self):
+        return "{} - {}".format(self.account_number, self.name)
+
+    class MetaData:
+        list_display = [
+            ('account_number', _(u'Numéro')),
+            ('name', _('Nom du compte')),
+            ('category', _(u'Catégorie'))
+        ]
+
+        details_display = list_display + [('description', _(u'Description')), ('visibility', _(u'Visible par')), ('accounting_year', _(u'Année comptable'))]
+        filter_fields = ('name', 'account_number', 'category')
+
+        base_title = _(u'Comptes de Comptabilité Générale')
+        list_title = _(u'Liste des comptes')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-smile-o'
+
+        menu_id = 'menu-compta-comptesCG'
+
+        help_list = _(u"""Les comptes de comptabilité générale sont les différents comptes qui apparaissent dans la comptabilité de l'AGEPoly.
+Ils permettent de séparer les recettes et les dépenses par catégories.""")
+
+    def genericFormExtraInit(self, form, *args, **kwargs):
+        """Reduce the list of possible categories to the leaves of the hierarchical tree."""
+        from accounting_core.models import AccountCategory
+
+        yeared_account_categories = AccountCategory.objects.filter(accounting_year=self.accounting_year)
+        yeared_account_categories = filter(lambda qs: qs.get_children_categories().count() == 0, yeared_account_categories)
+        ids_yac = map(lambda yac: yac.id, yeared_account_categories)
+        form.fields['category'].queryset = AccountCategory.objects.filter(id__in=ids_yac)
+
+    def genericFormExtraClean(self, data, form):
+        """Check that unique_together is fulfiled"""
+        from accounting_core.models import Account
+
+        if Account.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+            raise forms.ValidationError(_(u'Un compte de CG avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+        if Account.objects.filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
+            raise forms.ValidationError(_(u'Un compte de CG avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
