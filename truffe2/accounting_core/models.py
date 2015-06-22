@@ -153,16 +153,13 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         world_ro_access = True
 
     name = models.CharField(_(u'Nom du centre de coût'), max_length=255)
-    account_number = models.SmallIntegerField(_(u'Numéro associé au centre de coût'))
+    account_number = models.CharField(_(u'Numéro associé au centre de coût'), max_length=10)
     unit = FalseFK('units.models.Unit', verbose_name=_(u'Appartient à'))
     description = models.TextField(_('Description'), blank=True, null=True)
 
     class Meta:
         abstract = True
         unique_together = (("name", "accounting_year"), ("account_number", "accounting_year"))
-
-    def __unicode__(self):
-        return "{} - {}".format(self.account_number, self.name)
 
     class MetaData:
         list_display = [
@@ -182,6 +179,9 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         menu_id = 'menu-compta-centrecouts'
 
         help_list = _(u"""Les centres de coût sont les différents comptes qui appartiennent aux unités de l'AGEPoly (commissions, équipes, sous-commissions, Comité de Direction).""")
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraClean(self, data, form):
         """Check that unique_together is fulfiled"""
@@ -208,9 +208,6 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         abstract = True
         unique_together = ("name", "accounting_year")
 
-    def __unicode__(self):
-        return "{} ({})".format(self.name, self.accounting_year)
-
     class MetaData:
         list_display = [
             ('name', _(u'Nom de la catégorie')),
@@ -228,6 +225,9 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         menu_id = 'menu-compta-categoriescompteCG'
 
         help_list = _(u"""Les catégories des comptes de comptabilité générale servent à classer les comptes de CG dans les différents documents comptables.""")
+
+    def __unicode__(self):
+        return u"{} ({})".format(self.name, self.accounting_year)
 
     def genericFormExtraInit(self, form, *args, **kwargs):
         """Reduce the list of possible parents to those on the same accounting year."""
@@ -261,7 +261,7 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     )
 
     name = models.CharField(_('Nom du compte'), max_length=255)
-    account_number = models.SmallIntegerField(_(u'Numéro du compte'))
+    account_number = models.CharField(_(u'Numéro du compte'), max_length=10)
     visibility = models.CharField(_(u'Visibilité dans les documents comptables'), max_length=50, choices=VISIBILITY_CHOICES)
     description = models.TextField(_('Description'), blank=True, null=True)
     category = FalseFK('accounting_core.models.AccountCategory', verbose_name=_(u'Catégorie'))
@@ -269,9 +269,6 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     class Meta:
         abstract = True
         unique_together = (("name", "accounting_year"), ("account_number", "accounting_year"))
-
-    def __unicode__(self):
-        return "{} - {}".format(self.account_number, self.name)
 
     class MetaData:
         list_display = [
@@ -292,6 +289,9 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
         help_list = _(u"""Les comptes de comptabilité générale sont les différents comptes qui apparaissent dans la comptabilité de l'AGEPoly.
 Ils permettent de séparer les recettes et les dépenses par catégories.""")
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraInit(self, form, *args, **kwargs):
         """Reduce the list of possible categories to the leaves of the hierarchical tree."""
