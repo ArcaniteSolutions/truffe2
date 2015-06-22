@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 already_accredited = []
 
                 # Toutes les accreds encore valides
-                for a in u.accreditation_set.filter(end_date=None).exclude(role__id_epfl=None, no_epfl_sync=True).order_by('ordre'):
+                for a in u.accreditation_set.filter(end_date=None).exclude(role__id_epfl=None, no_epfl_sync=True).order_by('role__ordre'):
 
                     if not a.role.id_epfl:
                         continue
