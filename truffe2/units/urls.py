@@ -15,5 +15,4 @@ urlpatterns = patterns(
     url(r'^accreds/(?P<pk>[0-9,]+)/delete$', 'accreds_delete'),
     url(r'^accreds/(?P<pk>[0-9,]+)/validate$', 'accreds_validate'),
     url(r'^accreds/add$', 'accreds_add'),
-    url(r'^accreds/search$', 'accreds_search'),
 )

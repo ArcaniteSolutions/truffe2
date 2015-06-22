@@ -15,9 +15,9 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         access = 'TRESORERIE'
         world_ro_access = True
 
-    name = models.CharField(max_length=255, unique=True)
-    start_date = models.DateTimeField(blank=True, null=True)
-    end_date = models.DateTimeField(blank=True, null=True)
+    name = models.CharField(_('Nom'), max_length=255, unique=True)
+    start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
+    end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
 
     class MetaData:
         list_display = [

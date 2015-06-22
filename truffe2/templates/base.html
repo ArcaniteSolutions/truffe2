@@ -300,6 +300,13 @@
                                     <a href="{% url 'units.views.accessdelegation_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Délégations d'accès" %}</a>
                                 </li>
                             {% endifhasright %}
+                            {% if user.is_superuser or user.is_impersonate %} <!-- Check temporaire pour ne pas perturber les gens temps que c'est pas en prod -->
+                            {% ifhasright 'members.models.MemberSet' user 'LIST' %}
+                                <li id="menu-members-memberset">
+                                    <a href="{% url 'members.views.memberset_list' %}"><i class="fa fa-lg fa-fw fa-male"></i> {% trans "Membres de l'unité" %}</a>
+                                </li>
+                            {% endifhasright %}
+                            {% endif %}
                         </ul>
                     </li>
                     {% if user.is_superuser or user.is_impersonate %} <!-- Check temporaire pour ne pas perturber les gens temps que c'est pas en prod -->

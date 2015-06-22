@@ -25,6 +25,7 @@ class Command(BaseCommand):
             truffe_user.adresse = user['adresse']
             truffe_user.nom_banque = user['banque']
             truffe_user.iban_ou_ccp = user['ibanOrCcp']
+            truffe_user.email_perso = user['emailPerso']
 
             if user['password']:
                 truffe_user.password = user['password']
@@ -59,7 +60,6 @@ class Command(BaseCommand):
             # u'skype': u'-lionel'
             # , u'usernameIsSciper': True,
             # u'gmail': u'xxx@gmail.com'
-            # u'mobileVisibility': u'com'
             # , u'emailPersoVisibility': u'com',
             # u'jabber': u'',
             # u'jabberVisibility': u'com',
@@ -68,7 +68,6 @@ class Command(BaseCommand):
             # u'gmailVisibility': u'com',
             # u'facebookVisibility': u'com',
             # u'twitter': u'',
-            # u'emailPerso': u'',
             # u'facebook': u'',
             # , u'skypeVisibility': u'com',
             # u'avatar': u''}

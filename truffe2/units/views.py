@@ -18,15 +18,12 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 
-
 from generic.datatables import generic_list_json
 
 from units.models import Accreditation, AccreditationLog
 from app.utils import update_current_unit, get_current_unit
-from app.ldaputils import search_sciper, get_attrs_of_sciper
+from app.ldaputils import get_attrs_of_sciper
 from users.models import TruffeUser
-
-import json
 
 
 @login_required
@@ -369,13 +366,3 @@ def accreds_add(request):
         form = AccreditationAddForm(request.user)
 
     return render(request, 'units/accreds/add.html', {'form': form, 'done': done, 'unit': unit})
-
-
-@login_required
-def accreds_search(request):
-
-    results = search_sciper(request.GET.get('q'))
-
-    retour = map(lambda (sciper, data): {'id': sciper, 'text': '%s - %s %s (%s)' %data}, results.iteritems())
-
-    return HttpResponse(json.dumps(retour))

@@ -43,9 +43,9 @@
         <script type="text/javascript">
             // Add privacy elements
             function add_priv_buttons() {
-                $('.form-group input:text, .form-group textarea').each(function(__, element) {
+                $('.form-group input:not(:checkbox), .form-group textarea').each(function(__, element) {
 
-                    if (['id_username', 'id_first_name', 'id_last_name'].indexOf($(element).attr('id')) > -1)
+                    if (['id_username', 'id_first_name', 'id_last_name', 'id_email'].indexOf($(element).attr('id')) > -1)
                         return;
 
                     $(element).wrap('<div class="input-group"></div>');

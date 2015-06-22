@@ -64,8 +64,3 @@ class Command(BaseCommand):
                             accred.save()
 
         Accreditation.objects.exclude(validation_date=accred_date).delete()
-
-
-
-
-

@@ -23,6 +23,10 @@
                         <dd>{{user_to_display.username}}</dd>
                         <dt>{% trans "Email" %}</dt>
                         <dd>{{user_to_display.email}}</dd>
+                        {% if user_to_display.email_perso %}
+                            <dt>{% trans "Email privé" %}</dt>
+                            <dd>{{user_to_display.email_perso}}</dd>
+                        {% endif %}
                         <dt>{% trans "Prénom" %}</dt>
                         <dd>{{user_to_display.first_name}}</dd>
                         <dt>{% trans "Nom" %}</dt>
