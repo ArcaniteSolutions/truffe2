@@ -203,7 +203,7 @@ class GenericModel(models.Model):
             if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderable_things:
                 moderable_things.append(real_model_class)
 
-            if issubclass(model_class, AccountingYearLinked) and hasattr(model_class.MetaAccounting, 'copiable') and model_class.MetaAccounting.copiable and real_model_class not in copiable_things:
+            if issubclass(model_class, AccountingYearLinked) and hasattr(model_class, 'MetaAccounting') and hasattr(model_class.MetaAccounting, 'copiable') and model_class.MetaAccounting.copiable and real_model_class not in copiable_things:
                 copiable_things.append(real_model_class)
 
             if issubclass(model_class, GenericContactableModel):
