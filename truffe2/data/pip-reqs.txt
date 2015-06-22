@@ -10,3 +10,6 @@ git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails
 bleach
 python-ldap
+pisa
+reportlab<3
+html5lib

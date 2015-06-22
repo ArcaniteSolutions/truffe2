@@ -13,8 +13,9 @@ from django.db.models import Q
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import is_safe_url
+from django.utils.timezone import now
 
-from app.utils import send_templated_mail, update_current_unit, get_current_unit
+from app.utils import send_templated_mail, update_current_unit, get_current_unit, generate_pdf
 from app.ldaputils import search_sciper
 from generic.datatables import generic_list_json
 from users.models import TruffeUser, UserPrivacy
@@ -312,3 +313,24 @@ def users_myunit_vcard(request):
     response['Content-Disposition'] = 'attachment; filename=' + nom + '.vcf'
 
     return response
+
+
+@login_required
+@csrf_exempt
+def users_myunit_pdf(request):
+    """VCARD for users in the current unit"""
+
+    update_current_unit(request, request.GET.get('upk'))
+
+    current_unit = get_current_unit(request)
+
+    if not current_unit.is_user_in_groupe(request.user):
+        raise Http404
+
+    liste = []
+
+    for accred in current_unit.current_accreds():
+        accred.truffe2_tmp_pdf_display_mobile = UserPrivacy.user_can_access(request.user, accred.user, 'mobile')
+        liste.append(accred)
+
+    return generate_pdf("users/users/myunit_pdf.html", {'unit': current_unit, 'liste': liste, 'user': request.user, 'cdate': now()})

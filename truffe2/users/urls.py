@@ -32,6 +32,7 @@ urlpatterns = patterns(
     url(r'^myunit/$', 'users_myunit_list'),
     url(r'^myunit/json$', 'users_myunit_list_json'),
     url(r'^myunit/vcard$', 'users_myunit_vcard'),
+    url(r'^myunit/pdf/$', 'users_myunit_pdf'),
 
     url(r'^ldap/search$', 'ldap_search'),
 

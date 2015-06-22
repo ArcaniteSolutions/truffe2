@@ -42,7 +42,10 @@
                         <i class="fa fa-download"></i>
                         {% trans "VCARD de l'unité" %}
                     </a>
-
+                    <a href="{% url 'users.views.users_myunit_pdf' %}" class="btn btn-primary">
+                        <i class="fa fa-file-text"></i>
+                        {% trans "PDF de l'unité" %}
+                    </a>
                 </div>
             </div>
 

@@ -2,6 +2,18 @@
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.template.loader import get_template
+from django.template import Context
+from django import http
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
+from django.contrib.sites.models import get_current_site
+
+import cgi
+import ho.pisa as pisa
+import cStringIO as StringIO
+
 
 
 def add_current_unit(request):
@@ -87,13 +99,6 @@ def update_current_year(request, year_pk):
 
     request.session['current_year_pk'] = year_pk
 
-
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
-from django.template import Context
-from django.contrib.sites.models import get_current_site
-
-
 def send_templated_mail(request, subject, email_from, emails_to, template, context):
     """Send a email using an template (both in text and html format)"""
 
@@ -119,3 +124,18 @@ def get_property(obj, prop):
         obj = getattr(obj, attr)
 
     return obj
+
+
+def generate_pdf(template, contexte):
+    template = get_template(template)
+    context = Context(contexte)
+
+    html = template.render(context)
+
+    result = StringIO.StringIO()
+    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
+
+    if not pdf.err:
+        return http.HttpResponse(result.getvalue(), mimetype='application/pdf')
+
+    return http.HttpResponse('Gremlins ate your pdf! %s' % cgi.escape(html))
