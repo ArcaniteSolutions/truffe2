@@ -381,6 +381,12 @@ class Accreditation(models.Model, UnitEditableModel):
     def rights_can_VALIDATE(self, user):
         return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
 
+    def rights_can_SHOW(self, user):
+        if self.hidden_in_truffe:
+            return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+        else:
+            super(Accreditation, self).rights_can_SHOW(self, user)
+
     def check_if_validation_needed(self, request):
 
         if not self.role.need_validation:
