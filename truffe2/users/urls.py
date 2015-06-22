@@ -29,6 +29,10 @@ urlpatterns = patterns(
     url(r'^users/(?P<pk>[0-9~]+)/edit$', 'users_edit'),
     url(r'^users/(?P<pk>[0-9~]+)/profile_picture$', 'users_profile_picture'),
 
+
+    url(r'^myunit/$', 'users_myunit_list'),
+    url(r'^myunit/json$', 'users_myunit_list_json'),
+
     url(r'^ldap/search$', 'ldap_search'),
 
 )

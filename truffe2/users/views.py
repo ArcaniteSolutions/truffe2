@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import is_safe_url
 
-from app.utils import send_templated_mail
+from app.utils import send_templated_mail, update_current_unit, get_current_unit
 from app.ldaputils import search_sciper
 from generic.datatables import generic_list_json
 from users.models import TruffeUser, UserPrivacy
@@ -255,3 +255,32 @@ def ldap_search(request):
     retour += map(lambda x: {'id': x.username, 'text': '%s - %s %s (%s)' % (x.username, x.first_name, x.last_name, x.email)}, internal)
 
     return HttpResponse(json.dumps(retour))
+
+
+@login_required
+def users_myunit_list(request):
+    """Display the list of users in the current unit"""
+
+    from units.models import Unit
+
+    main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
+
+    main_unit.set_rights_can_select(lambda unit: unit.is_user_in_groupe(request.user))
+    main_unit.set_rights_can_edit(lambda unit: unit.is_user_in_groupe(request.user))
+    main_unit.check_if_can_use_hidden(request.user)
+
+    return render(request, 'users/users/myunit_list.html', {'main_unit': main_unit})
+
+
+@login_required
+@csrf_exempt
+def users_myunit_list_json(request):
+    """Json for user list in the current unit"""
+
+    update_current_unit(request, request.GET.get('upk'))
+
+    current_unit = get_current_unit(request)
+
+    filter = lambda x: x.filter(Q(accreditation__unit=current_unit) & Q(accreditation__end_date=None)).distinct()
+
+    return generic_list_json(request, TruffeUser, ['username', 'first_name', 'last_name', 'pk', 'pk'], 'users/users/myunit_list_json.html', bonus_filter_function=filter)
