@@ -180,6 +180,9 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
         help_list = _(u"""Les centres de coût sont les différents comptes qui appartiennent aux unités de l'AGEPoly (commissions, équipes, sous-commissions, Comité de Direction).""")
 
+    class MetaAccounting:
+        copiable = True
+
     def __unicode__(self):
         return u"{} - {}".format(self.account_number, self.name)
 
@@ -225,6 +228,11 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         menu_id = 'menu-compta-categoriescompteCG'
 
         help_list = _(u"""Les catégories des comptes de comptabilité générale servent à classer les comptes de CG dans les différents documents comptables.""")
+
+    class MetaAccounting:
+        from accounting_core.models import AccountCategory
+        copiable = True
+        foreign = (('parent_hierarchique', AccountCategory),)
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
@@ -289,6 +297,11 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
         help_list = _(u"""Les comptes de comptabilité générale sont les différents comptes qui apparaissent dans la comptabilité de l'AGEPoly.
 Ils permettent de séparer les recettes et les dépenses par catégories.""")
+
+    class MetaAccounting:
+        from accounting_core.models import AccountCategory
+        copiable = True
+        foreign = (('category', AccountCategory),)
 
     def __unicode__(self):
         return u"{} - {}".format(self.account_number, self.name)

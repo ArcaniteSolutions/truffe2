@@ -35,11 +35,11 @@ def home(request):
 @login_required
 def get_to_moderate(request):
 
-    from generic.models import moderables_things
+    from generic.models import moderable_things
 
     liste = {}
 
-    for model_class in moderables_things:
+    for model_class in moderable_things:
 
         moderable = model_class.objects.order_by('-pk').filter(status='1_asking').exclude(deleted=True)
         moderable = filter(lambda x: x.rights_can('VALIDATE', request.user), moderable)

@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from app.utils import update_current_year
+from generic.models import copiable_things
 
 
 @login_required
@@ -19,33 +20,30 @@ def copy_accounting_year(request, pk):
         if not ay.rights_can('EDIT', request.user):
             raise Http404
 
-        account_categories = ay.accountcategory_set.all()
-        accounts = ay.account_set.all()
-        cost_centers = ay.costcenter_set.all()
+        copiable_objects = {}
+        for copiable_class in copiable_things:
+            copiable_objects[copiable_class.__name__] = getattr(ay, '{}_set'.format(lower(copiable_class.__name__))).all()
 
         ay.name = 'Copy of {}'.format(ay.name)
         ay.id = None
         ay.save()
 
-        copiable_objects = (account_categories, accounts, cost_centers)
-        for idx in range(len(copiable_objects)):
-            liste = copiable_objects[idx]
-
+        for cp_obj in copiable_objects.values():
             # Create the new objects
-            for elem in liste:
+            for elem in cp_obj:
                 elem.accounting_year = ay
                 elem.id = None
                 elem.save()
 
-            if idx == 2:
-                break
+        for cp_class, cp_obj in copiable_objects.iteritems():
 
             # Correct dependencies on the new objects
-            field_name = 'parent_hierarchique' if idx == 0 else 'category'
-            for elem in liste:
-                if getattr(elem, field_name):  # if it was None, remains None
-                    setattr(elem, field_name, AccountCategory.objects.get(accounting_year=ay, name=getattr(elem, field_name).name))
-                    elem.save()
+            if hasattr(cp_class.MetaAccounting, 'foreign'):
+                for (field_name, field_class) in cp_class.MetaAccounting.foreign:
+                    for elem in cp_obj:
+                        if getattr(elem, field_name):  # if it was None, remains None
+                            setattr(elem, field_name, field_c.objects.get(accounting_year=ay, name=getattr(elem, field_name).name))
+                        elem.save()
 
     messages.success(request, _(u'Copie terminée avec succès'))
 
@@ -54,3 +52,4 @@ def copy_accounting_year(request, pk):
         return redirect('accounting_core.views.accountingyear_edit', accounting_years[0].pk)
     else:
         return redirect('accounting_core.views.accountingyear_list')
+

@@ -22,8 +22,8 @@ from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
 
 
-moderables_things = []
-
+moderable_things = []
+copiable_things = []
 
 class FalseFK():
 
@@ -200,8 +200,11 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/directory/$', base_views_name + '_directory'),
                 )
 
-            if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderables_things:
-                moderables_things.append(real_model_class)
+            if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderable_things:
+                moderable_things.append(real_model_class)
+
+            if issubclass(model_class, AccountingYearLinked) and hasattr(model_class.MetaAccounting, 'copiable') and model_class.MetaAccounting.copiable and real_model_class not in copiable_things:
+                copiable_things.append(real_model_class)
 
             if issubclass(model_class, GenericContactableModel):
                 setattr(views_module, base_views_name + '_contact', views.generate_contact(module, base_views_name, real_model_class, logging_class))
