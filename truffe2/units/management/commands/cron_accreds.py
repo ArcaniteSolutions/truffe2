@@ -36,7 +36,7 @@ class Command(BaseCommand):
             for a in u.accreditation_set.filter(end_date=None):
 
                 # Nombre de jours avant l'expiration
-                delta = ((a.validation_date + datetime.timedelta(days=365)) - now()).days
+                delta = ((a.renewal_date + datetime.timedelta(days=365)) - now()).days
 
                 # Faut-il supprimer l'accred ?
                 if delta <= 0:

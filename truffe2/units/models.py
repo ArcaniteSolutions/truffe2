@@ -336,7 +336,7 @@ class Accreditation(models.Model, UnitEditableModel):
 
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    validation_date = models.DateTimeField(auto_now_add=True)
+    renewal_date = models.DateTimeField(auto_now_add=True)
 
     display_name = models.CharField(_(u'Titre'), max_length=255, blank=True, null=True, help_text=_(u'Le nom à afficher dans Truffe. Peut être utilisé pour préciser la fonction'))
 
@@ -363,7 +363,7 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def exp_date(self):
         """Returne la date d'expiration de l'accred"""
-        return self.validation_date + datetime.timedelta(days=365)
+        return self.renewal_date + datetime.timedelta(days=365)
 
     def is_valid(self):
         """Returne true si l'accred est valide"""

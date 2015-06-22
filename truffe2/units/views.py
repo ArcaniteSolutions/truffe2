@@ -75,7 +75,7 @@ def accreds_list_json(request):
     else:
         filter2 = lambda x: filter_(filter__(x))
 
-    return generic_list_json(request, Accreditation, ['pk', 'user', 'get_role_or_display_name', 'start_date', 'no_epfl_sync', 'hidden_in_epfl', 'hidden_in_truffe', 'validation_date', 'pk'], 'units/accreds/list_json.html', filter_fields=['user__first_name', 'user__last_name', 'role__name'], bonus_filter_function=filter2, columns_mapping={'get_role_or_display_name': 'role__name', 'user': 'user__first_name'})
+    return generic_list_json(request, Accreditation, ['pk', 'user', 'get_role_or_display_name', 'start_date', 'no_epfl_sync', 'hidden_in_epfl', 'hidden_in_truffe', 'renewal_date', 'pk'], 'units/accreds/list_json.html', filter_fields=['user__first_name', 'user__last_name', 'role__name'], bonus_filter_function=filter2, columns_mapping={'get_role_or_display_name': 'role__name', 'user': 'user__first_name'})
 
 
 @login_required
@@ -138,7 +138,7 @@ def accreds_renew(request, pk):
 
     if request.method == 'POST':
         for accred in accreds:
-            accred.validation_date = now()
+            accred.renewal_date = now()
             accred.save()
 
             AccreditationLog(accreditation=accred, who=request.user, type='renewed').save()

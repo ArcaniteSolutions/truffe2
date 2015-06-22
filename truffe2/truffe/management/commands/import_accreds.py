@@ -58,9 +58,9 @@ class Command(BaseCommand):
 
                             accred, __ = Accreditation.objects.get_or_create(unit=unit, user=user, role=role, start_date=start_date, end_date=end_date)
                             accred.display_name = accred_data['customName']
-                            accred.validation_date = accred_date
+                            accred.renewal_date = accred_date
                             accred.start_date = start_date
                             accred.end_date = end_date
                             accred.save()
 
-        Accreditation.objects.exclude(validation_date=accred_date).delete()
+        Accreditation.objects.exclude(renewal_date=accred_date).delete()
