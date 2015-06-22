@@ -281,6 +281,34 @@ def users_myunit_list_json(request):
 
     current_unit = get_current_unit(request)
 
+    if not current_unit.is_user_in_groupe(request.user):
+        raise Http404
+
     filter = lambda x: x.filter(Q(accreditation__unit=current_unit) & Q(accreditation__end_date=None)).distinct()
 
     return generic_list_json(request, TruffeUser, ['username', 'first_name', 'last_name', 'pk', 'pk'], 'users/users/myunit_list_json.html', bonus_filter_function=filter)
+
+
+@login_required
+@csrf_exempt
+def users_myunit_vcard(request):
+    """VCARD for users in the current unit"""
+
+    update_current_unit(request, request.GET.get('upk'))
+
+    current_unit = get_current_unit(request)
+
+    if not current_unit.is_user_in_groupe(request.user):
+        raise Http404
+
+    retour = ""
+
+    for accred in current_unit.current_accreds():
+        retour += "%s\n\n" % (accred.user.generate_vcard(request.user),)
+
+    response = HttpResponse(retour[:-2], content_type='text/x-vcard')
+    nom = smart_str(current_unit)
+    nom = nom.replace(' ', '_')
+    response['Content-Disposition'] = 'attachment; filename=' + nom + '.vcf'
+
+    return response

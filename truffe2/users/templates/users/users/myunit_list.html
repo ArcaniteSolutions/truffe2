@@ -34,8 +34,19 @@
 
                         <hr style="clear: both; visibility: hidden;">
 
+
                 {% include "widget/footer.html" %}
+
+                <div class="pull-right">
+                    <a href="{% url 'users.views.users_myunit_vcard' %}" class="btn btn-info">
+                        <i class="fa fa-download"></i>
+                        {% trans "VCARD de l'unité" %}
+                    </a>
+
+                </div>
             </div>
+
+
 
             <div class="col-sm-12 col-md-2 col-lg-2">
                 {% with function_to_call="unit_updated" %}
