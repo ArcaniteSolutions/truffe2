@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 from generic.models import GenericModel, FalseFK
 from rights.utils import AgepolyEditableModel, UnitEditableModel
@@ -26,6 +27,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
 
     is_commission = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une commission de l\'AGEPoly'))
     is_equipe = models.BooleanField(default=False, help_text=_(u'Cocher si cette unité est une équipe de l\'AGEPoly'))
+    is_hidden = models.BooleanField(default=False, help_text=_(u'Cocher rend l\'unité inselectionnable au niveau du contexte d\'unité, sauf pour les administrateurs et les personnes accréditées comité de l\'AGEPoly'))
 
     parent_hierarchique = models.ForeignKey('Unit', blank=True, null=True, help_text=_(u'Pour les commissions et les équipes, sélectionner le comité de l\'AGEPoly. Pour les sous-commisions, sélectionner la commission parente. Pour un coaching de section, sélectionner la commission Coaching. Pour le comité de l\'AGEPoly, ne rien mettre.'))
 
@@ -34,6 +36,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
+            ('is_hidden', _(u'Cachée ?')),
             ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président'))
         ]
@@ -42,6 +45,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('is_commission', _('Commission ?')),
             ('is_equipe', _(u'Équipe ?')),
+            ('is_hidden', _(u'Cachée ?')),
             ('parent_hierarchique', _('Parent')),
             ('president', _(u'Président')),
             ('id_epfl', _('ID EPFL')),
@@ -49,7 +53,7 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('url', _('URL')),
         ]
 
-        yes_or_no_fields = ['is_commission', 'is_equipe']
+        yes_or_no_fields = ['is_commission', 'is_equipe', 'is_hidden']
 
         filter_fields = ('name', )
 
@@ -94,9 +98,21 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         self.rights_can_edit = __tmp
         self._rights_can_edit = f
 
+    _can_use_hidden = False  # Internal property
+
+    def check_if_can_use_hidden(self, user):
+        self._can_use_hidden = user.is_superuser or self.rights_in_root_unit(user)
+
+        return self._can_use_hidden
+
     def has_sub(self):
         """Return true if the unit has subunits"""
-        return self.unit_set.filter(deleted=False).order_by('name').count() > 0
+        liste = self.unit_set.filter(deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        return liste.count() > 0
 
     def only_one_sub_type(self):
         tt = 0
@@ -113,31 +129,55 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
     def sub_com(self):
         """Return the sub units, but only commissions"""
         retour = []
-        for unit in self.unit_set.filter(is_commission=True).filter(deleted=False).order_by('name'):
+
+        liste = self.unit_set.filter(is_commission=True, deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        for unit in liste.order_by('name'):
             unit.set_rights_can_select(self._rights_can_select)
             unit.set_rights_can_edit(self._rights_can_edit)
+            unit._can_use_hidden = self._can_use_hidden
             retour.append(unit)
         return retour
 
     def sub_eqi(self):
         """Return the sub units, but only groups"""
         retour = []
-        for unit in self.unit_set.exclude(is_commission=True).filter(is_equipe=True).filter(deleted=False).order_by('name'):
+
+        liste = self.unit_set.exclude(is_commission=True, is_equipe=True).filter(deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        for unit in liste.order_by('name'):
             unit.set_rights_can_select(self._rights_can_select)
+            unit.set_rights_can_edit(self._rights_can_edit)
+            unit._can_use_hidden = self._can_use_hidden
             retour.append(unit)
         return retour
 
     def sub_grp(self):
         """Return the sub units, without groups or commissions"""
         retour = []
-        for unit in self.unit_set.filter(is_commission=False).filter(is_equipe=False).filter(deleted=False).order_by('name'):
+
+        liste = self.unit_set.filter(is_commission=False, is_equipe=False, deleted=False)
+
+        if not self._can_use_hidden:
+            liste = liste.filter(is_hidden=False)
+
+        for unit in liste.order_by('name'):
             unit.set_rights_can_select(self._rights_can_select)
+            unit.set_rights_can_edit(self._rights_can_edit)
+            unit._can_use_hidden = self._can_use_hidden
             retour.append(unit)
         return retour
 
     def is_user_in_groupe(self, user, access=None, parent_mode=False, no_parent=False):
 
         for accreditation in self.accreditation_set.filter(user=user, end_date=None):
+
             if accreditation.is_valid():
 
                 # No acces: Only an accred is needed
@@ -191,7 +231,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
 
     @property
     def president(self):
-        return ', '.join([u.user.get_full_name() for u in list(self.accreditation_set.filter(end_date=None, role__pk=settings.PRESIDENT_ROLE_PK))])
+        return ', '.join([u.user.get_full_name() for u in list(self.accreditation_set.filter(end_date=None, role__pk=settings.PRESIDENT_ROLE_PK, hidden_in_truffe=False))])
 
     def can_delete(self):
 
@@ -206,6 +246,12 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
     def get_users(self):
         return [a.user for a in self.current_accreds()]
 
+    def rights_can_SHOW(self, user):
+        if self.is_hidden and not self.check_if_can_use_hidden(user):
+            return False
+
+        return super(_Unit, self).rights_can_SHOW(user)
+
 
 class _Role(GenericModel, AgepolyEditableModel):
     """Un role, pour une accred"""
@@ -219,11 +265,14 @@ class _Role(GenericModel, AgepolyEditableModel):
     description = models.TextField(null=True, blank=True)
     ordre = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'accréditer la même personne dans la même unité plusieurs fois. Le rôle avec le plus PETIT ordre sera pris en compte'))
 
+    need_validation = models.BooleanField(_(u'Nécessite validation'), default=False, help_text=_(u'A cocher pour indiquer que le comité de l\'AGEPoly doit valider l\'attribution du rôle'))
+
     ACCESS_CHOICES = (
         ('PRESIDENCE', _(u'Présidence')),
         ('TRESORERIE', _(u'Trésorerie')),
         ('COMMUNICATION', _('Communication')),
         ('INFORMATIQUE', _('Informatique')),
+        ('ACCREDITATION', _(u'Accrédiations')),
         ('LOGISTIQUE', _('Logistique')),
         ('SECRETARIAT', _(u'Secrétariat'))
     )
@@ -241,6 +290,7 @@ class _Role(GenericModel, AgepolyEditableModel):
         list_display = [
             ('name', _('Nom')),
             ('id_epfl', _('ID EPFL ?')),
+            ('need_validation', _('Validation ?')),
             ('ordre', _('Ordre'))
         ]
 
@@ -248,11 +298,14 @@ class _Role(GenericModel, AgepolyEditableModel):
             ('name', _('Nom')),
             ('description', _('Description')),
             ('id_epfl', _('ID EPFL ?')),
+            ('need_validation', _('Validation ?')),
             ('ordre', _('Ordre')),
             ('get_access', _(u'Accès')),
         ]
 
         filter_fields = ('name', 'id_epfl', 'description')
+
+        yes_or_no_fields = ['need_validation']
 
         base_title = _(u'Rôles')
         list_title = _(u'Liste de tous les rôles')
@@ -284,29 +337,34 @@ class Accreditation(models.Model, UnitEditableModel):
 
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    validation_date = models.DateTimeField(auto_now_add=True)
+    renewal_date = models.DateTimeField(auto_now_add=True)
 
-    display_name = models.CharField(max_length=255, blank=True, null=True, help_text=_(u'Le nom à afficher dans Truffe. Peut être utilisé pour préciser la fonction'))
+    display_name = models.CharField(_(u'Titre'), max_length=255, blank=True, null=True, help_text=_(u'Précision optionnelle à afficher dans Truffe. Peut être utilisé pour préciser la fonction, par example: "Responsable Réseau" pour une accrédiation de Responsable Informatique.'))
 
-    no_epfl_sync = models.BooleanField(default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
+    no_epfl_sync = models.BooleanField(_(u'Désactiver syncronisation EPFL'), default=False, help_text=_(u'A cocher pour ne pas synchroniser cette accréditation au niveau EPFL'))
+    hidden_in_epfl = models.BooleanField(_(u'Cacher au niveau EPFL'), default=False, help_text=_(u'A cocher pour ne pas rendre public l\'accréditation au niveau EPFL'))
+    hidden_in_truffe = models.BooleanField(_(u'Cacher dans Truffe'), default=False, help_text=_(u'A cocher pour ne pas rendre public l\'accréditation au niveau truffe (sauf aux accréditeurs sur la page d\'accréditation)'))
+
+    need_validation = models.BooleanField(default=False)
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
-        access = 'INFORMATIQUE'
+        access = 'ACCREDITATION'
 
     class MetaRights(UnitEditableModel.MetaRights):
-        pass
+        linked_unit_property = 'unit'
 
     def __init__(self, *args, **kwargs):
         super(Accreditation, self).__init__(*args, **kwargs)
 
         self.MetaRights.rights_update({
             'INGORE_PREZ': _(u'Peut supprimer le dernier président'),
+            'VALIDATE': _(u'Valider les changements'),
         })
 
     def exp_date(self):
         """Returne la date d'expiration de l'accred"""
-        return self.validation_date + datetime.timedelta(days=365)
+        return self.renewal_date + datetime.timedelta(days=365)
 
     def is_valid(self):
         """Returne true si l'accred est valide"""
@@ -314,11 +372,56 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def get_role_or_display_name(self):
         if self.display_name:
-            return str(self.role) + " (" + self.display_name + ")"
-        return str(self.role)
+            return u'%s (%s)' % (self.role, self.display_name)
+        return u'%s' % (self.role,)
 
     def rights_can_INGORE_PREZ(self, user):
         return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+
+    def rights_can_VALIDATE(self, user):
+        return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+
+    def check_if_validation_needed(self, request):
+
+        if not self.role.need_validation:
+            return
+
+        if self.rights_can('VALIDATE', request.user):
+            return
+
+        if not self.unit.is_commission:  # Seulement pour les commisions !
+            return
+
+        self.need_validation = True
+
+        from notifications.utils import notify_people
+        dest_users = self.people_in_root_unit('ACCREDITATION')
+        notify_people(request, 'Accreds.ToValidate', 'accreds_tovalidate', self, dest_users)
+
+    def __unicode__(self):
+        return '%s (%s)' % (self.user, self.get_role_or_display_name())
+
+    def display_url(self):
+        return '%s?upk=%s' % (reverse('units.views.accreds_list'), self.unit.pk,)
+
+
+class AccreditationLog(models.Model):
+
+    accreditation = models.ForeignKey(Accreditation)
+    who = models.ForeignKey(TruffeUser)
+    when = models.DateTimeField(auto_now_add=True)
+    what = models.TextField(blank=True, null=True)
+
+    TYPE_CHOICES = [
+        ('created', _(u'Créée')),
+        ('edited', _(u'Modifiée')),
+        ('deleted', _(u'Supprimée')),
+        ('autodeleted', _(u'Supprimée automatiquement')),
+        ('renewed', _(u'Renouvelée')),
+        ('validated', _(u'Validée')),
+    ]
+
+    type = models.CharField(max_length=32, choices=TYPE_CHOICES)
 
 
 class _AccessDelegation(GenericModel, UnitEditableModel):
@@ -332,7 +435,7 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         unit_ro_access = True
-        access = 'INFORMATIQUE'
+        access = 'ACCREDITATION'
 
     class MetaData:
         list_display = [

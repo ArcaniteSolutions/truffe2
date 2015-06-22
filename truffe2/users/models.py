@@ -96,11 +96,16 @@ EMAIL;INTERNET:%s
     def get_roles(self):
         return ', '.join(['%s: %s' % (x.unit, x.role,) for x in list(self.active_accreds())])
 
-    def active_accreds(self):
-        return self.accreditation_set.filter(end_date=None).order_by('unit__name', 'role__ordre')
+    def active_accreds(self, with_hiddens=False):
+        liste = self.accreditation_set.filter(end_date=None)
+
+        if not with_hiddens:
+            liste = liste.filter(hidden_in_truffe=False)
+
+        return liste.order_by('unit__name', 'role__ordre')
 
     def is_external(self):
-        return not self.active_accreds()
+        return not self.active_accreds(with_hiddens=True)
 
     def username_is_sciper(self):
         return re.match('^\d{6}$', self.username)

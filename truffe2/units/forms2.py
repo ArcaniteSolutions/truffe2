@@ -13,7 +13,7 @@ class AccreditationAddForm(ModelForm):
 
     class Meta:
         model = Accreditation
-        exclude = ('start_date', 'end_date', 'validation_date', 'unit', 'user')
+        exclude = ('start_date', 'end_date', 'renewal_date', 'unit', 'user', 'need_validation')
 
     def __init__(self, current_user, *args, **kwargs):
         """"""
@@ -32,3 +32,10 @@ class AccreditationAddForm(ModelForm):
                 raise ValidationError(_('Pas un username valide'))
 
         return data
+
+
+class AccreditationEditForm(ModelForm):
+
+    class Meta:
+        model = Accreditation
+        exclude = ('start_date', 'end_date', 'renewal_date', 'unit', 'user','need_validation')

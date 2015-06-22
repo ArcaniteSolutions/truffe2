@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n l10n bootstrap3 %}
+
+{% block title %}{{block.super}} :: {% trans "Accréditations" %} :: {% trans "Validation" %}}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url "units.views.accreds_list" %}"><i class="fa fa-key"></i> {% trans "Accréditations" %}</a></li>
+    <li><i class="fa fa-check"></i> {% trans "Validation" %}</li>
+{% endblock %}
+
+{% block content %}
+
+    <h1>{{accred.role}}</h1>
+    
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-7">
+            <div class="well">
+                <form class="form-horizontal" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="do" value="it">
+
+
+                    <div class="alert alert-block alert-warning">
+                        {% if not multi_obj %}
+                            <h4 class="alert-heading">{% trans "Vous êtes sur le point de valider l'accréditation de" %} {{accreds.0.user.get_full_name}} ({{accreds.0.get_role_or_display_name}}) {% trans "dans l'unité" %} {{accreds.0.unit}}</h4>
+                        {% else %}
+                                <h4 class="alert-heading">{% trans "Vous êtes sur le point de valider les accréditations suivantes dans l'unité" %} {{accreds.0.unit}}</h4>
+
+                                <ul>
+                                    {% for accred in accreds %}
+                                        <li>{{accred.user.get_full_name}} ({{accred.get_role_or_display_name}})</li>
+                                    {% endfor %}
+                                </ul>
+
+                        {% endif %}
+
+                        {% trans "Êtes-vous sûr de vouloir faire ça ?" %}
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="{% url "units.views.accreds_list" %}" class="btn btn-default"><i class="fa fa-list"></i> {% trans "Annuler et retourner sur la liste" %}</a>
+                                <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> {% trans "Valider" %}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -50,6 +50,12 @@ def get_unit_data(model_class, request, allow_blank=True):
 
         current_unit = get_current_unit(request, unit_blank)
 
+    if current_unit and current_unit.is_hidden:
+        # Enpeche d'éventuel petit malins de trichers en mettant les IDs à la
+        # main
+        if not current_unit.check_if_can_use_hidden(request.user):
+            raise Http404
+
     return unit_mode, current_unit, unit_blank
 
 
@@ -97,6 +103,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
             main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can(right_to_check, request.user, unit, current_year))
             main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can(right_to_check_edit, request.user, unit, current_year))
+            main_unit.check_if_can_use_hidden(request.user)
         else:
             # The LIST right is not verified here if we're in unit mode. We
             # need to test (in the view) in another unit is available for LIST
@@ -305,6 +312,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
 
             main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('CREATE', request.user, unit, current_year))
             main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('CREATE', request.user, unit, current_year))
+            main_unit.check_if_can_use_hidden(request.user)
         else:
             main_unit = None
 
@@ -520,6 +528,7 @@ def generate_deleted(module, base_name, model_class, log_class):
 
             main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit, current_year))
             main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can('RESTORE', request.user, unit, current_year))
+            main_unit.check_if_can_use_hidden(request.user)
         else:
             main_unit = None
 

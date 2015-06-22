@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-
 from django.conf import settings
-
 from django.utils.translation import ugettext_lazy as _
+
+
+import json
 
 
 class Notification(models.Model):
@@ -22,6 +23,14 @@ class Notification(models.Model):
     linked_object = generic.GenericForeignKey('content_type', 'object_id')
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    metadata = models.TextField(blank=True, null=True)
+
+    def set_metadata(self, data):
+        self.metadata = json.dumps(data)
+
+    def get_metadata(self):
+        return json.loads(self.metadata)
 
     def get_template(self):
         return 'notifications/species/%s.html' % (self.species,)

@@ -1,1 +1,1 @@
-<span class='text-{{val|yesno:"success,danger"}}'><i class='fa fa-{{val|yesno:"check,times"}}'></i></span>
+{% if not invert %}<span class='text-{{val|yesno:"success,danger"}}'><i class='fa fa-{{val|yesno:"check,times"}}'></i></span>{% else %}<span class='text-{{val|yesno:"danger,success"}}'><i class='fa fa-{{val|yesno:"times,check"}}'></i></span>{% endif %}
