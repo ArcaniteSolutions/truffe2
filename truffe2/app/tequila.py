@@ -46,7 +46,7 @@ class Backend:
         firstName = re.search('\nfirstname=(.*)', data).group(1)
         name = re.search('\nname=(.*)', data).group(1)
         email = re.search('\nemail=(.*)', data).group(1)
-        sciper = re.search('\nuniqueid=(.*)', data).group(1)
+        sciper = re.search('\nuniqueid=(.*)', data).group(1).strip()
 
         # Find user in database
         try:

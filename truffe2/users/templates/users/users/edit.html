@@ -19,8 +19,8 @@
                 <form class="form-horizontal" method="POST">
                     {% csrf_token %}
 
-                    <div class="alert alert-danger">
-                      {% trans "Les utilistateurs sont actuellement synchronisés depuis Truffe1: Les modifications ne sont pas prises en compte et seront effacées !" %}
+                    <div class="alert alert-warning">
+                        {% trans "Les utilisateurs sont synchronisées vers Truffe1 toutes les 5 minutes: il peut y avoir un délais pour l'application des modifications du coté de Truffe1 !" %}
                     </div>
 
                     {% bootstrap_form form layout='horizontal' %}

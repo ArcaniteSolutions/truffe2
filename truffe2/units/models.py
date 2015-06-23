@@ -152,7 +152,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         """Return the sub units, but only groups"""
         retour = []
 
-        liste = self.unit_set.exclude(is_commission=True, is_equipe=True).filter(deleted=False)
+        liste = self.unit_set.exclude(is_commission=True).filter(is_equipe=True, deleted=False)
 
         if not self._can_use_hidden:
             liste = liste.filter(is_hidden=False)
