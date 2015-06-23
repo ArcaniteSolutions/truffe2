@@ -76,13 +76,13 @@
                 {% with w_title="Accréditations" %}{% include "widget/header.html" %}{% endwith %}
                     <dl class="dl-horizontal">
                         {% for accred in user_to_display.active_accreds %}
-                            {% if accred.rights_can_SHOW user %}
+                            {% if accred.rights_can_SHOW %}
                                 <dt><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>
                                 <dd><span class="label label-success">{{accred.role}}</span> {% trans "depuis le" %} {{accred.start_date|date:"d.m.Y"}} {% if accred.need_validation %} <span class="text-warning"><i class="fa fa-warning"></i> {% trans "Pas validé par le comité de l\'AGEPoly !" %}</span>{% endif %}</dd>
                             {% endif %}
                         {% endfor %}
                         {% for accred in user_to_display.old_accreds %}
-                            {% if accred.rights_can_SHOW user %}
+                            {% if accred.rights_can_SHOW %}
                                 <dt><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>
                                 <dd><span class="label label-danger">{{accred.role}}</span> {% trans "du" %} {{accred.start_date|date:"d.m.Y"}} {% trans "au" %} {{accred.end_date|date:"d.m.Y"}}</dd>
                             {% endif %}

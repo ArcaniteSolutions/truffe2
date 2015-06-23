@@ -278,7 +278,7 @@ class _Role(GenericModel, AgepolyEditableModel):
         ('TRESORERIE', _(u'Trésorerie')),
         ('COMMUNICATION', _('Communication')),
         ('INFORMATIQUE', _('Informatique')),
-        ('ACCREDITATION', _(u'Accrédiations')),
+        ('ACCREDITATION', _(u'Accréditations')),
         ('LOGISTIQUE', _('Logistique')),
         ('SECRETARIAT', _(u'Secrétariat'))
     )
