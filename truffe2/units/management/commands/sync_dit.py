@@ -4,9 +4,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.utils.encoding import smart_str
 
-
 import csv
-
+import os
 
 from units.models import Unit
 
@@ -63,6 +62,4 @@ class Command(BaseCommand):
 
                         writer.writerow([mship.user.username.strip(), u.id_epfl, role_id, "True" if mset.ldap_visible else "False", smart_str(mship.user.first_name), smart_str(mship.user.last_name), smart_str(u.name), smart_str(mset.generated_accred_type.name), 'Membre'])
 
-
-        # TODO
-        # os.system("scp /tmp/generateListAccredsForDIT collecte@cadibatch.epfl.ch:agepoly/")
+        os.system("scp /tmp/generateListAccredsForDIT collecte@cadibatch.epfl.ch:agepoly/")
