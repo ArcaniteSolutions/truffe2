@@ -480,7 +480,7 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
         help_list = _(u"""Les délégations d'accès permettent de donner des accès supplémentaires dans une unité.
 
 Les accès sont normalement déterminés en fonction des accréditations, au niveau global.
-Par exemple, une personne accréditée en temps que 'Trésorier' dans une unité disposera de l'accès TRÉSOERIE pour l'unité.
+Par exemple, une personne accréditée en temps que 'Trésorier' dans une unité disposera de l'accès TRESORERIE pour l'unité.
 
 Avec les délégations d'accês, il est par exemple possible de donner l'accès "COMMUNICATION" à tout les membres d'une unité en créant une délégations d'accès.
 
