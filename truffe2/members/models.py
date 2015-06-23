@@ -138,7 +138,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
         unique_together = ("name", "unit")
 
     def __unicode__(self):
-        return "{} ({})".format(self.name, self.unit)
+        return u"{} ({})".format(self.name, self.unit)
 
     def rights_can_EDIT(self, user):
         # On ne peut pas éditer/supprimer les groupes archivés.
