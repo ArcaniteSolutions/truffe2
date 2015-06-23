@@ -120,7 +120,7 @@ EMAIL;INTERNET:%s
         return '%s (%s)' % (self.get_full_name(), self.username)
 
     def is_profile_ok(self):
-        return self.iban_ou_ccp and self.mobile
+        return self.iban_ou_ccp and self.mobile and self.nom_banque and self.adresse
 
 
 class UserPrivacy(models.Model):

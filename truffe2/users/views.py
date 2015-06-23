@@ -308,9 +308,9 @@ def users_myunit_vcard(request):
         retour += "%s\n\n" % (accred.user.generate_vcard(request.user),)
 
     response = HttpResponse(retour[:-2], content_type='text/x-vcard')
-    nom = smart_str(current_unit)
-    nom = nom.replace(' ', '_')
-    response['Content-Disposition'] = 'attachment; filename=' + nom + '.vcf'
+    name = smart_str(current_unit)
+    name = name.replace(' ', '_')
+    response['Content-Disposition'] = 'attachment; filename=' + name + '.vcf'
 
     return response
 
