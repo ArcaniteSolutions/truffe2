@@ -74,6 +74,12 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
     def __unicode__(self):
         return self.name
 
+    def genericFormExtraInit(self, form, *args, **kwargs):
+        """Update queryset for parent_hierarchique"""
+        if 'parent_hierarchique' in form.fields:
+            from units.models import Unit
+            form.fields['parent_hierarchique'].queryset = Unit.objects.order_by('name')
+
     def rights_can_select(self):
         """Return true if the unit can be selected in the selector menu"""
         return True

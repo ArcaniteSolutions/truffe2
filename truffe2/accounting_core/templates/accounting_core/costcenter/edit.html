@@ -1,0 +1,18 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        // Move unit up
+        var unit = $('#id_unit').parents('.form-group').remove();
+        $('#id_name').parents('.form-group').before(unit);
+
+        $(function() {
+            // Transform id_unit in select2
+            $('#id_unit').removeClass('form-control');
+            $('#id_unit').width('72%').select2();
+
+        });
+    </script>
+{% endblock %}
