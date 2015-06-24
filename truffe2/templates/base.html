@@ -370,7 +370,7 @@
             <!-- MAIN CONTENT -->
             <div id="content">
 
-                {% if not user.is_profile_ok %}
+                {% if user and user.pk and not user.is_profile_ok %}
                     <div class="alert alert-danger">
                         {% trans "Ton profil n'est pas correctement remplis: Il faut au moins indiquer ton téléphone portable, ton adresse, ta banque et ton IBAN !" %}
 
