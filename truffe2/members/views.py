@@ -120,7 +120,7 @@ def membership_list_json(request, pk):
     # Filter by group and check they are still in the group
     filter2 = lambda x: x.filter(group=memberset, end_date=None)
 
-    return generic_list_json(request, Membership, ['user', 'start_date', 'payed_fees', 'group', 'pk'], 'members/membership/list_json.html', bonus_data={'handle_fees': memberset.handle_fees}, filter_fields=['user__first_name', 'user__last_name', 'user__username'], bonus_filter_function=filter2)
+    return generic_list_json(request, Membership, ['user', 'start_date', 'payed_fees', 'group', 'pk'], 'members/membership/list_json.html', bonus_data={'handle_fees': memberset.handle_fees}, filter_fields=['user__first_name', 'user__last_name', 'user__username'], bonus_filter_function=filter2, columns_mapping={'user': 'user__first_name'})
 
 
 @login_required
