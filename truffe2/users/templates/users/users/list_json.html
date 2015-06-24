@@ -1,5 +1,5 @@
 {% extends "generic/datatables_json.html" %}
-{% load i18n %}
+{% load i18n rights_extras %}
 
 {% block data %}
 [
@@ -9,7 +9,7 @@
         "{{elem.first_name|force_escape|escapejs}}",
         "{{elem.last_name|force_escape|escapejs}}",
         "{{elem.get_roles|force_escape|escapejs}}",
-        "{% if user.is_superuser %}<a href=\"{% url "users.views.users_edit" elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endif %}"
+        "{% ifhasright elem user 'EDIT' %}<a href=\"{% url "users.views.users_edit" elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endifhasright %}"
       ]{% if not forloop.last %},{% endif %}
     {% endfor %}
 ]

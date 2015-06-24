@@ -1,7 +1,7 @@
 from django import template
 from django.template.base import Node, NodeList
 
-from rights.utils import BasicRightModel
+from rights.utils import ModelWithRight
 
 from app.utils import get_current_unit, get_current_year
 
@@ -47,7 +47,7 @@ class IfHasRightNode(Node):
                     force_static = True
                     right = right[1:]
 
-                if isinstance(obj, BasicRightModel) and not force_static:
+                if isinstance(obj, ModelWithRight) and not force_static:
                     match = obj.rights_can(right, user)
                 elif hasattr(obj, 'static_rights_can'):
                     match = obj.static_rights_can(right, user, get_current_unit(context['request']) if force_static else None, get_current_year(context['request']) if force_static else None)

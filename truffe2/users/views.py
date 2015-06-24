@@ -105,7 +105,7 @@ def users_edit(request, pk):
 
     user = get_object_or_404(TruffeUser, pk=pk)
 
-    if not request.user.is_superuser and not user.pk == request.user.pk:
+    if not user.rights_can('EDIT', request.user):
         raise Http404
 
     if request.method == 'POST':  # If the form has been submitted...
