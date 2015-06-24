@@ -43,8 +43,6 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
         if '-pk' not in order and 'pk' not in order:
             order.append('-pk')
 
-        print order
-
         if order:
             qs = qs.order_by(*order)
 
@@ -69,7 +67,7 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
             qs = qs.filter(base)
 
         if hasattr(model, 'MetaState') and hasattr(model.MetaState, 'status_col_id'):
-            status_search = request.REQUEST.get('sSearch_%s' % (model.MetaState.status_col_id + (0 if not deca_one_status else 2) + (-1 if selector_column else 0),), None)
+            status_search = request.REQUEST.get('sSearch_%s' % (model.MetaState.status_col_id + (0 if not deca_one_status else 0) + (0 if selector_column else 0),), None)
 
             if status_search == "null":
                 status_search = None

@@ -98,7 +98,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         }
 
         states_default_filter = '0_draft,1_online'
-        status_col_id = 3
+        status_col_id = 4
 
     class Meta:
         abstract = True

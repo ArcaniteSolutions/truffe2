@@ -61,7 +61,7 @@
                 "bDeferRender": true,
                 "bProcessing": true,
                 "bServerSide": true,
-                {# "bStateSave": true, #}
+                "bStateSave": true,
                 "sAjaxSource": "{% if json_url_manual %}{{json_url_manual}}{% else %}{% url json_url %}{% endif %}",
                 "fnDrawCallback": function(oSettings) {
                     {% if draw_callback %}

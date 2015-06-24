@@ -377,7 +377,7 @@ class GenericStateValidableOrModerable(object):
 
         states_default_filter = '0_draft,1_asking,2_online'
         states_default_filter_related = '1_asking,2_online'
-        status_col_id = 3
+        status_col_id = 4
 
     def may_switch_to(self, user, dest_state):
 
@@ -547,7 +547,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
 
-        status_col_id = 4
+        status_col_id = 6
 
         class FormRemark(Form):
             remark = CharField(label=_('Remarque'), widget=Textarea, required=False)
