@@ -110,9 +110,6 @@ def membership_list_json(request, pk):
     """Display the list of members, json call for the list"""
     from members.models import MemberSet, Membership
 
-    # Update current unit
-    update_current_unit(request, request.GET.get('upk'))
-
     # Get the MemberSet
     memberset = get_object_or_404(MemberSet, pk=pk)
 
