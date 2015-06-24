@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -190,10 +191,10 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         """Check that unique_together is fulfiled"""
         from accounting_core.models import CostCenter
 
-        if CostCenter.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+        if CostCenter.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Un centre de coûts avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
-        if CostCenter.objects.filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
+        if CostCenter.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
             raise forms.ValidationError(_(u'Un centre de coûts avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
 
@@ -245,7 +246,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         """Check that unique_together is fulfiled"""
         from accounting_core.models import AccountCategory
 
-        if AccountCategory.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+        if AccountCategory.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Une catégorie avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
     def get_children_categories(self):
@@ -317,8 +318,8 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         """Check that unique_together is fulfiled"""
         from accounting_core.models import Account
 
-        if Account.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+        if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Un compte de CG avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
-        if Account.objects.filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
+        if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
             raise forms.ValidationError(_(u'Un compte de CG avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
