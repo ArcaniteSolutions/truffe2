@@ -154,6 +154,8 @@ class GenericModel(models.Model):
 
                 setattr(views_module, base_views_name + '_list', views.generate_list(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_list_json', views.generate_list_json(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_logs', views.generate_logs(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_logs_json', views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class))
                 setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
@@ -164,6 +166,8 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/$', base_views_name + '_list'),
                     url(r'^' + base_views_name + '/json$', base_views_name + '_list_json'),
                     url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
+                    url(r'^' + base_views_name + '/logs$', base_views_name + '_logs'),
+                    url(r'^' + base_views_name + '/logs/json$', base_views_name + '_logs_json'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/delete$', base_views_name + '_delete'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
