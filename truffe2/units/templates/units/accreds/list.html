@@ -216,7 +216,7 @@
 
     </script>
 
-    {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" force_first_width=True %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" force_first_width=True default_sort="[1, 'asc']" %}{% include "datatables.html" %}{% endwith %}
 
     <br /><br />
 

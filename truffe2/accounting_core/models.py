@@ -29,6 +29,9 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
             ('status', _('Statut')),
         ]
         details_display = list_display
+
+        default_sort = "[1, 'asc']"  # name
+
         filter_fields = ('name', 'status')
 
         base_title = _(u'Années Comptables')
@@ -169,6 +172,8 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
             ('unit', _(u'Appartient à'))
         ]
 
+        default_sort = "[2, 'asc']"  # name
+
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
         filter_fields = ('name', 'account_number', 'unit')
 
@@ -219,6 +224,9 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         ]
 
         details_display = list_display + [('accounting_year', _(u'Année Comptable')), ('description', _(u'Description'))]
+
+        default_sort = "[1, 'asc']"  # name
+
         filter_fields = ('name', 'parent_hierarchique')
 
         base_title = _(u'Catégories des comptes de CG')
@@ -284,6 +292,8 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
             ('name', _('Nom du compte')),
             ('category', _(u'Catégorie'))
         ]
+
+        default_sort = "[2, 'asc']"  # name
 
         details_display = list_display + [('description', _(u'Description')), ('visibility', _(u'Visible par')), ('accounting_year', _(u'Année comptable'))]
         filter_fields = ('name', 'account_number', 'category')

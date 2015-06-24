@@ -43,6 +43,8 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
         if '-pk' not in order and 'pk' not in order:
             order.append('-pk')
 
+        print order
+
         if order:
             qs = qs.order_by(*order)
 

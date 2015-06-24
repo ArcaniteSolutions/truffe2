@@ -36,6 +36,8 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-bullhorn'
 
+        default_sort = "[3, 'desc']"  # end_date
+
         menu_id = 'menu-communication-websitenews'
 
         datetime_fields = ['start_date', 'end_date']
@@ -83,6 +85,8 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
         list_title = _(u'Liste de tous les slides à l\'AGEPoly')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-bullhorn'
+
+        default_sort = "[3, 'desc']"  # end_date
 
         menu_id = 'menu-communication-agepslide'
 

@@ -49,6 +49,8 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         details_display = list_display + [('content', _('Content'))]
         filter_fields = ('title', 'status')
 
+        default_sort = "[1, 'asc']"  # title
+
         base_title = _('News Truffe')
         list_title = _(u'Liste de toutes les news Truffe')
         base_icon = 'fa fa-list'

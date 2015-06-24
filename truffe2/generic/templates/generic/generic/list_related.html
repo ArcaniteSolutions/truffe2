@@ -12,7 +12,7 @@
 {% block buttons %}{% endblock %}
 {% block menuid %}{{Model.MetaData.menu_id_related}}{% endblock %}
 {% block datatables %}
-    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter_related states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id|add:"1" with_upk=unit_mode with_ypk=year_mode object_filter=object_filter object_filter_name=Model.MetaData.related_name object_col_id=0 force_last_width=Model.MetaData.list_display_related|length|add:"1" force_width=Model.MetaData.forced_widths_related force_first_width=True draw_callback="update_multi_do" %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter_related states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id|add:"1" with_upk=unit_mode with_ypk=year_mode object_filter=object_filter object_filter_name=Model.MetaData.related_name object_col_id=0 force_last_width=Model.MetaData.list_display_related|length|add:"1" force_width=Model.MetaData.forced_widths_related force_first_width=True draw_callback="update_multi_do" default_sort=Model.MetaData.default_sort %}{% include "datatables.html" %}{% endwith %}
 {% endblock %}
 {% block bonus_unit_updated %}
     window.location = window.location.pathname + '?upk=' + $('.cgroupe').attr('pk');

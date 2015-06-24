@@ -33,6 +33,9 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
         ]
         details_display = list_display
         details_display.insert(2, ('generated_accred_type', _(u'Type généré')))
+
+        default_sort = "[1, 'asc']"  # name
+
         filter_fields = ('name', 'status')
 
         base_title = _('Groupes de Membres')
