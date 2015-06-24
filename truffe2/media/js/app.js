@@ -1331,11 +1331,12 @@ function pageSetUp() {
 		$("[rel=tooltip]").tooltip();
 	
 		// activate popovers
-		$("[rel=popover]").popover();
+		$("[rel=popover]").popover({container: 'body'});
 	
 		// activate popovers with hover states
 		$("[rel=popover-hover]").popover({
-			trigger : "hover"
+			trigger : "hover",
+			container: 'body',
 		});
 	
 		// activate inline charts
