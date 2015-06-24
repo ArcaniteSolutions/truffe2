@@ -25,6 +25,7 @@ from notifications.utils import notify_people, unotify_people
 moderable_things = []
 copiable_things = []
 
+
 class FalseFK():
 
     def __init__(self, model, *args, **kwargs):
@@ -369,7 +370,7 @@ class GenericStateValidableOrModerable(object):
         list_quick_switch = {
             '0_draft': [('1_asking', 'fa fa-question', _(u'Demander à modérer')), ],
             '1_asking': [('2_online', 'fa fa-check', _(u'Valider')), ('4_deny', 'fa fa-ban', _(u'Refuser'))],
-            '2_online': [],
+            '2_online': [('3_archive', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ],
             '3_archive': [],
             '4_deny': [],
         }
@@ -511,9 +512,9 @@ class GenericStateModerable(GenericStateValidableOrModerable):
         }
 
         states_quick_switch = {
-            '0_draft': ('1_asking', _(u'Demander à modérer')),
-            '1_asking': ('2_online', _(u'Mettre en ligne')),
-            '2_online': ('0_draft', _(u'Repasser en brouillon')),
+            '0_draft': [('1_asking', _(u'Demander à modérer')), ],
+            '1_asking': [('2_online', _(u'Mettre en ligne')), ],
+            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
 
 
@@ -541,9 +542,9 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         }
 
         states_quick_switch = {
-            '0_draft': ('1_asking', _(u'Demander à modérer')),
-            '1_asking': ('2_online', _(u'Valider')),
-            '2_online': ('0_draft', _(u'Repasser en brouillon')),
+            '0_draft': [('1_asking', _(u'Demander à modérer')), ],
+            '1_asking': [('2_online', _(u'Mettre en ligne')), ],
+            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
 
         status_col_id = 4

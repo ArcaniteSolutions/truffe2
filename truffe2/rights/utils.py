@@ -252,6 +252,8 @@ class UnitEditableModel(BasicRightModel):
         return (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
     def rights_can_EDIT(self, user):
+        if user.is_superuser:  # Sometimes state switch call the function without checking that the user is superuser
+            return True
         return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
     def rights_peoples_in_EDIT(self):
