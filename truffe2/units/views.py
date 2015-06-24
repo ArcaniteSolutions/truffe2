@@ -121,7 +121,7 @@ def accreds_logs_list_json(request):
 
     filter2 = lambda x: filter_(filter__(x))
 
-    return generic_list_json(request, AccreditationLog, ['pk', 'user', 'type', 'when', 'what'], 'units/accreds/logs_list_json.html', filter_fields=['accred__user__first_name', 'accreditation__user__last_name', 'accreditation__role__name', 'who__first_name', 'who__last_name'], bonus_filter_function=filter2, columns_mapping={'pk': 'accreditation__user__first_name'})
+    return generic_list_json(request, AccreditationLog, ['pk', 'accreditation__user', 'type', 'when', 'what'], 'units/accreds/logs_list_json.html', filter_fields=['accred__user__first_name', 'accreditation__user__last_name', 'accreditation__role__name', 'who__first_name', 'who__last_name'], bonus_filter_function=filter2, columns_mapping={'pk': 'accreditation__user__first_name'})
 
 
 @login_required
