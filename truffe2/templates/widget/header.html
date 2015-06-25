@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="jarviswidget jarviswidget-color-blueLight" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-colorbutton="false" data-widget-editbutton="false" style="">
+<div class="jarviswidget jarviswidget-color-blueLight" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-colorbutton="false" data-widget-editbutton="false" style="" {% if w_no_toggle %}data-widget-togglebutton="false"{% endif %}>
     <header>
         {% if w_icon %}
           <span class="widget-icon"> <i class="{{w_icon}}"></i> </span>
