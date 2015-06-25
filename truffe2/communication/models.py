@@ -4,7 +4,7 @@ from django.db import models
 from generic.models import GenericModel, GenericStateModel, GenericStateRootModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel
 from django.utils.translation import ugettext_lazy as _
 
-from rights.utils import UnitEditableModel
+from rights.utils import UnitEditableModel, AutoVisibilityLevel
 
 
 class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootModerable, GenericStateModel, UnitEditableModel):
@@ -109,11 +109,10 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
         return self.title
 
 
-class _Logo(GenericModel, UnitEditableModel):
+class _Logo(GenericModel, AutoVisibilityLevel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'
-        world_ro = True
 
     name = models.CharField(max_length=255)
     unit = FalseFK('units.models.Unit')
@@ -122,7 +121,7 @@ class _Logo(GenericModel, UnitEditableModel):
         list_display = [
             ('name', _('Nom')),
         ]
-        details_display = list_display
+        details_display = list_display + [('get_visibility_level_display', _(u'Visibilité')), ]
         filter_fields = ('name', )
 
         base_title = _(u'Logo')

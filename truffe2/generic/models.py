@@ -20,6 +20,7 @@ from generic import views
 from generic.forms import GenericForm
 from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
+from rights.utils import AutoVisibilityLevel
 
 
 moderable_things = []
@@ -98,17 +99,9 @@ class GenericModel(models.Model):
             # Create the new model
             extra_data = {'__module__': models_module.__name__}
 
-            if issubclass(model_class, GenericStateModel):
-                extra_data.update(GenericStateModel.do(module, models_module, model_class, cache))
-
-            if issubclass(model_class, GenericExternalUnitAllowed):
-                extra_data.update(GenericExternalUnitAllowed.do(module, models_module, model_class, cache))
-
-            if issubclass(model_class, GenericDelayValidableInfo):
-                extra_data.update(GenericDelayValidableInfo.do(module, models_module, model_class, cache))
-
-            if issubclass(model_class, AccountingYearLinked):
-                extra_data.update(AccountingYearLinked.do(module, models_module, model_class, cache))
+            for SpecificClass in [GenericStateModel, GenericExternalUnitAllowed, GenericDelayValidableInfo, AccountingYearLinked, AutoVisibilityLevel]:
+                if issubclass(model_class, SpecificClass):
+                    extra_data.update(SpecificClass.do(module, models_module, model_class, cache))
 
             for key, value in model_class.__dict__.iteritems():
                 if hasattr(value, '__class__') and value.__class__ == FalseFK:
