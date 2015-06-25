@@ -57,11 +57,10 @@ class Command(BaseCommand):
                     unit = Unit.objects.get(name=num_data['unit_name'])
                 except:
                     unit = Unit.objects.get(pk=1)
-                    print u"Cost Center from Year {!r} has no Unit. Set to Comité de Direction. Edit manually? Content :".format(ay), num_data['name']
+                    print u"Cost Center from Year {!r} has no Unit. Set to Comité de Direction. Edit manually?".format(ay)
 
                 cc, created = CostCenter.objects.get_or_create(name=num_data['name'], account_number=num_data['account_number'], description=num_data['description'], accounting_year=ay, defaults={'unit': unit})
-                cc.save()
-
+                print cc.pk
                 if created:
                     print "  (+)", cc
 
