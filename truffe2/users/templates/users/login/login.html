@@ -72,7 +72,7 @@
 
                 </fieldset>
                 <footer>
-                    <a href="{% url 'app.tequila.login' %}" class="btn btn-default">{% trans "Se connecter via Tequila" %}</a>
+                    <a href="{% url 'app.tequila.login' %}?next={{next}}" class="btn btn-default">{% trans "Se connecter via Tequila" %}</a>
                     <button type="submit" class="btn btn-primary">{% trans "Connexion" %}</button>
                 </footer>
             </form>
@@ -125,7 +125,7 @@
 
 
                 <footer>
-                    <a href="{% url 'app.tequila.login' %}" class="btn btn-primary">{% trans "Se connecter via Tequila" %}</a>
+                    <a href="{% url 'app.tequila.login' %}?next={{next}}" class="btn btn-primary">{% trans "Se connecter via Tequila" %}</a>
                 </footer>
             </form>
 

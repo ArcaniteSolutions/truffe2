@@ -66,7 +66,7 @@ def login(request, why=None):
             why = "bad_credentials"
 
     reset_form = TruffePasswordResetForm()
-    return render(request, 'users/login/login.html', {'why': why, 'reset_form': reset_form})
+    return render(request, 'users/login/login.html', {'why': why, 'reset_form': reset_form, 'next': request.GET.get('next', '/')})
 
 
 @login_required
