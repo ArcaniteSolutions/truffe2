@@ -5,11 +5,11 @@
 [
     {% for elem in list %}
       [
-      "<a href=\"{% url "users.views.users_profile" elem.pk %}\">{{elem.username|force_escape|escapejs}}</a>",
-        "{{elem.first_name|force_escape|escapejs}}",
-        "{{elem.last_name|force_escape|escapejs}}",
-        "{{elem.get_roles|force_escape|escapejs}}",
-        "{% if user.is_superuser %}<a href=\"{% url "users.views.users_edit" elem.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endif %}"
+      "<a href=\"{% url "users.views.users_profile" elem.user.pk %}\">{{elem.user.username|force_escape|escapejs}}</a>",
+        "{{elem.user.first_name|force_escape|escapejs}}",
+        "{{elem.user.last_name|force_escape|escapejs}}",
+        "{{elem.get_role_or_display_name|force_escape|escapejs}}",
+        "{% if user.is_superuser %}<a href=\"{% url "users.views.users_edit" elem.user.pk %}\" class=\"btn btn-xs btn-default\"><i class=\"fa fa-pencil\"></i> {% trans "Editer" %}</a>{% endif %}"
       ]{% if not forloop.last %},{% endif %}
     {% endfor %}
 ]

@@ -277,6 +277,7 @@ def users_myunit_list(request):
 @csrf_exempt
 def users_myunit_list_json(request):
     """Json for user list in the current unit"""
+    from units.models import Accreditation
 
     update_current_unit(request, request.GET.get('upk'))
 
@@ -285,9 +286,9 @@ def users_myunit_list_json(request):
     if not current_unit.is_user_in_groupe(request.user):
         raise Http404
 
-    filter = lambda x: x.filter(Q(accreditation__unit=current_unit) & Q(accreditation__end_date=None)).distinct()
+    filter = lambda x: x.filter(Q(unit=current_unit) & Q(end_date=None)).distinct()
 
-    return generic_list_json(request, TruffeUser, ['username', 'first_name', 'last_name', 'pk', 'pk'], 'users/users/myunit_list_json.html', bonus_filter_function=filter)
+    return generic_list_json(request, Accreditation, ['user__username', 'user__first_name', 'user__last_name', 'user__pk', 'role__ordre'], 'users/users/myunit_list_json.html', bonus_filter_function=filter)
 
 
 @login_required
@@ -319,8 +320,6 @@ def users_myunit_vcard(request):
 @csrf_exempt
 def users_myunit_pdf(request):
     """VCARD for users in the current unit"""
-
-    update_current_unit(request, request.GET.get('upk'))
 
     current_unit = get_current_unit(request)
 
