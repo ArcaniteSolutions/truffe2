@@ -91,4 +91,4 @@ class Command(BaseCommand):
                         if created:
                             print "    (+)", acc
                     except IntegrityError:
-                        print u"Duplicate with name ", acc.name, " number ", acc.account_number, " and year ", ay
+                        print u"Duplicate with name {!r} number {!r} and year {!r}".format(acc.name, acc.account_number, ay)
