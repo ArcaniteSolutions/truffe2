@@ -24,7 +24,7 @@
                                     <th>{% trans "Sciper" %}</th>
                                     <th>{% trans "Nom" %}</th>
                                     <th>{% trans "Prénom" %}</th>
-                                    <th>{% trans "Rôles" %}</th>
+                                    <th>{% trans "Rôle" %}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -71,7 +71,7 @@
 
     </script>
 
-    {% with id="main_list_table" json_url="users.views.users_myunit_list_json" with_upk=True %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url="users.views.users_myunit_list_json" with_upk=True default_sort="[4, 'asc']" %}{% include "datatables.html" %}{% endwith %}
 
 {% endblock %}
 

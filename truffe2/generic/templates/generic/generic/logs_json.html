@@ -1,0 +1,17 @@
+{% extends "generic/datatables_json.html" %}
+{% load i18n generic_extras rights_extras %}
+
+{% block data %}
+[
+    {% for elem in list %}
+      [
+        "<a href=\"{% url show_view elem.object.pk %}\">{{elem.object|escapejs}}</a>",
+        "{{elem.object.unit|default:""|escapejs}} {{elem.object.unit_blank_name|default:""|escapejs}}",
+        "{{elem.when|escapejs}}",
+        "{{elem.who|escapejs}}",
+        "{{elem.get_what_display|escapejs}}",
+        ""
+      ]{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+{% endblock %}

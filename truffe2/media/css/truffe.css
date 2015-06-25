@@ -101,3 +101,11 @@
 .tr_selected:hover > td {
     background-color: #FFFFDB !important;
 }
+
+.popover {
+    z-index: 999999 !important;
+}
+
+#content {
+    min-height: 800px !important;
+}

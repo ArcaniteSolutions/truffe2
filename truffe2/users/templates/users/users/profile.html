@@ -100,10 +100,12 @@
           <i class="fa fa-download"></i>
           {% trans "VCard" %}
         </a>
-        <a href="{% url 'users.views.users_edit' user_to_display.pk %}" class="btn btn-primary">
-          <i class="fa fa-pencil"></i>
-          {% trans "Modifier" %}
-        </a>
+        {% ifhasright user_to_display user 'EDIT' %}
+            <a href="{% url 'users.views.users_edit' user_to_display.pk %}" class="btn btn-primary">
+              <i class="fa fa-pencil"></i>
+              {% trans "Modifier" %}
+            </a>
+        {% endifhasright %}
 
     </div>
 

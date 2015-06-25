@@ -25,6 +25,7 @@ from notifications.utils import notify_people, unotify_people
 moderable_things = []
 copiable_things = []
 
+
 class FalseFK():
 
     def __init__(self, model, *args, **kwargs):
@@ -153,6 +154,8 @@ class GenericModel(models.Model):
 
                 setattr(views_module, base_views_name + '_list', views.generate_list(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_list_json', views.generate_list_json(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_logs', views.generate_logs(module, base_views_name, real_model_class))
+                setattr(views_module, base_views_name + '_logs_json', views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class))
                 setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
@@ -163,6 +166,8 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/$', base_views_name + '_list'),
                     url(r'^' + base_views_name + '/json$', base_views_name + '_list_json'),
                     url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
+                    url(r'^' + base_views_name + '/logs$', base_views_name + '_logs'),
+                    url(r'^' + base_views_name + '/logs/json$', base_views_name + '_logs_json'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/delete$', base_views_name + '_delete'),
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
@@ -369,14 +374,14 @@ class GenericStateValidableOrModerable(object):
         list_quick_switch = {
             '0_draft': [('1_asking', 'fa fa-question', _(u'Demander à modérer')), ],
             '1_asking': [('2_online', 'fa fa-check', _(u'Valider')), ('4_deny', 'fa fa-ban', _(u'Refuser'))],
-            '2_online': [],
+            '2_online': [('3_archive', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ],
             '3_archive': [],
             '4_deny': [],
         }
 
         states_default_filter = '0_draft,1_asking,2_online'
         states_default_filter_related = '1_asking,2_online'
-        status_col_id = 3
+        status_col_id = 4
 
     def may_switch_to(self, user, dest_state):
 
@@ -511,9 +516,9 @@ class GenericStateModerable(GenericStateValidableOrModerable):
         }
 
         states_quick_switch = {
-            '0_draft': ('1_asking', _(u'Demander à modérer')),
-            '1_asking': ('2_online', _(u'Mettre en ligne')),
-            '2_online': ('0_draft', _(u'Repasser en brouillon')),
+            '0_draft': [('1_asking', _(u'Demander à modérer')), ],
+            '1_asking': [('2_online', _(u'Mettre en ligne')), ],
+            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
 
 
@@ -541,12 +546,12 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         }
 
         states_quick_switch = {
-            '0_draft': ('1_asking', _(u'Demander à modérer')),
-            '1_asking': ('2_online', _(u'Valider')),
-            '2_online': ('0_draft', _(u'Repasser en brouillon')),
+            '0_draft': [('1_asking', _(u'Demander à modérer')), ],
+            '1_asking': [('2_online', _(u'Mettre en ligne')), ],
+            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
 
-        status_col_id = 4
+        status_col_id = 6
 
         class FormRemark(Form):
             remark = CharField(label=_('Remarque'), widget=Textarea, required=False)

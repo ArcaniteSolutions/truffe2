@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,6 +29,9 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
             ('status', _('Statut')),
         ]
         details_display = list_display
+
+        default_sort = "[1, 'asc']"  # name
+
         filter_fields = ('name', 'status')
 
         base_title = _(u'Années Comptables')
@@ -168,6 +172,8 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
             ('unit', _(u'Appartient à'))
         ]
 
+        default_sort = "[2, 'asc']"  # name
+
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
         filter_fields = ('name', 'account_number', 'unit')
 
@@ -190,10 +196,10 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         """Check that unique_together is fulfiled"""
         from accounting_core.models import CostCenter
 
-        if CostCenter.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+        if CostCenter.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Un centre de coûts avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
-        if CostCenter.objects.filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
+        if CostCenter.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
             raise forms.ValidationError(_(u'Un centre de coûts avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
 
@@ -218,6 +224,9 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         ]
 
         details_display = list_display + [('accounting_year', _(u'Année Comptable')), ('description', _(u'Description'))]
+
+        default_sort = "[1, 'asc']"  # name
+
         filter_fields = ('name', 'parent_hierarchique')
 
         base_title = _(u'Catégories des comptes de CG')
@@ -245,7 +254,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         """Check that unique_together is fulfiled"""
         from accounting_core.models import AccountCategory
 
-        if AccountCategory.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+        if AccountCategory.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Une catégorie avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
     def get_children_categories(self):
@@ -284,6 +293,8 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
             ('category', _(u'Catégorie'))
         ]
 
+        default_sort = "[2, 'asc']"  # name
+
         details_display = list_display + [('description', _(u'Description')), ('visibility', _(u'Visible par')), ('accounting_year', _(u'Année comptable'))]
         filter_fields = ('name', 'account_number', 'category')
 
@@ -317,8 +328,8 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         """Check that unique_together is fulfiled"""
         from accounting_core.models import Account
 
-        if Account.objects.filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
+        if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Un compte de CG avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
-        if Account.objects.filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
+        if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
             raise forms.ValidationError(_(u'Un compte de CG avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées

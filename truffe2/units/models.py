@@ -53,6 +53,8 @@ class _Unit(GenericModel, AgepolyEditableModel):
             ('url', _('URL')),
         ]
 
+        default_sort = "[1, 'asc']"  # name
+
         yes_or_no_fields = ['is_commission', 'is_equipe', 'is_hidden']
 
         filter_fields = ('name', )
@@ -309,6 +311,8 @@ class _Role(GenericModel, AgepolyEditableModel):
             ('get_access', _(u'Accès')),
         ]
 
+        default_sort = "[1, 'asc']"  # name
+
         filter_fields = ('name', 'id_epfl', 'description')
 
         yes_or_no_fields = ['need_validation']
@@ -463,6 +467,8 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
             ('get_access', _(u'Accès supplémentaires')),
             ('valid_for_sub_units', _(u'Valide pour les sous-unités'))
         ]
+
+        default_sort = "[1, 'asc']"  # id
 
         filter_fields = ()
 

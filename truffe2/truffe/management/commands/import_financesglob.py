@@ -25,7 +25,8 @@ class Command(BaseCommand):
         paris_tz = pytz.timezone("Europe/Paris")
 
         for year_data in data['year']:
-            ay = AccountingYear(name=year_data['name'], status='3_archived')
+            ay, created = AccountingYear.objects.get_or_create(name=year_data['name'])
+            ay.status = '3_archived'
             years = ay.name.split('-')
             ay.start_date = paris_tz.localize(datetime.datetime.strptime('{}-08-01 00:00:00'.format(years[0]), '%Y-%m-%d %H:%M:%S'))
             ay.end_date = paris_tz.localize(datetime.datetime.strptime('{}-08-01 00:00:00'.format(years[1]), '%Y-%m-%d %H:%M:%S')) - datetime.timedelta(seconds=1)
@@ -34,22 +35,25 @@ class Command(BaseCommand):
                 ay.status = '1_active'
 
             ay.save()
-            print "(+)", ay
+            if created:
+                print "(+)", ay
 
             for tcb_data in data['typeCompteBilan']:
-                ac = AccountCategory(name=tcb_data['name'], description=tcb_data['description'], accounting_year=ay)
-                ac.save()
-                print "  (+)", ac
+                ac, created = AccountCategory.objects.get_or_create(name=tcb_data['name'], description=tcb_data['description'], accounting_year=ay)
+
+                if created:
+                    print "  (+)", ac
 
                 for ct_data in tcb_data['compte_types']:
-                    sub_ac = AccountCategory(name=ct_data['name'], description=ct_data['description'], parent_hierarchique=ac, accounting_year=ay)
-                    sub_ac.save()
-                    print "    (+)", sub_ac
+                    sub_ac, created = AccountCategory.objects.get_or_create(name=ct_data['name'], description=ct_data['description'], parent_hierarchique=ac, accounting_year=ay)
+
+                    if created:
+                        print "    (+)", sub_ac
 
             print "*" * 20
 
             for num_data in year_data['numeros']:
-                cc = CostCenter(name=num_data['name'], account_number=num_data['account_number'], description=num_data['description'], accounting_year=ay)
+                cc, created = CostCenter.objects.get_or_create(name=num_data['name'], account_number=num_data['account_number'], description=num_data['description'], accounting_year=ay)
 
                 try:
                     cc.unit = Unit.objects.get(name=num_data['unit_name'])
@@ -57,21 +61,24 @@ class Command(BaseCommand):
                     cc.unit = Unit.objects.get(pk=1)
                     print u"Cost Center {} from Year {} has no Unit. Set to Comité de Direction. Edit manually?".format(cc.name, ay)
                 cc.save()
-                print "  (+)", cc
+
+                if created:
+                    print "  (+)", cc
 
             print "*" * 20
 
             for cc_data in year_data['compte_cats']:
                 try:
                     parent = AccountCategory.objects.get(accounting_year=ay, name=cc_data['compte_type_name'])
-                    leaf_ac = AccountCategory(name=cc_data['name'], parent_hierarchique=parent, accounting_year=ay)
-                    leaf_ac.save()
-                    print "  (+)", leaf_ac
+                    leaf_ac, created = AccountCategory.objects.get_or_create(name=cc_data['name'], parent_hierarchique=parent, accounting_year=ay)
+
+                    if created:
+                        print "  (+)", leaf_ac
                 except:
                     print "Parent not found !!"
 
                 for comp_data in cc_data['comptes']:
-                    acc = Account(name=comp_data['name'], account_number=comp_data['account_number'], description=comp_data['description'], category=leaf_ac, accounting_year=ay)
+                    acc, created = Account.objects.get_or_create(name=comp_data['name'], account_number=comp_data['account_number'], description=comp_data['description'], category=leaf_ac, accounting_year=ay)
                     if comp_data['ndfComs']:
                         acc.visibility = 'all'
                     elif comp_data['ndfMaster']:
@@ -80,6 +87,7 @@ class Command(BaseCommand):
                         acc.visibility = 'root'
                     try:
                         acc.save()
-                        print "    (+)", acc
+                        if created:
+                            print "    (+)", acc
                     except IntegrityError:
-                        print u"Duplicate with name {}, number {} and year {}".format(acc.name, acc.account_number, ay)
+                        print u"Duplicate with name ", acc.name, " number ", acc.account_number, " and year ", ay

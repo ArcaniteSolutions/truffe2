@@ -33,6 +33,9 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
         ]
         details_display = list_display
         details_display.insert(2, ('generated_accred_type', _(u'Type généré')))
+
+        default_sort = "[1, 'asc']"  # name
+
         filter_fields = ('name', 'status')
 
         base_title = _('Groupes de Membres')
@@ -107,7 +110,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
                 if 'ldap_visible' in data:
                     del data['ldap_visible']
 
-        if MemberSet.objects.filter(unit=get_current_unit(form.truffe_request), name=data['name']).count():
+        if MemberSet.objects.exclude(pk=self.pk).filter(unit=get_current_unit(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'L\'unité possède déjà un groupe avec ce nom.'))  # Potentiellement parmi les supprimées
 
     def genericFormExtraInit(self, form, *args, **kwargs):

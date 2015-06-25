@@ -65,10 +65,14 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight):
 
         self.MetaRights.rights_update({
             'CREATE': _(u'Peut créer un nouvel utilisateur'),
+            'EDIT': _(u'Peut editer un utilisateur'),
         })
 
     def rights_can_CREATE(self, user):
         return self.rights_in_root_unit(user, access='INFORMATIQUE')
+
+    def rights_can_EDIT(self, user):
+        return self == user or self.rights_in_root_unit(user, access='INFORMATIQUE')
 
     def get_full_name(self):
         """Returns the first_name plus the last_name, with a space in between."""

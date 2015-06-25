@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
             for d in days_before_warnings:
                 if to_warning[d]:
-                    notify_people(None, 'Accreds.Warning.%s' % (d,), 'accreds_warning', u, dest_users, {'jours': d, 'accreds': map(lambda a: {'pk': a.pk, 'user': str(a.user), 'role': str(a.role)}, to_warning[d])})
+                    notify_people(None, 'Accreds.Warning', 'accreds_warning', u, dest_users, {'jours': d, 'accreds': map(lambda a: {'pk': a.pk, 'user': str(a.user), 'role': str(a.role)}, to_warning[d])})
 
             if to_delete:
                 notify_people(None, 'Accreds.Deleted', 'accreds_deleted', u, dest_users, {'accreds': map(lambda a: {'pk': a.pk, 'user': str(a.user), 'role': str(a.role)}, to_delete)})

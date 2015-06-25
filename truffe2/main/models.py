@@ -49,6 +49,8 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         details_display = list_display + [('content', _('Content'))]
         filter_fields = ('title', 'status')
 
+        default_sort = "[1, 'asc']"  # title
+
         base_title = _('News Truffe')
         list_title = _(u'Liste de toutes les news Truffe')
         base_icon = 'fa fa-list'
@@ -96,7 +98,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         }
 
         states_default_filter = '0_draft,1_online'
-        status_col_id = 3
+        status_col_id = 4
 
     class Meta:
         abstract = True

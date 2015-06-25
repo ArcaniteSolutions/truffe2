@@ -90,6 +90,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         show_view = '%s.views.%s_show' % (module.__name__, base_name)
         deleted_view = '%s.views.%s_deleted' % (module.__name__, base_name)
         status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
+        logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
@@ -131,7 +132,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
             extra_data = {}
 
         data = {
-            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view,
+            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view, 'logs_view': logs_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'year_mode': year_mode, 'years_available': AccountingYear.build_year_menu('LIST', request.user),
             'moderables': moderables, 'object_filter': objects,
@@ -947,3 +948,60 @@ def generate_directory(module, base_name, model_class):
         })
 
     return _generic_directory
+
+
+def generate_logs(module, base_name, model_class):
+
+    @login_required
+    @csrf_exempt
+    def _generic_logs(request):
+
+        # Le check des droits éventuelles est ultra complexe: il faut affichier
+        # les logs seulement des objets sur les quels l'users à le droit
+        # 'DISPLAY_LOG', hors c'est pas checkable via la base et il faut
+        # paginer. Le faire manuellement serait horible au niveau performances
+        # (par exemple en listant d'abord tous les objets puit en filtrant les
+        # logs via la liste d'objects possibles).
+        if not request.user.is_superuser:
+            raise Http404
+
+        logs_json_view = '%s.views.%s_logs_json' % (module.__name__, base_name)
+        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+
+        data = {
+            'Model': model_class, 'logs_json_view': logs_json_view, 'list_view': list_view,
+        }
+
+        return render(request, ['%s/%s/logs.html' % (module.__name__, base_name), 'generic/generic/logs.html'], data)
+
+    return _generic_logs
+
+
+def generate_logs_json(module, base_name, model_class, logging_class):
+
+    @login_required
+    @csrf_exempt
+    def _generic_logs_json(request):
+
+        if not request.user.is_superuser:
+            raise Http404
+
+        show_view = '%s.views.%s_show' % (module.__name__, base_name)
+        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+
+        bonus_filter = []
+
+        for potential_str in ['title', 'name']:
+            if hasattr(model_class, potential_str):
+                bonus_filter += [potential_str]
+
+        return generic_list_json(request, logging_class, ['object', 'unit', 'when', 'who', 'what', 'pk'], [module.__name__ + '/' + base_name + '/logs_json.html', 'generic/generic/logs_json.html'],
+            {'Model': model_class,
+             'list_view': list_view,
+             'show_view': show_view,
+            },
+            not_sortable_colums=['unit',],
+            filter_fields=['when', 'who__first_name', 'what'] + bonus_filter,
+        )
+
+    return _generic_logs_json

@@ -57,6 +57,8 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayVal
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-hospital'
 
+        default_sort = "[1, 'asc']"  # title
+
         menu_id = 'menu-logistics-room'
 
         yes_or_no_fields = ['active', 'allow_externals']
@@ -135,6 +137,8 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         elem_icon = 'fa fa-hospital'
 
         safe_fields = ['get_unit_name', 'get_room_link', 'get_conflits_list']
+
+        default_sort = "[4, 'desc']"  # end_date
 
         menu_id = 'menu-logistics-room-reservation'
         menu_id_related = 'menu-logistics-room-reservation-related'
@@ -285,6 +289,8 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-umbrella'
 
+        default_sort = "[1, 'asc']"  # title
+
         menu_id = 'menu-logistics-supply'
 
         yes_or_no_fields = ['active', 'allow_externals']
@@ -363,6 +369,8 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
         elem_icon = 'fa fa-umbrella'
 
         safe_fields = ['get_unit_name', 'get_supply_link', 'get_conflits_list']
+
+        default_sort = "[4, 'desc']"  # end_date
 
         menu_id = 'menu-logistics-supply-reservation'
         menu_id_related = 'menu-logistics-supply-reservation-related'

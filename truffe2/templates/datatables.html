@@ -88,10 +88,9 @@
                     },
                 "sDom" : "<'dt-top-row'Tlf>r<'dt-wrapper't><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'p>>",
                 {% if status_filter %}
-                    "aaSorting": [[{{status_col_id}}, 'asc']],
-                {% endif %}
-                {% if default_sort %}
-                    "aaSorting": [{{default_sort}}],
+                    "aaSorting": [[{{status_col_id}}, 'asc'], {% if default_sort %}{{default_sort|safe}} {% endif %}],
+                {% elif default_sort %}
+                    "aaSorting": [{{default_sort|safe}}],
                 {% endif %}
             {% else %}
                 "aaSorting": [],
