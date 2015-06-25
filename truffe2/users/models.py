@@ -72,7 +72,6 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight):
         return self.rights_in_root_unit(user, access='INFORMATIQUE')
 
     def rights_can_EDIT(self, user):
-        print self, user
         return self == user or self.rights_in_root_unit(user, access='INFORMATIQUE')
 
     def get_full_name(self):

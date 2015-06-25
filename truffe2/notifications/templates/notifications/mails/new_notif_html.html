@@ -4,7 +4,7 @@
 {% block content %}
     <p>{% trans "Vous avez une nouvelle notification sur Truffe !" %}</p>
 
-    <p>{% include notification.get_email_template %}</p>
+    <p>{% filter linebreaks %}{% include notification.get_email_template %}{% endfilter %}</p>
 
     <a href="https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}">{% trans "Détails" %}</a>
 {% endblock %}
