@@ -53,13 +53,13 @@ class Command(BaseCommand):
             print "*" * 20
 
             for num_data in year_data['numeros']:
-                cc, created = CostCenter.objects.get_or_create(name=num_data['name'], account_number=num_data['account_number'], description=num_data['description'], accounting_year=ay)
-
                 try:
-                    cc.unit = Unit.objects.get(name=num_data['unit_name'])
+                    unit = Unit.objects.get(name=num_data['unit_name'])
                 except:
-                    cc.unit = Unit.objects.get(pk=1)
-                    print u"Cost Center {} from Year {} has no Unit. Set to Comité de Direction. Edit manually?".format(cc.name, ay)
+                    unit = Unit.objects.get(pk=1)
+                    print u"Cost Center {} from Year {} has no Unit. Set to Comité de Direction. Edit manually?".format(num_data['name'], ay)
+
+                cc, created = CostCenter.objects.get_or_create(name=num_data['name'], account_number=num_data['account_number'], description=num_data['description'], accounting_year=ay, defaults={'unit': unit})
                 cc.save()
 
                 if created:
@@ -78,14 +78,15 @@ class Command(BaseCommand):
                     print "Parent not found !!"
 
                 for comp_data in cc_data['comptes']:
-                    acc, created = Account.objects.get_or_create(name=comp_data['name'], account_number=comp_data['account_number'], description=comp_data['description'], category=leaf_ac, accounting_year=ay)
-                    if comp_data['ndfComs']:
-                        acc.visibility = 'all'
-                    elif comp_data['ndfMaster']:
-                        acc.visibility = 'cdd'
-                    else:
-                        acc.visibility = 'root'
                     try:
+                        acc, created = Account.objects.get_or_create(name=comp_data['name'], account_number=comp_data['account_number'], description=comp_data['description'], category=leaf_ac, accounting_year=ay)
+                        if comp_data['ndfComs']:
+                            acc.visibility = 'all'
+                        elif comp_data['ndfMaster']:
+                            acc.visibility = 'cdd'
+                        else:
+                            acc.visibility = 'root'
+
                         acc.save()
                         if created:
                             print "    (+)", acc
