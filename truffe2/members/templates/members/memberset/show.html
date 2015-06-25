@@ -2,6 +2,7 @@
 {% load i18n generic_extras rights_extras %}
 
 {% block content %}
+    <br/>
     <div role="widget" class="jarviswidget jarviswidget-sortable" id="wid-id-11" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false">
         <header role="heading">
             <h2>{{obj}}</h2>
@@ -147,9 +148,16 @@
                 beforeSend: function(xhr, settings) {xhr.setRequestHeader("X-CSRFToken", csrftoken);}
             });
 
-            window.setTimeout("$('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove()", 100);
-            window.setTimeout("$('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove()", 1000);
-            window.setTimeout("$('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove()", 2000);
+            // Remove additional headers
+            var fix_headers = setInterval(function(){ remove_headers(); }, 1000);
+
+            function remove_headers() {
+                console.log("LAUNCH");
+                var elem_removed = $('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove();
+                if (elem_removed.length > 0) {
+                    clearInterval(fix_headers);
+                }
+            }
         });
 
         // Get CSRF Cookie

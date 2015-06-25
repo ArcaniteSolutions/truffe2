@@ -4,11 +4,8 @@
 {% block content %}
     {{block.super}}
     <script type="text/javascript">
-        $(function() {
-            setTimeout(add_copy_button, 500);
-            setTimeout(add_copy_button, 1000);
-            setTimeout(add_copy_button, 2000);
-        });
+        // Add copy button when possible
+        var add_button_interval = setInterval(function(){ add_copy_button(); }, 1000);
 
         function add_copy_button() {
             $('tbody tr').each(function(index, element) {
@@ -18,6 +15,14 @@
                     $(element).find('td:last a:first').after(copy_button);
                 }
             });
+
+            if ($('tbody tr').length > 0) {
+                clearInterval(add_button_interval);
+            }
+        }
+
+        function remove_headers() {
+                var elem_removed = $('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove();
         }
     </script>
 {% endblock %}
