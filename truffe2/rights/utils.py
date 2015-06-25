@@ -238,6 +238,7 @@ class UnitEditableModel(BasicRightModel):
     class MetaRightsUnit:
         access = 'PRESIDENCE'
         unit_ro_access = False
+        world_ro = False
 
     def rights_can_SHOW(self, user):
 
@@ -249,7 +250,7 @@ class UnitEditableModel(BasicRightModel):
                     return True
             return False
 
-        return (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+        return (hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro) or (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
     def rights_can_EDIT(self, user):
         if user.is_superuser:  # Sometimes state switch call the function without checking that the user is superuser

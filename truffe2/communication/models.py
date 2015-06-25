@@ -107,3 +107,46 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
 
     def __unicode__(self):
         return self.title
+
+
+class _Logo(GenericModel, UnitEditableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = 'COMMUNICATION'
+        world_ro = True
+
+    name = models.CharField(max_length=255)
+    unit = FalseFK('units.models.Unit')
+
+    class MetaData:
+        list_display = [
+            ('name', _('Nom')),
+        ]
+        details_display = list_display
+        filter_fields = ('name', )
+
+        base_title = _(u'Logo')
+        list_title = _(u'Liste de tous les logos')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-picture-o'
+
+        default_sort = "[1, 'asc']"  # name
+
+        menu_id = 'menu-communication-logo'
+
+        has_unit = True
+
+        help_list = _(u"""Les logos de ton unité.
+
+Tu peux rentre public les logos, ce qui est recommandé afin d'aider les autres unités lors de constructions graphiques (ex: agenda) ou ton propre comité.
+
+Un logo peut comporter plusieurs fichiers: Ceci te permet d'uploader différents formats pour un même fichier !""")
+
+    class MetaEdit:
+        pass
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.name
