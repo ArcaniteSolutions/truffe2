@@ -12,8 +12,10 @@ import json
 import copy
 import inspect
 import importlib
+import os
 from pytz import timezone
 from datetime import timedelta
+import mimetypes
 
 from users.models import TruffeUser
 from generic import views
@@ -113,8 +115,21 @@ class GenericModel(models.Model):
             cache['%s.%s' % (models_module.__name__, real_model_class.__name__)] = real_model_class
 
             # Add the logging model
-            logging_class = type(real_model_class.__name__ + 'Logging', (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
+            logging_class = type('%sLogging' % (real_model_class.__name__,), (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
+
+            # Add the file model (if needed)
+            if issubclass(model_class, GenericModelWithFiles):
+                file_class = type('%sFile' % (real_model_class.__name__,), (GenericFile,), {'object': models.ForeignKey(real_model_class, related_name='files', blank=True, null=True), 'file': models.FileField(upload_to='uploads/_generic/%s/' % (real_model_class.__name__,)), '__module__': models_module.__name__})
+                setattr(models_module, file_class.__name__, file_class)
+
+                full_upload_path = '%s/uploads/_generic/%s/' % (settings.MEDIA_ROOT, real_model_class.__name__)
+
+                if not os.path.isdir(full_upload_path):
+                    print "[!] %s need to be a folder for file uplodad ! (And don\'t forget the gitignore)" % (full_upload_path,)
+
+            else:
+                file_class = None
 
             # Create the form module
             def generate_meta(Model):
@@ -149,7 +164,7 @@ class GenericModel(models.Model):
                 setattr(views_module, base_views_name + '_list_json', views.generate_list_json(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_logs', views.generate_logs(module, base_views_name, real_model_class))
                 setattr(views_module, base_views_name + '_logs_json', views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class))
+                setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class, file_class))
                 setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, base_views_name + '_deleted', views.generate_deleted(module, base_views_name, real_model_class, logging_class))
@@ -210,6 +225,18 @@ class GenericModel(models.Model):
                     url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/contact/(?P<key>.+)$', base_views_name + '_contact'),
                 )
 
+            if file_class:
+                setattr(views_module, base_views_name + '_file_upload', views.generate_file_upload(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, base_views_name + '_file_delete', views.generate_file_delete(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, base_views_name + '_file_get', views.generate_file_get(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, base_views_name + '_file_get_thumbnail', views.generate_file_get_thumbnail(module, base_views_name, real_model_class, logging_class, file_class))
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^' + base_views_name + 'file/upload$', base_views_name + '_file_upload'),
+                    url(r'^' + base_views_name + 'file/(?P<pk>[0-9]+)/delete$', base_views_name + '_file_delete'),
+                    url(r'^' + base_views_name + 'file/(?P<pk>[0-9]+)/get/.*$', base_views_name + '_file_get'),
+                    url(r'^' + base_views_name + 'file/(?P<pk>[0-9]+)/thumbnail$', base_views_name + '_file_get_thumbnail'),
+                )
+
     def build_state(self):
         """Return the current state of the object. Used for diffs."""
         retour = {}
@@ -237,6 +264,35 @@ class GenericModel(models.Model):
 
     def display_url(self):
         return reverse(str(self.__class__._show_view), args=(self.pk,))
+
+    class Meta:
+        abstract = True
+
+
+class GenericModelWithFiles(object):
+    """Un modèle généric auquel on peut uploader des fichiers"""
+    pass
+
+
+class GenericFile(models.Model):
+    """Un fichier uploadé pour un GenericModelWithFiles"""
+
+    # NB: The ForgienKey AND the file field are generated dynamicaly
+    upload_date = models.DateTimeField(auto_now_add=True)
+    uploader = models.ForeignKey(TruffeUser)
+
+    def basename(self):
+        return os.path.basename(self.file.path)
+
+    def is_picture(self):
+        type, __ = mimetypes.guess_type(self.file.path)
+
+        return type.startswith('image/')
+
+    def is_pdf(self):
+        type, __ = mimetypes.guess_type(self.file.path)
+
+        return type == 'application/pdf'
 
     class Meta:
         abstract = True
@@ -305,7 +361,9 @@ class GenericLogEntry(models.Model):
         ('edited', _(u'Edité')),
         ('deleted', _(u'Supprimé')),
         ('restored', _(u'Restauré')),
-        ('state_changed', _(u'Statut changé'))
+        ('state_changed', _(u'Statut changé')),
+        ('file_added', _(u'Fichier ajouté')),
+        ('file_removed', _(u'Fichier supprimé')),
     )
 
     what = models.CharField(max_length=64, choices=LOG_TYPES)

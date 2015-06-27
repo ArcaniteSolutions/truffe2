@@ -1,0 +1,233 @@
+{% load i18n %}
+<link rel="stylesheet" href="{{STATIC_URL}}demo/blueimp-gallery.min.css">
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery.fileupload.css">
+
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery.fileupload-ui.css">
+
+<noscript>
+    <link rel="stylesheet" href="{{STATIC_URL}}css/jquery.fileupload-ui-noscript.css">
+</noscript>
+
+<form id="fileupload" action="{{upload_handler_url}}?key={{file_key}}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <noscript>
+        <input type="hidden" name="redirect" value="{{request.path}}">
+    </noscript>
+
+    <div class="row fileupload-buttonbar">
+        <div class="col-lg-5 fileupload-progress fade">
+            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar progress-bar-success" style="width:0%;">
+                </div>
+            </div>
+            <div class="progress-extended">&nbsp;</div>
+        </div>
+        <div class="col-lg-7" style="text-align: right;">
+            <span class="btn btn-success fileinput-button btn-xs">
+                <i class="glyphicon glyphicon-plus"></i>
+                <span>{% trans "Ajouter un fichier..." %}</span>
+                <input type="file" name="files[]" multiple {% if accepted_mime_types %}accept='{{ accepted_mime_types|join:"," }}' {% endif %}>
+            </span>
+
+            <button type="button" class="btn btn-danger delete btn-xs">
+                <i class="glyphicon glyphicon-trash"></i>
+                <span>{% trans "Supprimer les fichiers sélectionnés" %}</span>
+            </button>
+            <input type="checkbox" class="toggle">
+        </div>
+    </div>
+
+    <div class="fileupload-loading"></div>
+    <br>
+
+    <table role="presentation" class="table table-striped">
+        <tbody class="files">
+            {% for f in files %}
+                <tr class="template-download">
+                    <td>
+                        <span class="preview">
+                            <a href="{% url file_get_view f.pk %}{{f.basename}}" title="{{f.basename}}" download="{% url file_get_view f.pk %}{{f.basename}}" data-gallery><img src="{% url file_get_thumbnail_view f.pk %}"></a>
+                        </span>
+                    </td>
+
+                    <td>
+                        <p class="name">
+                            <a href="{% url file_get_view f.pk %}{{f.basename}}" title="{{f.basename}}" download="{% url file_get_view f.pk %}{{f.basename}}" data-gallery>
+                                {{f.basename}}
+                            </a>
+                        </p>
+                    </td>
+
+                    <td>
+                        <span class="size">{{f.file.size|filesizeformat}}</span>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-danger delete btn-xs"
+                          data-type="POST"
+                          data-data='{"csrfmiddlewaretoken": "{{csrf_token}}"}'
+                          data-url="{% url file_delete_view f.pk %}?key={{file_key}}">
+                            <i class="glyphicon glyphicon-trash"></i>
+                            <span>{% trans "Supprimer" %}</span>
+                        </button>
+                    </td>
+                    <td>
+                        <input type="checkbox" name="delete" value="1" class="toggle">
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+
+<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
+    <div class="slides"></div>
+    <h3 class="title"></h3>
+    <a class="prev">&larr;</a>
+    <a class="next">&rarr;</a>
+    <a class="close">x</a>
+    <a class="play-pause"></a>
+    <ol class="indicator"></ol>
+</div>
+
+
+<script id="template-upload" type="text/x-tmpl">
+{{JQ_OPEN}} for (var i=0, file; file=o.files[i]; i++) { {{JQ_CLOSE}}
+
+    <tr class="template-upload fade">
+
+        <td>
+            <span class="preview"></span>
+        </td>
+
+        <td>
+            <p class="name">{{JQ_OPEN}}=file.name{{JQ_CLOSE}}</p>
+            <strong class="error text-danger"></strong>
+        </td>
+
+        <td>
+            <p class="size">{% trans "Traitement..." %}</p>
+            <div class="progress progress-striped active" role="progressbar"
+                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+            </div>
+        </td>
+
+        <td>
+            {{JQ_OPEN}} if (!i && !o.options.autoUpload) { {{JQ_CLOSE}}
+                <button class="btn btn-primary start" disabled>
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>{% trans "Commencer" %}</span>
+                </button>
+            {{JQ_OPEN}} } {{JQ_CLOSE}}
+
+            {{JQ_OPEN}} if (!i) { {{JQ_CLOSE}}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {{JQ_OPEN}} } {{JQ_CLOSE}}
+        </td>
+
+    </tr>
+{{JQ_OPEN}} } {{JQ_CLOSE}}
+</script>
+
+<script id="template-download" type="text/x-tmpl">
+{{JQ_OPEN}} for (var i=0, file; file=o.files[i]; i++) { {{JQ_CLOSE}}
+
+    <tr class="template-download fade">
+        <td>
+            <span class="preview">
+                {{JQ_OPEN}} if (file.thumbnailUrl) { {{JQ_CLOSE}}
+                    <a href="{{JQ_OPEN}}=file.url{{JQ_CLOSE}}"
+                     title="{{JQ_OPEN}}=file.name{{JQ_CLOSE}}"
+                     download="{{JQ_OPEN}}=file.name{{JQ_CLOSE}}"
+                     data-gallery><img src="{{JQ_OPEN}}=file.thumbnailUrl{{JQ_CLOSE}}"
+                    ></a>
+                {{JQ_OPEN}} } {{JQ_CLOSE}}
+            </span>
+        </td>
+
+        <td>
+            <p class="name">
+                {{JQ_OPEN}} if (file.url) { {{JQ_CLOSE}}
+                    <a href="{{JQ_OPEN}}=file.url{{JQ_CLOSE}}"
+                     title="{{JQ_OPEN}}=file.name{{JQ_CLOSE}}"
+                     download="{{JQ_OPEN}}=file.name{{JQ_CLOSE}}"
+                     {{JQ_OPEN}}=file.thumbnailUrl?'data-gallery':''{{JQ_CLOSE}}>
+                     {{JQ_OPEN}}=file.name{{JQ_CLOSE}}
+                    </a>
+                {{JQ_OPEN}} } else { {{JQ_CLOSE}}
+                    <span>{{JQ_OPEN}}=file.name{{JQ_CLOSE}}</span>
+                {{JQ_OPEN}} } {{JQ_CLOSE}}
+            </p>
+
+                {{JQ_OPEN}} if (file.error) { {{JQ_CLOSE}}
+                    <div><span class="label label-danger">{% trans "Erreur" %}</span> {{JQ_OPEN}}=file.error{{JQ_CLOSE}}</div>
+                {{JQ_OPEN}} } {{JQ_CLOSE}}
+
+        </td>
+
+        <td>
+            <span class="size">{{JQ_OPEN}}=o.formatFileSize(file.size){{JQ_CLOSE}}</span>
+        </td>
+
+        <td>
+            {{JQ_OPEN}} if (file.deleteUrl) { {{JQ_CLOSE}}
+                <button class="btn btn-danger delete btn-xs"
+                        data-type="{{JQ_OPEN}}=file.deleteType{{JQ_CLOSE}}"
+                        data-data='{ "csrfmiddlewaretoken" : "{{ csrf_token }}" }'
+                        data-url="{{JQ_OPEN}}=file.deleteUrl{{JQ_CLOSE}}"
+                        {{JQ_OPEN}} if (file.deleteWithCredentials) { %} 
+                            data-xhr-fields='{"withCredentials":true}'{% } 
+                        {{JQ_CLOSE}}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>{% trans "Supprimer" %}</span>
+                </button>
+                <input type="checkbox" name="delete" value="1" class="toggle">
+            {{JQ_OPEN}} } else { {{JQ_CLOSE}}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>{% trans "Annuler" %}</span>
+                </button>
+            {{JQ_OPEN}} } {{JQ_CLOSE}}
+        </td>
+    </tr>
+{{JQ_OPEN}} } {{JQ_CLOSE}}
+</script>
+
+
+<script src="{{STATIC_URL}}js/vendor/jquery.ui.widget.js"></script>
+<script src="{{STATIC_URL}}demo/tmpl.min.js"></script>
+<script src="{{STATIC_URL}}demo/load-image.min.js"></script>
+<script src="{{STATIC_URL}}demo/canvas-to-blob.min.js"></script>
+<script src="{{STATIC_URL}}demo/jquery.blueimp-gallery.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.iframe-transport.js"></script>
+<script src="{{STATIC_URL}}js/jquery.fileupload.js"></script>
+<script src="{{STATIC_URL}}js/jquery.fileupload-process.js"></script>
+<script src="{{STATIC_URL}}js/jquery.fileupload-image.js"></script>
+<script src="{{STATIC_URL}}js/jquery.fileupload-audio.js"></script>
+<script src="{{STATIC_URL}}js/jquery.fileupload-video.js"></script>
+<script src="{{STATIC_URL}}js/jquery.fileupload-validate.js"></script>
+<script src="{{STATIC_URL}}js/jquery.fileupload-ui.js"></script>
+
+<script type="text/javascript">
+    $( function() {
+        'use strict';
+
+        var formData = $('#fileupload').serializeArray();
+        formData.push(
+            { name: "csrfmiddlewaretoken", value: "{{csrf_token}}"}
+        );
+
+        $('#fileupload').fileupload({
+
+            formData: formData,
+
+            sequentialUploads: true,
+            autoUpload: true,
+        });
+    });
+</script>

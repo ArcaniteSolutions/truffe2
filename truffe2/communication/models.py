@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateRootModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel
+from generic.models import GenericModel, GenericStateModel, GenericStateRootModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericModelWithFiles
 from django.utils.translation import ugettext_lazy as _
 
 from rights.utils import UnitEditableModel, AutoVisibilityLevel
@@ -109,7 +109,7 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
         return self.title
 
 
-class _Logo(GenericModel, AutoVisibilityLevel, UnitEditableModel):
+class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'
@@ -126,6 +126,7 @@ class _Logo(GenericModel, AutoVisibilityLevel, UnitEditableModel):
 
         base_title = _(u'Logo')
         list_title = _(u'Liste de tous les logos')
+        files_title = _(u'Fichiers')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-picture-o'
 
@@ -142,7 +143,8 @@ Tu peux rentre public les logos, ce qui est recommandé afin d'aider les autres 
 Un logo peut comporter plusieurs fichiers: Ceci te permet d'uploader différents formats pour un même fichier !""")
 
     class MetaEdit:
-        pass
+        files_title = _(u'Fichiers')
+        files_help = _(u'Envoie le ou les fichiers de ton logos. Le système te permet d\'envoyer plusieurs fichiers pour te permettre d\'envoyer des formats différents')
 
     class Meta:
         abstract = True
