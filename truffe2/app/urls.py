@@ -5,6 +5,7 @@ from django.conf import settings
 urlpatterns = patterns('',
     url(r'', include('main.urls')),
     url(r'^accounting/core/', include('accounting_core.urls')),
+    url(r'^accounting/tools/', include('accounting_tools.urls')),
     url(r'^users/', include('users.urls')),
     url(r'^members/', include('members.urls')),
     url(r'^units/', include('units.urls')),
