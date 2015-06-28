@@ -281,7 +281,7 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="#"><i class="fa fa-lg fa-fw fa-suitcase"></i> <span class="menu-item-parent">{% trans "Unités&Accreds" %}</span></a>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-suitcase"></i> <span class="menu-item-parent">{% trans "Unités & Accreds" %}</span></a>
                         <ul>
                             {% ifhasright 'units.models.Unit' user 'LIST' %}
                                 <li id="menu-units-units">
@@ -312,28 +312,48 @@
                     </li>
                     {% if user.is_superuser or user.is_impersonate %} <!-- Check temporaire pour ne pas perturber les gens temps que c'est pas en prod -->
                         <li>
-                            <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> <span class="menu-item-parent">{% trans "Comptabilité (Gestion)" %}</span></a>
+                            <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> <span class="menu-item-parent">{% trans "Comptabilité" %}</span></a>
                             <ul>
-                                {% ifhasright 'accounting_core.models.AccountingYear' user 'LIST' %}
-                                    <li id="menu-compta-anneecomptable">
-                                        <a href="{% url 'accounting_core.views.accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
-                                    </li>
-                                {% endifhasright %}
-                                {% ifhasright 'accounting_core.models.CostCenter' user 'LIST' %}
-                                    <li id="menu-compta-centrecouts">
-                                        <a href="{% url 'accounting_core.views.costcenter_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Centres de coût" %}</a>
-                                    </li>
-                                {% endifhasright %}
-                                {% ifhasright 'accounting_core.models.Account' user 'LIST' %}
-                                    <li id="menu-compta-comptesCG">
-                                        <a href="{% url 'accounting_core.views.account_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Comptes de CG" %}</a>
-                                    </li>
-                                {% endifhasright %}
-                                {% ifhasright 'accounting_core.models.AccountCategory' user 'LIST' %}
-                                    <li id="menu-compta-categoriescompteCG">
-                                        <a href="{% url 'accounting_core.views.accountcategory_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Catégories des comptes" %}</a>
-                                    </li>
-                                {% endifhasright %}
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> {% trans "Gestion" %}</span></a>
+                                    <ul>
+                                        {% ifhasright 'accounting_core.models.AccountingYear' user 'LIST' %}
+                                            <li id="menu-compta-anneecomptable">
+                                                <a href="{% url 'accounting_core.views.accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.CostCenter' user 'LIST' %}
+                                            <li id="menu-compta-centrecouts">
+                                                <a href="{% url 'accounting_core.views.costcenter_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Centres de coût" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.Account' user 'LIST' %}
+                                            <li id="menu-compta-comptesCG">
+                                                <a href="{% url 'accounting_core.views.account_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Comptes de CG" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.AccountCategory' user 'LIST' %}
+                                            <li id="menu-compta-categoriescompteCG">
+                                                <a href="{% url 'accounting_core.views.accountcategory_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Catégories des comptes" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> {% trans "Outils" %}</span></a>
+                                    <ul>
+                                        {% ifhasright 'accounting_tools.models.Subvention' user 'LIST' %}
+                                            <li id="menu-compta-subventions">
+                                                <a href="{% url 'accounting_tools.views.subvention_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Demandes de subvention" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_tools.models.Subvention' user 'EDIT' %}
+                                            <li id="menu-compta-subventions">
+                                                <a href="{% url 'accounting_tools.views.subvention_edit' '~' %}?upk={{CURRENT_UNIT_PK}}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Faire une demande de subvention" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                     {% endif %}

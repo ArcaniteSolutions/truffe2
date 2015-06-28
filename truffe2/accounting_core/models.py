@@ -20,6 +20,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     name = models.CharField(_('Nom'), max_length=255, unique=True)
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
     end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
+    subvention_deadline = models.DateTimeField(_('Délai pour les subventions'), blank=True, null=True)
 
     class MetaData:
         list_display = [
@@ -41,7 +42,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
         menu_id = 'menu-compta-anneecomptable'
 
-        datetime_fields = ['start_date', 'end_date']
+        datetime_fields = ['start_date', 'end_date', 'subvention_deadline']
 
         help_list = _(u"""Les années comptables définissent les périodes d'exercices dans tous les documents comptables.""")
 
@@ -113,7 +114,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         return super(_AccountingYear, self).can_switch_to(user, dest_state)
 
     class MetaEdit:
-        datetime_fields = ['start_date', 'end_date']
+        datetime_fields = ['start_date', 'end_date', 'subvention_deadline']
 
     class Meta:
         abstract = True
