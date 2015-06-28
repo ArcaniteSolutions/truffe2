@@ -5,18 +5,18 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel
 from rights.utils import UnitExternalEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year
 
 
-class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, UnitExternalEditableModel, GenericContactableModel):
+class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericContactableModel):
 
     SUBVENTION_TYPE = (
         ('subvention', _(u'Subvention')),
         ('sponsorship', _(u'Sponsoring')),
-        )
+    )
 
     class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
         access = 'TRESORERIE'
@@ -55,6 +55,8 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, UnitExt
         elem_icon = 'fa fa-smile-o'
 
         menu_id = 'menu-compta-subventions'
+
+        has_unit = True
 
         help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou association auprès de l'AGEPoly.""")
 
