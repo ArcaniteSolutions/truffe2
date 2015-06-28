@@ -16,25 +16,12 @@
     </noscript>
 
     <div class="row fileupload-buttonbar">
-        <div class="col-lg-5 fileupload-progress fade">
+        <div class="col-lg-12 fileupload-progress fade">
             <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                 <div class="progress-bar progress-bar-success" style="width:0%;">
                 </div>
             </div>
             <div class="progress-extended">&nbsp;</div>
-        </div>
-        <div class="col-lg-7" style="text-align: right;">
-            <span class="btn btn-success fileinput-button btn-xs">
-                <i class="glyphicon glyphicon-plus"></i>
-                <span>{% trans "Ajouter un fichier..." %}</span>
-                <input type="file" name="files[]" multiple {% if accepted_mime_types %}accept='{{ accepted_mime_types|join:"," }}' {% endif %}>
-            </span>
-
-            <button type="button" class="btn btn-danger delete btn-xs">
-                <i class="glyphicon glyphicon-trash"></i>
-                <span>{% trans "Supprimer les fichiers sélectionnés" %}</span>
-            </button>
-            <input type="checkbox" class="toggle">
         </div>
     </div>
 
@@ -43,6 +30,26 @@
 
     <table role="presentation" class="table table-striped">
         <tbody class="files">
+
+            <tr>
+                <td colspan="4" style="text-align: right; border-top: none;">
+                    <span class="btn btn-success fileinput-button btn-xs">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>{% trans "Ajouter un fichier..." %}</span>
+                        <input type="file" name="files[]" multiple {% if accepted_mime_types %}accept='{{ accepted_mime_types|join:"," }}' {% endif %}>
+                    </span>
+
+                    <button type="button" class="btn btn-danger delete btn-xs">
+                        <i class="glyphicon glyphicon-trash"></i>
+                        <span>{% trans "Supprimer les fichiers sélectionnés" %}</span>
+                    </button>
+                </td>
+
+                <td style="border-top: none;">
+                    <input type="checkbox" class="toggle">
+                </td>
+            </tr>
+
             {% for f in files %}
                 <tr class="template-download">
                     <td>
@@ -186,13 +193,16 @@
                     <i class="glyphicon glyphicon-trash"></i>
                     <span>{% trans "Supprimer" %}</span>
                 </button>
-                <input type="checkbox" name="delete" value="1" class="toggle">
             {{JQ_OPEN}} } else { {{JQ_CLOSE}}
                 <button class="btn btn-warning cancel">
                     <i class="glyphicon glyphicon-ban-circle"></i>
                     <span>{% trans "Annuler" %}</span>
                 </button>
             {{JQ_OPEN}} } {{JQ_CLOSE}}
+        </td>
+
+        <td>
+            <input type="checkbox" name="delete" value="1" class="toggle">
         </td>
     </tr>
 {{JQ_OPEN}} } {{JQ_CLOSE}}

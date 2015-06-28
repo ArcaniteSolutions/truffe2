@@ -17,7 +17,7 @@
     <section id="widget-grid">
         <div class="row">
           <div class="col-sm-12 col-md-10 col-lg-10" id="logos-block" style="visibility: hidden;">
-                {% with w_title="Liste de tous les logos" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+                {% with w_title="Liste de tous les logos" w_nopadding=True w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
                     <div class="tabs-left" style="margin-top: 2px;">
                         <ul class="nav nav-tabs tabs-left" style="margin-right: 0px; width: 300px;">
                             {% for unit in units %}

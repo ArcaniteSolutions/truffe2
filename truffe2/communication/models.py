@@ -138,13 +138,13 @@ class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditab
 
         help_list = _(u"""Les logos de ton unité.
 
-Tu peux rentre public les logos, ce qui est recommandé afin d'aider les autres unités lors de constructions graphiques (ex: agenda) ou ton propre comité.
+Tu peux rendre public les logos, ce qui est recommandé afin d'aider les autres unités lors de constructions graphiques (ex: agenda) ou ton propre comité.
 
-Un logo peut comporter plusieurs fichiers: Ceci te permet d'uploader différents formats pour un même fichier !""")
+Un logo peut comporter plusieurs fichiers : ceci te permet d'uploader différents formats pour un même fichier !""")
 
     class MetaEdit:
         files_title = _(u'Fichiers')
-        files_help = _(u'Envoie le ou les fichiers de ton logos. Le système te permet d\'envoyer plusieurs fichiers pour te permettre d\'envoyer des formats différents')
+        files_help = _(u'Envoie le ou les fichiers de ton logo. Le système te permet d\'envoyer plusieurs fichiers pour te permettre d\'envoyer des formats différents.')
 
     class Meta:
         abstract = True

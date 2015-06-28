@@ -299,7 +299,7 @@ class UnitExternalEditableModel(BasicRightModel):
     def rights_peoples_in_EDIT(self):
 
         if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
-            return [user]
+            return []  # ? User
 
         return self.people_in_linked_unit(self.MetaRightsUnit.access)
 
@@ -311,15 +311,15 @@ class AutoVisibilityLevel(object):
         """Execute code at startup"""
 
         VISIBILITY_CHOICES = (
-            ('default', _(u'De base (En fonction de l\'object et des droits)')),
+            ('default', _(u'De base (En fonction de l\'objet et des droits)')),
             ('unit', _(u'Unité liée')),
             ('unit_agep', _(u'Unité liée et Comité de l\'AGEPoly')),
             ('all_agep', _(u'Toutes les personnes accrédités dans une unité')),
-            ('all_agep', _(u'Tout le monde')),
+            ('all', _(u'Tout le monde')),
         )
 
         return {
-            'visibility_level': models.CharField(_(u'Visibilité'), max_length=32, choices=VISIBILITY_CHOICES, help_text=_(u'Permet de rendre l\'object plus visible que les droits de base'), default='default'),
+            'visibility_level': models.CharField(_(u'Visibilité'), max_length=32, choices=VISIBILITY_CHOICES, help_text=_(u'Permet de rendre l\'objet plus visible que les droits de base'), default='default'),
         }
 
     def rights_can_SHOW(self, user):

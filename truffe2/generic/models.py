@@ -160,57 +160,57 @@ class GenericModel(models.Model):
 
             if not hasattr(views_module, base_views_name + '_list'):
 
-                setattr(views_module, base_views_name + '_list', views.generate_list(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_list_json', views.generate_list_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_logs', views.generate_logs(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_logs_json', views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class, file_class))
-                setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_deleted', views.generate_deleted(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_list' % (base_views_name,), views.generate_list(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_list_json' % (base_views_name,), views.generate_list_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_logs' % (base_views_name,), views.generate_logs(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_logs_json' % (base_views_name,), views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_edit' % (base_views_name,), views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class, file_class))
+                setattr(views_module, '%s_show' % (base_views_name,), views.generate_show(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_delete' % (base_views_name,), views.generate_delete(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_deleted' % (base_views_name,), views.generate_deleted(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/$', base_views_name + '_list'),
-                    url(r'^' + base_views_name + '/json$', base_views_name + '_list_json'),
-                    url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
-                    url(r'^' + base_views_name + '/logs$', base_views_name + '_logs'),
-                    url(r'^' + base_views_name + '/logs/json$', base_views_name + '_logs_json'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/delete$', base_views_name + '_delete'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
+                    url(r'^%s/$' % (base_views_name,), '%s_list' % (base_views_name,)),
+                    url(r'^%s/json$' % (base_views_name,), '%s_list_json' % (base_views_name,)),
+                    url(r'^%s/deleted$' % (base_views_name,), '%s_deleted' % (base_views_name,)),
+                    url(r'^%s/logs$' % (base_views_name,), '%s_logs' % (base_views_name,)),
+                    url(r'^%s/logs/json$' % (base_views_name,), '%s_logs_json' % (base_views_name,)),
+                    url(r'^%s/(?P<pk>[0-9~]+)/edit$' % (base_views_name,), '%s_edit' % (base_views_name,)),
+                    url(r'^%s/(?P<pk>[0-9,]+)/delete$' % (base_views_name,), '%s_delete' % (base_views_name,)),
+                    url(r'^%s/(?P<pk>[0-9]+)/$' % (base_views_name,), '%s_show' % (base_views_name,)),
                 )
 
-                setattr(real_model_class, '_show_view', '%s.%s_show' % (views_module.__name__, base_views_name,))
+                setattr(real_model_class, '%s_show_view' % (base_views_name,), '%s.%s_show' % (views_module.__name__, base_views_name,))
 
             if issubclass(model_class, GenericStateModel):
-                setattr(views_module, base_views_name + '_switch_status', views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_switch_status' % (base_views_name,), views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/switch_status$', base_views_name + '_switch_status'),
+                    url(r'^%s/(?P<pk>[0-9,]+)/switch_status$' % (base_views_name,), '%s_switch_status' % (base_views_name,)),
                 )
 
             if issubclass(model_class, GenericStateUnitValidable):
-                setattr(views_module, base_views_name + '_list_related', views.generate_list_related(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_list_related_json', views.generate_list_related_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar', views.generate_calendar(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_json', views.generate_calendar_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_related', views.generate_calendar_related(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_related_json', views.generate_calendar_related_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_specific', views.generate_calendar_specific(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_specific_json', views.generate_calendar_specific_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_directory', views.generate_directory(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_list_related' % (base_views_name,), views.generate_list_related(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_list_related_json' % (base_views_name,), views.generate_list_related_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar' % (base_views_name,), views.generate_calendar(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_json' % (base_views_name,), views.generate_calendar_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_related' % (base_views_name,), views.generate_calendar_related(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_related_json' % (base_views_name,), views.generate_calendar_related_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_specific' % (base_views_name,), views.generate_calendar_specific(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_specific_json' % (base_views_name,), views.generate_calendar_specific_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_directory' % (base_views_name,), views.generate_directory(module, base_views_name, real_model_class))
 
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/related/$', base_views_name + '_list_related'),
-                    url(r'^' + base_views_name + '/related/json$', base_views_name + '_list_related_json'),
+                    url(r'^%s/related/$' % (base_views_name,), '%s_list_related' % (base_views_name,)),
+                    url(r'^%s/related/json$' % (base_views_name,), '%s_list_related_json' % (base_views_name,)),
 
-                    url(r'^' + base_views_name + '/calendar/$', base_views_name + '_calendar'),
-                    url(r'^' + base_views_name + '/calendar/json$', base_views_name + '_calendar_json'),
-                    url(r'^' + base_views_name + '/related/calendar/$', base_views_name + '_calendar_related'),
-                    url(r'^' + base_views_name + '/related/calendar/json$', base_views_name + '_calendar_related_json'),
-                    url(r'^' + base_views_name + '/specific/(?P<pk>[0-9~]+)/calendar/$', base_views_name + '_calendar_specific'),
-                    url(r'^' + base_views_name + '/specific/(?P<pk>[0-9~]+)/calendar/json$', base_views_name + '_calendar_specific_json'),
-                    url(r'^' + base_views_name + '/directory/$', base_views_name + '_directory'),
+                    url(r'^%s/calendar/$' % (base_views_name,), '%s_calendar' % (base_views_name,)),
+                    url(r'^%s/calendar/json$' % (base_views_name,), '%s_calendar_json' % (base_views_name,)),
+                    url(r'^%s/related/calendar/$' % (base_views_name,), '%s_calendar_related' % (base_views_name,)),
+                    url(r'^%s/related/calendar/json$' % (base_views_name,), '%s_calendar_related_json' % (base_views_name,)),
+                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/$' % (base_views_name,), '%s_calendar_specific' % (base_views_name,)),
+                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/json$' % (base_views_name,), '%s_calendar_specific_json' % (base_views_name,)),
+                    url(r'^%s/directory/$' % (base_views_name,), '%s_directory' % (base_views_name,)),
                 )
 
             if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderable_things:
@@ -220,21 +220,21 @@ class GenericModel(models.Model):
                 copiable_things.append(real_model_class)
 
             if issubclass(model_class, GenericContactableModel):
-                setattr(views_module, base_views_name + '_contact', views.generate_contact(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_contact' % (base_views_name,), views.generate_contact(module, base_views_name, real_model_class, logging_class))
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/contact/(?P<key>.+)$', base_views_name + '_contact'),
+                    url(r'^%s/(?P<pk>[0-9]+)/contact/(?P<key>.+)$' % (base_views_name,), '%s_contact' % (base_views_name,)),
                 )
 
             if file_class:
-                setattr(views_module, base_views_name + '_file_upload', views.generate_file_upload(module, base_views_name, real_model_class, logging_class, file_class))
-                setattr(views_module, base_views_name + '_file_delete', views.generate_file_delete(module, base_views_name, real_model_class, logging_class, file_class))
-                setattr(views_module, base_views_name + '_file_get', views.generate_file_get(module, base_views_name, real_model_class, logging_class, file_class))
-                setattr(views_module, base_views_name + '_file_get_thumbnail', views.generate_file_get_thumbnail(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, '%s_file_upload' % (base_views_name,), views.generate_file_upload(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, '%s_file_delete' % (base_views_name,), views.generate_file_delete(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, '%s_file_get' % (base_views_name,), views.generate_file_get(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, '%s_file_get_thumbnail' % (base_views_name,), views.generate_file_get_thumbnail(module, base_views_name, real_model_class, logging_class, file_class))
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + 'file/upload$', base_views_name + '_file_upload'),
-                    url(r'^' + base_views_name + 'file/(?P<pk>[0-9]+)/delete$', base_views_name + '_file_delete'),
-                    url(r'^' + base_views_name + 'file/(?P<pk>[0-9]+)/get/.*$', base_views_name + '_file_get'),
-                    url(r'^' + base_views_name + 'file/(?P<pk>[0-9]+)/thumbnail$', base_views_name + '_file_get_thumbnail'),
+                    url(r'^%sfile/upload$' % (base_views_name,), '%s_file_upload' % (base_views_name,)),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/delete$' % (base_views_name,), '%s_file_delete' % (base_views_name,)),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/get/.*$' % (base_views_name,), '%s_file_get' % (base_views_name,)),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/thumbnail$' % (base_views_name,), '%s_file_get_thumbnail' % (base_views_name,)),
                 )
 
     def build_state(self):

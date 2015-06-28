@@ -71,7 +71,7 @@ def logo_public_load(request):
 
     logos = []
 
-    for logo in unit.logo_set.filter(deleted=False).all():
+    for logo in unit.logo_set.filter(deleted=False):
         if logo.files.count() and logo.rights_can('SHOW', request.user):
             logos.append(logo)
 

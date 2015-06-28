@@ -349,7 +349,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     files_data = request.session.get('pca_files_%s' % (file_key,))
 
                     if files_data is None:
-                        messages.success(request, _(u'Erreur lors de la récupération de la session pour la gestion des fichiers. Il est possible que le formulaire aie été sauvegardé deux fois. Vérifiez si l\'état actuel des fichiers corespond à ce que vous désirez !'))
+                        messages.warning(request, _(u'Erreur lors de la récupération de la session pour la gestion des fichiers. Il est possible que le formulaire aie été sauvegardé deux fois. Vérifiez si l\'état actuel des fichiers correspond à ce que vous désirez !'))
                     else:
 
                         for file_pk in files_data:
@@ -1084,7 +1084,7 @@ def generate_file_upload(module, base_name, model_class, log_class, file_class):
 
             'url': reverse(file_get_view, kwargs={'pk': instance.pk}),
             'thumbnailUrl': reverse(file_get_thumbnail_view, kwargs={'pk': instance.pk}),
-            'deleteUrl': reverse(file_delete_view, kwargs={'pk': instance.pk}) + '?key=' + key,
+            'deleteUrl': '%s?key=%s' % (reverse(file_delete_view, kwargs={'pk': instance.pk}), key),
             'deleteType': 'POST',
         }
 
@@ -1113,7 +1113,7 @@ def generate_file_delete(module, base_name, model_class, log_class, file_class):
         try:
             instance = file_class.objects.get(pk=pk)
 
-            if not instance.object:  # Deleted later
+            if not instance.object:  # Deleted later if linked
                 os.unlink(instance.file.path)
                 instance.delete()
 
@@ -1137,7 +1137,7 @@ def generate_file_get(module, base_name, model_class, log_class, file_class):
 
         if not instance.object:  # Just uploaded
             if instance.uploader != request.user:
-                raise Http404()
+                raise Http404
         else:
             if isinstance(instance.object, BasicRightModel) and not instance.object.rights_can('SHOW', request.user):
                 raise Http404
@@ -1156,7 +1156,7 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
 
         if not instance.object:  # Just uploaded
             if instance.uploader != request.user:
-                raise Http404()
+                raise Http404
         else:
             if isinstance(instance.object, BasicRightModel) and not instance.object.rights_can('SHOW', request.user):
                 raise Http404
