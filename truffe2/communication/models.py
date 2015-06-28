@@ -151,3 +151,12 @@ Un logo peut comporter plusieurs fichiers: Ceci te permet d'uploader différents
 
     def __unicode__(self):
         return self.name
+
+    def get_best_image(self):
+        """Try to find a suitable file for thumbnail"""
+
+        for f in self.files.all():
+            if f.is_picture():
+                return f
+
+        return f

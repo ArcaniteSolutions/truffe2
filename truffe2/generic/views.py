@@ -1142,7 +1142,7 @@ def generate_file_get(module, base_name, model_class, log_class, file_class):
             if isinstance(instance.object, BasicRightModel) and not instance.object.rights_can('SHOW', request.user):
                 raise Http404
 
-        return sendfile(request, instance.file.path)
+        return sendfile(request, instance.file.path, 'down' in request.GET)
 
     return _generic_file_get
 
@@ -1168,7 +1168,7 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
         else:
             url = 'img/File.png'
 
-        options = {'size': (200, 100), 'crop': True, 'upscale': True}
+        options = {'size': (int(request.GET.get('w', 200)), int(request.GET.get('h', 100))), 'crop': True, 'upscale': True}
         thumb = get_thumbnailer(url).get_thumbnail(options)
 
         return sendfile(request, '%s%s' % (settings.MEDIA_ROOT, thumb,))

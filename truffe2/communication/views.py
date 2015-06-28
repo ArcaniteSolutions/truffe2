@@ -49,3 +49,30 @@ def website_news(request):
         retour.append({'title': news.title, 'content': news.content, 'url': news.url})
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
+
+
+@login_required
+def logo_public_list(request):
+    from units.models import Unit
+
+    units = Unit.objects.order_by('name')
+
+    # La page va charger en ajax les logos pour chaque unité [car il faut
+    # tester les droits sur chaque logo et ça peut être lourd]
+
+    return render(request, 'communication/logo_public_list.html', {'units': units})
+
+
+@login_required
+def logo_public_load(request):
+    from units.models import Unit
+
+    unit = get_object_or_404(Unit, pk=request.GET.get('pk'))
+
+    logos = []
+
+    for logo in unit.logo_set.filter(deleted=False).all():
+        if logo.files.count() and logo.rights_can('SHOW', request.user):
+            logos.append(logo)
+
+    return render(request, 'communication/logo_public_load.html', {'logos': logos, 'unit': unit})

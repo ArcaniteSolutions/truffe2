@@ -195,9 +195,12 @@
                                     <a href="{% url 'communication.views.agepslide_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "Slides des écrans de l'AGEPoly" %}</a>
                                 </li>
                             {% endifhasright %}
+                            <li id="menu-communication-logo-public">
+                                <a href="{% url 'communication.views.logo_public_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Logos" %}</a>
+                            </li>
                             {% ifhasright 'communication.models.Logo' user 'LIST' %}
                                 <li id="menu-communication-logo">
-                                    <a href="{% url 'communication.views.logo_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Logos" %}</a>
+                                    <a href="{% url 'communication.views.logo_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Gestion des logos" %}</a>
                                 </li>
                             {% endifhasright %}
                         </ul>
