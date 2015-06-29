@@ -330,7 +330,7 @@ class AutoVisibilityLevel(object):
             if not user.is_external():
                 return True
         elif self.visibility_level == 'unit_agep':
-            if self.rights_in_root_unit(user):
+            if self.rights_in_root_unit(user) or self.rights_in_linked_unit(user):
                 return True
         elif self.visibility_level == 'unit':
             if self.rights_in_linked_unit(user):
