@@ -5,13 +5,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed
 from rights.utils import UnitExternalEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year, get_current_unit
 
 
-class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericContactableModel):
+class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
 
     SUBVENTION_TYPE = (
         ('subvention', _(u'Subvention')),
@@ -20,14 +20,13 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
 
     class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
         access = 'TRESORERIE'
-        world_ro_access = True
+        world_ro_access = False
 
     name = models.CharField(_(u'Nom du projet'), max_length=255)
     amount_asked = models.SmallIntegerField(_(u'Montant demandé'))
     amount_given = models.SmallIntegerField(_(u'Montant attribué'), blank=True, null=True)
     mobility_asked = models.SmallIntegerField(_(u'Montant mobilité demandé'), blank=True, null=True)
     mobility_given = models.SmallIntegerField(_(u'Montant mobilité attribué'), blank=True, null=True)
-    unit = FalseFK('units.models.Unit', verbose_name=_(u'Association / Commission'))
     description = models.TextField(_('Description'), blank=True, null=True)
     comment_root = models.TextField(_('Commentaire AGEPoly'), blank=True, null=True)
     kind = models.CharField(_(u'Type de soutien'), max_length=15, choices=SUBVENTION_TYPE, blank=True, null=True)
@@ -138,9 +137,12 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         if Subvention.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), unit=get_current_unit(form.truffe_request)).count():
             raise forms.ValidationError(_(u'Une demande de subvention pour cette unité existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
-    def rights_can_LIST(self, user):
-        # Seul le comité de direction peut lister les demandes
-        return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Remove fields that should be edited by CDD only."""
+
+        if not self.rights_in_root_unit(current_user, self.MetaRightsUnit.access):
+            for key in ['amount_given', 'mobility_given', 'comment_root', 'kind']:
+                del form.fields[key]
 
 
 class SubventionLine(models.Model):

@@ -63,7 +63,7 @@
             {% if unit_mode %}
               {% if form.instance.pk %}
                 {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
-                    {% trans "Cet object est lié à l'unité" %}<br /><br />
+                    {% trans "Cet objet est lié à l'unité" %}<br /><br />
                     <center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
                 {% include "widget/footer.html" %}
 
@@ -83,7 +83,7 @@
             {% if year_mode %}
               {% if form.instance.pk %}
                 {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
-                    {% trans "Cet object est lié à l'année comptable" %}<br /><br />
+                    {% trans "Cet objet est lié à l'année comptable" %}<br /><br />
                     <center><b class="cyear" pk="{{CURRENT_YEAR.pk}}">{{CURRENT_YEAR.name}}</b></center><br />
                 {% include "widget/footer.html" %}
 

@@ -246,7 +246,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
 
-    def genericFormExtraInit(self, form, *args, **kwargs):
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible parents to those on the same accounting year."""
         from accounting_core.models import AccountCategory
         form.fields['parent_hierarchique'].queryset = AccountCategory.objects.filter(accounting_year=self.accounting_year)
@@ -316,7 +316,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
     def __unicode__(self):
         return u"{} - {}".format(self.account_number, self.name)
 
-    def genericFormExtraInit(self, form, *args, **kwargs):
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible categories to the leaves of the hierarchical tree."""
         from accounting_core.models import AccountCategory
 

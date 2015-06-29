@@ -1,0 +1,25 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        // Move CDD fields down
+        var kind = $('#id_kind').parents('.form-group').remove();
+        var amount_given = $('#id_amount_given').parents('.form-group').remove();
+        var mobility_given = $('#id_mobility_given').parents('.form-group').remove();
+        var comment_root = $('#id_comment_root').parents('.form-group').remove();
+        $('#id_description').parents('.form-group').after(kind);
+        $('#id_description').parents('.form-group').after("<h3>{% trans "Réservé au Comité de Direction" %}</h3>");
+        $('#id_kind').parents('.form-group').after(amount_given);
+        $('#id_amount_given').parents('.form-group').after(mobility_given);
+        $('#id_mobility_given').parents('.form-group').after(comment_root);
+
+        $(function() {
+            // Transform id_kind in select2
+            $('#id_kind').removeClass('form-control');
+            $('#id_kind').width('72%').select2();
+
+        });
+    </script>
+{% endblock %}

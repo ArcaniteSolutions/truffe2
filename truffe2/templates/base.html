@@ -347,11 +347,6 @@
                                                 <a href="{% url 'accounting_tools.views.subvention_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Demandes de subvention" %}</a>
                                             </li>
                                         {% endifhasright %}
-                                        {% ifhasright 'accounting_tools.models.Subvention' user 'EDIT' %}
-                                            <li id="menu-compta-subventions">
-                                                <a href="{% url 'accounting_tools.views.subvention_edit' '~' %}?upk={{CURRENT_UNIT_PK}}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Faire une demande de subvention" %}</a>
-                                            </li>
-                                        {% endifhasright %}
                                     </ul>
                                 </li>
                             </ul>

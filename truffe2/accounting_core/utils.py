@@ -2,7 +2,7 @@
 
 
 class AccountingYearLinked(object):
-    """Un object lié à une année comptable. Rend automatiquement l'object innéditable pour les années archivées."""
+    """Un objet lié à une année comptable. Rend automatiquement l'objet inéditable pour les années archivées."""
 
     @staticmethod
     def do(module, models_module, model_class, cache):
