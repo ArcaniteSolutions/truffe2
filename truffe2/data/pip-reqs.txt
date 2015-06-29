@@ -13,3 +13,5 @@ python-ldap
 pisa
 reportlab<3
 html5lib
+django-jfu
+django-sendfile

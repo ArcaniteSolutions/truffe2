@@ -18,11 +18,16 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db.models import Max, Q
+from jfu.http import upload_receive, UploadResponse, JFUResponse
+from easy_thumbnails.files import get_thumbnailer
 
 
 import json
 import datetime
 import pytz
+import uuid
+import os
+from sendfile import sendfile
 
 
 from generic.datatables import generic_list_json
@@ -256,7 +261,7 @@ def generate_list_related_json(module, base_name, model_class):
     return _generic_list_json
 
 
-def generate_edit(module, base_name, model_class, form_class, log_class):
+def generate_edit(module, base_name, model_class, form_class, log_class, file_class):
 
     @login_required
     @csrf_exempt
@@ -265,6 +270,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         list_view = '%s.views.%s_list' % (module.__name__, base_name)
         list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
         show_view = '%s.views.%s_show' % (module.__name__, base_name)
+        file_upload_view = '%s.views.%s_file_upload' % (module.__name__, base_name)
+        file_delete_view = '%s.views.%s_file_delete' % (module.__name__, base_name)
+        file_get_view = '%s.views.%s_file_get' % (module.__name__, base_name)
+        file_get_thumbnail_view = '%s.views.%s_file_get_thumbnail' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -322,12 +331,43 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         else:
             before_data = None
 
+        file_mode = file_class is not None
+        file_key = None  # Will be set later
+
         if request.method == 'POST':  # If the form has been submitted...
             form = form_class(request.user, request.POST, request.FILES, instance=obj)
             form.truffe_request = request
+
+            if file_mode:
+                file_key = request.POST.get('file_key')
+
             if form.is_valid():  # If the form is valid
 
                 obj = form.save()
+
+                if file_mode:
+                    files_data = request.session.get('pca_files_%s' % (file_key,))
+
+                    if files_data is None:
+                        messages.warning(request, _(u'Erreur lors de la récupération de la session pour la gestion des fichiers. Il est possible que le formulaire aie été sauvegardé deux fois. Vérifiez si l\'état actuel des fichiers correspond à ce que vous désirez !'))
+                    else:
+
+                        for file_pk in files_data:
+                            file_obj = file_class.objects.get(pk=file_pk)
+
+                            if file_obj.object != obj:
+                                file_obj.object = obj
+                                file_obj.save()
+                                log_class(who=request.user, what='file_added', object=obj, extra_data=file_obj.basename()).save()
+
+                        for file_obj in obj.files.all():
+                            if file_obj.pk not in files_data:
+                                log_class(who=request.user, what='file_removed', object=obj, extra_data=file_obj.basename()).save()
+                                os.unlink(file_obj.file.path)
+                                file_obj.delete()
+
+                        # Clean up session
+                        del request.session['pca_files_%s' % (file_key,)]
 
                 if isinstance(obj, BasicRightModel):
                     obj.rights_expire()
@@ -379,10 +419,22 @@ def generate_edit(module, base_name, model_class, form_class, log_class):
         else:
             form = form_class(request.user, instance=obj)
 
+            if file_mode:
+
+                # Generate a new file session
+                file_key = str(uuid.uuid4())
+                request.session['pca_files_%s' % (file_key,)] = [f.pk for f in obj.files.all()] if obj.pk else []
+
+        if file_mode:
+            files = [file_class.objects.get(pk=pk_) for pk_ in request.session['pca_files_%s' % (file_key,)]]
+        else:
+            files = None
+
         return render(request, ['%s/%s/edit.html' % (module.__name__, base_name), 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view,
-                                                                                                                 'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode,
-          'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user),
-                                                                                                                 'related_mode': related_mode, 'list_related_view': list_related_view})
+            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode,
+            'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user),
+            'related_mode': related_mode, 'list_related_view': list_related_view,
+                                                                                      'file_mode': file_mode, 'file_upload_view': file_upload_view, 'file_delete_view': file_delete_view, 'files': files, 'file_key': file_key, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view})
 
     return _generic_edit
 
@@ -399,6 +451,8 @@ def generate_show(module, base_name, model_class, log_class):
         list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
         status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
         contact_view = '%s.views.%s_contact' % (module.__name__, base_name)
+        file_get_view = '%s.views.%s_file_get' % (module.__name__, base_name)
+        file_get_thumbnail_view = '%s.views.%s_file_get_thumbnail' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -433,7 +487,7 @@ def generate_show(module, base_name, model_class, log_class):
             contactables_groups = None
 
         return render(request, ['%s/%s/show.html' % (module.__name__, base_name), 'generic/generic/show.html'], {
-            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view,
+            'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
             'obj': obj, 'log_entires': log_entires,
             'rights': rights,
             'unit_mode': unit_mode, 'current_unit': current_unit,
@@ -953,7 +1007,6 @@ def generate_directory(module, base_name, model_class):
 def generate_logs(module, base_name, model_class):
 
     @login_required
-    @csrf_exempt
     def _generic_logs(request):
 
         # Le check des droits éventuelles est ultra complexe: il faut affichier
@@ -1005,3 +1058,119 @@ def generate_logs_json(module, base_name, model_class, logging_class):
         )
 
     return _generic_logs_json
+
+
+def generate_file_upload(module, base_name, model_class, log_class, file_class):
+
+    @login_required
+    def _generic_file_upload(request):
+
+        file_delete_view = '%s.views.%s_file_delete' % (module.__name__, base_name)
+        file_get_view = '%s.views.%s_file_get' % (module.__name__, base_name)
+        file_get_thumbnail_view = '%s.views.%s_file_get_thumbnail' % (module.__name__, base_name)
+
+        key = request.GET.get('key')
+
+        file = upload_receive(request)
+
+        instance = file_class(file=file, uploader=request.user)
+        instance.save()
+
+        basename = os.path.basename(instance.file.path)
+
+        file_dict = {
+            'name': basename,
+            'size': file.size,
+
+            'url': reverse(file_get_view, kwargs={'pk': instance.pk}),
+            'thumbnailUrl': reverse(file_get_thumbnail_view, kwargs={'pk': instance.pk}),
+            'deleteUrl': '%s?key=%s' % (reverse(file_delete_view, kwargs={'pk': instance.pk}), key),
+            'deleteType': 'POST',
+        }
+
+        # Can't do it in one line !
+        file_list = request.session['pca_files_%s' % (key,)]
+        file_list.append(instance.pk)
+        request.session['pca_files_%s' % (key,)] = file_list
+
+        return UploadResponse(request, file_dict)
+
+    return _generic_file_upload
+
+
+def generate_file_delete(module, base_name, model_class, log_class, file_class):
+
+    @login_required
+    def _generic_file_delete(request, pk):
+
+        success = True
+
+        key = request.GET.get('key')
+
+        if int(pk) not in request.session['pca_files_%s' % (key,)]:
+            raise Http404()
+
+        try:
+            instance = file_class.objects.get(pk=pk)
+
+            if not instance.object:  # Deleted later if linked
+                os.unlink(instance.file.path)
+                instance.delete()
+
+            file_list = request.session['pca_files_%s' % (key,)]
+            file_list.remove(int(pk))
+            request.session['pca_files_%s' % (key,)] = file_list
+
+        except file_class.DoesNotExist:
+            success = False
+
+        return JFUResponse(request, success)
+    return _generic_file_delete
+
+
+def generate_file_get(module, base_name, model_class, log_class, file_class):
+
+    @login_required
+    def _generic_file_get(request, pk):
+
+        instance = get_object_or_404(file_class, pk=pk)
+
+        if not instance.object:  # Just uploaded
+            if instance.uploader != request.user:
+                raise Http404
+        else:
+            if isinstance(instance.object, BasicRightModel) and not instance.object.rights_can('SHOW', request.user):
+                raise Http404
+
+        return sendfile(request, instance.file.path, 'down' in request.GET)
+
+    return _generic_file_get
+
+
+def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_class):
+
+    @login_required
+    def _generic_file_thumbnail(request, pk):
+
+        instance = get_object_or_404(file_class, pk=pk)
+
+        if not instance.object:  # Just uploaded
+            if instance.uploader != request.user:
+                raise Http404
+        else:
+            if isinstance(instance.object, BasicRightModel) and not instance.object.rights_can('SHOW', request.user):
+                raise Http404
+
+        if instance.is_picture():
+            url = instance.file
+        elif instance.is_pdf():
+            url = 'img/PDF.png'
+        else:
+            url = 'img/File.png'
+
+        options = {'size': (int(request.GET.get('w', 200)), int(request.GET.get('h', 100))), 'crop': True, 'upscale': True}
+        thumb = get_thumbnailer(url).get_thumbnail(options)
+
+        return sendfile(request, '%s%s' % (settings.MEDIA_ROOT, thumb,))
+
+    return _generic_file_thumbnail

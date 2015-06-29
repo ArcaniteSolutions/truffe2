@@ -116,6 +116,7 @@ INSTALLED_APPS = (
     'impersonate',
     'multiselectfield',
     'easy_thumbnails',
+    'jfu',
 
     'truffe',
 
@@ -209,6 +210,17 @@ PRESIDENT_ROLE_PK = 1
 SOUTH_MIGRATION_MODULES = {
     'easy_thumbnails': 'easy_thumbnails.south_migrations',
 }
+
+SENDFILE_BACKEND = 'sendfile.backends.simple'
+
+
+THUMBNAIL_PROCESSORS = (
+    'easy_thumbnails.processors.colorspace',
+    'app.utils.pad_image',
+    'easy_thumbnails.processors.autocrop',
+    'easy_thumbnails.processors.scale_and_crop',
+    'easy_thumbnails.processors.filters',
+)
 
 try:
     from settingsLocal import *

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.utils.translation import ugettext_lazy as _
-
+from django.db import models
 from django.conf import settings
 from django.core.cache import cache
+
 import inspect
 import copy
 import time
@@ -238,6 +239,7 @@ class UnitEditableModel(BasicRightModel):
     class MetaRightsUnit:
         access = 'PRESIDENCE'
         unit_ro_access = False
+        world_ro = False
 
     def rights_can_SHOW(self, user):
 
@@ -249,7 +251,7 @@ class UnitEditableModel(BasicRightModel):
                     return True
             return False
 
-        return (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+        return (hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro) or (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
     def rights_can_EDIT(self, user):
         if user.is_superuser:  # Sometimes state switch call the function without checking that the user is superuser
@@ -297,6 +299,41 @@ class UnitExternalEditableModel(BasicRightModel):
     def rights_peoples_in_EDIT(self):
 
         if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
-            return [user]
+            return [self.unit_blank_user]
 
         return self.people_in_linked_unit(self.MetaRightsUnit.access)
+
+
+class AutoVisibilityLevel(object):
+
+    @staticmethod
+    def do(module, models_module, model_class, cache):
+        """Execute code at startup"""
+
+        VISIBILITY_CHOICES = (
+            ('default', _(u'De base (En fonction de l\'objet et des droits)')),
+            ('unit', _(u'Unité liée')),
+            ('unit_agep', _(u'Unité liée et Comité de l\'AGEPoly')),
+            ('all_agep', _(u'Toutes les personnes accrédités dans une unité')),
+            ('all', _(u'Tout le monde')),
+        )
+
+        return {
+            'visibility_level': models.CharField(_(u'Visibilité'), max_length=32, choices=VISIBILITY_CHOICES, help_text=_(u'Permet de rendre l\'objet plus visible que les droits de base'), default='default'),
+        }
+
+    def rights_can_SHOW(self, user):
+
+        if self.visibility_level == 'all':
+            return True
+        elif self.visibility_level == 'all_agep':
+            if not user.is_external():
+                return True
+        elif self.visibility_level == 'unit_agep':
+            if self.rights_in_root_unit(user) or self.rights_in_linked_unit(user):
+                return True
+        elif self.visibility_level == 'unit':
+            if self.rights_in_linked_unit(user):
+                return True
+
+        return super(AutoVisibilityLevel, self).rights_can_SHOW(user)

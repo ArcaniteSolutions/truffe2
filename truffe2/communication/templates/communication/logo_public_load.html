@@ -1,0 +1,36 @@
+{% load i18n %}
+
+{% for logo in logos %}
+    <span class="thumbnail" style="width: 210px; margin: 5px; float: left;">
+        <img src="{% url 'communication.views.logo_file_get_thumbnail' logo.get_best_image.pk %}?w=200&h=200" alt="" />
+        {{logo.name|truncatechars:25}}
+
+        {% if logo.files.count == 1 %}
+            <a href="{% url 'communication.views.logo_file_get' logo.files.all.0.pk %}/{{logo.files.all.0.basename}}?down" class="btn btn-xs btn-primary pull-right">
+                <i class="fa fa-download"></i>
+            </a>
+        {% else %}
+            <div class="btn-group pull-right">
+                <span class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-download"></i>
+                    <i class="fa fa-caret-down"></i>
+                </span>
+                <ul class="dropdown-menu">
+                    {% for f in logo.files.all %}
+                        <li>
+                            <a href="{% url 'communication.views.logo_file_get' f.pk %}/{{f.basename}}?down">{{f.basename}}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </span>
+{% endfor %}
+
+<script type="text/javascript">
+    $('#nb-logos-{{unit.pk}}').html('{{logos|length}}');
+
+    {% if not logos %}
+        $('#nb-logos-{{unit.pk}}').parent().parent().remove();
+    {% endif %}
+</script>

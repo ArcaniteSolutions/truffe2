@@ -15,7 +15,6 @@ import ho.pisa as pisa
 import cStringIO as StringIO
 
 
-
 def add_current_unit(request):
     """Template context processor to add current unit"""
 
@@ -139,3 +138,29 @@ def generate_pdf(template, contexte):
         return http.HttpResponse(result.getvalue(), mimetype='application/pdf')
 
     return http.HttpResponse('Gremlins ate your pdf! %s' % cgi.escape(html))
+
+
+def pad_image(image, **kwargs):
+    """ Pad an image to make it the same aspect ratio of the desired thumbnail.
+    """
+
+    img_size = image.size
+    des_size = kwargs['size']
+    fit = [float(img_size[i]) / des_size[i] for i in range(0, 2)]
+
+    if fit[0] > fit[1]:
+        new_image = image.resize((image.size[0], int(round(des_size[1] * fit[0]))))
+        top = int((new_image.size[1] - image.size[1]) / 2)
+        left = 0
+    elif fit[0] < fit[1]:
+        new_image = image.resize((int(round(des_size[0] * fit[1])), image.size[1]))
+        top = 0
+        left = int((new_image.size[0] - image.size[0]) / 2)
+    else:
+        return image
+
+    # For white
+    new_image.paste((255, 255, 255, 255))
+
+    new_image.paste(image, (left, top))
+    return new_image

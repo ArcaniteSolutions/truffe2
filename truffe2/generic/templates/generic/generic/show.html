@@ -55,6 +55,23 @@
                         {% endfor %}
                     </dl>
 
+                    {% if obj.files and obj.MetaData.files_title %}
+
+                        <h3>{{obj.MetaData.files_title}}</h3>
+
+                        <div class="row">
+
+                            {% for file in obj.files.all %}
+
+                                <a href="{% url file_get_view file.pk %}{{file.basename}}" class="thumbnail" {% if file.is_picture %}data-lightbox="files-{{forloop.counter}}"{% endif %} style="width: 210px; margin: 5px; float: left;">
+                                    <img src="{% url file_get_thumbnail_view file.pk %}" alt="" />
+                                    {{file.basename|truncatechars:25}}
+                                </a>
+
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
                 {% include "widget/footer.html" %}
             </div>
 
@@ -115,6 +132,9 @@
                                             {% trans "Passé de " %} {{log_entry.json_extra_data.old}} {% trans "à" %} {{log_entry.json_extra_data.new}}
                                           </p>
                                             {% endspaceless %}"></i>
+                                        {% endif %}
+                                        {% if log_entry.what == 'file_added' or log_entry.what == 'file_removed' %}
+                                            <i class="fa fa-info" rel="popover-hover" data-html="true" data-placement="left" data-original-title="{% trans "Fichier" %}" data-content="{{log_entry.extra_data}}"> </i>
                                         {% endif %}
 
                                     </td>

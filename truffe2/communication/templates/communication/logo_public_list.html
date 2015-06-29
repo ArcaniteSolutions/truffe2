@@ -1,0 +1,80 @@
+
+{% extends "base.html" %}
+{% load i18n rights_extras generic_extras %}
+
+{% block title %}{{block.super}} :: {% trans "Logos" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><i class="fa fa-picture-o"></i> {% trans "Logos" %}</li>
+  {% endblock %}
+
+{% block content %}
+    <h1>{% trans "Logos" %}</h1>
+
+    <div class="alert alert-info" id="alert-loading"><i class="fa fa-gear fa-spin fa-4x"></i> {% trans "Chargement en cours !" %}</div>
+
+    <section id="widget-grid">
+        <div class="row">
+          <div class="col-sm-12 col-md-10 col-lg-10" id="logos-block" style="visibility: hidden;">
+                {% with w_title="Liste de tous les logos" w_nopadding=True w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+                    <div class="tabs-left" style="margin-top: 2px;">
+                        <ul class="nav nav-tabs tabs-left" style="margin-right: 0px; width: 300px;">
+                            {% for unit in units %}
+                                <li class="{% if forloop.first %}active{% endif %}">
+                                    <a href="#tab-{{unit.pk}}" data-toggle="tab"><span class="badge bg-color-blueDark txt-color-white" id="nb-logos-{{unit.pk}}">?</span> {{unit}}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="tab-content" style="margin-left: 300px;">
+                            {% for unit in units %}
+                            <div class="tab-pane {% if forloop.first %}active{% endif %}" id="tab-{{unit.pk}}">
+
+                                <i>{% trans "(Chargement en cours...)" %}</i>
+
+                              </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                {% include "widget/footer.html" %}
+            </div>
+
+            <div class="col-sm-12 col-md-2 col-lg-2">
+                {% with w_title="Aide" %}{% include "widget/header.html" %}{% endwith %}
+                    {% trans "Tu trouvera ici la liste de tous les logos des différentes unités de l'AGEPoly (que tu peux afficher)" %}
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+    </section>
+
+
+
+    <script type="text/javascript">
+        {% for unit in units %}
+            function load_unit_data_{{forloop.counter}}() {
+
+                $.ajax('{% url 'communication.views.logo_public_load' %}?pk={{unit.pk}}').done(function (data) {
+                    $('#tab-{{unit.pk}}').html(data);
+                    load_unit_data_{{forloop.counter|add:"1"}}();
+                });
+            }
+
+            {% if forloop.last %}
+                function load_unit_data_{{forloop.counter|add:"1"}}() {
+                    $('#alert-loading').hide();
+                    $('#logos-block').css('visibility', '');
+                }
+            {% endif %}
+        {% endfor %}
+
+        load_unit_data_1();
+
+    </script>
+
+
+    <br /><br />
+{% endblock %}
+
+
+{% block menuid %}menu-communication-logo-public{% endblock %}
