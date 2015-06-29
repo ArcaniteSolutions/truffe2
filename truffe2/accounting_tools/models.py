@@ -40,6 +40,7 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
             ('name', _(u'Projet')),
             ('unit', _(u'Association / Commission')),
             ('amount_asked', _(u'Montant demandé')),
+            ('mobility_asked', _(u'Montant mobilité demandé')),
         ]
 
         default_sort = "[2, 'asc']"  # unit

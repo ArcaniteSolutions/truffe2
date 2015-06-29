@@ -20,16 +20,17 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     name = models.CharField(_('Nom'), max_length=255, unique=True)
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
     end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
-    subvention_deadline = models.DateTimeField(_('Délai pour les subventions'), blank=True, null=True)
+    subvention_deadline = models.DateTimeField(_(u'Délai pour les subventions'), blank=True, null=True)
 
     class MetaData:
         list_display = [
-            ('name', _('Nom de l\'année comptable')),
+            ('name', _(u'Nom de l\'année comptable')),
             ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
             ('status', _('Statut')),
         ]
         details_display = list_display
+        details_display.insert(3, ('subvention_deadline', _(u'Délai pour les subventions')))
 
         default_sort = "[1, 'asc']"  # name
 
@@ -169,7 +170,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     class MetaData:
         list_display = [
             ('account_number', _(u'Numéro')),
-            ('name', _('Nom du centre de coût')),
+            ('name', _(u'Nom du centre de coût')),
             ('unit', _(u'Appartient à'))
         ]
 
@@ -296,7 +297,7 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
         default_sort = "[2, 'asc']"  # name
 
-        details_display = list_display + [('description', _(u'Description')), ('visibility', _(u'Visible par')), ('accounting_year', _(u'Année comptable'))]
+        details_display = list_display + [('description', _(u'Description')), ('get_visibility_display', _(u'Visibilité')), ('accounting_year', _(u'Année comptable'))]
         filter_fields = ('name', 'account_number', 'category')
 
         base_title = _(u'Comptes de Comptabilité Générale')
