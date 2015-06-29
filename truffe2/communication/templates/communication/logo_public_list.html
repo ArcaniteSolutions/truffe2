@@ -68,7 +68,9 @@
             {% endif %}
         {% endfor %}
 
-        load_unit_data_1();
+        {% for unit in units %}
+            load_unit_data_{{forloop.counter}}();
+        {% endfor %}
 
     </script>
 
