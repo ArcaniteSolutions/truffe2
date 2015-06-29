@@ -57,16 +57,14 @@
                 $.ajax('{% url 'communication.views.logo_public_load' %}?pk={{unit.pk}}').done(function (data) {
                     $('#tab-{{unit.pk}}').html(data);
                     // load_unit_data_{{forloop.counter|add:"1"}}();
+
+                    {% if forloop.last %}
+                        // function load_unit_data_{{forloop.counter|add:"1"}}() {
+                            $('#alert-loading').hide();
+                            $('#logos-block').css('visibility', '');
+                        // }
+                    {% endif %}
                 });
-
-                {% if forloop.last %}
-                    // function load_unit_data_{{forloop.counter|add:"1"}}() {
-                        $('#alert-loading').hide();
-                        $('#logos-block').css('visibility', '');
-                    // }
-                {% endif %}
-
-            }
         {% endfor %}
 
         // {% for unit in units %}
