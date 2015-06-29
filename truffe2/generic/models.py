@@ -181,7 +181,7 @@ class GenericModel(models.Model):
                     url(r'^%s/(?P<pk>[0-9]+)/$' % (base_views_name,), '%s_show' % (base_views_name,)),
                 )
 
-                setattr(real_model_class, '%s_show_view' % (base_views_name,), '%s.%s_show' % (views_module.__name__, base_views_name,))
+                setattr(real_model_class, '_show_view', '%s.%s_show' % (views_module.__name__, base_views_name,))
 
             if issubclass(model_class, GenericStateModel):
                 setattr(views_module, '%s_switch_status' % (base_views_name,), views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
