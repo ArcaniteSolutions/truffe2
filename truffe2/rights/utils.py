@@ -299,7 +299,7 @@ class UnitExternalEditableModel(BasicRightModel):
     def rights_peoples_in_EDIT(self):
 
         if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
-            return []  # ? User
+            return [self.unit_blank_user]
 
         return self.people_in_linked_unit(self.MetaRightsUnit.access)
 
