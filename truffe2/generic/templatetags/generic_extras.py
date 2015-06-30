@@ -83,3 +83,35 @@ def html_check_and_safe(value):
     parser = html5lib.HTMLParser(tokenizer=s)
 
     return mark_safe(bleach._render(parser.parseFragment(text)))
+
+from bootstrap3.renderers import FieldRenderer
+from bootstrap3.text import text_value
+
+
+class SimpleFieldRenderer(FieldRenderer):
+
+    def render(self):
+        # See if we're not excluded
+        if self.field.name in self.exclude.replace(' ', '').split(','):
+            return ''
+        # Hidden input requires no special treatment
+        if self.field.is_hidden:
+            return text_value(self.field)
+        # Render the widget
+        self.add_widget_attrs()
+        html = self.field.as_widget(attrs=self.widget.attrs)
+        self.restore_widget_attrs()
+        # Start post render
+        html = self.post_widget_render(html)
+        html = self.wrap_widget(html)
+        html = self.make_input_group(html)
+        html = self.append_to_field(html)
+        html = self.wrap_field(html)
+
+        return html
+
+
+@register.simple_tag()
+def simple_bootstrap_field(field):
+
+    return SimpleFieldRenderer(field).render()

@@ -98,6 +98,7 @@ def update_current_year(request, year_pk):
 
     request.session['current_year_pk'] = year_pk
 
+
 def send_templated_mail(request, subject, email_from, emails_to, template, context):
     """Send a email using an template (both in text and html format)"""
 

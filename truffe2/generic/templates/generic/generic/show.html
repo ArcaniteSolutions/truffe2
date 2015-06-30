@@ -16,6 +16,8 @@
             <div class="col-sm-12 col-md-12 col-lg-6">
                 {% with w_title="Informations" %}{% include "widget/header.html" %}{% endwith %}
 
+                    <h3 style="margin-top: 0px;">{% trans "Informations de base" %}</h3>
+
                     <dl class="dl-horizontal">
                         {% for elem, title in Model.MetaData.details_display %}
 
@@ -58,6 +60,32 @@
                         {% endfor %}
                     </dl>
 
+                    {% for line_data in lines_objects %}
+                        {% if line_data.show_list %}
+                            <h3>{{line_data.title}}</h3>
+
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        {% for field in line_data.show_list %}
+                                            <th>{{field.1}}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for obj_line in line_data.elems %}
+                                        <tr>
+                                            {% for field in line_data.show_list %}
+                                                <th>{{obj_line|get_attr:field.0|default:"&nbsp;"|linebreaksbr}}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        {% endif %}
+                    {% endfor %}
                     {% if obj.files and obj.MetaData.files_title %}
 
                         <h3>{{obj.MetaData.files_title}}</h3>
