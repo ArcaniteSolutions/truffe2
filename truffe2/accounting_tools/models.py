@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, GenericModelUsedAsLine
 from rights.utils import UnitExternalEditableModel, UnitEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year, get_current_unit
@@ -178,7 +178,7 @@ class SubventionLine(models.Model):
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
 
 
-class _Invoice(GenericModel, AccountingYearLinked, UnitEditableModel):
+class _Invoice(GenericModel, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'TRESORERIE'
@@ -211,16 +211,36 @@ class _Invoice(GenericModel, AccountingYearLinked, UnitEditableModel):
     class MetaEdit:
         pass
 
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.InvoiceLine',
+                'form': 'accounting_tools.forms.InvoiceLineForm',
+                'related_name': 'lines',
+                'field': 'invoice',
+                'sortable': True,
+                'show_list': [
+                    ('label', _(u'Titre')),
+                    ('value', _(u'Montant (HT)')),
+                ]},
+        ]
+
     class Meta:
         abstract = True
 
     def __unicode__(self):
-        return self.name
+        return self.title
 
 
-class InvoiceLine(models.Model):
+class InvoiceLine(models.Model, GenericModelUsedAsLine):
 
     invoice = models.ForeignKey('Invoice', related_name="lines")
 
     label = models.CharField(_(u'Titre'), max_length=255)
-    value = models.DecimalField(_('Montant'), help_text=_(u'Hors taxe'), max_digits=20, decimal_places=2)
+    value = models.DecimalField(_('Montant (HT)'), max_digits=20, decimal_places=2)
+
+    order = models.SmallIntegerField(default=0)
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.label, self.value,)
