@@ -20,15 +20,17 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     name = models.CharField(_('Nom'), max_length=255, unique=True)
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
     end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
+    subvention_deadline = models.DateTimeField(_(u'Délai pour les subventions'), blank=True, null=True)
 
     class MetaData:
         list_display = [
-            ('name', _('Nom de l\'année comptable')),
+            ('name', _(u'Nom de l\'année comptable')),
             ('start_date', _(u'Date début')),
             ('end_date', _('Date fin')),
             ('status', _('Statut')),
         ]
         details_display = list_display
+        details_display.insert(3, ('subvention_deadline', _(u'Délai pour les subventions')))
 
         default_sort = "[1, 'asc']"  # name
 
@@ -41,7 +43,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
         menu_id = 'menu-compta-anneecomptable'
 
-        datetime_fields = ['start_date', 'end_date']
+        datetime_fields = ['start_date', 'end_date', 'subvention_deadline']
 
         help_list = _(u"""Les années comptables définissent les périodes d'exercices dans tous les documents comptables.""")
 
@@ -113,7 +115,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         return super(_AccountingYear, self).can_switch_to(user, dest_state)
 
     class MetaEdit:
-        datetime_fields = ['start_date', 'end_date']
+        datetime_fields = ['start_date', 'end_date', 'subvention_deadline']
 
     class Meta:
         abstract = True
@@ -168,7 +170,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     class MetaData:
         list_display = [
             ('account_number', _(u'Numéro')),
-            ('name', _('Nom du centre de coût')),
+            ('name', _(u'Nom du centre de coût')),
             ('unit', _(u'Appartient à'))
         ]
 
@@ -245,7 +247,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
 
-    def genericFormExtraInit(self, form, *args, **kwargs):
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible parents to those on the same accounting year."""
         from accounting_core.models import AccountCategory
         form.fields['parent_hierarchique'].queryset = AccountCategory.objects.filter(accounting_year=self.accounting_year)
@@ -295,7 +297,7 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
         default_sort = "[2, 'asc']"  # name
 
-        details_display = list_display + [('description', _(u'Description')), ('visibility', _(u'Visible par')), ('accounting_year', _(u'Année comptable'))]
+        details_display = list_display + [('description', _(u'Description')), ('get_visibility_display', _(u'Visibilité')), ('accounting_year', _(u'Année comptable'))]
         filter_fields = ('name', 'account_number', 'category')
 
         base_title = _(u'Comptes de Comptabilité Générale')
@@ -315,7 +317,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
     def __unicode__(self):
         return u"{} - {}".format(self.account_number, self.name)
 
-    def genericFormExtraInit(self, form, *args, **kwargs):
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible categories to the leaves of the hierarchical tree."""
         from accounting_core.models import AccountCategory
 

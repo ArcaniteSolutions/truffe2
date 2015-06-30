@@ -12,7 +12,7 @@ class GenericForm(ModelForm):
         super(GenericForm, self).__init__(*args, **kwargs)
 
         if hasattr(self.instance, 'genericFormExtraInit'):
-            self.instance.genericFormExtraInit(self, *args, **kwargs)
+            self.instance.genericFormExtraInit(self, current_user, *args, **kwargs)
 
         if 'user' in self.fields:
             if hasattr(self.Meta.model.MetaData, 'has_unit') and self.Meta.model.MetaData:

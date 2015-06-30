@@ -18,6 +18,8 @@
 
                     <dl class="dl-horizontal">
                         {% for elem, title in Model.MetaData.details_display %}
+
+                          {% ifcandisplay obj user field %}
                             <dt title="{{title}}">{{title}}</dt>
                             <dd>
                             {% if elem in Model.MetaData.yes_or_no_fields %}
@@ -52,6 +54,7 @@
 
                             {% endif %}
                             </dd>
+                            {% endifcandisplay %}
                         {% endfor %}
                     </dl>
 

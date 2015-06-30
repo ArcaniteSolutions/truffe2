@@ -288,6 +288,10 @@ class UnitExternalEditableModel(BasicRightModel):
 
     def rights_can_EDIT(self, user):
 
+        # Peut toujours afficher, de manière générique
+        if not hasattr(self, self.MetaRights.linked_unit_property):
+            return True
+
         if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
             try:
                 return not self.unit_blank_user or self.unit_blank_user == user

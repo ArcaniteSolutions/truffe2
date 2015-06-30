@@ -1,0 +1,37 @@
+{% extends "generic/generic/list.html" %}
+{% load i18n rights_extras %}
+
+{% block buttons %}
+    <div style="float: right;">
+        {% if user.is_superuser %}
+            <a href="{% url logs_view %}" class="btn btn-default">
+                <i class="fa fa-list"></i>
+                {% trans "Logs globaux" %}
+            </a>
+        {% endif %}
+        {% ifhasright Model user '!RESTORE' %}
+            <a href="{% url deleted_view %}" class="btn btn-info">
+                <i class="fa fa-list"></i>
+                {% trans "Élements supprimés" %}
+            </a>
+        {% endifhasright %}
+        {% ifhasright Model user '!CREATE' %}
+            <a href="{% url edit_view '~' %}" class="btn btn-primary">
+                <i class="fa fa-plus"></i>
+                {% trans "Ajouter" %}
+            </a>
+        {% endifhasright %}
+        {% ifhasright Model user 'EXPORT' %}
+            <a href="{% url 'accounting_tools.views.export_demands_yearly' CURRENT_YEAR_PK %}" class="btn bg-color-teal txt-color-white">
+                <i class="fa fa-download"></i>
+                {% trans "Exporter cette année" %}
+            </a>
+        {% endifhasright %}
+        {% ifhasright Model user 'EXPORT' %}
+            <a href="{% url 'accounting_tools.views.export_all_demands' %}" class="btn bg-color-teal txt-color-white">
+                <i class="fa fa-download"></i>
+                {% trans "Tout exporter" %}
+            </a>
+        {% endifhasright %}
+    </div>
+{% endblock %}
