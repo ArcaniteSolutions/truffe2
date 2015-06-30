@@ -28,6 +28,8 @@ import pytz
 import uuid
 import os
 from sendfile import sendfile
+import importlib
+import copy
 
 
 from generic.datatables import generic_list_json
@@ -334,6 +336,21 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         file_mode = file_class is not None
         file_key = None  # Will be set later
 
+        from generic.models import GenericModelWithLines
+
+        lines_objects = []
+
+        if issubclass(model_class, GenericModelWithLines):
+
+            lines_objects = copy.deepcopy(obj.MetaLines.lines_objects)
+
+            for line_data in lines_objects:
+                line_data['form'] = getattr(importlib.import_module('.'.join(line_data['form'].split('.')[:-1])), line_data['form'].split('.')[-1])
+                line_data['class'] = getattr(importlib.import_module('.'.join(line_data['class'].split('.')[:-1])), line_data['class'].split('.')[-1])
+
+                line_data['new_form'] = line_data['form'](prefix="_LINES_%s_-ID-" % (line_data['related_name'],))
+                line_data['forms'] = []
+
         if request.method == 'POST':  # If the form has been submitted...
             form = form_class(request.user, request.POST, request.FILES, instance=obj)
             form.truffe_request = request
@@ -341,9 +358,60 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             if file_mode:
                 file_key = request.POST.get('file_key')
 
-            if form.is_valid():  # If the form is valid
+            all_forms_valids = True
+
+            for line_data in lines_objects:
+
+                for submited_id in request.POST.getlist('_LINES_LIST_%s[]' % (line_data['related_name'], )):
+                    if submited_id != '-ID-':
+
+                        if submited_id.startswith('NEW-'):
+                            line_instance = line_data['class'](**{line_data['field']: obj})
+                        else:
+                            line_instance = get_object_or_404(line_data['class'], pk=submited_id, **{line_data['field']: obj})
+
+                        line_old_val = line_instance.__unicode__()
+
+                        line_form = line_data['form'](request.POST, request.FILES, instance=line_instance, prefix="_LINES_%s_%s" % (line_data['related_name'], submited_id))
+
+                        if not line_form.is_valid():
+                            all_forms_valids = False
+
+                        line_form_data = {'id': submited_id, 'form': line_form, 'old_val': line_old_val}
+
+                        line_data['forms'].append(line_form_data)
+
+            if form.is_valid() and all_forms_valids:  # If the form is valid
 
                 obj = form.save()
+
+                lines_adds = {}
+                lines_updates = {}
+                lines_deletes = {}
+
+                for line_data in lines_objects:
+                    valids_ids = []
+
+                    for line_form in line_data['forms']:
+                        line_obj = line_form['form'].save(commit=False)
+                        setattr(line_obj, line_data['field'], obj)
+
+                        if not line_obj.pk:
+                            lines_adds['%s' % (line_data['related_name'],)] = line_obj.__unicode__()
+                        else:
+                            if line_form['old_val'] != line_obj.__unicode__():
+                                lines_updates['%s #%s' % (line_data['related_name'], line_obj.pk,)] = (line_form['old_val'], line_obj.__unicode__())
+                            print line_form['old_val'], line_obj.__unicode__()
+
+                        line_obj.save()
+
+                        valids_ids.append(line_obj.pk)
+
+                    for line_deleted in getattr(obj, line_data['related_name']).exclude(pk__in=valids_ids):
+
+                        lines_deletes['%s #%s' % (line_data['related_name'], line_deleted.pk,)] = line_deleted.__unicode__()
+
+                        line_deleted.delete()
 
                 if file_mode:
                     files_data = request.session.get('pca_files_%s' % (file_key,))
@@ -405,6 +473,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                     added = after_data
 
+                    added.update(lines_adds)
+                    edited.update(lines_updates)
+                    deleted.update(lines_deletes)
+
                     diff = {'added': added, 'edited': edited, 'deleted': deleted}
 
                     log_class(who=request.user, what='edited', object=obj, extra_data=json.dumps(diff)).save()
@@ -425,6 +497,14 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 file_key = str(uuid.uuid4())
                 request.session['pca_files_%s' % (file_key,)] = [f.pk for f in obj.files.all()] if obj.pk else []
 
+            # Init subforms
+            for line_data in lines_objects:
+                if obj.pk:
+                    for line_obj in getattr(obj, line_data['related_name']).all():
+                        line_form = line_data['form'](instance=line_obj, prefix="_LINES_%s_%s" % (line_data['related_name'], line_obj.pk))
+                        line_form_data = {'id': line_obj.pk, 'form': line_form}
+                        line_data['forms'].append(line_form_data)
+
         if file_mode:
             files = [file_class.objects.get(pk=pk_) for pk_ in request.session['pca_files_%s' % (file_key,)]]
         else:
@@ -434,7 +514,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode,
             'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user),
             'related_mode': related_mode, 'list_related_view': list_related_view,
-                                                                                      'file_mode': file_mode, 'file_upload_view': file_upload_view, 'file_delete_view': file_delete_view, 'files': files, 'file_key': file_key, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view})
+                                                                                      'file_mode': file_mode, 'file_upload_view': file_upload_view, 'file_delete_view': file_delete_view, 'files': files, 'file_key': file_key, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
+         'lines_objects': lines_objects,})
 
     return _generic_edit
 
@@ -486,6 +567,17 @@ def generate_show(module, base_name, model_class, log_class):
         else:
             contactables_groups = None
 
+        lines_objects = []
+
+        from generic.models import GenericModelWithLines
+
+        if issubclass(model_class, GenericModelWithLines):
+
+            lines_objects = copy.deepcopy(obj.MetaLines.lines_objects)
+
+            for line_data in lines_objects:
+                line_data['elems'] = getattr(obj, line_data['related_name']).all()
+
         return render(request, ['%s/%s/show.html' % (module.__name__, base_name), 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
             'obj': obj, 'log_entires': log_entires,
@@ -493,7 +585,7 @@ def generate_show(module, base_name, model_class, log_class):
             'unit_mode': unit_mode, 'current_unit': current_unit,
             'year_mode': year_mode, 'current_year': current_year,
             'contactables_groups': contactables_groups,
-            'related_mode': related_mode,
+            'related_mode': related_mode, 'lines_objects': lines_objects,
         })
 
     return _generic_show

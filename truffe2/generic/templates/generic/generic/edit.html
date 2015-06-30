@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n l10n bootstrap3 jfutags %}
+{% load i18n l10n bootstrap3 jfutags generic_extras %}
 
 {% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% if form.instance.pk %}{% trans "Edition" %}{% else %}{% trans "Création" %}{% endif %}{% endblock %}
 
@@ -29,6 +29,8 @@
           <form class="form-horizontal" method="POST" enctype="multipart/form-data" id="generic_main_form">
             {% csrf_token %}
 
+            <h3 style="margin-top: 0px;">{% trans "Informations de base" %}</h3>
+
             {% localize off %}
                 {% bootstrap_form form layout='horizontal' %}
             {% endlocalize %}
@@ -42,6 +44,72 @@
             {% if year_mode %}
                 <input type="hidden" id="input_ypk" name="ypk" value="{{form.instance.accounting_year.pk}}">
             {% endif %}
+
+
+            {% for line_data in lines_objects %}
+                <h3>{{line_data.title}}</h3>
+
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            {% for field in line_data.new_form %}
+                                <th>{{field.label_tag}}</th>
+                            {% endfor %}
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="lines_tbody_{{line_data.related_name}}">
+
+                        <tr id="lines_new_form_{{line_data.related_name}}" style="display: none;">
+                            {% for field in line_data.new_form %}
+                                <td>{% simple_bootstrap_field field %}</td>
+                            {% endfor %}
+
+                            <td>
+                                <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="-ID-">
+                                <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
+                            </td>
+                        </tr>
+
+                        {% for line_form in line_data.forms %}
+                            <tr>
+
+                                {% for field in line_form.form %}
+                                    <td>{% simple_bootstrap_field field %}</td>
+                                {% endfor %}
+
+                                <td>
+                                    <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="{{line_form.id}}">
+                                    <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <a href="#" onclick="lines_add_line_{{line_data.related_name}}();" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> {% trans "Ajouter" %}</a>
+
+                <hr style="clear: both; visibility: hidden;">
+
+                <script type="text/javascript">
+
+                    function lines_add_line_{{line_data.related_name}}() {
+                        var html = $('#lines_new_form_{{line_data.related_name}}').html();
+
+                        html = html.replace(/-ID-/g, 'NEW-' + new Date().getTime());
+
+                        html = '<tr>' + html + '</tr>';
+
+                        $('#lines_tbody_{{line_data.related_name}}').append(html);
+
+                    }
+
+                    function lines_remove_line_{{line_data.related_name}}(elem) {
+                        $(elem).parent().parent().remove();
+                    }
+                </script>
+
+            {% endfor %}
         </form>
 
         {% if file_mode %}
