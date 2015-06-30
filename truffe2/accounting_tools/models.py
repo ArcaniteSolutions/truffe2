@@ -151,8 +151,9 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         """Remove fields that should be edited by CDD only."""
 
         if not self.rights_in_root_unit(current_user, self.MetaRightsUnit.access):
-            for key in ['amount_given', 'mobility_given', 'comment_root', 'kind']:
+            for key in ['amount_given', 'mobility_given', 'comment_root']:
                 del form.fields[key]
+            form.fields['kind'].widget = forms.HiddenInput()
 
     def rights_can_EXPORT(self, user):
         return self.rights_in_root_unit(user)
