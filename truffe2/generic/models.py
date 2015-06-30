@@ -12,14 +12,17 @@ import json
 import copy
 import inspect
 import importlib
+import os
 from pytz import timezone
 from datetime import timedelta
+import mimetypes
 
 from users.models import TruffeUser
 from generic import views
 from generic.forms import GenericForm
 from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
+from rights.utils import AutoVisibilityLevel
 
 
 moderable_things = []
@@ -99,17 +102,9 @@ class GenericModel(models.Model):
             # Create the new model
             extra_data = {'__module__': models_module.__name__}
 
-            if issubclass(model_class, GenericStateModel):
-                extra_data.update(GenericStateModel.do(module, models_module, model_class, cache))
-
-            if issubclass(model_class, GenericExternalUnitAllowed):
-                extra_data.update(GenericExternalUnitAllowed.do(module, models_module, model_class, cache))
-
-            if issubclass(model_class, GenericDelayValidableInfo):
-                extra_data.update(GenericDelayValidableInfo.do(module, models_module, model_class, cache))
-
-            if issubclass(model_class, AccountingYearLinked):
-                extra_data.update(AccountingYearLinked.do(module, models_module, model_class, cache))
+            for SpecificClass in [GenericStateModel, GenericExternalUnitAllowed, GenericDelayValidableInfo, AccountingYearLinked, AutoVisibilityLevel]:
+                if issubclass(model_class, SpecificClass):
+                    extra_data.update(SpecificClass.do(module, models_module, model_class, cache))
 
             for key, value in model_class.__dict__.iteritems():
                 if hasattr(value, '__class__') and value.__class__ == FalseFK:
@@ -121,8 +116,21 @@ class GenericModel(models.Model):
             cache['%s.%s' % (models_module.__name__, real_model_class.__name__)] = real_model_class
 
             # Add the logging model
-            logging_class = type(real_model_class.__name__ + 'Logging', (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
+            logging_class = type('%sLogging' % (real_model_class.__name__,), (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
+
+            # Add the file model (if needed)
+            if issubclass(model_class, GenericModelWithFiles):
+                file_class = type('%sFile' % (real_model_class.__name__,), (GenericFile,), {'object': models.ForeignKey(real_model_class, related_name='files', blank=True, null=True), 'file': models.FileField(upload_to='uploads/_generic/%s/' % (real_model_class.__name__,)), '__module__': models_module.__name__})
+                setattr(models_module, file_class.__name__, file_class)
+
+                full_upload_path = '%s/uploads/_generic/%s/' % (settings.MEDIA_ROOT, real_model_class.__name__)
+
+                if not os.path.isdir(full_upload_path):
+                    print "[!] %s need to be a folder for file uplodad ! (And don\'t forget the gitignore)" % (full_upload_path,)
+
+            else:
+                file_class = None
 
             # Create the form module
             def generate_meta(Model):
@@ -153,57 +161,57 @@ class GenericModel(models.Model):
 
             if not hasattr(views_module, base_views_name + '_list'):
 
-                setattr(views_module, base_views_name + '_list', views.generate_list(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_list_json', views.generate_list_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_logs', views.generate_logs(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_logs_json', views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_edit', views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class))
-                setattr(views_module, base_views_name + '_show', views.generate_show(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_delete', views.generate_delete(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, base_views_name + '_deleted', views.generate_deleted(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_list' % (base_views_name,), views.generate_list(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_list_json' % (base_views_name,), views.generate_list_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_logs' % (base_views_name,), views.generate_logs(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_logs_json' % (base_views_name,), views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_edit' % (base_views_name,), views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class, file_class))
+                setattr(views_module, '%s_show' % (base_views_name,), views.generate_show(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_delete' % (base_views_name,), views.generate_delete(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_deleted' % (base_views_name,), views.generate_deleted(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/$', base_views_name + '_list'),
-                    url(r'^' + base_views_name + '/json$', base_views_name + '_list_json'),
-                    url(r'^' + base_views_name + '/deleted$', base_views_name + '_deleted'),
-                    url(r'^' + base_views_name + '/logs$', base_views_name + '_logs'),
-                    url(r'^' + base_views_name + '/logs/json$', base_views_name + '_logs_json'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9~]+)/edit$', base_views_name + '_edit'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/delete$', base_views_name + '_delete'),
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/$', base_views_name + '_show'),
+                    url(r'^%s/$' % (base_views_name,), '%s_list' % (base_views_name,)),
+                    url(r'^%s/json$' % (base_views_name,), '%s_list_json' % (base_views_name,)),
+                    url(r'^%s/deleted$' % (base_views_name,), '%s_deleted' % (base_views_name,)),
+                    url(r'^%s/logs$' % (base_views_name,), '%s_logs' % (base_views_name,)),
+                    url(r'^%s/logs/json$' % (base_views_name,), '%s_logs_json' % (base_views_name,)),
+                    url(r'^%s/(?P<pk>[0-9~]+)/edit$' % (base_views_name,), '%s_edit' % (base_views_name,)),
+                    url(r'^%s/(?P<pk>[0-9,]+)/delete$' % (base_views_name,), '%s_delete' % (base_views_name,)),
+                    url(r'^%s/(?P<pk>[0-9]+)/$' % (base_views_name,), '%s_show' % (base_views_name,)),
                 )
 
                 setattr(real_model_class, '_show_view', '%s.%s_show' % (views_module.__name__, base_views_name,))
 
             if issubclass(model_class, GenericStateModel):
-                setattr(views_module, base_views_name + '_switch_status', views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_switch_status' % (base_views_name,), views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9,]+)/switch_status$', base_views_name + '_switch_status'),
+                    url(r'^%s/(?P<pk>[0-9,]+)/switch_status$' % (base_views_name,), '%s_switch_status' % (base_views_name,)),
                 )
 
             if issubclass(model_class, GenericStateUnitValidable):
-                setattr(views_module, base_views_name + '_list_related', views.generate_list_related(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_list_related_json', views.generate_list_related_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar', views.generate_calendar(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_json', views.generate_calendar_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_related', views.generate_calendar_related(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_related_json', views.generate_calendar_related_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_specific', views.generate_calendar_specific(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_calendar_specific_json', views.generate_calendar_specific_json(module, base_views_name, real_model_class))
-                setattr(views_module, base_views_name + '_directory', views.generate_directory(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_list_related' % (base_views_name,), views.generate_list_related(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_list_related_json' % (base_views_name,), views.generate_list_related_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar' % (base_views_name,), views.generate_calendar(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_json' % (base_views_name,), views.generate_calendar_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_related' % (base_views_name,), views.generate_calendar_related(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_related_json' % (base_views_name,), views.generate_calendar_related_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_specific' % (base_views_name,), views.generate_calendar_specific(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_specific_json' % (base_views_name,), views.generate_calendar_specific_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_directory' % (base_views_name,), views.generate_directory(module, base_views_name, real_model_class))
 
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/related/$', base_views_name + '_list_related'),
-                    url(r'^' + base_views_name + '/related/json$', base_views_name + '_list_related_json'),
+                    url(r'^%s/related/$' % (base_views_name,), '%s_list_related' % (base_views_name,)),
+                    url(r'^%s/related/json$' % (base_views_name,), '%s_list_related_json' % (base_views_name,)),
 
-                    url(r'^' + base_views_name + '/calendar/$', base_views_name + '_calendar'),
-                    url(r'^' + base_views_name + '/calendar/json$', base_views_name + '_calendar_json'),
-                    url(r'^' + base_views_name + '/related/calendar/$', base_views_name + '_calendar_related'),
-                    url(r'^' + base_views_name + '/related/calendar/json$', base_views_name + '_calendar_related_json'),
-                    url(r'^' + base_views_name + '/specific/(?P<pk>[0-9~]+)/calendar/$', base_views_name + '_calendar_specific'),
-                    url(r'^' + base_views_name + '/specific/(?P<pk>[0-9~]+)/calendar/json$', base_views_name + '_calendar_specific_json'),
-                    url(r'^' + base_views_name + '/directory/$', base_views_name + '_directory'),
+                    url(r'^%s/calendar/$' % (base_views_name,), '%s_calendar' % (base_views_name,)),
+                    url(r'^%s/calendar/json$' % (base_views_name,), '%s_calendar_json' % (base_views_name,)),
+                    url(r'^%s/related/calendar/$' % (base_views_name,), '%s_calendar_related' % (base_views_name,)),
+                    url(r'^%s/related/calendar/json$' % (base_views_name,), '%s_calendar_related_json' % (base_views_name,)),
+                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/$' % (base_views_name,), '%s_calendar_specific' % (base_views_name,)),
+                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/json$' % (base_views_name,), '%s_calendar_specific_json' % (base_views_name,)),
+                    url(r'^%s/directory/$' % (base_views_name,), '%s_directory' % (base_views_name,)),
                 )
 
             if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderable_things:
@@ -213,9 +221,21 @@ class GenericModel(models.Model):
                 copiable_things.append(real_model_class)
 
             if issubclass(model_class, GenericContactableModel):
-                setattr(views_module, base_views_name + '_contact', views.generate_contact(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_contact' % (base_views_name,), views.generate_contact(module, base_views_name, real_model_class, logging_class))
                 urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^' + base_views_name + '/(?P<pk>[0-9]+)/contact/(?P<key>.+)$', base_views_name + '_contact'),
+                    url(r'^%s/(?P<pk>[0-9]+)/contact/(?P<key>.+)$' % (base_views_name,), '%s_contact' % (base_views_name,)),
+                )
+
+            if file_class:
+                setattr(views_module, '%s_file_upload' % (base_views_name,), views.generate_file_upload(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, '%s_file_delete' % (base_views_name,), views.generate_file_delete(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, '%s_file_get' % (base_views_name,), views.generate_file_get(module, base_views_name, real_model_class, logging_class, file_class))
+                setattr(views_module, '%s_file_get_thumbnail' % (base_views_name,), views.generate_file_get_thumbnail(module, base_views_name, real_model_class, logging_class, file_class))
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^%sfile/upload$' % (base_views_name,), '%s_file_upload' % (base_views_name,)),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/delete$' % (base_views_name,), '%s_file_delete' % (base_views_name,)),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/get/.*$' % (base_views_name,), '%s_file_get' % (base_views_name,)),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/thumbnail$' % (base_views_name,), '%s_file_get_thumbnail' % (base_views_name,)),
                 )
 
     def build_state(self):
@@ -245,6 +265,35 @@ class GenericModel(models.Model):
 
     def display_url(self):
         return reverse(str(self.__class__._show_view), args=(self.pk,))
+
+    class Meta:
+        abstract = True
+
+
+class GenericModelWithFiles(object):
+    """Un modèle généric auquel on peut uploader des fichiers"""
+    pass
+
+
+class GenericFile(models.Model):
+    """Un fichier uploadé pour un GenericModelWithFiles"""
+
+    # NB: The ForgienKey AND the file field are generated dynamicaly
+    upload_date = models.DateTimeField(auto_now_add=True)
+    uploader = models.ForeignKey(TruffeUser)
+
+    def basename(self):
+        return os.path.basename(self.file.path)
+
+    def is_picture(self):
+        type, __ = mimetypes.guess_type(self.file.path)
+
+        return type.startswith('image/')
+
+    def is_pdf(self):
+        type, __ = mimetypes.guess_type(self.file.path)
+
+        return type == 'application/pdf'
 
     class Meta:
         abstract = True
@@ -313,7 +362,9 @@ class GenericLogEntry(models.Model):
         ('edited', _(u'Edité')),
         ('deleted', _(u'Supprimé')),
         ('restored', _(u'Restauré')),
-        ('state_changed', _(u'Statut changé'))
+        ('state_changed', _(u'Statut changé')),
+        ('file_added', _(u'Fichier ajouté')),
+        ('file_removed', _(u'Fichier supprimé')),
     )
 
     what = models.CharField(max_length=64, choices=LOG_TYPES)

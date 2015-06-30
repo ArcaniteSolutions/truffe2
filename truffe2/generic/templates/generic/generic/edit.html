@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n l10n bootstrap3 %}
+{% load i18n l10n bootstrap3 jfutags %}
 
 {% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% if form.instance.pk %}{% trans "Edition" %}{% else %}{% trans "Création" %}{% endif %}{% endblock %}
 
@@ -26,26 +26,16 @@
   <div class="row">
     <div class="col-sm-12 col-md-12 col-lg-7">
       <div class="well">
-          <form class="form-horizontal" method="POST" enctype="multipart/form-data">
+          <form class="form-horizontal" method="POST" enctype="multipart/form-data" id="generic_main_form">
             {% csrf_token %}
 
             {% localize off %}
                 {% bootstrap_form form layout='horizontal' %}
             {% endlocalize %}
 
-
             <input type="hidden" name="post-save-dest" id="post-save-dest" value="">
+            <input type="hidden" name="file_key" value="{{file_key}}">
 
-            <div class="form-actions">
-                <div class="row">
-                    <div class="col-md-12">
-                        <a href="{% if form.instance.pk %}{% url show_view form.instance.pk %}{% else %}{% url list_view %}{% endif %}" class="btn btn-default">{% trans "Annuler" %}</a>
-                        <button type="submit" class="btn btn-primary" id="save_and_new" onclick="$('#post-save-dest').val('new');"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et créer un nouveau" %}</button>
-                        <button type="submit" class="btn btn-primary" id="save_and_edit" onclick="$('#post-save-dest').val('continue');"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et continuer l'édition" %}</button>
-                        <button type="submit" class="btn btn-primary" id="save"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
-                    </div>
-                </div>
-            </div>
             {% if unit_mode %}
                 <input type="hidden" id="input_upk" name="upk" value="{{form.instance.unit.pk}}">
             {% endif %}
@@ -53,6 +43,26 @@
                 <input type="hidden" id="input_ypk" name="ypk" value="{{form.instance.accounting_year.pk}}">
             {% endif %}
         </form>
+
+        {% if file_mode %}
+            <h3>{{Model.MetaEdit.files_title}}</h3>
+
+            <p>{{Model.MetaEdit.files_help}}<br />{% trans "Tu peux 'drag&dropper' des fichiers sur toute la page pour les envoyer." %}</p>
+
+            {% jfu 'generic/generic/file_upload.html' file_upload_view %}
+
+        {% endif %}
+
+        <div class="form-actions">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="{% if form.instance.pk %}{% url show_view form.instance.pk %}{% else %}{% url list_view %}{% endif %}" class="btn btn-default">{% trans "Annuler" %}</a>
+                    <button type="button" class="btn btn-primary" id="save_and_new" onclick="$('#post-save-dest').val('new'); $('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et créer un nouveau" %}</button>
+                    <button type="button" class="btn btn-primary" id="save_and_edit" onclick="$('#post-save-dest').val('continue'); $('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et continuer l'édition" %}</button>
+                    <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
+                </div>
+            </div>
+        </div>
       </div>
     </div>
 

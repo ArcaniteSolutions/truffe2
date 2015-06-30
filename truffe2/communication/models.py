@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateRootModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel
+from generic.models import GenericModel, GenericStateModel, GenericStateRootModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericModelWithFiles
 from django.utils.translation import ugettext_lazy as _
 
-from rights.utils import UnitEditableModel
+from rights.utils import UnitEditableModel, AutoVisibilityLevel
 
 
 class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootModerable, GenericStateModel, UnitEditableModel):
@@ -107,3 +107,56 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
 
     def __unicode__(self):
         return self.title
+
+
+class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = 'COMMUNICATION'
+
+    name = models.CharField(max_length=255)
+    unit = FalseFK('units.models.Unit')
+
+    class MetaData:
+        list_display = [
+            ('name', _('Nom')),
+        ]
+        details_display = list_display + [('get_visibility_level_display', _(u'Visibilité')), ]
+        filter_fields = ('name', )
+
+        base_title = _(u'Logo')
+        list_title = _(u'Liste de tous les logos')
+        files_title = _(u'Fichiers')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-picture-o'
+
+        default_sort = "[1, 'asc']"  # name
+
+        menu_id = 'menu-communication-logo'
+
+        has_unit = True
+
+        help_list = _(u"""Les logos de ton unité.
+
+Tu peux rendre public les logos, ce qui est recommandé afin d'aider les autres unités lors de constructions graphiques (ex: agenda) ou ton propre comité.
+
+Un logo peut comporter plusieurs fichiers : ceci te permet d'uploader différents formats pour un même fichier !""")
+
+    class MetaEdit:
+        files_title = _(u'Fichiers')
+        files_help = _(u'Envoie le ou les fichiers de ton logo. Le système te permet d\'envoyer plusieurs fichiers pour te permettre d\'envoyer des formats différents.')
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.name
+
+    def get_best_image(self):
+        """Try to find a suitable file for thumbnail"""
+
+        for f in self.files.all():
+            if f.is_picture():
+                return f
+
+        return f
