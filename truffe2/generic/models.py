@@ -45,8 +45,9 @@ def build_models_list_of(Class):
             views_module = importlib.import_module('.views', app)
             urls_module = importlib.import_module('.urls', app)
             forms_module = importlib.import_module('.forms', app)
-        except Exception:
-            continue
+        except Exception as e:
+            if str(e) not in ["No module named urls", "No module named views", "No module named forms", "No module named models"]:
+                raise
 
         clsmembers = inspect.getmembers(models_module, inspect.isclass)
 

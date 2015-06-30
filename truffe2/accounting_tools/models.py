@@ -33,12 +33,12 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
 
     class Meta:
         abstract = True
-        unique_together = (("unit", "accounting_year"),)
+        unique_together = (("unit", "unit_blank_name", "accounting_year"),)
 
     class MetaData:
         list_display = [
             ('name', _(u'Projet')),
-            ('unit', _(u'Association / Commission')),
+            ('get_unit_name', _(u'Association / Commission')),
             ('amount_asked', _(u'Montant demandé')),
             ('mobility_asked', _(u'Montant mobilité demandé')),
         ]
@@ -55,6 +55,8 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         elem_icon = 'fa fa-smile-o'
 
         menu_id = 'menu-compta-subventions'
+        not_sortable_colums = ['get_unit_name']
+        safe_fields = ['get_unit_name']
 
         has_unit = True
 
@@ -108,6 +110,13 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         states_default_filter_related = '0_draft,1_submited,2_treated'
         status_col_id = 3
 
+    def __init__(self, *args, **kwargs):
+        super(_Subvention, self).__init__(*args, **kwargs)
+
+        self.MetaRights.rights_update({
+            'EXPORT': _(u'Peut exporter les éléments'),
+        })
+
     def may_switch_to(self, user, dest_state):
 
         return self.rights_can('EDIT', user)
@@ -135,7 +144,7 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         """Check that unique_together is fulfiled"""
         from accounting_tools.models import Subvention
 
-        if Subvention.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), unit=get_current_unit(form.truffe_request)).count():
+        if Subvention.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), unit=get_current_unit(form.truffe_request), unit_blank_name=data['unit_blank_name']).count():
             raise forms.ValidationError(_(u'Une demande de subvention pour cette unité existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
@@ -145,6 +154,19 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
             for key in ['amount_given', 'mobility_given', 'comment_root', 'kind']:
                 del form.fields[key]
 
+    def rights_can_EXPORT(self, user):
+        return self.rights_in_root_unit(user)
+
+    def get_real_unit_name(self):
+        return self.unit_blank_name or self.unit.name
+
+    def total_people(self):
+        """Return the total number of expected people among all events"""
+        total = 0
+        for line in self.events.all():
+            total += line.nb_spec
+        return total
+
 
 class SubventionLine(models.Model):
     name = models.CharField(_(u'Nom de l\'évènement'), max_length=255)
@@ -153,4 +175,4 @@ class SubventionLine(models.Model):
     place = models.CharField(_(u'Lieu de l\'évènement'), max_length=100)
     nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
 
-    subvention = FalseFK('Subvention', verbose_name=_(u'Subvention/sponsoring'))
+    subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))

@@ -64,7 +64,7 @@
               {% if form.instance.pk %}
                 {% with w_title="Contexte" %}{% include "widget/header.html" %}{% endwith %}
                     {% trans "Cet objet est lié à l'unité" %}<br /><br />
-                    <center><b class="cgroupe" pk="{{CURRENT_UNIT.pk}}">{{CURRENT_UNIT.name}}</b></center><br />
+                    <center><b class="cgroupe" pk="{{CURRENT_UNIT_PK}}">{{CURRENT_UNIT_NAME}}</b></center><br />
                 {% include "widget/footer.html" %}
 
               {% else %}

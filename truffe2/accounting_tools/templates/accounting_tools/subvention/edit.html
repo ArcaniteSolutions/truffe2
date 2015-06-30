@@ -20,6 +20,19 @@
             $('#id_kind').removeClass('form-control');
             $('#id_kind').width('72%').select2();
 
+            if ($('.cgroupe').attr('pk') == -1) {
+                $('#id_mobility_asked').val('');
+                $('#id_mobility_asked').parents('.form-group').hide();
+            }
+        });
+
+        $('.unit-displayed').click(function(e) {
+            if ($('.cgroupe').attr('pk') == -1) {
+                $('#id_mobility_asked').val('');
+                $('#id_mobility_asked').parents('.form-group').hide();
+            }else {
+                $('#id_mobility_asked').parents('.form-group').show();
+            }
         });
     </script>
 {% endblock %}
