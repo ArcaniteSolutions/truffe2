@@ -354,6 +354,11 @@
                                                 <a href="{% url 'accounting_tools.views.subvention_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Demandes de subvention" %}</a>
                                             </li>
                                         {% endifhasright %}
+                                        {% ifhasright 'accounting_tools.models.Invoice' user 'LIST' %}
+                                            <li id="menu-compta-invoice">
+                                                <a href="{% url 'accounting_tools.views.invoice_list' %}"><i class="fa fa-lg fa-fw fa-money"></i> {% trans "Factures" %}</a>
+                                            </li>
+                                        {% endifhasright %}
                                     </ul>
                                 </li>
                             </ul>

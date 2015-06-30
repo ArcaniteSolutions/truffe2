@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed
-from rights.utils import UnitExternalEditableModel
+from rights.utils import UnitExternalEditableModel, UnitEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year, get_current_unit
 
@@ -176,3 +176,51 @@ class SubventionLine(models.Model):
     nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
+
+
+class _Invoice(GenericModel, AccountingYearLinked, UnitEditableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = 'TRESORERIE'
+
+    title = models.CharField(max_length=255)
+    unit = FalseFK('units.models.Unit')
+
+    # TODO: Centre de cout, Statut (Draft, Sent, TramisMarianne, Reçu), champs pdf
+
+    class MetaData:
+        list_display = [
+            ('title', _('Titre')),
+        ]
+        details_display = list_display
+        filter_fields = ('title', )
+
+        base_title = _(u'Facture')
+        list_title = _(u'Liste de toutes les factures')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-money'
+
+        default_sort = "[1, 'asc']"  # title
+
+        menu_id = 'menu-compta-invoice'
+
+        has_unit = True
+
+        help_list = _(u"""Factures.""")
+
+    class MetaEdit:
+        pass
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.name
+
+
+class InvoiceLine(models.Model):
+
+    invoice = models.ForeignKey('Invoice', related_name="lines")
+
+    label = models.CharField(_(u'Titre'), max_length=255)
+    value = models.DecimalField(_('Montant'), help_text=_(u'Hors taxe'), max_digits=20, decimal_places=2)
