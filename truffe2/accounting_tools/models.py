@@ -5,13 +5,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed
+from generic.models import GenericModel, GenericStateModel, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithFiles
 from rights.utils import UnitExternalEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year, get_current_unit
 
 
-class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
+class _Subvention(GenericModel, GenericModelWithFiles, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
 
     SUBVENTION_TYPE = (
         ('subvention', _(u'Subvention')),
@@ -35,6 +35,10 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         abstract = True
         unique_together = (("unit", "unit_blank_name", "accounting_year"),)
 
+    class MetaEdit:
+        files_title = _(u'Fichiers')
+        files_help = _(u'Envoie les fichiers nécessaires pour ta demande de subvention.')
+
     class MetaData:
         list_display = [
             ('name', _(u'Projet')),
@@ -49,6 +53,7 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
         extra_right_display = {'comment_root': lambda (obj, user): obj.rights_can('LIST', user)}
 
+        files_title = _(u'Fichiers')
         base_title = _(u'Subvention')
         list_title = _(u'Liste des demandes de subvention')
         base_icon = 'fa fa-list'
