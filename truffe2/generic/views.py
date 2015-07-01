@@ -392,6 +392,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 for line_data in lines_objects:
                     valids_ids = []
 
+                    line_order = 0
+
                     for line_form in line_data['forms']:
                         line_obj = line_form['form'].save(commit=False)
                         setattr(line_obj, line_data['field'], obj)
@@ -401,7 +403,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         else:
                             if line_form['old_val'] != line_obj.__unicode__():
                                 lines_updates['%s #%s' % (line_data['related_name'], line_obj.pk,)] = (line_form['old_val'], line_obj.__unicode__())
-                            print line_form['old_val'], line_obj.__unicode__()
+
+                        if line_data['sortable']:
+                            line_obj.order = line_order
+                            line_order += 1
 
                         line_obj.save()
 
@@ -500,7 +505,14 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             # Init subforms
             for line_data in lines_objects:
                 if obj.pk:
-                    for line_obj in getattr(obj, line_data['related_name']).all():
+                    line_objs = getattr(obj, line_data['related_name'])
+
+                    if line_data['sortable']:
+                        line_objs = line_objs.order_by('order')
+                    else:
+                        line_objs = line_objs.all()
+
+                    for line_obj in line_objs:
                         line_form = line_data['form'](instance=line_obj, prefix="_LINES_%s_%s" % (line_data['related_name'], line_obj.pk))
                         line_form_data = {'id': line_obj.pk, 'form': line_form}
                         line_data['forms'].append(line_form_data)
@@ -576,7 +588,15 @@ def generate_show(module, base_name, model_class, log_class):
             lines_objects = copy.deepcopy(obj.MetaLines.lines_objects)
 
             for line_data in lines_objects:
-                line_data['elems'] = getattr(obj, line_data['related_name']).all()
+
+                line_objs = getattr(obj, line_data['related_name'])
+
+                if line_data['sortable']:
+                    line_objs = line_objs.order_by('order')
+                else:
+                    line_objs = line_objs.all()
+
+                line_data['elems'] = line_objs
 
         return render(request, ['%s/%s/show.html' % (module.__name__, base_name), 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,

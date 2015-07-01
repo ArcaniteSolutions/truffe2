@@ -68,6 +68,10 @@
                             <td>
                                 <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="-ID-">
                                 <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
+
+                                <span style="cursor: move;" class="handle btn btn-default btn-xs">
+                                    <i class="fa fa-sort"></i>
+                                </span>
                             </td>
                         </tr>
 
@@ -81,6 +85,10 @@
                                 <td>
                                     <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="{{line_form.id}}">
                                     <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
+
+                                    <span style="cursor: move;" class="handle btn btn-default btn-xs">
+                                        <i class="fa fa-sort"></i>
+                                    </span>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -102,11 +110,33 @@
 
                         $('#lines_tbody_{{line_data.related_name}}').append(html);
 
+                        lines_make_sortable_{{line_data.related_name}}();
                     }
 
                     function lines_remove_line_{{line_data.related_name}}(elem) {
                         $(elem).parent().parent().remove();
+                        lines_make_sortable_{{line_data.related_name}}();
                     }
+
+
+                    var already_sorted_{{line_data.related_name}} = false;
+
+                    function lines_make_sortable_{{line_data.related_name}}() {
+                        {% if line_data.sortable %}
+
+                            if (already_sorted_{{line_data.related_name}}) {
+                                $('#lines_tbody_{{line_data.related_name}}').sortable('destroy');
+                            } else {
+                                already_sorted_{{line_data.related_name}};
+                            }
+
+                            $('#lines_tbody_{{line_data.related_name}}').sortable({
+                                handle: '.handle',
+                            });
+                        {% endif %}
+                    }
+
+                    lines_make_sortable_{{line_data.related_name}}();
                 </script>
 
             {% endfor %}
