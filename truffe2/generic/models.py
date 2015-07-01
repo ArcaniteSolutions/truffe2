@@ -88,7 +88,7 @@ class GenericModel(models.Model):
     def startup():
         """Execute code at startup"""
 
-        from accounting_core.utils import AccountingYearLinked
+        from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 
         classes = build_models_list_of(GenericModel)
 
@@ -102,7 +102,7 @@ class GenericModel(models.Model):
             # Create the new model
             extra_data = {'__module__': models_module.__name__}
 
-            for SpecificClass in [GenericStateModel, GenericExternalUnitAllowed, GenericDelayValidableInfo, AccountingYearLinked, AutoVisibilityLevel]:
+            for SpecificClass in [GenericStateModel, GenericExternalUnitAllowed, GenericDelayValidableInfo, AccountingYearLinked, AutoVisibilityLevel, CostCenterLinked]:
                 if issubclass(model_class, SpecificClass):
                     extra_data.update(SpecificClass.do(module, models_module, model_class, cache))
 

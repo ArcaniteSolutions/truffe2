@@ -7,4 +7,6 @@ urlpatterns = patterns(
     'accounting_core.views',
 
     url(r'^accountingyear/(?P<pk>[0-9,]+)/copy$', 'copy_accounting_year'),
+
+    url(r'^costcenter/available_list$', 'costcenter_available_list'),
 )

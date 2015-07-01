@@ -2,9 +2,13 @@
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
+
+
+import json
+
 
 from accounting_core import models as accounting_models
 from app.utils import update_current_year
@@ -53,3 +57,23 @@ def copy_accounting_year(request, pk):
     else:
         return redirect('accounting_core.views.accountingyear_list')
 
+
+@login_required
+def costcenter_available_list(request):
+    """Return the list of available costcenters for a given unit and year"""
+    from units.models import Unit
+    from accounting_core.models import AccountingYear, CostCenter
+
+    costcenters = CostCenter.objects.filter(deleted=False).order_by('account_number')
+
+    if request.GET.get('upk'):
+        unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
+        costcenters = costcenters.filter(unit=unit)
+
+    if request.GET.get('ypk'):
+        accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
+        costcenters = costcenters.filter(accounting_year=accounting_year)
+
+    retour = {'data': [{'pk': costcenter.pk, 'name': costcenter.__unicode__()} for costcenter in costcenters]}
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')

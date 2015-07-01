@@ -23,6 +23,7 @@ class GenericForm(ModelForm):
             from units.models import Unit
             self.fields['unit'].queryset = Unit.objects.order_by('name')
 
+
         if hasattr(self.Meta.model, 'MetaEdit') and hasattr(self.Meta.model.MetaEdit, 'only_if'):
             for key, test in self.Meta.model.MetaEdit.only_if.iteritems():
                 if not test((self.instance, current_user)):
@@ -39,6 +40,15 @@ class GenericForm(ModelForm):
         if isinstance(self.instance, UnitExternalEditableModel):
             if not self.instance.unit and not cleaned_data['unit_blank_name']:
                 raise ValidationError(_(u'Le nom de l\'entité externe est obligatoire !'))
+
+        from accounting_core.utils import CostCenterLinked
+
+        if 'costcenter' in self.fields and issubclass(self.Meta.model, CostCenterLinked):
+            if hasattr(self.instance, 'unit') and self.instance.unit != cleaned_data['costcenter'].unit:
+                raise ValidationError(_(u'Le centre de cout n\'est pas lié à l\'unité !'))
+
+            if hasattr(self.instance, 'accounting_year') and self.instance.accounting_year != cleaned_data['costcenter'].accounting_year:
+                raise ValidationError(_(u'Le centre de cout n\'est pas lié à l\'année comptable !'))
 
         return cleaned_data
 

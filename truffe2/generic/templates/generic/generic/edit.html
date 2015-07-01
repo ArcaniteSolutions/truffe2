@@ -181,9 +181,10 @@
                   {% endwith %}
 
                   <script type="text/javascript">
-                      function unit_updated(pk, name, can_edit) {
-                        $('#input_upk').val(pk);
-                      }
+                        function unit_updated(pk, name, can_edit) {
+                            $('#input_upk').val(pk);
+                            {% if costcenter_mode %}load_costcenter();{% endif %}
+                        }
                   </script>
               {% endif %}
             {% endif %}
@@ -201,9 +202,12 @@
                   {% endwith %}
 
                   <script type="text/javascript">
-                      function year_updated(pk, name) {
-                        $('#input_ypk').val(pk);
-                      }
+                        function year_updated(pk, name) {
+                            $('#input_ypk').val(pk);
+
+                            {% if costcenter_mode %}load_costcenter();{% endif %}
+
+                        }
                   </script>
               {% endif %}
             {% endif %}
@@ -252,14 +256,49 @@
     $('#id_unit_blank_name').parent().append("<div class='alert alert-danger' style='margin-top: 4px; margin-bottom: 0px; display: none;' id='id_unit_blank_name_warning'>{% trans "Attention ! Une unité existe déjà avec ce nom. Est-ce que tu manques de droits pour utiliser directement l'unité ? Hors cas exceptionnels, il ne faut pas passer via une entité externe, mais demander les droits ! Demande au président !" %}</div>");
 
     $('#id_unit_blank_name').on('change', function (elem) {
-      $.ajax('{% url 'generic.views.check_unit_name' %}?name=' + escape($('#id_unit_blank_name').val()), {dataType: 'json'}).success(function (data) {
-        if (data['result'] == 'ok') {
-            $('#id_unit_blank_name_warning').hide();
-        } else {
-            $('#id_unit_blank_name_warning').show();
-        }
+        $.ajax('{% url 'generic.views.check_unit_name' %}?name=' + escape($('#id_unit_blank_name').val()), {dataType: 'json'}).success(function (data) {
+            if (data['result'] == 'ok') {
+                $('#id_unit_blank_name_warning').hide();
+            } else {
+                $('#id_unit_blank_name_warning').show();
+            }
         });
     });
+
+    {% if costcenter_mode %}
+
+        function load_costcenter() {
+
+            bonus = '?_{% if unit_mode %}&upk=' + $('#input_upk').val() + '{% endif %}{% if year_mode %}&ypk=' + $('#input_ypk').val() + '{% endif %}';
+
+            $.ajax('{% url 'accounting_core.views.costcenter_available_list' %}' + bonus).success(function (data) {
+
+                var options = '<option value=""></option>';
+
+                $.each(data.data, function (index, option) {
+
+                    options += '<option value="' + option.pk + '">' + option.name + '</option>';  //Injection possible, but costcenter are trusted
+
+
+                });
+
+                $('#id_costcenter').select2('destroy');
+
+                $('#id_costcenter').html(options);
+
+                $('#id_costcenter').select2();
+
+            });
+
+        }
+
+        $(function () {
+            $('#id_costcenter').css('width', '100%').addClass('select2').removeClass('form-control').select2();
+
+            load_costcenter();
+        });
+
+    {% endif %}
 
 </script>
 
