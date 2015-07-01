@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, GenericModelUsedAsLine
 from rights.utils import UnitExternalEditableModel, UnitEditableModel
-from accounting_core.utils import AccountingYearLinked
+from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
 
 
@@ -178,7 +178,7 @@ class SubventionLine(models.Model):
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
 
 
-class _Invoice(GenericModel, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
+class _Invoice(GenericModel, CostCenterLinked, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'TRESORERIE'
@@ -186,11 +186,12 @@ class _Invoice(GenericModel, GenericModelWithLines, AccountingYearLinked, UnitEd
     title = models.CharField(max_length=255)
     unit = FalseFK('units.models.Unit')
 
-    # TODO: Centre de cout, Statut (Draft, Sent, TramisMarianne, Reçu), champs pdf
+    # TODO: Statut (Draft, Sent, TramisMarianne, Reçu), champs pdf
 
     class MetaData:
         list_display = [
             ('title', _('Titre')),
+            ('costcenter', _(u'Centre de cout')),
         ]
         details_display = list_display
         filter_fields = ('title', )
