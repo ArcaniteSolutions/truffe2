@@ -5,13 +5,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithFiles
+from generic.models import GenericModel, GenericStateModel, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithFiles, GenericModelUsedAsLine, GenericModelWithLines
 from rights.utils import UnitExternalEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year, get_current_unit
 
 
-class _Subvention(GenericModel, GenericModelWithFiles, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
+class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
 
     SUBVENTION_TYPE = (
         ('subvention', _(u'Subvention')),
@@ -69,6 +69,24 @@ class _Subvention(GenericModel, GenericModelWithFiles, AccountingYearLinked, Gen
 
     class MetaAccounting:
         copiable = False
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Evènements'),
+                'class': 'accounting_tools.models.SubventionLine',
+                'form': 'accounting_tools.forms.SubventionLineForm',
+                'related_name': 'events',
+                'field': 'subvention',
+                'sortable': False,
+                'show_list': [
+                    ('name', _(u'Titre')),
+                    ('start_date', _(u'Du')),
+                    ('end_date', _(u'Au')),
+                    ('place', _(u'Lieu')),
+                    ('nb_spec', _(u'Nb personnes attendues')),
+                ]},
+        ]
 
     class MetaState:
 
@@ -174,7 +192,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, AccountingYearLinked, Gen
         return total
 
 
-class SubventionLine(models.Model):
+class SubventionLine(models.Model, GenericModelUsedAsLine):
     name = models.CharField(_(u'Nom de l\'évènement'), max_length=255)
     start_date = models.DateField(_(u'Début de l\'évènement'))
     end_date = models.DateField(_(u'Fin de l\'évènement'))
@@ -182,3 +200,6 @@ class SubventionLine(models.Model):
     nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
+
+    def __unicode__(self):
+        return "{}:{}".format(self.subvention.name, self.name)

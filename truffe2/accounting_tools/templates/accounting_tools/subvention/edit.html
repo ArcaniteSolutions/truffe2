@@ -9,13 +9,12 @@
         var amount_given = $('#id_amount_given').parents('.form-group').remove();
         var mobility_given = $('#id_mobility_given').parents('.form-group').remove();
         var comment_root = $('#id_comment_root').parents('.form-group').remove();
-        if (kind.length || amount_given.length || mobility_given.length || comment_root.length) {
-            $('#id_description').parents('.form-group').after(kind);
-            $('#id_description').parents('.form-group').after("<h3>{% trans "Réservé au Comité de Direction" %}</h3>");
-            $('#id_kind').parents('.form-group').after(amount_given);
-            $('#id_amount_given').parents('.form-group').after(mobility_given);
-            $('#id_mobility_given').parents('.form-group').after(comment_root);
-        }
+        if (kind.length || amount_given.length || mobility_given.length || comment_root.length)
+            $('#generic_main_form').append("<h3>{% trans "Réservé au Comité de Direction" %}</h3>");
+        $('#generic_main_form').append(kind);
+        $('#id_kind').parents('.form-group').after(amount_given);
+        $('#id_amount_given').parents('.form-group').after(mobility_given);
+        $('#id_mobility_given').parents('.form-group').after(comment_root);
 
         $(function() {
             // Transform id_kind in select2
