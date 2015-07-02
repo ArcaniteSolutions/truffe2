@@ -4,8 +4,9 @@ from django.db.utils import IntegrityError
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.timezone import now
 
-from accounting_core.models import AccountingYear, Account, AccountCategory, CostCenter
+from accounting_core.models import AccountingYear, AccountingYearLogging, Account, AccountLogging, AccountCategory, AccountCategoryLogging, CostCenter, CostCenterLogging
 from units.models import Unit
+from users.models import TruffeUser
 
 import datetime
 import pytz
@@ -20,7 +21,7 @@ class Command(BaseCommand):
 
         data = json.loads(sys.stdin.read())
         mainant = now()
-
+        root_user = TruffeUser.objects.get(username=179189)
 
         paris_tz = pytz.timezone("Europe/Paris")
 
@@ -36,18 +37,21 @@ class Command(BaseCommand):
 
             ay.save()
             if created:
+                AccountingYearLogging(who=root_user, what="imported", object=ay).save()
                 print "(+)", ay
 
             for tcb_data in data['typeCompteBilan']:
                 ac, created = AccountCategory.objects.get_or_create(name=tcb_data['name'], description=tcb_data['description'], accounting_year=ay)
 
                 if created:
+                    AccountCategoryLogging(who=root_user, what="imported", object=ac).save()
                     print "  (+)", ac
 
                 for ct_data in tcb_data['compte_types']:
                     sub_ac, created = AccountCategory.objects.get_or_create(name=ct_data['name'], description=ct_data['description'], parent_hierarchique=ac, accounting_year=ay)
 
                     if created:
+                        AccountCategoryLogging(who=root_user, what="imported", object=sub_ac).save()
                         print "    (+)", sub_ac
 
             print "*" * 20
@@ -62,6 +66,7 @@ class Command(BaseCommand):
                 cc, created = CostCenter.objects.get_or_create(name=num_data['name'], account_number=num_data['account_number'], description=num_data['description'], accounting_year=ay, defaults={'unit': unit})
 
                 if created:
+                    CostCenterLogging(who=root_user, what="imported", object=cc).save()
                     print "  (+)", cc
 
             print "*" * 20
@@ -72,6 +77,7 @@ class Command(BaseCommand):
                     leaf_ac, created = AccountCategory.objects.get_or_create(name=cc_data['name'], parent_hierarchique=parent, accounting_year=ay)
 
                     if created:
+                        AccountCategoryLogging(who=root_user, what="imported", object=leaf_ac).save()
                         print "  (+)", leaf_ac
                 except:
                     print "Parent not found !!"
@@ -88,6 +94,7 @@ class Command(BaseCommand):
 
                         acc.save()
                         if created:
+                            AccountLogging(who=root_user, what="imported", object=acc).save()
                             print "    (+)", acc
                     except IntegrityError:
                         print u"Duplicate with name {!r} number {!r} and year {!r}".format(acc.name, acc.account_number, ay)
