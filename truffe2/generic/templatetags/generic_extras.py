@@ -1,10 +1,11 @@
 from django import template
-import re
-import html5lib
+from django.utils.safestring import mark_safe
+
+import bleach
 from bleach.sanitizer import BleachSanitizer
 from bleach.encoding import force_unicode
-import bleach
-from django.utils.safestring import mark_safe
+import html5lib
+import re
 
 register = template.Library()
 
@@ -20,6 +21,24 @@ def get_attr(value, arg):
         return ''
     return v
 
+
+@register.filter
+def call(obj, methodName):
+    method = getattr(obj, methodName)
+    if "__callArg" in obj.__dict__:
+        ret = method(*obj.__callArg)
+        del obj.__callArg
+        return ret
+    return method()
+
+
+@register.filter
+def args(obj, arg):
+    if "__callArg" not in obj.__dict__:
+        obj.__callArg = []
+
+    obj.__callArg += [arg]
+    return obj
 
 pos = [(0, 0), (1, 0), (0, 1), (2, 3), (1, 2), (2, 1), (2, 2)]
 

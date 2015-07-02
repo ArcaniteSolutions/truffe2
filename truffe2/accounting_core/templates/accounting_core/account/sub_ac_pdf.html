@@ -1,0 +1,40 @@
+{% load i18n generic_extras %}
+    
+    {% if level == 1 %}
+        <h3 style="font-size: 25px;">{{cat.name}}</h3>
+    {% elif level == 2 %}
+        <u style="font-size: 20px;">{{cat.name}}</u><br/><br/>
+    {% elif level == 3 %}
+        <b style="font-size: 18px;">{{cat.name}}</b><br/>
+    {% else %}
+        <a class="btn btn-danger">{{cat.name}}</a> {# Ne doit pas arriver, je dois regarder #}
+    {% endif %}
+    
+    {{cat.print_all}}
+
+    {% for sub_cat in cat.get_children_categories %}
+        {% with level=level|add:"1" cat=sub_cat template="accounting_core/account/sub_ac_pdf.html" %}{% include template %}{% endwith %}
+    {% empty %} {# if cat is a leaf #}
+        <table class="liste">
+            <tr class="tr-a">
+                <td>{% trans "Compte n°" %}</td>
+                <td>{% trans "Nom" %}</td>
+                <td>{% trans "Description" %}</td>
+            </tr>
+            {% for account in cat.get_accounts %}
+                {% if account|args:user|call:"user_can_see" %}
+                    <tr>
+                        <td width="14%">{{account.account_number}}</td>
+                        <td style="font-size:14px;">{{account.name}}</td>
+                        <td style="font-size:10px;">{{account.description}}</td>
+                    </tr>
+                {% endif %}
+            {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align:center;">{% trans "Pas de compte de ce type pour cette année" %}</td>
+                </tr>
+            {% endfor %}
+        </table> <br/><br/>
+    {% endfor %}
+
+    <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
