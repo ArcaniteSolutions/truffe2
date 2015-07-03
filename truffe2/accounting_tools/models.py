@@ -86,7 +86,8 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
                     ('end_date', _(u'Au')),
                     ('place', _(u'Lieu')),
                     ('nb_spec', _(u'Nb personnes attendues')),
-                ]},
+                ]
+            },
         ]
 
     class MetaState:
