@@ -48,8 +48,9 @@ def build_models_list_of(Class):
             views_module = importlib.import_module('.views', app)
             urls_module = importlib.import_module('.urls', app)
             forms_module = importlib.import_module('.forms', app)
-        except Exception:
-            continue
+        except Exception as e:
+            if str(e) not in ["No module named urls", "No module named views", "No module named forms", "No module named models"]:
+                raise
 
         clsmembers = inspect.getmembers(models_module, inspect.isclass)
 
@@ -777,3 +778,18 @@ class GenericDelayValidable(object):
                 return (False, _(u'La résevation est trop loin d\'aujourd\'hui ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
 
         return super(GenericDelayValidable, self).can_switch_to(user, dest_state)
+
+
+class GenericModelWithLines(object):
+
+    class MetaLines():
+        lines_objects = [
+            # {'title': '', 'class': '', 'form': '', 'related_name': '',
+            # 'field': '', 'sortable': False, 'show_list': [('field', 'label'),
+            # ]},
+        ]
+
+
+class GenericModelUsedAsLine(object):
+    pass
+

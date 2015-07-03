@@ -17,7 +17,7 @@ class IfHasRightNode(Node):
         self.conditions_nodelists = conditions_nodelists
 
     def __repr__(self):
-        return "<IfNode>"
+        return "<IfHRNode>"
 
     def __iter__(self):
         for _, nodelist in self.conditions_nodelists:
@@ -63,7 +63,7 @@ class IfHasRightNode(Node):
 
 
 @register.tag('ifhasright')
-def do_if(parser, token):
+def do_if_hr(parser, token):
     # {% if ... %}
     (obj, user, right) = token.split_contents()[1:]
     nodelist = parser.parse(('elifhasright', 'elsehasright', 'endifhasright'))
@@ -87,3 +87,72 @@ def do_if(parser, token):
     assert token.contents == 'endifhasright'
 
     return IfHasRightNode(conditions_nodelists)
+
+
+class IfCanDisplayNode(Node):
+
+    def __init__(self, conditions_nodelists):
+        self.conditions_nodelists = conditions_nodelists
+
+    def __repr__(self):
+        return "<IfCDNode>"
+
+    def __iter__(self):
+        for _, nodelist in self.conditions_nodelists:
+            for node in nodelist:
+                yield node
+
+    @property
+    def nodelist(self):
+        return NodeList(node for _, nodelist in self.conditions_nodelists for node in nodelist)
+
+    def render(self, context):
+        for (obj, user, field), nodelist in self.conditions_nodelists:
+
+            if field is not None and hasattr(obj, 'MetaData') and hasattr(obj.MetaData, 'extra_right_display') and field in obj.MetaData.extra_right_display:  # if / elif clause
+                obj = template.Variable(obj).resolve(context)
+                user = template.Variable(user).resolve(context)
+                field = template.Variable(field).resolve(context)
+
+                if isinstance(obj, basestring):
+                    new_obj = importlib.import_module('.'.join(obj.split('.')[:-1]))
+                    obj = getattr(new_obj, obj.split('.')[-1])
+
+                if isinstance(obj, ModelWithRight):
+                    match = obj.MetaData.extra_right_display[field](obj, user)
+                else:
+                    raise Exception("?", obj, " cannot be used for rights")
+
+            else:
+                match = True
+
+            if match:
+                return nodelist.render(context)
+        return ''
+
+
+@register.tag('ifcandisplay')
+def do_if_cd(parser, token):
+    # {% if ... %}
+    (obj, user, field) = token.split_contents()[1:]
+    nodelist = parser.parse(('elifcandisplay', 'elsecandisplay', 'endifcandisplay'))
+    conditions_nodelists = [((obj, user, field), nodelist)]
+    token = parser.next_token()
+
+    # {% elif ... %} (repeatable)
+    while token.contents.startswith('elifcandisplay'):
+        (obj, user, field) = token.split_contents()[1:]
+        nodelist = parser.parse(('elifcandisplay', 'elsecandisplay', 'endifcandisplay'))
+        conditions_nodelists.append(((obj, user, field), nodelist))
+        token = parser.next_token()
+
+    # {% else %} (optional)
+    if token.contents == 'elsecandisplay':
+        nodelist = parser.parse(('endifcandisplay',))
+        conditions_nodelists.append(((None, None, None), nodelist))
+        token = parser.next_token()
+
+    # {% endif %}
+    assert token.contents == 'endifcandisplay'
+
+    return IfCanDisplayNode(conditions_nodelists)

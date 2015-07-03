@@ -76,7 +76,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
     def __unicode__(self):
         return self.name
 
-    def genericFormExtraInit(self, form, *args, **kwargs):
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Update queryset for parent_hierarchique"""
         if 'parent_hierarchique' in form.fields:
             from units.models import Unit

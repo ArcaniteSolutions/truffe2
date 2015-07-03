@@ -113,7 +113,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
         if MemberSet.objects.exclude(pk=self.pk).filter(unit=get_current_unit(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'L\'unité possède déjà un groupe avec ce nom.'))  # Potentiellement parmi les supprimées
 
-    def genericFormExtraInit(self, form, *args, **kwargs):
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible accreds to the official ones at EPFL"""
         from units.models import Role
 
