@@ -78,14 +78,16 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
                 'form': 'accounting_tools.forms.SubventionLineForm',
                 'related_name': 'events',
                 'field': 'subvention',
-                'sortable': False,
+                'sortable': True,
+                'date_fields': ['start_date', 'end_date'],
                 'show_list': [
                     ('name', _(u'Titre')),
                     ('start_date', _(u'Du')),
                     ('end_date', _(u'Au')),
                     ('place', _(u'Lieu')),
                     ('nb_spec', _(u'Nb personnes attendues')),
-                ]},
+                ]
+            },
         ]
 
     class MetaState:
@@ -200,6 +202,7 @@ class SubventionLine(models.Model, GenericModelUsedAsLine):
     nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
+    order = models.SmallIntegerField(_(u'Ordre de la ligne'))
 
     def __unicode__(self):
-        return "{}:{}".format(self.subvention.name, self.name)
+        return u"{}:{}".format(self.subvention.name, self.name)

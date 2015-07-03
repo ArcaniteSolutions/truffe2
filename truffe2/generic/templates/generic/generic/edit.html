@@ -65,13 +65,15 @@
                                 <td>{% simple_bootstrap_field field %}</td>
                             {% endfor %}
 
-                            <td>
+                            <td style="min-width: 53px;">
                                 <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="-ID-">
                                 <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
-
-                                <span style="cursor: move;" class="handle btn btn-default btn-xs">
-                                    <i class="fa fa-sort"></i>
-                                </span>
+    
+                                {% if line_data.sortable %}
+                                    <span style="cursor: move;" class="handle btn btn-default btn-xs">
+                                        <i class="fa fa-sort"></i>
+                                    </span>
+                                {% endif %}
                             </td>
                         </tr>
 
@@ -95,7 +97,7 @@
                     </tbody>
                 </table>
 
-                <a href="#" onclick="lines_add_line_{{line_data.related_name}}();" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> {% trans "Ajouter" %}</a>
+                <a href="#" onclick="lines_add_line_{{line_data.related_name}}(); return false;" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> {% trans "Ajouter" %}</a>
 
                 <hr style="clear: both; visibility: hidden;">
 
@@ -103,18 +105,23 @@
 
                     function lines_add_line_{{line_data.related_name}}() {
                         var html = $('#lines_new_form_{{line_data.related_name}}').html();
+                        var line_id = 'NEW-' + new Date().getTime();
 
-                        html = html.replace(/-ID-/g, 'NEW-' + new Date().getTime());
+                        html = html.replace(/-ID-/g, line_id);
 
                         html = '<tr>' + html + '</tr>';
 
                         $('#lines_tbody_{{line_data.related_name}}').append(html);
 
+                        {% for field in line_data.date_fields %}
+                            $("#id__LINES_{{line_data.related_name}}_" + line_id + "-{{field}}").datetimepicker({format: 'yyyy-mm-dd', weekStart: 1, autoclose: true, todayBtn: true});
+                        {% endfor %}
+
                         lines_make_sortable_{{line_data.related_name}}();
                     }
 
                     function lines_remove_line_{{line_data.related_name}}(elem) {
-                        $(elem).parent().parent().remove();
+                        $(elem).parents('tr').remove();
                         lines_make_sortable_{{line_data.related_name}}();
                     }
 
