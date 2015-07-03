@@ -121,7 +121,7 @@
                     }
 
                     function lines_remove_line_{{line_data.related_name}}(elem) {
-                        $(elem).parent().parent().remove();
+                        $(elem).parents('tr').remove();
                         lines_make_sortable_{{line_data.related_name}}();
                     }
 

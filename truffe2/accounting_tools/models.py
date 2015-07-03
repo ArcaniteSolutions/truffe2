@@ -205,4 +205,4 @@ class SubventionLine(models.Model, GenericModelUsedAsLine):
     order = models.SmallIntegerField(_(u'Ordre de la ligne'))
 
     def __unicode__(self):
-        return "{}:{}".format(self.subvention.name, self.name)
+        return u"{}:{}".format(self.subvention.name, self.name)
