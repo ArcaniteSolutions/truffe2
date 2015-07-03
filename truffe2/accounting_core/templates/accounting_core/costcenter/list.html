@@ -1,0 +1,11 @@
+{% extends "generic/generic/list.html" %}
+{% load i18n rights_extras %}
+
+{% block extrabuttons %}
+    {% ifhasright Model user '!SHOW' %}
+        <a href="{% url 'accounting_core.views.pdf_list_cost_centers' CURRENT_YEAR_PK %}" class="btn bg-color-teal txt-color-white">
+            <i class="fa fa-download"></i>
+            {% trans "Liste des centres de coûts" %}
+        </a>
+    {% endifhasright %}
+{% endblock %}
