@@ -7,11 +7,9 @@
     {% elif level == 3 %}
         <b style="font-size: 18px;">{{cat.name}}</b><br/>
     {% else %}
-        <a class="btn btn-danger">{{cat.name}}</a> {# Ne doit pas arriver, je dois regarder #}
+        <a class="btn btn-danger">{{cat.name}}</a> {# Should never happen #}
     {% endif %}
     
-    {{cat.print_all}}
-
     {% for sub_cat in cat.get_children_categories %}
         {% with level=level|add:"1" cat=sub_cat template="accounting_core/account/sub_ac_pdf.html" %}{% include template %}{% endwith %}
     {% empty %} {# if cat is a leaf #}
