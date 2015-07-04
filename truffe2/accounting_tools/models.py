@@ -5,13 +5,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, GenericModelUsedAsLine
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, GenericModelUsedAsLine, GenericModelWithFiles
 from rights.utils import UnitExternalEditableModel, UnitEditableModel
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
 
 
-class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
+class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
 
     SUBVENTION_TYPE = (
         ('subvention', _(u'Subvention')),
@@ -35,6 +35,10 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         abstract = True
         unique_together = (("unit", "unit_blank_name", "accounting_year"),)
 
+    class MetaEdit:
+        files_title = _(u'Fichiers')
+        files_help = _(u'Envoie les fichiers nécessaires pour ta demande de subvention.')
+
     class MetaData:
         list_display = [
             ('name', _(u'Projet')),
@@ -49,6 +53,7 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
         extra_right_display = {'comment_root': lambda (obj, user): obj.rights_can('LIST', user)}
 
+        files_title = _(u'Fichiers')
         base_title = _(u'Subvention')
         list_title = _(u'Liste des demandes de subvention')
         base_icon = 'fa fa-list'
@@ -64,6 +69,26 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
 
     class MetaAccounting:
         copiable = False
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Evènements'),
+                'class': 'accounting_tools.models.SubventionLine',
+                'form': 'accounting_tools.forms.SubventionLineForm',
+                'related_name': 'events',
+                'field': 'subvention',
+                'sortable': True,
+                'date_fields': ['start_date', 'end_date'],
+                'show_list': [
+                    ('name', _(u'Titre')),
+                    ('start_date', _(u'Du')),
+                    ('end_date', _(u'Au')),
+                    ('place', _(u'Lieu')),
+                    ('nb_spec', _(u'Nb personnes attendues')),
+                ]
+            },
+        ]
 
     class MetaState:
 
@@ -151,8 +176,9 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         """Remove fields that should be edited by CDD only."""
 
         if not self.rights_in_root_unit(current_user, self.MetaRightsUnit.access):
-            for key in ['amount_given', 'mobility_given', 'comment_root', 'kind']:
+            for key in ['amount_given', 'mobility_given', 'comment_root']:
                 del form.fields[key]
+            form.fields['kind'].widget = forms.HiddenInput()
 
     def rights_can_EXPORT(self, user):
         return self.rights_in_root_unit(user)
@@ -168,7 +194,7 @@ class _Subvention(GenericModel, AccountingYearLinked, GenericStateModel, Generic
         return total
 
 
-class SubventionLine(models.Model):
+class SubventionLine(models.Model, GenericModelUsedAsLine):
     name = models.CharField(_(u'Nom de l\'évènement'), max_length=255)
     start_date = models.DateField(_(u'Début de l\'évènement'))
     end_date = models.DateField(_(u'Fin de l\'évènement'))
@@ -176,6 +202,10 @@ class SubventionLine(models.Model):
     nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
+    order = models.SmallIntegerField(_(u'Ordre de la ligne'))
+
+    def __unicode__(self):
+        return u"{}:{}".format(self.subvention.name, self.name)
 
 
 class _Invoice(GenericModel, CostCenterLinked, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
