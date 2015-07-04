@@ -309,6 +309,8 @@
 
             $.ajax('{% url 'accounting_core.views.costcenter_available_list' %}' + bonus).success(function (data) {
 
+                var old_value = $('#id_costcenter').val();
+
                 var options = '<option value=""></option>';
 
                 $.each(data.data, function (index, option) {
@@ -322,7 +324,10 @@
 
                 $('#id_costcenter').html(options);
 
+                $('#id_costcenter').val(old_value);
+
                 $('#id_costcenter').select2();
+
 
             });
 
