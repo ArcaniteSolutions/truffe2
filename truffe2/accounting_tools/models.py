@@ -250,9 +250,13 @@ class _Invoice(GenericModel, CostCenterLinked, GenericModelWithLines, Accounting
                 'related_name': 'lines',
                 'field': 'invoice',
                 'sortable': True,
+                'tva_fields': ['tva'],
                 'show_list': [
                     ('label', _(u'Titre')),
+                    ('quantity', _(u'Quantité')),
                     ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('total', _(u'Montant (TTC)')),
                 ]},
         ]
 
@@ -268,7 +272,16 @@ class InvoiceLine(ModelUsedAsLine):
     invoice = models.ForeignKey('Invoice', related_name="lines")
 
     label = models.CharField(_(u'Titre'), max_length=255)
+    quantity = models.DecimalField(_(u'Quantité'), max_digits=20, decimal_places=0, default=1)
     value = models.DecimalField(_('Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_('TVA'), max_digits=20, decimal_places=2)
 
     def __unicode__(self):
-        return u'%s: %s' % (self.label, self.value,)
+        return u'%s: %s * %s + %s%%' % (self.label, self.quantity, self.value, self.tva)
+
+    def total(self):
+        return float(self.quantity) * (float(self.value) + (float(self.value) * float(self.tva) / 100.0))
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)

@@ -390,5 +390,27 @@ class _TVA(GenericModel, AgepolyEditableModel):
 
 Les TVA ne sont pas liées aux autres objets comptables, il est possible de les modifier à tout moment sans risques.""")
 
+    def __init__(self, *args, **kwargs):
+        super(_TVA, self).__init__(*args, **kwargs)
+
+        self.MetaRights.rights_update({
+            'ANYTVA': _(u'Peut utiliser n\'importe quelle valeure de TVA.'),
+        })
+
     def __unicode__(self):
         return u"{}% ({})".format(self.value, self.name)
+
+    def rights_can_ANYTVA(self, user):
+        return self.rights_in_root_unit(user, 'TRESORERIE')
+
+    @staticmethod
+    def tva_format(tva):
+
+        from accounting_core.models import TVA
+
+        try:
+            tva_object = TVA.objects.get(value=tva)
+        except:
+            tva_object = None
+
+        return u'{}% ({})'.format(tva, tva_object.name if tva_object else u'TVA Spéciale')

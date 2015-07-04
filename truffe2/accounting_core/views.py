@@ -6,6 +6,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
 
 
 import json
@@ -112,3 +113,52 @@ def pdf_list_accounts(request, pk):
     root_ac = AccountCategory.objects.filter(accounting_year=ay, parent_hierarchique=None).order_by('order')
 
     return generate_pdf("accounting_core/account/liste_pdf.html", {'root_ac': root_ac, 'ay': ay, 'user': request.user, 'cdate': now()})
+
+
+@login_required
+def tva_available_list(request):
+    """Return the list of available TVA for a user"""
+    from accounting_core.models import TVA
+
+    tvas = TVA.objects.filter(deleted=False).order_by('value')
+
+    if not TVA.static_rights_can('ANYTVA', request.user):
+        tvas = tvas.filter(onlyagepoly=False)
+
+    q = request.GET.get('q')
+    init = request.GET.get('init')
+
+    bonus_tva = []
+
+    if q:
+        try:
+            value_q = float(q)
+            tvas = tvas.filter(Q(name__istartswith=q) | Q(value__istartswith=value_q))
+
+            if TVA.static_rights_can('ANYTVA', request.user):
+                bonus_tva = [{'id': value_q, 'text': '{}% (TVA Spéciale)'.format(value_q)}]
+        except:
+            tvas = tvas.filter(name__istartswith=q)
+
+    if init:
+        try:
+            value_q = float(init)
+            tvas = tvas.filter(Q(value__istartswith=value_q))
+
+            bonus_tva = [{'id': value_q, 'text': '{}% (TVA Spéciale)'.format(value_q)}]
+        except:
+            tvas = tvas.filter(name__istartswith=q)
+
+    retour = [{'id': float(tva.value), 'text': tva.__unicode__()} for tva in tvas]
+
+    if bonus_tva:
+        bonus_tva_exists = False
+
+        for tva_data in retour:
+            if tva_data['id'] == bonus_tva[0]['id']:
+                bonus_tva_exists = True
+
+        if not bonus_tva_exists:
+            retour = bonus_tva + retour
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')

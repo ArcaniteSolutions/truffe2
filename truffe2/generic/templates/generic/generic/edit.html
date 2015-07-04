@@ -103,6 +103,18 @@
 
                 <script type="text/javascript">
 
+                    $(function () {
+                        {% for line_form in line_data.forms %}
+                            {% for field in line_data.date_fields %}
+                                $("#id__LINES_{{line_data.related_name}}_{{line_form.id}}-{{field}}").datetimepicker({format: 'yyyy-mm-dd', weekStart: 1, autoclose: true, todayBtn: true});
+                            {% endfor %}
+
+                            {% for field in line_data.tva_fields %}
+                                switch_to_tva_field($("#id__LINES_{{line_data.related_name}}_{{line_form.id}}-{{field}}"));
+                            {% endfor %}
+                        {% endfor %}
+                    });
+
                     function lines_add_line_{{line_data.related_name}}() {
                         var html = $('#lines_new_form_{{line_data.related_name}}').html();
 
@@ -116,6 +128,10 @@
 
                         {% for field in line_data.date_fields %}
                             $("#id__LINES_{{line_data.related_name}}_" + line_id + "-{{field}}").datetimepicker({format: 'yyyy-mm-dd', weekStart: 1, autoclose: true, todayBtn: true});
+                        {% endfor %}
+
+                        {% for field in line_data.tva_fields %}
+                            switch_to_tva_field($("#id__LINES_{{line_data.related_name}}_" + line_id + "-{{field}}"));
                         {% endfor %}
 
                         lines_make_sortable_{{line_data.related_name}}();
@@ -319,6 +335,37 @@
         });
 
     {% endif %}
+
+    function switch_to_tva_field(field) {
+        field.css('width', '100%').addClass('select2').removeClass('form-control').select2({
+            ajax: {
+                url: '{% url 'accounting_core.views.tva_available_list' %}',
+                dataType: "json",
+                data: function(term, page) {
+                    return {
+                      q: term
+                    };
+                },
+                results: function(data, page) {
+                    return {
+                      results: data
+                    };
+                  }
+            },
+
+            initSelection: function (element, callback) {
+                $.ajax('{% url 'accounting_core.views.tva_available_list' %}?init=' + $(element).val()).success(function (data) {
+                    callback(data[0]);
+                });
+            },
+        });
+    }
+
+    {% for field in Model.MetaEdit.tva_fields %}
+        $(function () {
+            switch_to_tva_field($('#id_{{field}}'));
+        });
+    {% endfor %}
 
 </script>
 
