@@ -510,7 +510,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     if line_data['sortable']:
                         line_objs = line_objs.order_by('order')
                     else:
-                        line_objs = line_objs.all()
+                        line_objs = line_objs.order_by('pk')
 
                     for line_obj in line_objs:
                         line_form = line_data['form'](instance=line_obj, prefix="_LINES_%s_%s" % (line_data['related_name'], line_obj.pk))
@@ -598,7 +598,7 @@ def generate_show(module, base_name, model_class, log_class):
                 if line_data['sortable']:
                     line_objs = line_objs.order_by('order')
                 else:
-                    line_objs = line_objs.all()
+                    line_objs = line_objs.order_by('pk')
 
                 line_data['elems'] = line_objs
 
