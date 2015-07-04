@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, GenericModelUsedAsLine, GenericModelWithFiles
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles
 from rights.utils import UnitExternalEditableModel, UnitEditableModel
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
@@ -194,7 +194,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         return total
 
 
-class SubventionLine(models.Model, GenericModelUsedAsLine):
+class SubventionLine(ModelUsedAsLine):
     name = models.CharField(_(u'Nom de l\'évènement'), max_length=255)
     start_date = models.DateField(_(u'Début de l\'évènement'))
     end_date = models.DateField(_(u'Fin de l\'évènement'))
@@ -202,7 +202,6 @@ class SubventionLine(models.Model, GenericModelUsedAsLine):
     nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
-    order = models.SmallIntegerField(_(u'Ordre de la ligne'))
 
     def __unicode__(self):
         return u"{}:{}".format(self.subvention.name, self.name)
@@ -264,14 +263,12 @@ class _Invoice(GenericModel, CostCenterLinked, GenericModelWithLines, Accounting
         return self.title
 
 
-class InvoiceLine(models.Model, GenericModelUsedAsLine):
+class InvoiceLine(ModelUsedAsLine):
 
     invoice = models.ForeignKey('Invoice', related_name="lines")
 
     label = models.CharField(_(u'Titre'), max_length=255)
     value = models.DecimalField(_('Montant (HT)'), max_digits=20, decimal_places=2)
-
-    order = models.SmallIntegerField(default=0)
 
     def __unicode__(self):
         return u'%s: %s' % (self.label, self.value,)

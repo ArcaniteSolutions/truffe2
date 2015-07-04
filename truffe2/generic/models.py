@@ -790,6 +790,8 @@ class GenericModelWithLines(object):
         ]
 
 
-class GenericModelUsedAsLine(object):
-    pass
+class ModelUsedAsLine(models.Model):
+    order = models.SmallIntegerField(default=0)
 
+    class Meta:
+        abstract = True
