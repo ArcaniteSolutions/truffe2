@@ -128,6 +128,7 @@
 
 
                     var already_sorted_{{line_data.related_name}} = false;
+                    var isFirefox = /firefox/.test(navigator.userAgent.toLowerCase());
 
                     function lines_make_sortable_{{line_data.related_name}}() {
                         {% if line_data.sortable %}
@@ -138,8 +139,19 @@
                                 already_sorted_{{line_data.related_name}};
                             }
 
+
                             $('#lines_tbody_{{line_data.related_name}}').sortable({
                                 handle: '.handle',
+                                start: function(ev, ui) {
+                                    if(isFirefox) {
+                                        ui.item.css('margin-top', $(window).scrollTop());
+                                    }
+                                },
+                                beforeStop: function (ev, ui) {
+                                    if(isFirefox) {
+                                        ui.item.css('margin-top', 0);
+                                    }
+                                }
                             });
                         {% endif %}
                     }
