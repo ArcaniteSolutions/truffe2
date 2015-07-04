@@ -44,6 +44,9 @@ class GenericForm(ModelForm):
         from accounting_core.utils import CostCenterLinked
 
         if 'costcenter' in self.fields and issubclass(self.Meta.model, CostCenterLinked):
+            if 'costcenter' not in cleaned_data:
+                raise ValidationError(_(u'Aucun centre de couts sélectionné !'))
+
             if hasattr(self.instance, 'unit') and self.instance.unit != cleaned_data['costcenter'].unit:
                 raise ValidationError(_(u'Le centre de cout n\'est pas lié à l\'unité !'))
 
