@@ -214,6 +214,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
     name = models.CharField(_(u'Nom de la catégorie'), max_length=255)
     description = models.TextField(_('Description'), blank=True, null=True)
     parent_hierarchique = models.ForeignKey('AccountCategory', null=True, blank=True, help_text=_(u'Catégorie parente pour la hiérarchie'))
+    order = models.SmallIntegerField(_(u'Ordre dans le plan comptable'), default=0, help_text=_(u'Le plus petit d\'abord'))
 
     class Meta:
         abstract = True
@@ -227,9 +228,10 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
 
         details_display = list_display + [('accounting_year', _(u'Année Comptable')), ('description', _(u'Description'))]
 
-        default_sort = "[1, 'asc']"  # name
+        default_sort = "[3, 'asc']"  # pk -> order
+        trans_sort = {'pk': 'order'}
 
-        filter_fields = ('name', 'parent_hierarchique')
+        filter_fields = ('name',)
 
         base_title = _(u'Catégories des comptes de CG')
         list_title = _(u'Liste des catégories')
@@ -261,8 +263,11 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
 
     def get_children_categories(self):
         """Return the categories whose parent is self."""
-        from accounting_core.models import AccountCategory
-        return AccountCategory.objects.filter(parent_hierarchique=self)
+        return self.accountcategory_set.order_by('order', 'name')
+
+    def get_accounts(self):
+        """Return the list of accounts whose category is self ordered by account number."""
+        return self.account_set.order_by('account_number')
 
 
 class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
@@ -335,3 +340,13 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
 
         if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
             raise forms.ValidationError(_(u'Un compte de CG avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+    def user_can_see(self, user):
+        if self.visibility == 'none':
+            return False
+        elif self.visibility == 'root':
+            return self.rights_in_root_unit(user, 'TRESORERIE')
+        elif self.visibility == 'cdd':
+            return user in self.people_in_root_unit()
+        elif self.visibility == 'all':
+            return not user.is_external()

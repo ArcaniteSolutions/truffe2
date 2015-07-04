@@ -1,0 +1,72 @@
+{% load i18n %}
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style>
+            @page {
+                size: a4 portrait;
+                margin: 1cm;
+                margin-bottom: 2cm;
+
+                @frame footer {
+                    -pdf-frame-content: footerContent;
+                    bottom: 0cm;
+                    margin-left: 1cm;
+                    margin-right: 1cm;
+                    height: 1cm;
+                }
+            }
+
+            body {
+                font-family: "DejaVu Sans, Open Sans";
+            }
+
+            .tr-a {
+                border-bottom: 2px black solid;
+                font-weight: bold;
+            }
+
+            .tr-b {
+                border-top: 2px black solid;
+            }
+
+            tr {
+                border-bottom: 1px #ddd solid;
+            }
+
+            .liste, .summary {
+                font-size: 15px;
+                padding-top: 5px;
+                text-align: center;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des centres de coûts pour" %} {{ay.name}}</h3>
+
+        <table class="liste">
+            <tr class="tr-a">
+                <td>{% trans "Compte n°" %}</td>
+                <td>{% trans "Nom" %}</td>
+                <td>{% trans "Description" %}</td>
+            </tr>
+            {% for cc in cost_centers %}
+                <tr>
+                    <td width="14%">{{cc.account_number}}</td>
+                    <td style="font-size:14px;">{{cc.name}}</td>
+                    <td style="font-size:10px;">{{cc.description}}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align:center;">{% trans "Pas de centres de coûts pour cette année" %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
+
+    </body>
+
+</html>
