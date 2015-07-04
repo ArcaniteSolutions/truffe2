@@ -393,6 +393,7 @@ Les TVA ne sont pas liées aux autres objets comptables, il est possible de les 
     def __init__(self, *args, **kwargs):
         super(_TVA, self).__init__(*args, **kwargs)
 
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
         self.MetaRights.rights_update({
             'ANYTVA': _(u'Peut utiliser n\'importe quelle valeure de TVA.'),
         })

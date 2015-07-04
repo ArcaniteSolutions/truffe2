@@ -45,7 +45,6 @@
                 <input type="hidden" id="input_ypk" name="ypk" value="{{form.instance.accounting_year.pk}}">
             {% endif %}
 
-
             {% for line_data in lines_objects %}
                 <h3>{{line_data.title}}</h3>
 
@@ -176,6 +175,88 @@
                 </script>
 
             {% endfor %}
+
+            {% if tag_mode %}
+                <h3>{% trans "Tags" %}</h3>
+
+                <div class="form-group">
+                    <label class="control-label" for="tags">
+                    </label>
+                    <div class="col-md-12">
+                        <input id="tags" name="tags" placeholder="Tags" required="required" title="" value="{% for t in tags %}{{t}}{% if not forloop.last %},{% endif %}{% endfor %}" type="text">
+                        <span class="help-block">
+                            {% trans "Tu peux utiliser n'importe quel tag pour classer et mieux retrouner tes différents objets." %}
+                        </span>
+                    </div>
+                </div>
+
+                <script type="text/javascript">
+
+                    function escape_html(html) {
+                        return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    }
+
+                    $(function () {
+
+                        $('#tags').css('width', '100%').select2({
+                            tags: true,
+                            tokenSeparators: [","],
+                            minimumInputLength: 3,
+                            createSearchChoice: function(term, data) {
+                                if ($(data).filter(function() {
+                                    return this.text.localeCompare(term) === 0;
+                                }).length === 0) {
+                                    return {
+                                        id: term,
+                                        text: term
+                                    };
+                                }
+                            },
+                            multiple: true,
+                            ajax: {
+                                url: '{% url tag_search_view %}',
+                                dataType: "json",
+                                data: function(term, page) {
+                                    return {
+                                        q: term,
+                                        {% if unit_mode %}
+                                            upk: $('#input_upk').val(),
+                                        {% endif %}
+                                        {% if year_mode %}
+                                            ypk: $('#input_ypk').val(),
+                                        {% endif %}
+                                    };
+                                },
+                                results: function(data, page) {
+                                    return {
+                                        results: data
+                                    };
+                                }
+                            },
+                            initSelection: function (element, callback) {
+
+                                var ids = $(element).val();
+
+                                var data = new Array();
+
+                                jQuery(ids.split(',')).each(function (_, e) {
+                                    data.push({id: e, text: e});
+                                });
+
+                                callback(data);
+                            },
+                            formatResult: function(t) {
+                                return "<div class='select2-user-result'><i class='fa fa-tag'></i> " + escape_html(t.text) + "</div>";
+                            },
+                            formatSelection: function(t) {
+                                return "<i class='fa fa-tag'></i> " + escape_html(t.text);
+                            },
+                        });
+
+                    });
+
+                </script>
+            {% endif %}
         </form>
 
         {% if file_mode %}

@@ -109,6 +109,14 @@
                         </div>
                     {% endif %}
 
+                    {% if tags %}
+                        <h3>{% trans "Tags" %}</h3>
+
+                        {% for t in tags %}
+                            <a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}?tag={{t}}" class="label label-info"><i class="fa fa-tag"></i> {{t}}</a>
+                        {% endfor %}
+                    {% endif %}
+
                 {% include "widget/footer.html" %}
             </div>
 

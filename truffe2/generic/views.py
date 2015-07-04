@@ -87,7 +87,7 @@ def get_year_data(model_class, request):
     return year_mode, current_year, AccountingYear
 
 
-def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False, bonus_args_transformator=None):
+def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False, bonus_args_transformator=None, tag_class=None):
 
     @login_required
     def _generic_generic_list(request, **bonus_args):
@@ -98,6 +98,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         deleted_view = '%s.views.%s_deleted' % (module.__name__, base_name)
         status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
         logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
+        tag_search_view = '%s.views.%s_tag_search' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
@@ -139,10 +140,10 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
             extra_data = {}
 
         data = {
-            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view, 'logs_view': logs_view,
+            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view, 'logs_view': logs_view, 'tag_search_view': tag_search_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'year_mode': year_mode, 'years_available': AccountingYear.build_year_menu('LIST', request.user),
-            'moderables': moderables, 'object_filter': objects,
+            'moderables': moderables, 'object_filter': objects, 'tag_mode': tag_class is not None, 'tag': request.GET.get('tag', ''),
         }
 
         data.update(extra_data)
@@ -152,12 +153,12 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
     return _generic_generic_list
 
 
-def generate_list(module, base_name, model_class):
+def generate_list(module, base_name, model_class, tag_class):
 
-    return generate_generic_list(module, base_name, model_class, '_list_json', 'LIST', 'CREATE', 'list', True)
+    return generate_generic_list(module, base_name, model_class, '_list_json', 'LIST', 'CREATE', 'list', True, tag_class=tag_class)
 
 
-def generate_list_json(module, base_name, model_class):
+def generate_list_json(module, base_name, model_class, tag_class):
 
     @login_required
     @csrf_exempt
@@ -187,6 +188,13 @@ def generate_list_json(module, base_name, model_class):
         else:
             filter__ = filter_
 
+        tag = request.GET.get('tag')
+
+        if tag_class and tag:
+            filter___ = lambda x: filter__(x).filter(tags__tag=tag).distinct()
+        else:
+            filter___ = filter__
+
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
             raise Http404
 
@@ -199,7 +207,7 @@ def generate_list_json(module, base_name, model_class):
              'list_display': model_class.MetaData.list_display,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter__,
+            bonus_filter_function=filter___,
             selector_column=True,
         )
 
@@ -263,7 +271,7 @@ def generate_list_related_json(module, base_name, model_class):
     return _generic_list_json
 
 
-def generate_edit(module, base_name, model_class, form_class, log_class, file_class):
+def generate_edit(module, base_name, model_class, form_class, log_class, file_class, tag_class):
 
     @login_required
     @csrf_exempt
@@ -276,6 +284,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         file_delete_view = '%s.views.%s_file_delete' % (module.__name__, base_name)
         file_get_view = '%s.views.%s_file_get' % (module.__name__, base_name)
         file_get_thumbnail_view = '%s.views.%s_file_get_thumbnail' % (module.__name__, base_name)
+        tag_search_view = '%s.views.%s_tag_search' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -351,12 +360,21 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 line_data['new_form'] = line_data['form'](prefix="_LINES_%s_-ID-" % (line_data['related_name'],))
                 line_data['forms'] = []
 
+        tag_mode = tag_class is not None
+        tags = []
+
+        if tag_mode:
+            tags_before = ','.join([t.tag for t in obj.tags.order_by('tag')]) if obj.pk else ''
+
         if request.method == 'POST':  # If the form has been submitted...
             form = form_class(request.user, request.POST, request.FILES, instance=obj)
             form.truffe_request = request
 
             if file_mode:
                 file_key = request.POST.get('file_key')
+
+            if tag_mode:
+                tags = filter(lambda t: t, request.POST.get('tags').split(', '))
 
             all_forms_valids = True
 
@@ -442,6 +460,14 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         # Clean up session
                         del request.session['pca_files_%s' % (file_key,)]
 
+                if tag_mode:
+                    for t in tags:
+                        __, ___ = tag_class.objects.get_or_create(tag=t, object=obj)
+
+                    tag_class.objects.filter(object=obj).exclude(tag__in=tags).delete()
+
+                    tags_after = ', '.join([t.tag for t in obj.tags.order_by('tag')])
+
                 if isinstance(obj, BasicRightModel):
                     obj.rights_expire()
 
@@ -482,6 +508,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     edited.update(lines_updates)
                     deleted.update(lines_deletes)
 
+                    if tags_before != tags_after:
+                        edited['tags'] = (tags_before, tags_after)
+
                     diff = {'added': added, 'edited': edited, 'deleted': deleted}
 
                     log_class(who=request.user, what='edited', object=obj, extra_data=json.dumps(diff)).save()
@@ -517,6 +546,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         line_form_data = {'id': line_obj.pk, 'form': line_form}
                         line_data['forms'].append(line_form_data)
 
+            if tag_mode:
+                tags = [t.tag for t in obj.tags.all()] if obj.pk else []
+
         if file_mode:
             files = [file_class.objects.get(pk=pk_) for pk_ in request.session['pca_files_%s' % (file_key,)]]
         else:
@@ -531,12 +563,13 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user),
             'related_mode': related_mode, 'list_related_view': list_related_view,
             'file_mode': file_mode, 'file_upload_view': file_upload_view, 'file_delete_view': file_delete_view, 'files': files, 'file_key': file_key, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
-            'lines_objects': lines_objects, 'costcenter_mode': costcenter_mode})
+            'lines_objects': lines_objects, 'costcenter_mode': costcenter_mode,
+            'tag_mode': tag_mode, 'tags': tags, 'tag_search_view': tag_search_view})
 
     return _generic_edit
 
 
-def generate_show(module, base_name, model_class, log_class):
+def generate_show(module, base_name, model_class, log_class, tag_class):
 
     @login_required
     def _generic_show(request, pk):
@@ -602,6 +635,11 @@ def generate_show(module, base_name, model_class, log_class):
 
                 line_data['elems'] = line_objs
 
+        tags = []
+
+        if tag_class:
+            tags = [t.tag for t in obj.tags.order_by('tag')]
+
         return render(request, ['%s/%s/show.html' % (module.__name__, base_name), 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
             'obj': obj, 'log_entires': log_entires,
@@ -610,6 +648,7 @@ def generate_show(module, base_name, model_class, log_class):
             'year_mode': year_mode, 'current_year': current_year,
             'contactables_groups': contactables_groups,
             'related_mode': related_mode, 'lines_objects': lines_objects,
+            'tags': tags,
         })
 
     return _generic_show
@@ -1290,3 +1329,50 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
         return sendfile(request, '%s%s' % (settings.MEDIA_ROOT, thumb,))
 
     return _generic_file_thumbnail
+
+
+def generate_tag_search(module, base_name, model_class, log_class, tag_class):
+
+    @login_required
+    def _generic_tag_search(request):
+
+        upk = request.GET.get('upk')
+
+        if upk:
+            from units.models import Unit
+            unit = get_object_or_404(Unit, pk=upk)
+        else:
+            unit = None
+
+        ypk = request.GET.get('ypk')
+
+        if ypk:
+            from accounting_core.models import AccountingYear
+            year = get_object_or_404(AccountingYear, pk=ypk)
+        else:
+            year = None
+
+        q = request.GET.get('q')
+
+        tags = tag_class.objects
+
+        if q:
+            tags = tags.filter(tag__istartswith=q)
+
+        if unit:
+            tags = tags.filter(object__unit=unit)
+
+        if year:
+            tags = tags.filter(object__accounting_year=year)
+
+        retour = []
+
+        for t in tags.order_by('tag'):
+            if t.tag not in retour:
+                retour.append(t.tag)
+
+        retour = [{'id': tag, 'text': tag} for tag in retour]
+
+        return HttpResponse(json.dumps(retour), content_type='text/json')
+
+    return _generic_tag_search

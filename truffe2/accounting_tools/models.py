@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
 from rights.utils import UnitExternalEditableModel, UnitEditableModel
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
@@ -138,6 +138,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
     def __init__(self, *args, **kwargs):
         super(_Subvention, self).__init__(*args, **kwargs)
 
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
         self.MetaRights.rights_update({
             'EXPORT': _(u'Peut exporter les éléments'),
         })
@@ -207,7 +208,7 @@ class SubventionLine(ModelUsedAsLine):
         return u"{}:{}".format(self.subvention.name, self.name)
 
 
-class _Invoice(GenericModel, CostCenterLinked, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
+class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'TRESORERIE'
