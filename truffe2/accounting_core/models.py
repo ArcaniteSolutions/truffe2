@@ -350,3 +350,45 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
             return user in self.people_in_root_unit()
         elif self.visibility == 'all':
             return not user.is_external()
+
+
+class _TVA(GenericModel, AgepolyEditableModel):
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'TRESORERIE'
+        world_ro_access = True
+
+    name = models.CharField(_(u'Nom de la TVA'), max_length=255)
+    value = models.DecimalField(_('Valeur (%)'), max_digits=20, decimal_places=2)
+    onlyagepoly = models.BooleanField(_(u'Limiter l\'usage au comité de l\'AGEPoly'), default=False)
+
+    class Meta:
+        abstract = True
+
+    class MetaData:
+        list_display = [
+            ('name', _(u'Nom')),
+            ('value', _(u'Valeur (%)')),
+            ('onlyagepoly', _(u'Limité AGEPoly ?')),
+        ]
+
+        default_sort = "[1, 'asc']"  # name
+
+        details_display = list_display
+        filter_fields = ('name', 'value',)
+
+        base_title = _(u'TVA')
+        list_title = _(u'Liste des TVAs')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-certificate'
+
+        menu_id = 'menu-compta-tva'
+
+        yes_or_no_fields = ['onlyagepoly',]
+
+        help_list = _(u"""Les TVA sélectionnables dans les champs de TVA. Il est possible de restrainre l'usage de certaines TVA au CDD.
+
+Les TVA ne sont pas liées aux autres objets comptables, il est possible de les modifier à tout moment sans risques.""")
+
+    def __unicode__(self):
+        return u"{}% ({})".format(self.value, self.name)

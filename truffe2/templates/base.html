@@ -344,6 +344,11 @@
                                                 <a href="{% url 'accounting_core.views.accountcategory_list' %}"><i class="fa fa-lg fa-fw fa-smile-o"></i> {% trans "Catégories des comptes" %}</a>
                                             </li>
                                         {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.TVA' user 'LIST' %}
+                                            <li id="menu-compta-tva">
+                                                <a href="{% url 'accounting_core.views.tva_list' %}"><i class="fa fa-lg fa-fw fa-certificate"></i> {% trans "TVAs" %}</a>
+                                            </li>
+                                        {% endifhasright %}
                                     </ul>
                                 </li>
                                 <li>
