@@ -77,7 +77,13 @@
                                     {% for obj_line in line_data.elems %}
                                         <tr>
                                             {% for field in line_data.show_list %}
-                                                <th>{{obj_line|get_attr:field.0|default:"&nbsp;"|linebreaksbr}}</th>
+                                                <th>
+                                                  {% if field.0 in line_data.date_fields %}
+                                                      {{obj_line|get_attr:field.0|date:"d.m.Y"}}
+                                                  {% else %}
+                                                      {{obj_line|get_attr:field.0|default:"&nbsp;"|linebreaksbr}}
+                                                  {% endif %}
+                                                </th>
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}
