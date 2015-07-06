@@ -45,13 +45,13 @@ class GenericForm(ModelForm):
 
         if 'costcenter' in self.fields and issubclass(self.Meta.model, CostCenterLinked):
             if 'costcenter' not in cleaned_data:
-                raise ValidationError(_(u'Aucun centre de couts sélectionné !'))
+                raise ValidationError(_(u'Aucun centre de coûts sélectionné !'))
 
             if hasattr(self.instance, 'unit') and self.instance.unit != cleaned_data['costcenter'].unit:
-                raise ValidationError(_(u'Le centre de cout n\'est pas lié à l\'unité !'))
+                raise ValidationError(_(u'Le centre de coût n\'est pas lié à l\'unité !'))
 
             if hasattr(self.instance, 'accounting_year') and self.instance.accounting_year != cleaned_data['costcenter'].accounting_year:
-                raise ValidationError(_(u'Le centre de cout n\'est pas lié à l\'année comptable !'))
+                raise ValidationError(_(u'Le centre de coût n\'est pas lié à l\'année comptable !'))
 
         return cleaned_data
 

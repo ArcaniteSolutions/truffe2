@@ -40,12 +40,12 @@ class AccountingYearLinked(object):
 
 
 class CostCenterLinked(object):
-    """Un objet lié à centre de cout. Filtre automatiquement si l'objet est lié à une unité et/ou une année comptable"""
+    """Un objet lié à centre de coût. Filtre automatiquement si l'objet est lié à une unité et/ou une année comptable"""
 
     @staticmethod
     def do(module, models_module, model_class, cache):
         """Execute code at startup"""
 
         return {
-            'costcenter': models.ForeignKey(cache['accounting_core.models.CostCenter'], verbose_name=_(u'Centre de cout')),
+            'costcenter': models.ForeignKey(cache['accounting_core.models.CostCenter'], verbose_name=_(u'Centre de coût')),
         }

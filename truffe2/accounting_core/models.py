@@ -360,7 +360,7 @@ class _TVA(GenericModel, AgepolyEditableModel):
 
     name = models.CharField(_(u'Nom de la TVA'), max_length=255)
     value = models.DecimalField(_('Valeur (%)'), max_digits=20, decimal_places=2)
-    onlyagepoly = models.BooleanField(_(u'Limiter l\'usage au comité de l\'AGEPoly'), default=False)
+    agepoly_only = models.BooleanField(_(u'Limiter l\'usage au comité de l\'AGEPoly'), default=False)
 
     class Meta:
         abstract = True
@@ -369,7 +369,7 @@ class _TVA(GenericModel, AgepolyEditableModel):
         list_display = [
             ('name', _(u'Nom')),
             ('value', _(u'Valeur (%)')),
-            ('onlyagepoly', _(u'Limité AGEPoly ?')),
+            ('agepoly_only', _(u'Limité AGEPoly ?')),
         ]
 
         default_sort = "[1, 'asc']"  # name
@@ -378,13 +378,13 @@ class _TVA(GenericModel, AgepolyEditableModel):
         filter_fields = ('name', 'value',)
 
         base_title = _(u'TVA')
-        list_title = _(u'Liste des TVAs')
+        list_title = _(u'Liste des taux de TVA')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-certificate'
 
         menu_id = 'menu-compta-tva'
 
-        yes_or_no_fields = ['onlyagepoly',]
+        yes_or_no_fields = ['agepoly_only',]
 
         help_list = _(u"""Les TVA sélectionnables dans les champs de TVA. Il est possible de restrainre l'usage de certaines TVA au CDD.
 

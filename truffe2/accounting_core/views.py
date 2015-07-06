@@ -123,7 +123,7 @@ def tva_available_list(request):
     tvas = TVA.objects.filter(deleted=False).order_by('value')
 
     if not TVA.static_rights_can('ANYTVA', request.user):
-        tvas = tvas.filter(onlyagepoly=False)
+        tvas = tvas.filter(agepoly_only=False)
 
     q = request.GET.get('q')
     init = request.GET.get('init')
@@ -132,7 +132,7 @@ def tva_available_list(request):
 
     if q:
         try:
-            value_q = float(q)
+            value_q = round(float(q), 2)
             tvas = tvas.filter(Q(name__istartswith=q) | Q(value__istartswith=value_q))
 
             if TVA.static_rights_can('ANYTVA', request.user):
@@ -142,16 +142,16 @@ def tva_available_list(request):
 
     if init:
         try:
-            value_q = float(init)
-            tvas = tvas.filter(Q(value__istartswith=value_q))
+            value_init = round(float(q), 2)
+            tvas = tvas.filter(value__istartswith=value_init)
 
-            bonus_tva = [{'id': value_q, 'text': '{}% (TVA Spéciale)'.format(value_q)}]
+            bonus_tva = [{'id': value_init, 'text': '{}% (TVA Spéciale)'.format(value_q)}]
         except:
             tvas = tvas.filter(name__istartswith=q)
 
     retour = [{'id': float(tva.value), 'text': tva.__unicode__()} for tva in tvas]
 
-    if bonus_tva:
+    if bonus_tva:  # On rajoute, si n'existe pas déjà dans la liste retournée une entrée avec la valeur de la TVA recherchée par l'utilisateur
         bonus_tva_exists = False
 
         for tva_data in retour:

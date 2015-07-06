@@ -185,7 +185,7 @@
                     <div class="col-md-12">
                         <input id="tags" name="tags" placeholder="Tags" required="required" title="" value="{% for t in tags %}{{t}}{% if not forloop.last %},{% endif %}{% endfor %}" type="text">
                         <span class="help-block">
-                            {% trans "Tu peux utiliser n'importe quel tag pour classer et mieux retrouner tes différents objets." %}
+                            {% trans "Tu peux utiliser n'importe quel tag pour classer et mieux retrouver tes différents objets." %}
                         </span>
                     </div>
                 </div>
@@ -396,7 +396,7 @@
 
                 $.each(data.data, function (index, option) {
 
-                    options += '<option value="' + option.pk + '">' + option.name + '</option>';  //Injection possible, but costcenter are trusted
+                    options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
 
 
                 });
