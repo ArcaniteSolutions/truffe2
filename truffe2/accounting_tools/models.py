@@ -5,6 +5,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
+import datetime
+
+
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
 from rights.utils import UnitExternalEditableModel, UnitEditableModel
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -216,14 +219,39 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
     title = models.CharField(max_length=255)
     unit = FalseFK('units.models.Unit')
 
-    # TODO: Statut (Draft, Sent, TramisMarianne, Reçu), champs pdf
+    custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro alléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
+
+    address = models.TextField(_('Adresse'), help_text=_(u'Exemple: \'Monsieur Poney - Rue Des Canard 19 - 1015 Lausanne\''), blank=True, null=True)
+    date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
+    preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
+    ending = models.CharField(_(u'Conclusion'), help_text=_(u'Affiché après la liste, avant les moyens de payements'), max_length=1024, default='', blank=True, null=True)
+    display_bvr = models.BooleanField(_(u'Afficher payement via BVR'), help_text=_(u'Génère un BVR (il est possible d\'obtenir un \'vrai\' BVR via Marianne) et le texte corespondant'), default=True)
+    display_account = models.BooleanField(_(u'Afficher payement via compte'), help_text=_(u'Affiche le texte pour le payement via le compte de l\'AGEPoly.'), default=True)
+    greetins = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
+    sign = models.CharField(_(u'Signature'), max_length=512, help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
+    annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
+
+    # TODO: Statut (Draft, Sent, TramisMarianne, Reçu)
 
     class MetaData:
         list_display = [
             ('title', _('Titre')),
             ('costcenter', _(u'Centre de coût')),
+            ('get_reference', _(u'Référence')),
         ]
-        details_display = list_display
+        details_display = list_display + [
+            ('get_bvr_number', _(u'Numéro de BVR')),
+            ('address', _('Adresse')),
+            ('date_and_place', _(u'Lieu et date')),
+            ('preface', _(u'Introduction')),
+            ('ending', _(u'Conclusion')),
+            ('display_bvr', _(u'Afficher payement via BVR')),
+            ('display_account', _(u'Afficher payement via compte')),
+            ('greetins', _(u'Salutations')),
+            ('sign', _(u'Signature')),
+            ('annex', _(u'Annexes')),
+
+        ]
         filter_fields = ('title', )
 
         base_title = _(u'Facture')
@@ -239,8 +267,15 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
 
         help_list = _(u"""Factures.""")
 
+        not_sortable_colums = ['get_reference',]
+        yes_or_no_fields = ['display_bvr', 'display_account', 'annex']
+
     class MetaEdit:
-        pass
+
+        @staticmethod
+        def set_extra_defaults(obj, request):
+            obj.sign = '{} {}'.format(request.user.first_name, request.user.last_name)
+            obj.date_and_place = 'Lausanne, le {}'.format(datetime.datetime.now().strftime('%d %B %Y'))
 
     class MetaLines:
         lines_objects = [
@@ -266,6 +301,19 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
 
     def __unicode__(self):
         return self.title
+
+    def get_reference(self):
+        return 'T2-{}-{}'.format(self.costcenter.account_number, self.pk)
+
+    def get_bvr_number(self):
+        return self.custom_bvr_number or \
+            '94 42100 08402 {0:05d} {1:05d} {2:05d}'.format(int(self.costcenter.account_number), int(self.pk / 100000), self.pk % 100000)  # Note: 84=T => 04202~T2~Truffe2
+
+    def get_lines(self):
+        return self.lines.order_by('order').all()
+
+    def get_total(self):
+        return sum([line.total() for line in self.get_lines()])
 
 
 class InvoiceLine(ModelUsedAsLine):
