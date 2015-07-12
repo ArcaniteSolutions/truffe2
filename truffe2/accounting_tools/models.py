@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 import datetime
+from PIL import Image, ImageDraw, ImageFont
 
 
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
@@ -225,7 +226,7 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
     date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
     preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
     ending = models.CharField(_(u'Conclusion'), help_text=_(u'Affiché après la liste, avant les moyens de payements'), max_length=1024, default='', blank=True, null=True)
-    display_bvr = models.BooleanField(_(u'Afficher payement via BVR'), help_text=_(u'Génère un BVR (il est possible d\'obtenir un \'vrai\' BVR via Marianne) et le texte corespondant'), default=True)
+    display_bvr = models.BooleanField(_(u'Afficher payement via BVR'), help_text=_(u'Génère un BVR (il est possible d\'obtenir un \'vrai\' BVR via Marianne) et le texte corespondant. Attention, le BVR généré n\'est pas utilisable à la poste !'), default=True)
     display_account = models.BooleanField(_(u'Afficher payement via compte'), help_text=_(u'Affiche le texte pour le payement via le compte de l\'AGEPoly.'), default=True)
     greetins = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
     sign = models.CharField(_(u'Signature'), max_length=512, help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
@@ -305,15 +306,88 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
     def get_reference(self):
         return 'T2-{}-{}'.format(self.costcenter.account_number, self.pk)
 
+    def _add_checksum(self, part_validation):
+        """
+            Ajoute les modulo 10 a une string pour vérification bvr poste
+            https://www.credit-suisse.com/media/production/pb/docs/unternehmen/kmugrossunternehmen/besr_technische_dokumentation_fr.pdf
+            http://fr.wikipedia.org/wiki/Bulletin_de_versement_avec_num%C3%A9ro_de_r%C3%A9f%C3%A9rence
+
+            (Stolen from PolyLAN)
+        """
+        nTab = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5]
+        resultnumber = 0
+        for number in part_validation.replace(" ", ""):
+            resultnumber = nTab[(resultnumber + int(number) - 0) % 10]
+        return part_validation + str((10 - resultnumber) % 10)
+
     def get_bvr_number(self):
         return self.custom_bvr_number or \
-            '94 42100 08402 {0:05d} {1:05d} {2:05d}'.format(int(self.costcenter.account_number), int(self.pk / 100000), self.pk % 100000)  # Note: 84=T => 04202~T2~Truffe2
+            self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number), int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 04202~T2~Truffe2
+
+    def get_esr(self):
+
+        # TODO !
+        return '{}>{}+ 010025703>'.format(self._add_checksum("01%010d" % (self.get_total() * 100)), self.get_bvr_number().replace(' ', ''))
 
     def get_lines(self):
         return self.lines.order_by('order').all()
 
     def get_total(self):
         return sum([line.total() for line in self.get_lines()])
+
+    def generate_bvr(self):
+
+        F = 4.72
+
+        line_color = (0xED, 0xA7, 0x5F)
+
+        ocr_b = ImageFont.truetype('media/fonts/OCR_BB.TTF', int(42 * F))
+
+        img = Image.open('media/img/base_bvr.png')
+
+        draw = ImageDraw.Draw(img)
+
+        # Partie gauche
+
+        # # CS Line
+        draw.text((25 * F, 84 * F), "CREDIT SUISSE", font=ocr_b, fill=(0, 0, 0))
+        # # CS Line 2
+        draw.text((25 * F, 127 * F), "1002 LAUSANNE (0425)", font=ocr_b, fill=(0, 0, 0))
+
+        # # AGEP Line 1
+        draw.text((25 * F, 211 * F), u"Ass. Gén d. Etudiants", font=ocr_b, fill=(0, 0, 0))
+
+        # # AGEP Line 2
+        draw.text((25 * F, 254 * F), "de l'EPFL / AGEPoly", font=ocr_b, fill=(0, 0, 0))
+
+        # # AGEP Line 3
+        draw.text((25 * F, 296 * F), "1024 Ecublens VD", font=ocr_b, fill=(0, 0, 0))
+
+        # # Compte
+        draw.text((279 * F, 423 * F), "01-2570-3", font=ocr_b, fill=(0, 0, 0))
+
+        # # Montant
+        total = '{0:10.2f}'.format(self.get_total())
+
+        current_x = 88.9
+        inc_x = 50.8
+
+        for d in total:
+            if d != "." and d != ",":
+                draw.text((current_x * F, 508 * F), d, font=ocr_b, fill=(0, 0, 0))
+            current_x += inc_x
+
+        # Partie droite
+
+        # # Référence
+        draw.text((635 * F, 338 * F), self.get_bvr_number(), font=ocr_b, fill=(0, 0, 0))
+
+        # Zone blanche en bas
+
+        # # Code ESR
+        draw.text((76 * F, 846 * F), self.get_esr(), font=ocr_b, fill=(0, 0, 0))  # If len(ESR)=43
+
+        return img
 
 
 class InvoiceLine(ModelUsedAsLine):

@@ -12,6 +12,7 @@
                 size: a4 portrait;
                 margin: 1cm;
                 margin-bottom: 2cm;
+                margin-top: 5cm;
                 @frame footer {
                     -pdf-frame-content: footerContent;
                     bottom: 0cm;
@@ -24,6 +25,12 @@
                     top: 1.1cm;
                     right: 1.2cm;
                     width: 35%;
+                }
+                @frame headerFrame {
+                    -pdf-frame-content: headerFrameContent;
+                    top: 1.1cm;
+                    left: 1.2cm;
+                    width: 50%;
                 }
 
             }
@@ -56,43 +63,46 @@
 
     <body>
 
-        <table class="headertable" width="50%">
-            <tr>
-                <td width="13%">Tél. :</td>
-                <td>+41 21 693 2095</td>
-                <td><b>A</b>ssociation</td>
-            </tr>
-            <tr>
-                <td>Fax :</td>
-                <td>+41 21 693 2097</td>
-                <td><b>G</b>énérale des</td>
-            </tr>
-            <tr>
-                <td>Email :</td>
-                <td>agepoly@epfl.ch</td>
-                <td><b>E</b>tudiants de l’école</td>
-            </tr>
-            <tr>
-                <td>Web :</td>
-                <td>http://agepoly.epfl.ch</td>
-                <td><b>Poly</b>technique Fédérale</td>
-            </tr>
-            <tr>
-                <td>Banque :</td>
-                <td>Crédit Suisse - Zürich</td>
-                <td>de Lausanne</td>
-            </tr>
-            <tr>
-                <td>Compte :</td>
-                <td>0425-287897-71</td>
-                <td>CASE POSTALE 16</td>
-            </tr>
-            <tr>
-                <td>TVA :</td>
-                <td>CHE-113.397.612</td>
-                <td>CH - 1015 LAUSANNE EPFL</td>
-            </tr>
-        </table>
+        <div id="headerFrameContent">
+
+            <table class="headertable" width="100%">
+                <tr>
+                    <td width="13%">Tél. :</td>
+                    <td>+41 21 693 2095</td>
+                    <td><b>A</b>ssociation</td>
+                </tr>
+                <tr>
+                    <td>Fax :</td>
+                    <td>+41 21 693 2097</td>
+                    <td><b>G</b>énérale des</td>
+                </tr>
+                <tr>
+                    <td>Email :</td>
+                    <td>agepoly@epfl.ch</td>
+                    <td><b>E</b>tudiants de l’école</td>
+                </tr>
+                <tr>
+                    <td>Web :</td>
+                    <td>http://agepoly.epfl.ch</td>
+                    <td><b>Poly</b>technique Fédérale</td>
+                </tr>
+                <tr>
+                    <td>Banque :</td>
+                    <td>Crédit Suisse - Zürich</td>
+                    <td>de Lausanne</td>
+                </tr>
+                <tr>
+                    <td>Compte :</td>
+                    <td>0425-287897-71</td>
+                    <td>CASE POSTALE 16</td>
+                </tr>
+                <tr>
+                    <td>TVA :</td>
+                    <td>CHE-113.397.612</td>
+                    <td>CH - 1015 LAUSANNE EPFL</td>
+                </tr>
+            </table>
+        </div>
 
         <div id="logoFrameContent">
             <img src="media/img/logo_factures.png" width="40%" style="text-align: right;">
@@ -218,6 +228,33 @@
 
         {% if invoice.annex %}
             {% trans "Annexe(s): ment." %}
+        {% endif %}
+
+
+        {% if invoice.display_bvr %}
+            <pdf:nextpage/>
+
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+
+            <center>
+                <img src="media/cache/bvr/{{invoice.pk}}.png" width="149mm">
+                <br />
+
+                <small>{% trans "Attention: Ce BVR ne peut pas être utilisé pour un payement aux gichets de la poste ou d'une banque" %}</small>
+            </center>
+
         {% endif %}
 
         <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe2.agepoly.ch - {% trans "par" %} {{user}}</div>
