@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 import datetime
+import string
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -239,9 +240,9 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
             ('title', _('Titre')),
             ('costcenter', _(u'Centre de coût')),
             ('get_reference', _(u'Référence')),
+            ('get_bvr_number', _(u'Numéro de BVR')),
         ]
         details_display = list_display + [
-            ('get_bvr_number', _(u'Numéro de BVR')),
             ('address', _('Adresse')),
             ('date_and_place', _(u'Lieu et date')),
             ('preface', _(u'Introduction')),
@@ -268,7 +269,7 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
 
         help_list = _(u"""Factures.""")
 
-        not_sortable_colums = ['get_reference',]
+        not_sortable_colums = ['get_reference', 'get_bvr_number']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex']
 
     class MetaEdit:
@@ -325,8 +326,6 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
             self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number), int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 04202~T2~Truffe2
 
     def get_esr(self):
-
-        # TODO !
         return '{}>{}+ 010025703>'.format(self._add_checksum("01%010d" % (self.get_total() * 100)), self.get_bvr_number().replace(' ', ''))
 
     def get_lines(self):
@@ -391,6 +390,24 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
         draw.text((76 * F, 846 * F), self.get_esr(), font=ocr_b, fill=(0, 0, 0))  # If len(ESR)=43
 
         return img
+
+    def genericFormExtraClean(self, data, form):
+
+        if 'custom_bvr_number' in data and data['custom_bvr_number']:
+            bvr = ''.join(filter(lambda x: x in string.digits, data['custom_bvr_number']))
+
+            print bvr
+
+            if len(bvr) != 27:
+                raise forms.ValidationError(_(u'Numéro BVR invalide (Ne contiens pas 27 chiffres)'))
+
+            if bvr != self._add_checksum(bvr[:-1]):
+                raise forms.ValidationError(_(u'Numéro BVR invalide (Checksum)'))
+
+            if not bvr.startswith('9442100'):
+                raise forms.ValidationError(_(u'Numéro BVR invalide (Doit commencer par 94 42100)'))
+
+            data['custom_bvr_number'] = "{} {} {} {} {} {}".format(bvr[:2], bvr[2:7], bvr[7:12], bvr[12:17], bvr[17:22], bvr[22:])
 
 
 class InvoiceLine(ModelUsedAsLine):
