@@ -377,7 +377,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 file_key = request.POST.get('file_key')
 
             if tag_mode:
-                tags = filter(lambda t: t, request.POST.get('tags').split(', '))
+                tags = filter(lambda t: t, request.POST.get('tags').split(','))
 
             all_forms_valids = True
 
