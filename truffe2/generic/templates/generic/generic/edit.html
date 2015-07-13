@@ -59,12 +59,12 @@
                     </thead>
                     <tbody id="lines_tbody_{{line_data.related_name}}">
 
-                        <tr id="lines_new_form_{{line_data.related_name}}" style="display: none;">
+                        <tr id="lines_new_form_{{line_data.related_name}}" class="line_line_{{line_data.related_name}} line_line_id_{{line_data.related_name}}-ID-" style="display: none;">
                             {% for field in line_data.new_form %}
-                                <td>{% simple_bootstrap_field field %}</td>
+                                <td class="line_field_{{line_data.related_name}}_{{field.name}}">{% simple_bootstrap_field field %}</td>
                             {% endfor %}
 
-                            <td style="min-width: 53px;">
+                            <td style="min-width: 58px;">
                                 <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="-ID-">
                                 <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
 
@@ -77,13 +77,13 @@
                         </tr>
 
                         {% for line_form in line_data.forms %}
-                            <tr>
+                            <tr class="line_field_line_{{line_data.related_name}}">
 
                                 {% for field in line_form.form %}
-                                    <td>{% simple_bootstrap_field field %}</td>
+                                    <td class="line_field_{{line_data.related_name}}_{{field.name}}">{% simple_bootstrap_field field %}</td>
                                 {% endfor %}
 
-                                <td>
+                                <td style="min-width: 58px;">
                                     <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="{{line_form.id}}">
                                     <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
 
@@ -123,7 +123,7 @@
 
                         html = '<tr>' + html + '</tr>';
 
-                        $('#lines_tbody_{{line_data.related_name}}').append(html);
+                        var new_line = $('#lines_tbody_{{line_data.related_name}}').append(html);
 
                         {% for field in line_data.date_fields %}
                             $("#id__LINES_{{line_data.related_name}}_" + line_id + "-{{field}}").datetimepicker({format: 'yyyy-mm-dd', weekStart: 1, autoclose: true, todayBtn: true});
@@ -134,6 +134,10 @@
                         {% endfor %}
 
                         lines_make_sortable_{{line_data.related_name}}();
+
+                        {% block line_add_line_bonus %}
+
+                        {% endblock %}
                     }
 
                     function lines_remove_line_{{line_data.related_name}}(elem) {
@@ -172,6 +176,10 @@
                     }
 
                     lines_make_sortable_{{line_data.related_name}}();
+
+                    {% block line_js_bonus %}
+
+                    {% endblock %}
                 </script>
 
             {% endfor %}

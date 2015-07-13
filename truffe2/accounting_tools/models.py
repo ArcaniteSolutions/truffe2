@@ -401,12 +401,13 @@ class InvoiceLine(ModelUsedAsLine):
     quantity = models.DecimalField(_(u'Quantité'), max_digits=20, decimal_places=0, default=1)
     value = models.DecimalField(_('Montant unitaire (HT)'), max_digits=20, decimal_places=2)
     tva = models.DecimalField(_('TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_('Montant (TTC)'), max_digits=20, decimal_places=2)
 
     def __unicode__(self):
-        return u'%s: %s * %s + %s%%' % (self.label, self.quantity, self.value, self.tva)
+        return u'%s: %s * (%s + %s%% == %s)' % (self.label, self.quantity, self.value, self.tva, self.value_ttc)
 
     def total(self):
-        return float(self.quantity) * float(self.value) * (1 + float(self.tva) / 100.0)
+        return float(self.quantity) * float(self.value_ttc)
 
     def get_total_ht(self):
         return float(self.quantity) * float(self.value)
