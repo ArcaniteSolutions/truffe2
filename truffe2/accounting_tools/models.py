@@ -335,6 +335,9 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
     def get_total(self):
         return sum([line.total() for line in self.get_lines()])
 
+    def get_total_ht(self):
+        return sum([line.get_total_ht() for line in self.get_lines()])
+
     def generate_bvr(self):
 
         F = 4.72
@@ -405,6 +408,12 @@ class InvoiceLine(ModelUsedAsLine):
     def total(self):
         return float(self.quantity) * float(self.value) * (1 + float(self.tva) / 100.0)
 
+    def get_total_ht(self):
+        return float(self.quantity) * float(self.value)
+
     def get_tva(self):
         from accounting_core.models import TVA
         return TVA.tva_format(self.tva)
+
+    def get_tva_value(self):
+        return float(self.quantity) * float(self.value) * float(self.tva) / 100.0

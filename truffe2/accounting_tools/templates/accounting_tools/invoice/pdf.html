@@ -47,6 +47,14 @@
                 border-bottom: 1px #ddd solid;
             }
 
+            .maintable tr td {
+                text-align: right;
+            }
+
+            .maintable .noright {
+                text-align: left !important;
+            }
+
             .liste {
                 font-size: 12px;
                 padding-top: 5px;
@@ -58,6 +66,10 @@
                 height: 100%;
             }
 
+            .headertable b {
+                font-size: 110%;
+            }
+
         </style>
     </head>
 
@@ -67,39 +79,39 @@
 
             <table class="headertable" width="100%">
                 <tr>
+                    <td><b>A</b>ssociation</td>
                     <td width="13%">Tél. :</td>
                     <td>+41 21 693 2095</td>
-                    <td><b>A</b>ssociation</td>
                 </tr>
                 <tr>
+                    <td><b>G</b>énérale des</td>
                     <td>Fax :</td>
                     <td>+41 21 693 2097</td>
-                    <td><b>G</b>énérale des</td>
                 </tr>
                 <tr>
+                    <td><b>E</b>tudiants de l’école</td>
                     <td>Email :</td>
                     <td>agepoly@epfl.ch</td>
-                    <td><b>E</b>tudiants de l’école</td>
                 </tr>
                 <tr>
+                    <td><b>Poly</b>technique Fédérale</td>
                     <td>Web :</td>
                     <td>http://agepoly.epfl.ch</td>
-                    <td><b>Poly</b>technique Fédérale</td>
                 </tr>
                 <tr>
+                    <td>de Lausanne</td>
                     <td>Banque :</td>
                     <td>Crédit Suisse - Zürich</td>
-                    <td>de Lausanne</td>
                 </tr>
                 <tr>
+                    <td>CASE POSTALE 16</td>
                     <td>Compte :</td>
                     <td>0425-287897-71</td>
-                    <td>CASE POSTALE 16</td>
                 </tr>
                 <tr>
+                    <td>CH - 1015 LAUSANNE EPFL</td>
                     <td>TVA :</td>
                     <td>CHE-113.397.612</td>
-                    <td>CH - 1015 LAUSANNE EPFL</td>
                 </tr>
             </table>
         </div>
@@ -107,9 +119,6 @@
         <div id="logoFrameContent">
             <img src="media/img/logo_factures.png" width="40%" style="text-align: right;">
         </div>
-
-        <br />
-        <br />
 
         <div style="margin-left: 12cm; font-size: 140%;">
             {{invoice.address|linebreaksbr}}
@@ -126,28 +135,36 @@
         {{invoice.preface|linebreaksbr}}
 
         <table class="liste maintable">
-            <tr class="tr-a">
+            <tr class="tr-a noright">
                 <td width="10%">{% trans "Quantité" %}</td>
-                <td>{% trans "Description" %}</td>
+                <td class="noright">&nbsp;&nbsp;{% trans "Description" %}</td>
                 <td width="15%">{% trans "Prix unitaire" %}</td>
+                <td width="10%">{% trans "% TVA" %}</td>
                 <td width="10%">{% trans "TVA" %}</td>
                 <td width="15%">{% trans "Total" %}</td>
             </tr>
             {% for line in invoice.get_lines %}
                 <tr>
                     <td>{{line.quantity}}</td>
-                    <td>{{line.label}}</td>
+                    <td class="noright">&nbsp;&nbsp;{{line.label}}</td>
                     <td>{{line.value|floatformat:"2"}} CHF</td>
                     <td>{{line.tva|floatformat:"2"}} %</td>
+                    <td>{{line.get_tva_value|floatformat:"2"}} CHF</td>
                     <td>{{line.total|floatformat:"2"}} CHF</td>
                 </tr>
             {% endfor %}
 
-            <tr>
-                <td colspan="4" style="text-align: right;">
-                    <b>{% trans "Total (TTC)" %}: &nbsp;&nbsp;&nbsp;</b>
+            <tr style="border-top: 1px #000 solid;">
+                <td colspan="5" style="text-align: right;">
+                    <b>{% trans "Total (HT)" %}:</b>
                 </td>
-                <td>{{invoice.get_total|floatformat:"2"}} CHF</td>
+                <td>{{invoice.get_total_ht|floatformat:"2"}} CHF</td>
+            </tr>
+            <tr>
+                <td colspan="5" style="text-align: right;">
+                    <b>{% trans "Total (TTC)" %}:</b>
+                </td>
+                <td><b>{{invoice.get_total|floatformat:"2"}} CHF</b></td>
             </tr>
         </table>
 
@@ -184,7 +201,7 @@
                 </tr>
                 <tr>
                     <td>Compte&nbsp;:</td>
-                    <td>No.&nbsp;0425&nbsp;287897&nbsp;71</td>
+                    <td>No.&nbsp;0425-287897-71</td>
                 </tr>
                 <tr>
                     <td>Clearing&nbsp;:</td>
@@ -249,15 +266,15 @@
             <br />
 
             <center>
-                <img src="media/cache/bvr/{{invoice.pk}}.png" width="149mm">
+                <img src="media/cache/bvr/{{invoice.pk}}.png" width="212mm">
                 <br />
 
-                <small>{% trans "Attention: Ce BVR ne peut pas être utilisé pour un payement aux gichets de la poste ou d'une banque" %}</small>
+                <small>{% trans "Attention: Ce BVR ne peut pas être utilisé pour un payement aux guichets de la poste ou d'une banque" %}</small>
             </center>
 
         {% endif %}
 
-        <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe2.agepoly.ch - {% trans "par" %} {{user}}</div>
+        <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} <small><small>[{{user.pk}}]</small></small></div>
 
     </body>
 
