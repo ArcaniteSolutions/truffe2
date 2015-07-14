@@ -1,0 +1,28 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block bonus_year_updated %}
+    update_categories(pk);
+{% endblock %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+        function update_categories(pk) {
+            $.ajax('{% url 'accounting_core.views.leaves_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+                $('#id_category option').remove();
+                $('#id_category').append(
+                    $('<option></option>').val('').html('---------')
+                );
+
+                data = JSON.parse(data);
+                console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    $('#id_category').append(
+                        $('<option></option>').val(data[i].value).html(data[i].text)
+                    );
+                }
+
+            });
+        }
+    </script>
+{% endblock %}

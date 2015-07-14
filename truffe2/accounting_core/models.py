@@ -192,7 +192,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         copiable = True
 
     def __unicode__(self):
-        return u"{} - {}".format(self.account_number, self.name)
+        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
 
     def genericFormExtraClean(self, data, form):
         """Check that unique_together is fulfiled"""
@@ -261,6 +261,9 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         if AccountCategory.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Une catégorie avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
+        if data['parent_hierarchique'] and data['parent_hierarchique'].accounting_year != get_current_year(form.truffe_request):
+            raise forms.ValidationError(_(u'La catégorie parente choisie n\'appartient pas à la bonne année comptable.'))
+
     def get_children_categories(self):
         """Return the categories whose parent is self."""
         return self.accountcategory_set.order_by('order', 'name')
@@ -320,7 +323,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         foreign = (('category', 'AccountCategory'),)
 
     def __unicode__(self):
-        return u"{} - {}".format(self.account_number, self.name)
+        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible categories to the leaves of the hierarchical tree."""
@@ -332,7 +335,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         form.fields['category'].queryset = AccountCategory.objects.filter(id__in=ids_yac)
 
     def genericFormExtraClean(self, data, form):
-        """Check that unique_together is fulfiled"""
+        """Check that unique_together is fulfiled and that category is in the right accounting_year"""
         from accounting_core.models import Account
 
         if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
@@ -340,6 +343,9 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
 
         if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
             raise forms.ValidationError(_(u'Un compte de CG avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+        if data['category'].accounting_year != get_current_year(form.truffe_request):
+            raise forms.ValidationError(_(u'La catégorie choisie n\'appartient pas à la bonne année comptable.'))
 
     def user_can_see(self, user):
         if self.visibility == 'none':

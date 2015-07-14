@@ -196,6 +196,7 @@ class BasicRightModel(ModelWithRight):
         return False
 
     def rights_can_EDIT(self, user):
+        print "BasicRightModel"
         return False
 
     def rights_can_DELETE(self, user):

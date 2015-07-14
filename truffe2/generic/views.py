@@ -508,7 +508,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     edited.update(lines_updates)
                     deleted.update(lines_deletes)
 
-                    if tags_before != tags_after:
+                    if tag_mode and tags_before != tags_after:
                         edited['tags'] = (tags_before, tags_after)
 
                     diff = {'added': added, 'edited': edited, 'deleted': deleted}

@@ -5,8 +5,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
-from rights.utils import UnitExternalEditableModel, UnitEditableModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel
+from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
 
@@ -94,6 +94,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
 
         states = {
             '0_draft': _(u'Brouillon'),
+            '0_correct': _(u'A corriger'),
             '1_submited': _(u'Demande soumise'),
             '2_treated': _(u'Demande traitée'),
         }
@@ -103,36 +104,39 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         states_texts = {
             '0_draft': _(u'La demande est en cours de création et n\'est pas publique.'),
             '1_submited': _(u'La demande a été soumise.'),
+            '0_correct': _(u'La demande doit être corrigée.'),
             '2_treated': _(u'La demande a été traitée.'),
         }
 
         states_links = {
             '0_draft': ['1_submited'],
-            '1_submited': ['2_treated'],
+            '0_correct': ['1_submited'],
+            '1_submited': ['2_treated', '0_correct'],
             '2_treated': [],
         }
 
         states_colors = {
             '0_draft': 'primary',
             '1_submited': 'default',
+            '0_correct': 'warning',
             '2_treated': 'success',
         }
 
         states_icons = {
             '0_draft': '',
             '1_submited': '',
+            '0_correct': '',
             '2_treated': '',
-            '3_archived': '',
         }
 
         list_quick_switch = {
-            '0_draft': [('1_submited', 'fa fa-check', _(u'Soumettre la demande')), ],
-            '1_submited': [('2_treated', 'fa fa-check', _(u'Marquer la demande comme traitée')), ],
+            '0_draft': [('1_submited', 'fa fa-check', _(u'Soumettre la demande'))],
+            '0_correct': [('1_submited', 'fa fa-check', _(u'Soumettre la demande'))],
+            '1_submited': [('2_treated', 'fa fa-check', _(u'Marquer la demande comme traitée')), ('0_correct', 'fa fa-exclamation', _(u'Demander des corrections'))],
             '2_treated': [],
         }
 
-        states_default_filter = '0_draft,1_submited,2_treated'
-        states_default_filter_related = '0_draft,1_submited,2_treated'
+        states_default_filter = '0_draft,0_correct'
         status_col_id = 3
 
     def __init__(self, *args, **kwargs):
@@ -153,10 +157,11 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état traité'))
 
         if int(dest_state[0]) - int(self.status[0]) != 1 and not user.is_superuser:
-            return (False, _(u'Seul un super utilisateur peut sauter des étapes ou revenir en arrière.'))
+            if not (self.status == '1_submited' and dest_state == '0_correct'):  # Exception faite de la correction
+                return (False, _(u'Seul un super utilisateur peut sauter des étapes ou revenir en arrière.'))
 
         if self.status == '1_submited' and not self.rights_in_root_unit(user, self.MetaRightsUnit.access):
-            return (False, _(u'Seul un membre du Comité de Direction peut marquer la demande comme traitée.'))
+            return (False, _(u'Seul un membre du Comité de Direction peut marquer la demande comme traitée ou à corriger.'))
 
         if not self.rights_can('EDIT', user):
             return (False, _('Pas les droits.'))
@@ -286,3 +291,145 @@ class InvoiceLine(ModelUsedAsLine):
     def get_tva(self):
         from accounting_core.models import TVA
         return TVA.tva_format(self.tva)
+
+
+class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, AccountingYearLinked, AgepolyEditableModel):
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'TRESORERIE'
+
+    name = models.CharField(_('Raison du transfert'), max_length=255, unique=True)
+    description = models.TextField(_('Description'), blank=True, null=True)
+    account = FalseFK('accounting_core.models.Account', verbose_name=_(u'Compte concerné'))
+    cost_center_from = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_from', verbose_name=_(u'Centre de coûts prélevé'))
+    cost_center_to = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_to', verbose_name=_(u'Centre de coûts versé'))
+
+    class MetaData:
+        list_display = [
+            ('name', _('Raison')),
+            ('description', _(u'Description')),
+            ('account', _('Compte')),
+            ('status', _('Statut')),
+        ]
+        details_display = list_display + [('accounting_year', _(u'Année comptable')), ('cost_center_from', _(u'De')), ('cost_center_to', _(u'Vers'))]
+        filter_fields = ('name', 'status', 'account')
+
+        base_title = _(u'Transferts internes')
+        list_title = _(u'Liste des transferts internes')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-smile-o'
+
+        menu_id = 'menu-compta-transfert'
+
+        help_list = _(u"""Les transferts internes permettent de déplacer de l'argent entre les entitées de l'AGEPoly sur un même compte.
+
+Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un remboursement d'une unité vers l'autre.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaState:
+        states = {
+            '0_draft': _('Brouillon'),
+            '1_agep_validable': _(u'Attente accord AGEPoly'),
+            '2_accountable': _(u'A comptabiliser'),
+            '3_archived': _(u'Archivé'),
+            '3_canceled': _(u'Annulé'),
+        }
+        default = '0_draft'
+
+        states_texts = {
+            '0_draft': _(u'L\'objet est en cours de création.'),
+            '1_agep_validable': _(u'L\'objet doit être accepté par l\'AGEPoly.'),
+            '2_accountable': _(u'L\'objet est en attente d\'être comptabilisé.'),
+            '3_archived': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
+            '3_canceled': _(u'L\'objet a été annulé.'),
+        }
+
+        states_links = {
+            '0_draft': ['1_unit_validable', '3_canceled'],
+            '1_agep_validable': ['0_correct', '2_accountable', '3_canceled'],
+            '2_accountable': ['0_correct', '3_archived', '3_canceled'],
+            '3_archived': [],
+            '3_canceled': [],
+        }
+
+        states_quick_switch = {
+            '0_draft': [('1_unit_validable', _(u'Demander accord unité')), ('3_canceled', _(u'Annuler')), ],
+            '1_agep_validable': [('0_correct', _(u'Demander des corrections')), ('2_accountable', _(u'Demander à comptabiliser')), ('3_canceled', _(u'Annuler')), ],
+            '2_accountable': [('3_archived', _(u'Archiver')), ('3_canceled', _(u'Annuler')), ]
+        }
+
+        list_quick_switch = {
+            '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('3_canceled', 'fa fa-ban', _(u'Annuler')), ],
+            '1_agep_validable': [('2_accountable', 'fa fa-check', _(u'Demander à comptabiliser')), ('3_canceled', 'fa fa-ban', _(u'Annuler'))],
+            '2_accountable': [('3_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ('3_canceled', 'fa fa-ban', _(u'Annuler'))],
+        }
+
+        states_colors = {
+            '0_draft': 'primary',
+            '1_agep_validable': 'default',
+            '2_accountable': 'default',
+            '3_archived': 'success',
+            '3_canceled': 'danger',
+        }
+
+        states_icons = {
+            '0_draft': '',
+            '1_agep_validable': '',
+            '2_accountable': '',
+            '3_archived': '',
+            '3_canceled': '',
+        }
+
+        states_default_filter = '0_draft,1_agep_validable'
+        status_col_id = 4
+
+    def may_switch_to(self, user, dest_state):
+        if self.status[0] == '3' and not user.is_superuser:
+            return False
+
+        if dest_state == '3_canceled' and self.rights_can('EDIT', user):
+            return True
+
+        return super(GenericAccountingStateModel, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+
+        if self.status[0] == '3' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé/annulé'))
+
+        if dest_state == '3_canceled' and self.rights_can('EDIT', user):
+            return (True, None)
+
+        if not self.rights_can('EDIT', user):
+            return (False, _('Pas les droits.'))
+
+        return super(GenericAccountingStateModel, self).can_switch_to(user, dest_state)
+
+    def rights_can_EDIT(self, user):
+        if self.status[0] == '3':
+            return False
+
+        return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
+
+    def rights_can_DELETE(self, user):
+        if self.status[0] == '3':
+            return False
+
+        return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
+
+    def __unicode__(self):
+        return u"{} ({})".format(self.name, self.accounting_year)
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Set querysets according to the selected accounting_year"""
+        from accounting_core.models import Account, CostCenter
+
+        form.fields['account'].queryset = Account.objects.filter(accounting_year=self.accounting_year).order_by('category__order')
+        form.fields['cost_center_from'].queryset = CostCenter.objects.filter(accounting_year=self.accounting_year).order_by('account_number')
+        form.fields['cost_center_to'].queryset = CostCenter.objects.filter(accounting_year=self.accounting_year).order_by('account_number')
+
+    def genericFormExtraClean(self, data, form):
+        if data['cost_center_from'] == data['cost_center_to']:
+            raise forms.ValidationError(_(u'Les deux centres de coûts doivent être différents.'))
