@@ -77,7 +77,13 @@
                                     {% for obj_line in line_data.elems %}
                                         <tr>
                                             {% for field in line_data.show_list %}
-                                                <th>{{obj_line|get_attr:field.0|default:"&nbsp;"|linebreaksbr}}</th>
+                                                <th>
+                                                  {% if field.0 in line_data.date_fields %}
+                                                      {{obj_line|get_attr:field.0|date:"d.m.Y"}}
+                                                  {% else %}
+                                                      {{obj_line|get_attr:field.0|default:"&nbsp;"|linebreaksbr}}
+                                                  {% endif %}
+                                                </th>
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}
@@ -101,6 +107,14 @@
 
                             {% endfor %}
                         </div>
+                    {% endif %}
+
+                    {% if tags %}
+                        <h3>{% trans "Tags" %}</h3>
+
+                        {% for t in tags %}
+                            <a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}?tag={{t}}" class="label label-info"><i class="fa fa-tag"></i> {{t}}</a>
+                        {% endfor %}
                     {% endif %}
 
                 {% include "widget/footer.html" %}

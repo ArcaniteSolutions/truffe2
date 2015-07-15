@@ -5,9 +5,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithFiles, GenericModelUsedAsLine, GenericModelWithLines
-from rights.utils import UnitExternalEditableModel
-from accounting_core.utils import AccountingYearLinked
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
+from rights.utils import UnitExternalEditableModel, UnitEditableModel
+from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
 
 
@@ -138,6 +138,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
     def __init__(self, *args, **kwargs):
         super(_Subvention, self).__init__(*args, **kwargs)
 
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
         self.MetaRights.rights_update({
             'EXPORT': _(u'Peut exporter les éléments'),
         })
@@ -194,7 +195,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         return total
 
 
-class SubventionLine(models.Model, GenericModelUsedAsLine):
+class SubventionLine(ModelUsedAsLine):
     name = models.CharField(_(u'Nom de l\'évènement'), max_length=255)
     start_date = models.DateField(_(u'Début de l\'évènement'))
     end_date = models.DateField(_(u'Fin de l\'évènement'))
@@ -202,7 +203,86 @@ class SubventionLine(models.Model, GenericModelUsedAsLine):
     nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
-    order = models.SmallIntegerField(_(u'Ordre de la ligne'))
 
     def __unicode__(self):
         return u"{}:{}".format(self.subvention.name, self.name)
+
+
+class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = 'TRESORERIE'
+
+    title = models.CharField(max_length=255)
+    unit = FalseFK('units.models.Unit')
+
+    # TODO: Statut (Draft, Sent, TramisMarianne, Reçu), champs pdf
+
+    class MetaData:
+        list_display = [
+            ('title', _('Titre')),
+            ('costcenter', _(u'Centre de coût')),
+        ]
+        details_display = list_display
+        filter_fields = ('title', )
+
+        base_title = _(u'Facture')
+        list_title = _(u'Liste de toutes les factures')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-money'
+
+        default_sort = "[1, 'asc']"  # title
+
+        menu_id = 'menu-compta-invoice'
+
+        has_unit = True
+
+        help_list = _(u"""Factures.""")
+
+    class MetaEdit:
+        pass
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.InvoiceLine',
+                'form': 'accounting_tools.forms.InvoiceLineForm',
+                'related_name': 'lines',
+                'field': 'invoice',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'show_list': [
+                    ('label', _(u'Titre')),
+                    ('quantity', _(u'Quantité')),
+                    ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('total', _(u'Montant (TTC)')),
+                ]},
+        ]
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.title
+
+
+class InvoiceLine(ModelUsedAsLine):
+
+    invoice = models.ForeignKey('Invoice', related_name="lines")
+
+    label = models.CharField(_(u'Titre'), max_length=255)
+    quantity = models.DecimalField(_(u'Quantité'), max_digits=20, decimal_places=0, default=1)
+    value = models.DecimalField(_('Montant unitaire (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_('TVA'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'%s: %s * %s + %s%%' % (self.label, self.quantity, self.value, self.tva)
+
+    def total(self):
+        return float(self.quantity) * float(self.value) * (1 + float(self.tva) / 100.0)
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)

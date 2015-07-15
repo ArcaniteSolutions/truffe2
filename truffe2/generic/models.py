@@ -88,7 +88,7 @@ class GenericModel(models.Model):
     def startup():
         """Execute code at startup"""
 
-        from accounting_core.utils import AccountingYearLinked
+        from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 
         classes = build_models_list_of(GenericModel)
 
@@ -102,7 +102,7 @@ class GenericModel(models.Model):
             # Create the new model
             extra_data = {'__module__': models_module.__name__}
 
-            for SpecificClass in [GenericStateModel, GenericExternalUnitAllowed, GenericDelayValidableInfo, AccountingYearLinked, AutoVisibilityLevel]:
+            for SpecificClass in [GenericStateModel, GenericExternalUnitAllowed, GenericDelayValidableInfo, AccountingYearLinked, AutoVisibilityLevel, CostCenterLinked]:
                 if issubclass(model_class, SpecificClass):
                     extra_data.update(SpecificClass.do(module, models_module, model_class, cache))
 
@@ -131,6 +131,13 @@ class GenericModel(models.Model):
 
             else:
                 file_class = None
+
+            # Add the tag model (if needed)
+            if issubclass(model_class, GenericTaggableObject):
+                tag_class = type('%sTag' % (real_model_class.__name__,), (GenericTag,), {'object': models.ForeignKey(real_model_class, related_name='tags'), '__module__': models_module.__name__})
+                setattr(models_module, tag_class.__name__, tag_class)
+            else:
+                tag_class = None
 
             # Create the form module
             def generate_meta(Model):
@@ -161,12 +168,12 @@ class GenericModel(models.Model):
 
             if not hasattr(views_module, base_views_name + '_list'):
 
-                setattr(views_module, '%s_list' % (base_views_name,), views.generate_list(module, base_views_name, real_model_class))
-                setattr(views_module, '%s_list_json' % (base_views_name,), views.generate_list_json(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_list' % (base_views_name,), views.generate_list(module, base_views_name, real_model_class, tag_class))
+                setattr(views_module, '%s_list_json' % (base_views_name,), views.generate_list_json(module, base_views_name, real_model_class, tag_class))
                 setattr(views_module, '%s_logs' % (base_views_name,), views.generate_logs(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_logs_json' % (base_views_name,), views.generate_logs_json(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, '%s_edit' % (base_views_name,), views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class, file_class))
-                setattr(views_module, '%s_show' % (base_views_name,), views.generate_show(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_edit' % (base_views_name,), views.generate_edit(module, base_views_name, real_model_class, form_model_class, logging_class, file_class, tag_class))
+                setattr(views_module, '%s_show' % (base_views_name,), views.generate_show(module, base_views_name, real_model_class, logging_class, tag_class))
                 setattr(views_module, '%s_delete' % (base_views_name,), views.generate_delete(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, '%s_deleted' % (base_views_name,), views.generate_deleted(module, base_views_name, real_model_class, logging_class))
 
@@ -236,6 +243,12 @@ class GenericModel(models.Model):
                     url(r'^%sfile/(?P<pk>[0-9]+)/delete$' % (base_views_name,), '%s_file_delete' % (base_views_name,)),
                     url(r'^%sfile/(?P<pk>[0-9]+)/get/.*$' % (base_views_name,), '%s_file_get' % (base_views_name,)),
                     url(r'^%sfile/(?P<pk>[0-9]+)/thumbnail$' % (base_views_name,), '%s_file_get_thumbnail' % (base_views_name,)),
+                )
+
+            if tag_class:
+                setattr(views_module, '%s_tag_search' % (base_views_name,), views.generate_tag_search(module, base_views_name, real_model_class, logging_class, tag_class))
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^%stags/search$' % (base_views_name,), '%s_tag_search' % (base_views_name,)),
                 )
 
     def build_state(self):
@@ -790,6 +803,21 @@ class GenericModelWithLines(object):
         ]
 
 
-class GenericModelUsedAsLine(object):
+class ModelUsedAsLine(models.Model):
+    order = models.SmallIntegerField(default=0)
+
+    class Meta:
+        abstract = True
+
+
+class GenericTaggableObject(object):
+    """Un object taggable. Prend en compte l'année comptable et l'unité si présent pour la découverte de tag"""
     pass
 
+
+class GenericTag(models.Model):
+
+    tag = models.CharField(max_length=255)
+
+    class Meta:
+        abstract = True

@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from django.forms import ModelForm, DateInput
+from django.utils.translation import ugettext_lazy as _
 
-from accounting_tools.models import SubventionLine
+from accounting_tools.models import InvoiceLine, SubventionLine
+
+
+class InvoiceLineForm(ModelForm):
+
+    class Meta:
+        model = InvoiceLine
+        exclude = ('invoice', 'order',)
 
 
 class SubventionLineForm(ModelForm):

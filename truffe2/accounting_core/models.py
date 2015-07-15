@@ -350,3 +350,68 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
             return user in self.people_in_root_unit()
         elif self.visibility == 'all':
             return not user.is_external()
+
+
+class _TVA(GenericModel, AgepolyEditableModel):
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = 'TRESORERIE'
+        world_ro_access = True
+
+    name = models.CharField(_(u'Nom de la TVA'), max_length=255)
+    value = models.DecimalField(_('Valeur (%)'), max_digits=20, decimal_places=2)
+    agepoly_only = models.BooleanField(_(u'Limiter l\'usage au comité de l\'AGEPoly'), default=False)
+
+    class Meta:
+        abstract = True
+
+    class MetaData:
+        list_display = [
+            ('name', _(u'Nom')),
+            ('value', _(u'Valeur (%)')),
+            ('agepoly_only', _(u'Limité AGEPoly ?')),
+        ]
+
+        default_sort = "[1, 'asc']"  # name
+
+        details_display = list_display
+        filter_fields = ('name', 'value',)
+
+        base_title = _(u'TVA')
+        list_title = _(u'Liste des taux de TVA')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-certificate'
+
+        menu_id = 'menu-compta-tva'
+
+        yes_or_no_fields = ['agepoly_only',]
+
+        help_list = _(u"""Les TVA sélectionnables dans les champs de TVA. Il est possible de restrainre l'usage de certaines TVA au CDD.
+
+Les TVA ne sont pas liées aux autres objets comptables, il est possible de les modifier à tout moment sans risques.""")
+
+    def __init__(self, *args, **kwargs):
+        super(_TVA, self).__init__(*args, **kwargs)
+
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
+        self.MetaRights.rights_update({
+            'ANYTVA': _(u'Peut utiliser n\'importe quelle valeure de TVA.'),
+        })
+
+    def __unicode__(self):
+        return u"{}% ({})".format(self.value, self.name)
+
+    def rights_can_ANYTVA(self, user):
+        return self.rights_in_root_unit(user, 'TRESORERIE')
+
+    @staticmethod
+    def tva_format(tva):
+
+        from accounting_core.models import TVA
+
+        try:
+            tva_object = TVA.objects.get(value=tva)
+        except:
+            tva_object = None
+
+        return u'{}% ({})'.format(tva, tva_object.name if tva_object else u'TVA Spéciale')

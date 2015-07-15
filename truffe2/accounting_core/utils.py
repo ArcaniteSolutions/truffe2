@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
 
 class AccountingYearLinked(object):
     """Un objet lié à une année comptable. Rend automatiquement l'objet inéditable pour les années archivées."""
@@ -8,10 +11,8 @@ class AccountingYearLinked(object):
     def do(module, models_module, model_class, cache):
         """Execute code at startup"""
 
-        from django.db import models
-
         return {
-            'accounting_year': models.ForeignKey(cache['accounting_core.models.AccountingYear']),
+            'accounting_year': models.ForeignKey(cache['accounting_core.models.AccountingYear'], verbose_name=_(u'Année comptable')),
         }
 
     def rights_can_EDIT(self, user):
@@ -36,3 +37,15 @@ class AccountingYearLinked(object):
             pass
 
         return super(AccountingYearLinked, self).rights_can_SHOW(user)
+
+
+class CostCenterLinked(object):
+    """Un objet lié à centre de coût. Filtre automatiquement si l'objet est lié à une unité et/ou une année comptable"""
+
+    @staticmethod
+    def do(module, models_module, model_class, cache):
+        """Execute code at startup"""
+
+        return {
+            'costcenter': models.ForeignKey(cache['accounting_core.models.CostCenter'], verbose_name=_(u'Centre de coût')),
+        }

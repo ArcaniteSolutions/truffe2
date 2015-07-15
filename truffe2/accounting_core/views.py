@@ -2,10 +2,15 @@
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
+
+
+import json
+
 
 from accounting_core import models as accounting_models
 from app.utils import update_current_year, generate_pdf
@@ -56,6 +61,27 @@ def copy_accounting_year(request, pk):
 
 
 @login_required
+def costcenter_available_list(request):
+    """Return the list of available costcenters for a given unit and year"""
+    from units.models import Unit
+    from accounting_core.models import AccountingYear, CostCenter
+
+    costcenters = CostCenter.objects.filter(deleted=False).order_by('account_number')
+
+    if request.GET.get('upk'):
+        unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
+        costcenters = costcenters.filter(unit=unit)
+
+    if request.GET.get('ypk'):
+        accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
+        costcenters = costcenters.filter(accounting_year=accounting_year)
+
+    retour = {'data': [{'pk': costcenter.pk, 'name': costcenter.__unicode__()} for costcenter in costcenters]}
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')
+
+
+@login_required
 def pdf_list_cost_centers(request, pk):
     from accounting_core.models import AccountingYear, CostCenter
 
@@ -87,3 +113,52 @@ def pdf_list_accounts(request, pk):
     root_ac = AccountCategory.objects.filter(accounting_year=ay, parent_hierarchique=None).order_by('order')
 
     return generate_pdf("accounting_core/account/liste_pdf.html", {'root_ac': root_ac, 'ay': ay, 'user': request.user, 'cdate': now()})
+
+
+@login_required
+def tva_available_list(request):
+    """Return the list of available TVA for a user"""
+    from accounting_core.models import TVA
+
+    tvas = TVA.objects.filter(deleted=False).order_by('value')
+
+    if not TVA.static_rights_can('ANYTVA', request.user):
+        tvas = tvas.filter(agepoly_only=False)
+
+    q = request.GET.get('q')
+    init = request.GET.get('init')
+
+    bonus_tva = []
+
+    if q:
+        try:
+            value_q = round(float(q), 2)
+            tvas = tvas.filter(Q(name__istartswith=q) | Q(value__istartswith=value_q))
+
+            if TVA.static_rights_can('ANYTVA', request.user):
+                bonus_tva = [{'id': value_q, 'text': '{}% (TVA Spéciale)'.format(value_q)}]
+        except:
+            tvas = tvas.filter(name__istartswith=q)
+
+    if init:
+        try:
+            value_init = round(float(q), 2)
+            tvas = tvas.filter(value__istartswith=value_init)
+
+            bonus_tva = [{'id': value_init, 'text': '{}% (TVA Spéciale)'.format(value_q)}]
+        except:
+            tvas = tvas.filter(name__istartswith=q)
+
+    retour = [{'id': float(tva.value), 'text': tva.__unicode__()} for tva in tvas]
+
+    if bonus_tva:  # On rajoute, si n'existe pas déjà dans la liste retournée une entrée avec la valeur de la TVA recherchée par l'utilisateur
+        bonus_tva_exists = False
+
+        for tva_data in retour:
+            if tva_data['id'] == bonus_tva[0]['id']:
+                bonus_tva_exists = True
+
+        if not bonus_tva_exists:
+            retour = bonus_tva + retour
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')
