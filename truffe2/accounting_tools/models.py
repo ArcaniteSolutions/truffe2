@@ -4,11 +4,11 @@ from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel
-from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
+from notifications.utils import notify_people, unotify_people
+from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
 
 class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
@@ -293,7 +293,7 @@ class InvoiceLine(ModelUsedAsLine):
         return TVA.tva_format(self.tva)
 
 
-class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, AccountingYearLinked, AgepolyEditableModel):
+class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, AccountingYearLinked, AgepolyEditableModel, GenericGroupsModel, GenericContactableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
@@ -303,16 +303,19 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
     account = FalseFK('accounting_core.models.Account', verbose_name=_(u'Compte concerné'))
     cost_center_from = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_from', verbose_name=_(u'Centre de coûts prélevé'))
     cost_center_to = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_to', verbose_name=_(u'Centre de coûts versé'))
+    amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
 
     class MetaData:
         list_display = [
             ('name', _('Raison')),
             ('description', _(u'Description')),
             ('account', _('Compte')),
+            ('amount', _('Montant')),
             ('status', _('Statut')),
         ]
+
         details_display = list_display + [('accounting_year', _(u'Année comptable')), ('cost_center_from', _(u'De')), ('cost_center_to', _(u'Vers'))]
-        filter_fields = ('name', 'status', 'account')
+        filter_fields = ('name', 'status', 'account', 'amount')
 
         base_title = _(u'Transferts internes')
         list_title = _(u'Liste des transferts internes')
@@ -327,6 +330,9 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 
     class Meta:
         abstract = True
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
 
     class MetaState:
         states = {
@@ -347,21 +353,21 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         }
 
         states_links = {
-            '0_draft': ['1_unit_validable', '3_canceled'],
-            '1_agep_validable': ['0_correct', '2_accountable', '3_canceled'],
-            '2_accountable': ['0_correct', '3_archived', '3_canceled'],
+            '0_draft': ['1_agep_validable', '3_canceled'],
+            '1_agep_validable': ['2_accountable', '3_canceled'],
+            '2_accountable': ['3_archived', '3_canceled'],
             '3_archived': [],
             '3_canceled': [],
         }
 
         states_quick_switch = {
-            '0_draft': [('1_unit_validable', _(u'Demander accord unité')), ('3_canceled', _(u'Annuler')), ],
-            '1_agep_validable': [('0_correct', _(u'Demander des corrections')), ('2_accountable', _(u'Demander à comptabiliser')), ('3_canceled', _(u'Annuler')), ],
+            '0_draft': [('1_agep_validable', _(u'Demander accord AGEPoly')), ('3_canceled', _(u'Annuler')), ],
+            '1_agep_validable': [('2_accountable', _(u'Demander à comptabiliser')), ('3_canceled', _(u'Annuler')), ],
             '2_accountable': [('3_archived', _(u'Archiver')), ('3_canceled', _(u'Annuler')), ]
         }
 
         list_quick_switch = {
-            '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('3_canceled', 'fa fa-ban', _(u'Annuler')), ],
+            '0_draft': [('1_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly')), ('3_canceled', 'fa fa-ban', _(u'Annuler')), ],
             '1_agep_validable': [('2_accountable', 'fa fa-check', _(u'Demander à comptabiliser')), ('3_canceled', 'fa fa-ban', _(u'Annuler'))],
             '2_accountable': [('3_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ('3_canceled', 'fa fa-ban', _(u'Annuler'))],
         }
@@ -392,7 +398,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         if dest_state == '3_canceled' and self.rights_can('EDIT', user):
             return True
 
-        return super(GenericAccountingStateModel, self).may_switch_to(user, dest_state)
+        return super(_InternalTransfer, self).may_switch_to(user, dest_state)
 
     def can_switch_to(self, user, dest_state):
 
@@ -405,19 +411,45 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         if not self.rights_can('EDIT', user):
             return (False, _('Pas les droits.'))
 
-        return super(GenericAccountingStateModel, self).can_switch_to(user, dest_state)
+        return super(_InternalTransfer, self).can_switch_to(user, dest_state)
+
+    def rights_can_SHOW(self, user):
+        if self.rights_in_unit(user, self.cost_center_from.unit, access='TRESORERIE') or self.rights_in_unit(user, self.cost_center_to.unit, access='TRESORERIE'):
+            return True
+
+        return super(_InternalTransfer, self).rights_can_SHOW(user)
+
+    def rights_can_LIST(self, user):
+        return super(_InternalTransfer, self).rights_can_SHOW(user)
 
     def rights_can_EDIT(self, user):
         if self.status[0] == '3':
             return False
 
-        return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
+        return super(_InternalTransfer, self).rights_can_EDIT(user)
 
     def rights_can_DELETE(self, user):
         if self.status[0] == '3':
             return False
 
-        return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
+        return super(_InternalTransfer, self).rights_can_EDIT(user)
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(_InternalTransfer, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '1_agep_validable':
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'internaltransfer_validable', self, self.people_in_root_unit('TRESORERIE'))
+        elif dest_status == '2_accountable':
+            unotify_people('%s.validable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'internaltransfer_accountable', self, self.people_in_root_unit('SECRETARIAT'))
+        elif dest_status[0] == '3':
+            unotify_people('%s.accountable' % (self.__class__.__name__,), self)
+            tresoriers = self.people_in_unit(self.cost_center_from.unit, 'TRESORERIE', no_parent=True) + self.people_in_unit(self.cost_center_to.unit, 'TRESORERIE', no_parent=True)
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'internaltransfer_accepted', self, tresoriers)
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)

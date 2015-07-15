@@ -1,0 +1,26 @@
+{% load i18n humanize %}
+<em class="badge padding-5 no-border-radius bg-color-redLight pull-left margin-right-5">
+    <i class="fa fa-question fa-fw fa-2x"></i>
+</em>
+
+<span>
+    {% trans "Le transfert interne suivant dans le compte" %} <span class="text-primary">{{notification.linked_object.account}}</span> {% trans "est prêt à être comptabilisé" %}
+
+    <ul>
+        <li>CHF {{notification.linked_object.amount|intcomma}} : {{notification.linked_object.cost_center_from}} -> {{notification.linked_object.cost_center_to}}
+    </ul>
+
+    <br />
+    <span class="pull-right">
+        <button onclick="notification_ignore({{notification.pk}});" class="btn btn-xs btn-warning margin-top-5">
+            <i class="fa fa-times"></i> {% trans "Ignorer" %}
+        </button>
+        <button onclick="window.location = '{% url 'notifications.views.goto' notification.pk %}?next={% url 'accounting_tools.views.internaltransfer_show' notification.linked_object.pk%}?ypk={{notification.linked_object.accounting_year.pk}}';" class="btn btn-xs btn-primary margin-top-5">
+            <i class="fa fa-eye"></i> {% trans "Détails" %}
+        </button>
+    </span>
+
+    <br>
+    <br>
+    <span class="pull-right font-xs text-muted"><i>{{notification.creation_date|timesince}}</i></span>
+</span>
