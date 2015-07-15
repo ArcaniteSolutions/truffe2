@@ -1,0 +1,16 @@
+{% load i18n %}
+{% if invoices_need_bvr or invoices_waiting %}
+    <div class="col-sm-12 col-md-12 col-lg-6">
+        {% with w_title="Factures en attentes" %}{% include "widget/header.html" %}{% endwith %}
+
+            <ul>
+                {% for invoice in invoices_need_bvr %}
+                    <li><a href="{{invoice.get_display_url}}">{{invoice}} <span class="label label-danger">{% trans "Besion d'un BVR !" %}</span></a></li>
+                {% endfor %}
+                {% for invoice in invoices_waiting %}
+                    <li><a href="{{invoice.get_display_url}}">{{invoice}} <span class="label label-primary">{{invoice.get_bvr_number}}</span></a></li>
+                {% endfor %}
+            </ul>
+        {% include "widget/footer.html" %}
+    </div>
+{% endif %}

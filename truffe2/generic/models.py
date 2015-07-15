@@ -699,6 +699,9 @@ class GenericGroupsValidableOrModerableModel(object):
 
     generic_groups_moderable = True
 
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
     def __init__(self, *args, **kwargs):
 
         super(GenericGroupsValidableOrModerableModel, self).__init__(*args, **kwargs)

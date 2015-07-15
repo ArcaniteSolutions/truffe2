@@ -36,7 +36,17 @@ def home(request):
     else:
         accreds_to_validate = []
 
-    return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate})
+    if request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
+        from accounting_tools.models import Invoice
+
+        invoices_need_bvr = Invoice.objects.filter(deleted=False, status='1_need_bvr')
+        invoices_waiting = Invoice.objects.filter(deleted=False, status='2_sent')
+
+    else:
+        invoices_need_bvr = None
+        invoices_waiting = None
+
+    return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate, 'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting})
 
 
 @login_required

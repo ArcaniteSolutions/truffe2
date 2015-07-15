@@ -3,6 +3,8 @@
 from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.forms import CharField, Form
+from django.contrib import messages
 
 
 import datetime
@@ -14,6 +16,7 @@ from generic.models import GenericModel, GenericStateModel, FalseFK, GenericCont
 from rights.utils import UnitExternalEditableModel, UnitEditableModel
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
+from notifications.utils import notify_people, unotify_people
 
 
 class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
@@ -213,7 +216,7 @@ class SubventionLine(ModelUsedAsLine):
         return u"{}:{}".format(self.subvention.name, self.name)
 
 
-class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, AccountingYearLinked, UnitEditableModel):
+class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, GenericGroupsModel, GenericContactableModel, AccountingYearLinked, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'TRESORERIE'
@@ -233,11 +236,10 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
     sign = models.CharField(_(u'Signature'), max_length=512, help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
 
-    # TODO: Statut (Draft, Sent, TramisMarianne, Reçu)
-
     class MetaData:
         list_display = [
             ('title', _('Titre')),
+            ('status', _('Status')),
             ('costcenter', _(u'Centre de coût')),
             ('get_reference', _(u'Référence')),
             ('get_bvr_number', _(u'Numéro de BVR')),
@@ -298,11 +300,136 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
                 ]},
         ]
 
+    class MetaState:
+
+        states = {
+            '0_preparing': _(u'En préparation'),
+            '1_need_bvr': _(u'En attente d\'un numéro BVR'),
+            '2_sent': _(u'Envoyée / payement en attente'),
+            '3_archived': _(u'Terminé / Payement reçu'),
+            '4_canceled': _(u'Annulée'),
+        }
+
+        default = '0_preparing'
+
+        states_texts = {
+            '0_preparing': _(u'La facture est en cours de rédaction'),
+            '1_need_bvr': _(u'La facture nécessaire un vrai BVR, en attente d\'attribution'),
+            '2_sent': _(u'La facture à été envoyé, le payement est en attente.'),
+            '3_archived': _(u'Le payement de la facture à été reçu, le processus de la facture est terminé.'),
+            '4_canceled': _(u'La facture à été annulée'),
+        }
+
+        states_links = {
+            '0_preparing': ['1_need_bvr', '2_sent', '4_canceled'],
+            '1_need_bvr': ['0_preparing'],
+            '2_sent': ['3_archived', '4_canceled'],
+            '3_archived': [],
+            '4_canceled': [],
+        }
+
+        states_colors = {
+            '0_preparing': 'primary',
+            '1_need_bvr': 'danger',
+            '2_sent': 'warning',
+            '3_archived': 'success',
+            '4_canceled': 'default',
+        }
+
+        states_icons = {
+        }
+
+        list_quick_switch = {
+            '0_preparing': [('2_sent', 'fa fa-check', _(u'Marquer comme envoyée')), ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR')), ],
+            '1_need_bvr': [],
+            '2_sent': [('3_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
+            '3_archived': [],
+            '4_canceled': [],
+        }
+
+        states_default_filter = '0_preparing,1_need_bvr,2_sent'
+        states_default_filter_related = '0_preparing,1_need_bvr,2_sent'
+        status_col_id = 1
+
+        class FormBVR(Form):
+            bvr = CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 (...) étant rajouté automatiquement'), required=False)
+
+        states_bonus_form = {
+            '0_preparing': FormBVR
+        }
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(_Invoice, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '1_need_bvr':
+            notify_people(request, '%s.need_bvr' % (self.__class__.__name__,), 'invoices_bvr_needed', self, self.people_in_root_unit('SECRETARIAT'))
+
+        if dest_status == '0_preparing':
+
+            if request.POST.get('bvr'):
+
+                bvr = ''.join(filter(lambda x: x in string.digits, request.POST.get('bvr')))
+
+                while len(bvr) < 27 - len('94421'):
+                    bvr = '0{}'.format(bvr)
+
+                if len(bvr) < 27:
+                    bvr = '94421{}'.format(bvr)
+
+                if len(bvr) != 27:
+                    messages.warning(request, _(u'Numéro BVR invalide (Ne contiens pas 27 chiffres)'))
+
+                elif bvr != self._add_checksum(bvr[:-1]):
+                    messages.warning(request, _(u'Numéro BVR invalide (Checksum)'))
+
+                elif not bvr.startswith('9442100'):
+                    messages.warning(request, _(u'Numéro BVR invalide (Doit commencer par 94 42100)'))
+
+                else:
+                    self.custom_bvr_number = "{} {} {} {} {} {}".format(bvr[:2], bvr[2:7], bvr[7:12], bvr[12:17], bvr[17:22], bvr[22:])
+                    self.save()
+
+                    unotify_people('%s.need_bvr' % (self.__class__.__name__,), self)
+                    notify_people(request, '%s.bvr_set' % (self.__class__.__name__,), 'invoices_bvr_set', self, self.build_group_members_for_editors())
+
+        if dest_status == '2_sent':
+            notify_people(request, '%s.sent' % (self.__class__.__name__,), 'invoices_sent', self, self.people_in_root_unit('SECRETARIAT'))
+
+        if dest_status == '3_archived':
+            notify_people(request, '%s.done' % (self.__class__.__name__,), 'invoices_done', self, self.build_group_members_for_editors())
+
+    def may_switch_to(self, user, dest_state):
+
+        return super(_Invoice, self).rights_can_EDIT(user) and super(_Invoice, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+
+        if not super(_Invoice, self).rights_can_EDIT(user):
+            return (False, _('Pas les droits.'))
+
+        return super(_Invoice, self).can_switch_to(user, dest_state)
+
+    def rights_can_EDIT(self, user):
+        # On ne peut pas éditer les factures envoyés/reçues
+
+        if self.status in ['0_preparing', '1_need_bvr']:
+            return super(_Invoice, self).rights_can_EDIT(user)
+
+        return False
+
+    def rights_can_DISPLAY_LOG(self, user):
+        """Always display log, even if current state dosen't allow edit"""
+        return super(_Invoice, self).rights_can_EDIT(user)
+
     class Meta:
         abstract = True
 
     def __unicode__(self):
-        return self.title
+        return '{} ({})'.format(self.title, self.get_reference())
 
     def get_reference(self):
         return 'T2-{}-{}'.format(self.costcenter.account_number, self.pk)
@@ -395,8 +522,6 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
 
         if 'custom_bvr_number' in data and data['custom_bvr_number']:
             bvr = ''.join(filter(lambda x: x in string.digits, data['custom_bvr_number']))
-
-            print bvr
 
             if len(bvr) != 27:
                 raise forms.ValidationError(_(u'Numéro BVR invalide (Ne contiens pas 27 chiffres)'))

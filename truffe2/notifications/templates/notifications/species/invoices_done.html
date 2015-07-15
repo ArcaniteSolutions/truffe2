@@ -4,18 +4,14 @@
 </em>
 
 <span>
-    {% trans "L'accréditation suivante dans l'unité" %} <span class="text-primary">{{notification.linked_object.unit}}</span> {% trans "à été validée" %}
-
-    <ul>
-        <li>{{notification.linked_object.user}} ({{notification.linked_object.role}})</li>
-    </ul>
+    {% trans "Le payement pour la facture" %} <span class="text-primary">{{notification.linked_object}}</span> {% trans "à été effectué !" %}
 
     <br />
     <span class="pull-right">
         <button onclick="notification_ignore({{notification.pk}});" class="btn btn-xs btn-warning margin-top-5">
             <i class="fa fa-times"></i> {% trans "Ignorer" %}
         </button>
-        <button onclick="window.location = '{% url 'notifications.views.goto' notification.pk %}?next={% url 'units.views.accreds_list' %}?upk={{notification.linked_object.unit.pk}}';" class="btn btn-xs btn-primary margin-top-5">
+        <button onclick="window.location = '{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}';" class="btn btn-xs btn-primary margin-top-5">
             <i class="fa fa-eye"></i> {% trans "Détails" %}
         </button>
     </span>
