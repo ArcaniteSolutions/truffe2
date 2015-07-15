@@ -308,13 +308,14 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
     class MetaData:
         list_display = [
             ('name', _('Raison')),
-            ('description', _(u'Description')),
             ('account', _('Compte')),
             ('amount', _('Montant')),
+            ('cost_center_from', _(u'De')),
+            ('cost_center_to', _(u'Vers')),
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [('accounting_year', _(u'Année comptable')), ('cost_center_from', _(u'De')), ('cost_center_to', _(u'Vers'))]
+        details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable')), ]
         filter_fields = ('name', 'status', 'account', 'amount')
 
         base_title = _(u'Transferts internes')
@@ -375,7 +376,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         states_colors = {
             '0_draft': 'primary',
             '1_agep_validable': 'default',
-            '2_accountable': 'default',
+            '2_accountable': 'info',
             '3_archived': 'success',
             '3_canceled': 'danger',
         }
@@ -423,12 +424,6 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         return super(_InternalTransfer, self).rights_can_SHOW(user)
 
     def rights_can_EDIT(self, user):
-        if self.status[0] == '3':
-            return False
-
-        return super(_InternalTransfer, self).rights_can_EDIT(user)
-
-    def rights_can_DELETE(self, user):
         if self.status[0] == '3':
             return False
 

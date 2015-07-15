@@ -698,7 +698,7 @@ class GenericAccountingStateModel(object):
             '0_correct': 'warning',
             '1_unit_validable': 'default',
             '2_agep_validable': 'default',
-            '3_accountable': 'default',
+            '3_accountable': 'info',
             '4_archived': 'success',
             '4_canceled': 'danger',
         }
@@ -780,15 +780,19 @@ class GenericAccountingStateModel(object):
             s.switch_status_signal(request, old_status, dest_status)
 
         if dest_status == '1_unit_validable':
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'validable', self, self.people_in_linked_unit('TRESORERIE'))
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_linked_unit('TRESORERIE'))
 
         elif dest_status == '2_agep_validable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
 
         elif dest_status == '3_accountable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accepted', self, self.get_creator())
+            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'accounting_accountable', self, self.people_in_root_unit('SECRETARIAT'))
+
+        elif dest_status == '4_archived':
+            unotify_people('%s.accountable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, self.get_creator())
 
 
 class GenericStateRootModerable(GenericStateModerable):
