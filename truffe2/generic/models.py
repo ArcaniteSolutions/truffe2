@@ -780,11 +780,11 @@ class GenericAccountingStateModel(object):
             s.switch_status_signal(request, old_status, dest_status)
 
         if dest_status == '1_unit_validable':
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_linked_unit('TRESORERIE'))
+            notify_people(request, '%s.unit_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_linked_unit('TRESORERIE'))
 
         elif dest_status == '2_agep_validable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
 
         elif dest_status == '3_accountable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
