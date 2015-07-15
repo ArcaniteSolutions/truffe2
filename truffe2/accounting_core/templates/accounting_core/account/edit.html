@@ -14,7 +14,6 @@
                     $('<option></option>').val('').html('---------')
                 );
 
-                data = JSON.parse(data);
                 for (var i = 0; i < data.length; i++) {
                     $('#id_category').append(
                         $('<option></option>').val(data[i].value).html(data[i].text)

@@ -172,7 +172,7 @@ def leaves_cat_by_year(request, ypk):
     retour = filter(lambda ac: not ac.get_children_categories().exists(), retour)
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
-    return HttpResponse(json.dumps(retour))
+    return HttpResponse(json.dumps(retour), content_type='application/json')
 
 
 @login_required
@@ -183,7 +183,7 @@ def parents_cat_by_year(request, ypk):
     retour = filter(lambda ac: ac.get_children_categories().exists(), retour)
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
-    return HttpResponse(json.dumps(retour))
+    return HttpResponse(json.dumps(retour), content_type='application/json')
 
 
 @login_required
@@ -194,7 +194,7 @@ def accounts_by_year(request, ypk):
     retour = filter(lambda account: account.user_can_see(request.user), retour)
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
-    return HttpResponse(json.dumps(retour))
+    return HttpResponse(json.dumps(retour), content_type='application/json')
 
 
 @login_required
@@ -204,4 +204,4 @@ def costcenters_by_year(request, ypk):
     retour = CostCenter.objects.filter(accounting_year__pk=ypk).order_by('account_number')
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
-    return HttpResponse(json.dumps(retour))
+    return HttpResponse(json.dumps(retour), content_type='application/json')
