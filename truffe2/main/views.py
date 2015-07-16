@@ -24,6 +24,7 @@ def home(request):
     """Dummy home page"""
 
     from main.models import HomePageNews
+    from accounting_tools.models import InternalTransfer
 
     news = HomePageNews.objects.filter(status='1_online').order_by('-pk').all()
 
@@ -36,7 +37,14 @@ def home(request):
     else:
         accreds_to_validate = []
 
-    return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate})
+    internaltransfer_to_validate = None
+    internaltransfer_to_account = None
+    if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']):
+        internaltransfer_to_validate = InternalTransfer.objects.filter(deleted=False, status='1_agep_validable')
+    if request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
+        internaltransfer_to_account = InternalTransfer.objects.filter(deleted=False, status='2_accountable')
+
+    return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate, 'internaltransfer_to_validate': internaltransfer_to_validate, 'internaltransfer_to_account': internaltransfer_to_account})
 
 
 @login_required

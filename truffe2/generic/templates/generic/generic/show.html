@@ -221,10 +221,12 @@
 
     <div style="float: right;">
 
+        {% ifhasright obj user 'LIST' %}
         <a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}" class="btn btn-info">
           <i class="fa fa-list"></i>
           {% trans "Retourner sur la liste" %}
         </a>
+        {% endifhasright %}
         {% ifhasright obj user 'DELETE' %}
           <a href="{% url delete_view obj.pk %}{% if related_mode %}?_upkns=_&_fromrelated=_{% endif %}" class="btn btn-danger">
             <i class="fa fa-times"></i>

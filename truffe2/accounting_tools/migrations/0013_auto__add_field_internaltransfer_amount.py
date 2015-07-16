@@ -8,23 +8,39 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'SubventionFile'
-        db.create_table(u'accounting_tools_subventionfile', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('upload_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('uploader', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='files', null=True, to=orm['accounting_tools.Subvention'])),
-            ('file', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-        ))
-        db.send_create_signal(u'accounting_tools', ['SubventionFile'])
+        # Adding field 'InternalTransfer.amount'
+        db.add_column(u'accounting_tools_internaltransfer', 'amount',
+                      self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=20, decimal_places=2),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'SubventionFile'
-        db.delete_table(u'accounting_tools_subventionfile')
+        # Deleting field 'InternalTransfer.amount'
+        db.delete_column(u'accounting_tools_internaltransfer', 'amount')
 
 
     models = {
+        u'accounting_core.account': {
+            'Meta': {'unique_together': "(('name', 'accounting_year'), ('account_number', 'accounting_year'))", 'object_name': 'Account'},
+            'account_number': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
+            'accounting_year': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.AccountingYear']"}),
+            'category': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.AccountCategory']"}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'visibility': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        u'accounting_core.accountcategory': {
+            'Meta': {'unique_together': "(('name', 'accounting_year'),)", 'object_name': 'AccountCategory'},
+            'accounting_year': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.AccountingYear']"}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'order': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
+            'parent_hierarchique': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.AccountCategory']", 'null': 'True', 'blank': 'True'})
+        },
         u'accounting_core.accountingyear': {
             'Meta': {'object_name': 'AccountingYear'},
             'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -34,6 +50,78 @@ class Migration(SchemaMigration):
             'start_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'0_preparing'", 'max_length': '255'}),
             'subvention_deadline': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
+        },
+        u'accounting_core.costcenter': {
+            'Meta': {'unique_together': "(('name', 'accounting_year'), ('account_number', 'accounting_year'))", 'object_name': 'CostCenter'},
+            'account_number': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
+            'accounting_year': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.AccountingYear']"}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'unit': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['units.Unit']"})
+        },
+        u'accounting_tools.internaltransfer': {
+            'Meta': {'object_name': 'InternalTransfer'},
+            'account': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.Account']"}),
+            'accounting_year': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.AccountingYear']"}),
+            'amount': ('django.db.models.fields.DecimalField', [], {'max_digits': '20', 'decimal_places': '2'}),
+            'cost_center_from': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'internal_transfer_from'", 'to': u"orm['accounting_core.CostCenter']"}),
+            'cost_center_to': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'internal_transfer_to'", 'to': u"orm['accounting_core.CostCenter']"}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'0_draft'", 'max_length': '255'})
+        },
+        u'accounting_tools.internaltransferlogging': {
+            'Meta': {'object_name': 'InternalTransferLogging'},
+            'extra_data': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'logs'", 'to': u"orm['accounting_tools.InternalTransfer']"}),
+            'what': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'when': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'who': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
+        },
+        u'accounting_tools.internaltransfertag': {
+            'Meta': {'object_name': 'InternalTransferTag'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tags'", 'to': u"orm['accounting_tools.InternalTransfer']"}),
+            'tag': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+        },
+        u'accounting_tools.invoice': {
+            'Meta': {'object_name': 'Invoice'},
+            'accounting_year': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.AccountingYear']"}),
+            'costcenter': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_core.CostCenter']"}),
+            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'unit': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['units.Unit']"})
+        },
+        u'accounting_tools.invoiceline': {
+            'Meta': {'object_name': 'InvoiceLine'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'invoice': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'lines'", 'to': u"orm['accounting_tools.Invoice']"}),
+            'label': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'order': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
+            'quantity': ('django.db.models.fields.DecimalField', [], {'default': '1', 'max_digits': '20', 'decimal_places': '0'}),
+            'tva': ('django.db.models.fields.DecimalField', [], {'max_digits': '20', 'decimal_places': '2'}),
+            'value': ('django.db.models.fields.DecimalField', [], {'max_digits': '20', 'decimal_places': '2'})
+        },
+        u'accounting_tools.invoicelogging': {
+            'Meta': {'object_name': 'InvoiceLogging'},
+            'extra_data': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'logs'", 'to': u"orm['accounting_tools.Invoice']"}),
+            'what': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'when': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'who': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
+        },
+        u'accounting_tools.invoicetag': {
+            'Meta': {'object_name': 'InvoiceTag'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tags'", 'to': u"orm['accounting_tools.Invoice']"}),
+            'tag': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
         u'accounting_tools.subvention': {
             'Meta': {'unique_together': "(('unit', 'unit_blank_name', 'accounting_year'),)", 'object_name': 'Subvention'},
@@ -67,6 +155,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'nb_spec': ('django.db.models.fields.SmallIntegerField', [], {}),
+            'order': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
             'place': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'start_date': ('django.db.models.fields.DateField', [], {}),
             'subvention': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'events'", 'to': u"orm['accounting_tools.Subvention']"})

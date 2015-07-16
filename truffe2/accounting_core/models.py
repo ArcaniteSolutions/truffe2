@@ -182,7 +182,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         base_title = _(u'Centres de coût')
         list_title = _(u'Liste des centres de coût')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-suitcase'
 
         menu_id = 'menu-compta-centrecouts'
 
@@ -192,7 +192,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         copiable = True
 
     def __unicode__(self):
-        return u"{} - {}".format(self.account_number, self.name)
+        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
 
     def genericFormExtraClean(self, data, form):
         """Check that unique_together is fulfiled"""
@@ -212,9 +212,9 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         world_ro_access = False
 
     name = models.CharField(_(u'Nom de la catégorie'), max_length=255)
-    description = models.TextField(_('Description'), blank=True, null=True)
     parent_hierarchique = models.ForeignKey('AccountCategory', null=True, blank=True, help_text=_(u'Catégorie parente pour la hiérarchie'))
     order = models.SmallIntegerField(_(u'Ordre dans le plan comptable'), default=0, help_text=_(u'Le plus petit d\'abord'))
+    description = models.TextField(_('Description'), blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -236,7 +236,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         base_title = _(u'Catégories des comptes de CG')
         list_title = _(u'Liste des catégories')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-folder-open'
 
         menu_id = 'menu-compta-categoriescompteCG'
 
@@ -260,6 +260,9 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
 
         if AccountCategory.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
             raise forms.ValidationError(_(u'Une catégorie avec ce nom existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+        if data['parent_hierarchique'] and data['parent_hierarchique'].accounting_year != get_current_year(form.truffe_request):
+            raise forms.ValidationError(_(u'La catégorie parente choisie n\'appartient pas à la bonne année comptable.'))
 
     def get_children_categories(self):
         """Return the categories whose parent is self."""
@@ -286,8 +289,8 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     name = models.CharField(_('Nom du compte'), max_length=255)
     account_number = models.CharField(_(u'Numéro du compte'), max_length=10)
     visibility = models.CharField(_(u'Visibilité dans les documents comptables'), max_length=50, choices=VISIBILITY_CHOICES)
-    description = models.TextField(_('Description'), blank=True, null=True)
     category = FalseFK('accounting_core.models.AccountCategory', verbose_name=_(u'Catégorie'))
+    description = models.TextField(_('Description'), blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -308,7 +311,7 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         base_title = _(u'Comptes de Comptabilité Générale')
         list_title = _(u'Liste des comptes')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-money'
 
         menu_id = 'menu-compta-comptesCG'
 
@@ -320,7 +323,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         foreign = (('category', 'AccountCategory'),)
 
     def __unicode__(self):
-        return u"{} - {}".format(self.account_number, self.name)
+        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible categories to the leaves of the hierarchical tree."""
@@ -332,7 +335,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         form.fields['category'].queryset = AccountCategory.objects.filter(id__in=ids_yac)
 
     def genericFormExtraClean(self, data, form):
-        """Check that unique_together is fulfiled"""
+        """Check that unique_together is fulfiled and that category is in the right accounting_year"""
         from accounting_core.models import Account
 
         if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), name=data['name']).count():
@@ -340,6 +343,9 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
 
         if Account.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), account_number=data['account_number']).count():
             raise forms.ValidationError(_(u'Un compte de CG avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
+
+        if data['category'].accounting_year != get_current_year(form.truffe_request):
+            raise forms.ValidationError(_(u'La catégorie choisie n\'appartient pas à la bonne année comptable.'))
 
     def user_can_see(self, user):
         if self.visibility == 'none':
@@ -380,7 +386,7 @@ class _TVA(GenericModel, AgepolyEditableModel):
         base_title = _(u'TVA')
         list_title = _(u'Liste des taux de TVA')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-certificate'
+        elem_icon = 'fa fa-filter'
 
         menu_id = 'menu-compta-tva'
 

@@ -274,7 +274,7 @@ class GenericModel(models.Model):
 
     def get_creator(self):
         """Return the creator (based on logs)"""
-        return self.logs.filter(what='created').first().who
+        return getattr(self.logs.filter(what='created').first(), 'who', None)
 
     def display_url(self):
         return reverse(str(self.__class__._show_view), args=(self.pk,))
@@ -640,6 +640,159 @@ class GenericStateValidable(GenericStateValidableOrModerable):
                 else:
                     self.remarks = request.POST.get('remark')
                 self.save()
+
+
+class GenericAccountingStateModel(object):
+    """Un système de statut générique pour les pièces comptables"""
+
+    class MetaState:
+        states = {
+            '0_draft': _('Brouillon'),
+            '0_correct': _(u'Corrections nécessaires'),
+            '1_unit_validable': _(u'Attente accord unité'),
+            '2_agep_validable': _(u'Attente accord AGEPoly'),
+            '3_accountable': _(u'A comptabiliser'),
+            '4_archived': _(u'Archivé'),
+            '4_canceled': _(u'Annulé'),
+        }
+        default = '0_draft'
+
+        states_texts = {
+            '0_draft': _(u'L\'objet est en cours de création.'),
+            '0_correct': _(u'L\'objet nécessite d\'être modifié avant d\'être revalidé.'),
+            '1_unit_validable': _(u'L\'objet doit être accepté au sein de l\'unité. A partir de maintenant, il n\'est plus éditable.'),
+            '2_agep_validable': _(u'L\'objet doit être accepté par l\'AGEPoly.'),
+            '3_accountable': _(u'L\'objet est en attente d\'être comptabilisé.'),
+            '4_archived': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
+            '4_canceled': _(u'L\'objet a été annulé.'),
+        }
+
+        states_links = {
+            '0_draft': ['1_unit_validable', '4_canceled'],
+            '0_correct': ['1_unit_validable', '4_canceled'],
+            '1_unit_validable': ['0_correct', '2_agep_validable', '4_canceled'],
+            '2_agep_validable': ['0_correct', '3_accountable', '4_canceled'],
+            '3_accountable': ['0_correct', '4_archived', '4_canceled'],
+            '4_archived': [],
+            '4_canceled': [],
+        }
+
+        states_quick_switch = {
+            '0_draft': [('1_unit_validable', _(u'Demander accord unité')), ('4_canceled', _(u'Annuler')), ],
+            '0_correct': [('1_unit_validable', _(u'Demander accord unité')), ('4_canceled', _(u'Annuler')), ],
+            '1_unit_validable': [('2_agep_validable', _(u'Demander accord AGEPoly')), ('0_correct', _(u'Demander des corrections')), ('4_canceled', _(u'Annuler')), ],
+            '2_agep_validable': [('0_correct', _(u'Demander des corrections')), ('3_accountable', _(u'Demander à comptabiliser')), ('4_canceled', _(u'Annuler')), ],
+            '3_accountable': [('4_archived', _(u'Archiver')), ('4_canceled', _(u'Annuler')), ]
+        }
+
+        list_quick_switch = {
+            '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('4_canceled', 'fa fa-ban', _(u'Annuler')), ],
+            '0_correct': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('4_canceled', 'fa fa-ban', _(u'Annuler')), ],
+            '1_unit_validable': [('2_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
+            '2_agep_validable': [('3_accountable', 'fa fa-check', _(u'Demander à comptabiliser')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
+            '3_accountable': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
+        }
+
+        states_colors = {
+            '0_draft': 'primary',
+            '0_correct': 'warning',
+            '1_unit_validable': 'default',
+            '2_agep_validable': 'default',
+            '3_accountable': 'info',
+            '4_archived': 'success',
+            '4_canceled': 'danger',
+        }
+
+        states_icons = {
+            '0_draft': '',
+            '0_correct': '',
+            '1_unit_validable': '',
+            '2_agep_validable': '',
+            '3_accountable': '',
+            '4_archived': '',
+            '4_canceled': '',
+        }
+
+        states_default_filter = '0_draft,0_correct,1_unit_validable,2_agep_validable'
+        status_col_id = 4
+
+    def may_switch_to(self, user, dest_state):
+        if self.status[0] == '4' and not user.is_superuser:
+            return False
+
+        if dest_state == '4_canceled' and self.rights_can('EDIT', user):
+            return True
+
+        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
+            return False
+
+        return super(GenericAccountingStateModel, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+
+        if self.status[0] == '4' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé/annulé'))
+
+        if dest_state == '4_canceled' and self.rights_can('EDIT', user):
+            return (True, None)
+
+        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
+            return (False, _(u'Seul l\'admin peut valider cet élément pour le moment. Merci de patienter.'))
+
+        if self.status[0] == '1' and not self.right_in_linked_unit(user, 'TRESORERIE'):
+            return (False, _(u'Seul ton trésorier peut valider cet élément pour le moment.'))
+
+        if not self.rights_can('EDIT', user):
+            return (False, _('Pas les droits.'))
+
+        return super(GenericAccountingStateModel, self).can_switch_to(user, dest_state)
+
+    def rights_can_SHOW(self, user):
+
+        if self.get_creator() == user:
+            return True
+
+        return super(GenericAccountingStateModel, self).rights_can_SHOW(user)
+
+    def rights_can_EDIT(self, user):
+        if self.status[0] == '4':
+            return False
+
+        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
+            return False
+
+        if self.status[0] == '1' and not self.rights_in_linked_unit(user, 'TRESORERIE'):
+            return False
+
+        return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
+
+    def rights_can_DELETE(self, user):
+        if self.status == '4_archived':
+            return False
+
+        return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(GenericAccountingStateModel, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '1_unit_validable':
+            notify_people(request, '%s.unit_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_linked_unit('TRESORERIE'))
+
+        elif dest_status == '2_agep_validable':
+            unotify_people('%s.validable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
+
+        elif dest_status == '3_accountable':
+            unotify_people('%s.validable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'accounting_accountable', self, self.people_in_root_unit('SECRETARIAT'))
+
+        elif dest_status == '4_archived':
+            unotify_people('%s.accountable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, self.get_creator())
 
 
 class GenericStateRootModerable(GenericStateModerable):
