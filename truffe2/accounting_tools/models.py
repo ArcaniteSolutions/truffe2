@@ -361,12 +361,6 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             '3_canceled': [],
         }
 
-        states_quick_switch = {
-            '0_draft': [('1_agep_validable', _(u'Demander accord AGEPoly')), ('3_canceled', _(u'Annuler')), ],
-            '1_agep_validable': [('2_accountable', _(u'Demander à comptabiliser')), ('3_canceled', _(u'Annuler')), ],
-            '2_accountable': [('3_archived', _(u'Archiver')), ('3_canceled', _(u'Annuler')), ]
-        }
-
         list_quick_switch = {
             '0_draft': [('1_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly')), ('3_canceled', 'fa fa-ban', _(u'Annuler')), ],
             '1_agep_validable': [('2_accountable', 'fa fa-check', _(u'Demander à comptabiliser')), ('3_canceled', 'fa fa-ban', _(u'Annuler'))],
@@ -444,7 +438,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         elif dest_status[0] == '3':
             unotify_people('%s.accountable' % (self.__class__.__name__,), self)
             tresoriers = self.people_in_unit(self.cost_center_from.unit, 'TRESORERIE', no_parent=True) + self.people_in_unit(self.cost_center_to.unit, 'TRESORERIE', no_parent=True)
-            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'internaltransfer_accepted', self, tresoriers)
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'internaltransfer_accepted', self, list(set(tresoriers + self.build_group_members_for_editors())))
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
