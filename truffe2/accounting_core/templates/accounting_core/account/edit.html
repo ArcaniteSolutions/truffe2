@@ -7,6 +7,19 @@
 
 {% block edit_bonus %}
     <script type="text/javascript">
+
+        // Move category up
+        var category = $('#id_category').parents('.form-group').remove();
+        $('#id_visibility').parents('.form-group').after(category);
+
+        $(function() {
+            // Transform select2 for visibility and category
+            $('#id_visibility').removeClass('form-control');
+            $('#id_visibility').width('72%').select2();
+            $('#id_category').removeClass('form-control');
+            $('#id_category').width('72%').select2();
+        });
+
         function update_categories(pk) {
             $.ajax('{% url 'accounting_core.views.leaves_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
                 $('#id_category option').remove();

@@ -212,9 +212,9 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         world_ro_access = False
 
     name = models.CharField(_(u'Nom de la catégorie'), max_length=255)
-    description = models.TextField(_('Description'), blank=True, null=True)
     parent_hierarchique = models.ForeignKey('AccountCategory', null=True, blank=True, help_text=_(u'Catégorie parente pour la hiérarchie'))
     order = models.SmallIntegerField(_(u'Ordre dans le plan comptable'), default=0, help_text=_(u'Le plus petit d\'abord'))
+    description = models.TextField(_('Description'), blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -289,8 +289,8 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     name = models.CharField(_('Nom du compte'), max_length=255)
     account_number = models.CharField(_(u'Numéro du compte'), max_length=10)
     visibility = models.CharField(_(u'Visibilité dans les documents comptables'), max_length=50, choices=VISIBILITY_CHOICES)
-    description = models.TextField(_('Description'), blank=True, null=True)
     category = FalseFK('accounting_core.models.AccountCategory', verbose_name=_(u'Catégorie'))
+    description = models.TextField(_('Description'), blank=True, null=True)
 
     class Meta:
         abstract = True

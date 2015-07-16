@@ -7,6 +7,13 @@
 
 {% block edit_bonus %}
     <script type="text/javascript">
+
+        $(function() {
+            // Transform select2 for the parent category
+            $('#id_parent_hierarchique').removeClass('form-control');
+            $('#id_parent_hierarchique').width('72%').select2();
+        });
+
         function update_parents(pk) {
             $.ajax('{% url 'accounting_core.views.parents_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
                 $('#id_parent_hierarchique option').remove();

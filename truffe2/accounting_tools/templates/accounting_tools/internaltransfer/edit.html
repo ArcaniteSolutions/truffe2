@@ -9,6 +9,16 @@
 
 {% block edit_bonus %}
     <script type="text/javascript">
+        $(function() {
+            // Transform select2 for account and cost centers
+            $('#id_account').removeClass('form-control');
+            $('#id_account').width('72%').select2();
+            $('#id_cost_center_from').removeClass('form-control');
+            $('#id_cost_center_from').width('72%').select2();
+            $('#id_cost_center_to').removeClass('form-control');
+            $('#id_cost_center_to').width('72%').select2();
+        });
+
         function update_accounts(pk) {
             $.ajax('{% url 'accounting_core.views.accounts_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
                 $('#id_account option').remove();
@@ -16,7 +26,6 @@
                     $('<option></option>').val('').html('---------')
                 );
 
-                data = JSON.parse(data);
                 for (var i = 0; i < data.length; i++) {
                     $('#id_account').append(
                         $('<option></option>').val(data[i].value).html(data[i].text)
@@ -32,7 +41,6 @@
                     $('<option></option>').val('').html('---------')
                 );
 
-                data = JSON.parse(data);
                 for (var i = 0; i < data.length; i++) {
                     $('#id_cost_center_from').append(
                         $('<option></option>').val(data[i].value).html(data[i].text)
@@ -48,7 +56,6 @@
                     $('<option></option>').val('').html('---------')
                 );
 
-                data = JSON.parse(data);
                 for (var i = 0; i < data.length; i++) {
                     $('#id_cost_center_to').append(
                         $('<option></option>').val(data[i].value).html(data[i].text)
