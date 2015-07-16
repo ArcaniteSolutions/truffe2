@@ -316,7 +316,7 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
         ]
 
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable')), ]
-        filter_fields = ('name', 'status', 'account', 'amount')
+        filter_fields = ('name', 'status', 'account__name', 'account__account_number', 'amount', 'cost_center_from__name', 'cost_center_from__account_number', 'cost_center_to__name', 'cost_center_to__account_number')
 
         base_title = _(u'Transferts internes')
         list_title = _(u'Liste des transferts internes')
