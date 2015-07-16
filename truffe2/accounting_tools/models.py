@@ -57,7 +57,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         base_title = _(u'Subvention')
         list_title = _(u'Liste des demandes de subvention')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-gift'
 
         menu_id = 'menu-compta-subventions'
         not_sortable_colums = ['get_unit_name']
@@ -234,7 +234,7 @@ class _Invoice(GenericModel, GenericTaggableObject, CostCenterLinked, GenericMod
         base_title = _(u'Facture')
         list_title = _(u'Liste de toutes les factures')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-money'
+        elem_icon = 'fa fa-pencil-square-o'
 
         default_sort = "[1, 'asc']"  # title
 
@@ -321,7 +321,7 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
         base_title = _(u'Transferts internes')
         list_title = _(u'Liste des transferts internes')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-exchange'
 
         menu_id = 'menu-compta-transfert'
 

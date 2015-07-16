@@ -182,7 +182,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         base_title = _(u'Centres de coût')
         list_title = _(u'Liste des centres de coût')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-suitcase'
 
         menu_id = 'menu-compta-centrecouts'
 
@@ -236,7 +236,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         base_title = _(u'Catégories des comptes de CG')
         list_title = _(u'Liste des catégories')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-folder-open'
 
         menu_id = 'menu-compta-categoriescompteCG'
 
@@ -311,7 +311,7 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         base_title = _(u'Comptes de Comptabilité Générale')
         list_title = _(u'Liste des comptes')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-smile-o'
+        elem_icon = 'fa fa-money'
 
         menu_id = 'menu-compta-comptesCG'
 
@@ -386,7 +386,7 @@ class _TVA(GenericModel, AgepolyEditableModel):
         base_title = _(u'TVA')
         list_title = _(u'Liste des TVAs')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-certificate'
+        elem_icon = 'fa fa-filter'
 
         menu_id = 'menu-compta-tva'
 
