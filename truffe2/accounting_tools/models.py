@@ -417,6 +417,9 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
     def rights_can_LIST(self, user):
         return super(_InternalTransfer, self).rights_can_SHOW(user)
 
+    def rights_can_DISPLAY_LOG(self, user):
+        return self.rights_can_SHOW(user)
+
     def rights_can_EDIT(self, user):
         if self.status[0] == '3':
             return False
