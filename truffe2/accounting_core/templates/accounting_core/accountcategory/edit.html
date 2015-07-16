@@ -1,0 +1,33 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block bonus_year_updated %}
+    update_parents(pk);
+{% endblock %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        $(function() {
+            // Transform select2 for the parent category
+            $('#id_parent_hierarchique').removeClass('form-control');
+            $('#id_parent_hierarchique').width('72%').select2();
+        });
+
+        function update_parents(pk) {
+            $.ajax('{% url 'accounting_core.views.parents_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+                $('#id_parent_hierarchique option').remove();
+                $('#id_parent_hierarchique').append(
+                    $('<option></option>').val('').html('---------')
+                );
+
+                for (var i = 0; i < data.length; i++) {
+                    $('#id_parent_hierarchique').append(
+                        $('<option></option>').val(data[i].value).html(data[i].text)
+                    );
+                }
+
+            });
+        }
+    </script>
+{% endblock %}

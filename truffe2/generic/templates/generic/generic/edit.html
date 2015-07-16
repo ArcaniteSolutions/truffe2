@@ -329,7 +329,7 @@
                   <script type="text/javascript">
                         function year_updated(pk, name) {
                             $('#input_ypk').val(pk);
-
+                            {% block bonus_year_updated %}{% endblock %}
                             {% if costcenter_mode %}load_costcenter();{% endif %}
 
                         }

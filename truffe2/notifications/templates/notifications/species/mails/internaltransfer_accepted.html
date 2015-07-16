@@ -1,0 +1,4 @@
+{% load i18n humanize %}
+{% trans "Le transfert interne suivant dans le compte" %} {{notification.linked_object.account}} {% trans "a été saisi" %}
+
+- CHF {{notification.linked_object.amount|intcomma}} : {{notification.linked_object.cost_center_from}} -> {{notification.linked_object.cost_center_to}}

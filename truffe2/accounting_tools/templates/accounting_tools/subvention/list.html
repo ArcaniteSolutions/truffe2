@@ -1,9 +1,13 @@
 {% extends "generic/generic/list.html" %}
 {% load i18n rights_extras %}
 
+{% block bonus_year_updated %}
+    $('#export-year').attr('href', '{% url 'accounting_tools.views.export_demands_yearly' 9999429999 %}'.replace(9999429999, pk));
+{% endblock %}
+
 {% block extrabuttons %}
     {% ifhasright Model user 'EXPORT' %}
-        <a href="{% url 'accounting_tools.views.export_demands_yearly' CURRENT_YEAR_PK %}" class="btn bg-color-teal txt-color-white">
+        <a href="{% url 'accounting_tools.views.export_demands_yearly' CURRENT_YEAR_PK %}" class="btn bg-color-teal txt-color-white" id="export-year">
             <i class="fa fa-download"></i>
             {% trans "Exporter cette année" %}
         </a>
