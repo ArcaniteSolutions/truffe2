@@ -58,8 +58,8 @@
         .nodes(nodes)
         .links(links)
         .size([width, height])
-        .linkDistance(100)
-        .charge(-500)
+        .linkDistance(110)
+        .charge(-3000)
         .on('tick', tick)
 
     // define arrow markers for graph links
@@ -85,49 +85,35 @@
         .attr('d', 'M10,-5L0,0L10,5')
         .attr('fill', '#999');
 
-    // line displayed when dragging new nodes
-    var drag_line = svg.append('svg:path')
-    .attr('class', 'link dragline hidden')
-    .attr('d', 'M0,0L0,0');
-
     // handles to link and node element groups
     var path = svg.append('svg:g').selectAll('path'),
         circle = svg.append('svg:g').selectAll('g');
 
-    // mouse event vars
-    var selected_node = null,
-        selected_link = null,
-        mousedown_link = null,
-        mousedown_node = null,
-        mouseup_node = null;
-
-    function resetMouseVars() {
-    mousedown_node = null;
-    mouseup_node = null;
-    mousedown_link = null;
-    }
-
     // update force layout (called automatically each iteration)
     function tick() {
-    // draw directed edges with proper padding from node centers
-    path.attr('d', function(d) {
-        var deltaX = d.target.x - d.source.x,
-            deltaY = d.target.y - d.source.y,
-            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-            normX = deltaX / dist,
-            normY = deltaY / dist,
-            sourcePadding = d.left ? 17 : 12,
-            targetPadding = d.right ? 17 : 12,
-            sourceX = d.source.x + (sourcePadding * normX),
-            sourceY = d.source.y + (sourcePadding * normY),
-            targetX = d.target.x - (targetPadding * normX),
-            targetY = d.target.y - (targetPadding * normY);
-        return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
-    });
+        radius = 40;
+        circle.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+            .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
 
-    circle.attr('transform', function(d) {
-        return 'translate(' + d.x + ',' + d.y + ')';
-    });
+        // draw directed edges with proper padding from node centers
+        path.attr('d', function(d) {
+            var deltaX = d.target.x - d.source.x,
+                deltaY = d.target.y - d.source.y,
+                dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+                normX = deltaX / dist,
+                normY = deltaY / dist,
+                sourcePadding = d.left ? 17 : 12,
+                targetPadding = d.right ? 17 : 12,
+                sourceX = d.source.x + (sourcePadding * normX),
+                sourceY = d.source.y + (sourcePadding * normY),
+                targetX = d.target.x - (targetPadding * normX),
+                targetY = d.target.y - (targetPadding * normY);
+            return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+        });
+
+        circle.attr('transform', function(d) {
+            return 'translate(' + d.x + ',' + d.y + ')';
+        });
     }
 
     function get_color(id) {
@@ -140,15 +126,13 @@
         path = path.data(links);
 
         // update existing links
-        path.classed('selected', function(d) { return d === selected_link; })
-            .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+        path.style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
             .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
 
 
         // add new links
         path.enter().append('svg:path')
             .attr('class', 'link')
-            .classed('selected', function(d) { return d === selected_link; })
             .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
             .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
             .on('mousedown', function(d) {
@@ -157,14 +141,13 @@
         // remove old links
         path.exit().remove();
 
-
         // circle (node) group
         // NB: the function arg is crucial here! nodes are known by id, not by index!
         circle = circle.data(nodes, function(d) { return d.id; });
 
         // update existing nodes (active & selected visual states)
         circle.selectAll('circle')
-            .style('fill', function(d) { return (d === selected_node) ? d3.rgb(get_color(d.id)).brighter().toString() : get_color(d.id); })
+            .style('fill', function(d) { return get_color(d.id); })
             .classed('active', function(d) { return d.active; });
 
         // add new nodes
@@ -173,7 +156,8 @@
         g.append('svg:circle')
             .attr('class', 'node')
             .attr('r', 12)
-            .style('fill', function(d) { return (d === selected_node) ? d3.rgb(get_color(d.id)).brighter().toString() : get_color(d.id); })
+            .attr('opacity', 0.9)
+            .style('fill', function(d) { return get_color(d.id); })
             .style('stroke', function(d) { return d3.rgb(get_color(d.id)).darker().toString(); })
             .classed('active', function(d) { return d.active; })
             .classed('switchable', function(d) { return d.switchable; })
@@ -195,7 +179,7 @@
         circle.exit().remove();
 
         // set the graph in motion
-        var iters = 150; // You can get decent results from 300 if you are pressed for time
+        var iters = 150 * 2; // You can get decent results from 300 if you are pressed for time
         var thresh = 0.001;
         force.start(); // Defaults to alpha = 0.1
         force.alpha(0.1);

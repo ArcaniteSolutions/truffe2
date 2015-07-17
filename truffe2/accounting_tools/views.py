@@ -2,9 +2,11 @@
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import get_object_or_404
+
 
 from app.utils import generate_pdf
 
@@ -69,3 +71,36 @@ def export_all_demands(request):
         summary.append(line)
 
     return generate_pdf("accounting_tools/subvention/subventions_pdf.html", {'subventions': subventions, 'summary': summary, 'years': years, 'user': request.user, 'cdate': now()})
+
+
+@login_required
+def invoice_pdf(request, pk):
+
+    from accounting_tools.models import Invoice
+
+    invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
+
+    if not invoice.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    img = invoice.generate_bvr()
+    img.save('media/cache/bvr/{}.png'.format(invoice.pk))
+
+    return generate_pdf("accounting_tools/invoice/pdf.html", {'invoice': invoice, 'user': request.user, 'cdate': now()})
+
+
+@login_required
+def invoice_bvr(request, pk):
+
+    from accounting_tools.models import Invoice
+
+    invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
+
+    if not invoice.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    img = invoice.generate_bvr()
+
+    response = HttpResponse(mimetype="image/png")
+    img.save(response, 'png')
+    return response
