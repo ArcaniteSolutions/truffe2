@@ -660,6 +660,9 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         states_default_filter = '0_draft,1_agep_validable'
         status_col_id = 4
 
+    class MetaEdit:
+        pass
+
     def may_switch_to(self, user, dest_state):
         if self.status[0] == '3' and not user.is_superuser:
             return False
