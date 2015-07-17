@@ -183,7 +183,7 @@
 
         {% if invoice.display_account %}
             {% if invoice.display_bvr %}
-                {% trans "Vous pouvez aussi effectuer le payement sur le compte suivant :" %}<br />
+                {% trans "Vous pouvez aussi effectuer le paiement sur le compte suivant :" %}<br />
             {% else %}
                 {% trans "Nous vous remercions de bien vouloir payer ce montant à 30 jours sur le compte suivant :" %}
             {% endif %}
@@ -269,7 +269,7 @@
                 <img src="media/cache/bvr/{{invoice.pk}}.png" width="212mm">
                 <br />
 
-                <small>{% trans "Attention: Ce BVR ne peut pas être utilisé pour un payement aux guichets de la poste ou d'une banque" %}</small>
+                <small>{% trans "Attention: Ce BVR ne peut pas être utilisé pour un paiement aux guichets de la poste ou d'une banque" %}</small>
             </center>
 
         {% endif %}
