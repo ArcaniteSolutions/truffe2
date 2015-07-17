@@ -457,3 +457,161 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
     def genericFormExtraClean(self, data, form):
         if data['cost_center_from'] == data['cost_center_to']:
             raise forms.ValidationError(_(u'Les deux centres de coûts doivent être différents.'))
+
+
+class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = 'TRESORERIE'
+
+    name = models.CharField(_('Raison du retrait'), max_length=255, unique=True)
+    unit = FalseFK('units.models.Unit')
+    description = models.TextField(_('Description'), blank=True, null=True)
+    amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
+    desired_date = models.DateField(_(u'Date souhaitée'))
+    withdrawn_date = models.DateField(_(u'Date réelle de retrait'), blank=True, null=True)
+
+    class MetaData:
+        list_display = [
+            ('name', _('Raison')),
+            ('amount', _('Montant')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('description', _(u'Description')), ('desired_date', _(u'Date souhaitée')), ('withdrawn_date', _(u'Date retrait')), ('accounting_year', _(u'Année comptable')), ]
+        filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number')
+        datetime_fields = ['desired_date', 'withdrawn_date']
+
+        default_sort = "[6, 'desc']"  # Creation date (pk) descending
+
+        base_title = _(u'Retraits cash')
+        list_title = _(u'Liste des retraits cash')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-share-square-o'
+
+        has_unit = True
+
+        menu_id = 'menu-compta-rcash'
+
+        help_list = _(u"""Les demandes de retrait cash doivent impérativement être remplies pour pouvoir retirer de l'argent depuis le compte d'une unité.
+
+L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Pièces comptables')
+        files_help = _(u'Pièces comptables liées au retrait cash.')
+        datetime_fields = ['desired_date', 'withdrawn_date']
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState:
+        states = {
+            '0_draft': _('Brouillon'),
+            '1_agep_validable': _(u'Attente accord AGEPoly'),
+            '2_withdrawn': _(u'Prêt à être récupéré'),
+            '3_used': _(u'Récupéré / A justifier'),
+            '4_archived': _(u'Archivé'),
+        }
+        default = '0_draft'
+
+        states_texts = {
+            '0_draft': _(u'La demande est en cours de création.'),
+            '1_agep_validable': _(u'La demande doit être acceptée par l\'AGEPoly.'),
+            '2_withdrawn': _(u'La somme est prête à être récupérée.'),
+            '3_used': _(u'La somme a été retirée et doit maintenant être justifiée.'),
+            '4_archived': _(u'La demande est archivée. Elle n\'est plus modifiable.'),
+        }
+
+        states_links = {
+            '0_draft': ['1_agep_validable'],
+            '1_agep_validable': ['2_withdrawn'],
+            '2_withdrawn': ['3_used'],
+            '3_used': ['4_archived'],
+            '4_archived': [],
+        }
+
+        list_quick_switch = {
+            '0_draft': [('1_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly'))],
+            '1_agep_validable': [('2_withdrawn', 'fa fa-check', _(u'Marquer comme retiré'))],
+            '2_withdrawn': [('3_used', 'glyphicon glyphicon-remove-circle', _(u'Demander justification'))],
+            '3_used': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver'))],
+        }
+
+        states_colors = {
+            '0_draft': 'primary',
+            '1_agep_validable': 'warning',
+            '2_withdrawn': 'success',
+            '3_used': 'danger',
+            '4_archived': 'default',
+        }
+
+        states_icons = {
+            '0_draft': '',
+            '1_agep_validable': '',
+            '2_withdrawn': '',
+            '4_archived': '',
+            '3_used': '',
+        }
+
+        states_default_filter = '0_draft,2_withdrawn,3_used'
+        status_col_id = 3
+
+    def may_switch_to(self, user, dest_state):
+        if self.status == '4_archived' and not user.is_superuser:
+            return False
+
+        return super(_Withdrawal, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+        if self.status == '4_archived' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé.'))
+
+        if self.status in ['1_agep_validable', '2_withdrawn', '3_used'] and not self.rights_in_root_unit('SECREATARIAT'):
+            return (False, _(u'Seules les secrétaires de l\'AGEPoly peuvent passer à l\'état suivant.'))
+
+        if not self.rights_can('EDIT', user):
+            return (False, _('Pas les droits.'))
+
+        return super(_Withdrawal, self).can_switch_to(user, dest_state)
+
+    def rights_can_EDIT(self, user):
+        if int(self.status[0]) > 2:
+            return False
+
+        # Seules les secrétaires peuvent modifier après le statut Brouillon (pour ajouter les dates de retrait et pièces comptables)
+        if self.status != '0_draft' and not self.rights_in_root_unit('SECREATARIAT'):
+            return False
+
+        return super(_Withdrawal, self).rights_can_EDIT(user)
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(_Withdrawal, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '1_agep_validable':
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accountable_validable', self, self.people_in_root_unit('TRESORERIE'))
+        elif dest_status == '2_withdrawn':
+            unotify_people('%s.validable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.withdrawn' % (self.__class__.__name__,), 'accountable_withdrawn', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE', no_parent=True))
+        elif dest_status == '3_used':
+            unotify_people('%s.withdrawn' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.used' % (self.__class__.__name__,), 'accountable_used', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE'))
+        elif dest_status == '4_archived':
+            unotify_people('%s.used' % (self.__class__.__name__,), self)
+
+    def __unicode__(self):
+        return u"{} ({})".format(self.name, self.costcenter)
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Remove fields that should be edited by SECRETARIAT CDD only."""
+
+        if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
+            del form.fields['withdrawn_date']
