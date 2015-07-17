@@ -319,9 +319,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         states_texts = {
             '0_preparing': _(u'La facture est en cours de rédaction'),
             '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
-            '2_sent': _(u'La facture à été envoyée, le paiement est en attente.'),
-            '3_archived': _(u'Le paiement de la facture à été reçu, le processus de facturation est terminé.'),
-            '4_canceled': _(u'La facture à été annulée'),
+            '2_sent': _(u'La facture a été envoyée, le paiement est en attente.'),
+            '3_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
+            '4_canceled': _(u'La facture a été annulée'),
         }
 
         states_links = {

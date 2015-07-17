@@ -577,7 +577,7 @@ class GenericStateModerable(GenericStateValidableOrModerable):
             '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce statut pour demander une modération !'),
             '2_online': _(u'L\'objet est publié. Il n\'est pas éditable.'),
             '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
-            '4_deny': _(u'La modération à été refusée.'),
+            '4_deny': _(u'La modération a été refusée.'),
         }
 
         states_quick_switch = {
@@ -607,7 +607,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce statut pour demander une modération ! ATTENTION ! Tu acceptes par défaut les conditions de réservation liées !'),
             '2_online': _(u'La résevation est validée. Elle n\'est pas éditable.'),
             '3_archive': _(u'La réservation est archivée. Elle n\'est plus modifiable.'),
-            '4_deny': _(u'La modération à été refusée. L\'objet n\'était probablement pas disponible suite à un conflit.'),
+            '4_deny': _(u'La modération a été refusée. L\'objet n\'était probablement pas disponible suite à un conflit.'),
         }
 
         states_quick_switch = {
