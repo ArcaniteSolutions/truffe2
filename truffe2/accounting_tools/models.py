@@ -434,14 +434,14 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             s.switch_status_signal(request, old_status, dest_status)
 
         if dest_status == '1_agep_validable':
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'internaltransfer_validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
         elif dest_status == '2_accountable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'internaltransfer_accountable', self, self.people_in_root_unit('SECRETARIAT'))
+            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'accounting_accountable', self, self.people_in_root_unit('SECRETARIAT'))
         elif dest_status[0] == '3':
             unotify_people('%s.accountable' % (self.__class__.__name__,), self)
             tresoriers = self.people_in_unit(self.cost_center_from.unit, 'TRESORERIE', no_parent=True) + self.people_in_unit(self.cost_center_to.unit, 'TRESORERIE', no_parent=True)
-            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'internaltransfer_accepted', self, list(set(tresoriers + self.build_group_members_for_editors())))
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, list(set(tresoriers + self.build_group_members_for_editors())))
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
@@ -568,11 +568,17 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         return super(_Withdrawal, self).may_switch_to(user, dest_state)
 
     def can_switch_to(self, user, dest_state):
+        if user.is_superuser:
+            return (True, None)
+
         if self.status == '4_archived' and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé.'))
 
-        if self.status in ['1_agep_validable', '2_withdrawn', '3_used'] and not self.rights_in_root_unit('SECREATARIAT'):
+        if self.status in ['1_agep_validable', '2_withdrawn', '3_used'] and not self.rights_in_root_unit(user, 'SECREATARIAT'):
             return (False, _(u'Seules les secrétaires de l\'AGEPoly peuvent passer à l\'état suivant.'))
+
+        if dest_state == '2_withdrawn' and not self.withdrawn_date:
+            return (False, _(u'Il faut renseigner la date réelle du retrait avant de poursuivre.'))
 
         if not self.rights_can('EDIT', user):
             return (False, _('Pas les droits.'))
@@ -584,7 +590,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             return False
 
         # Seules les secrétaires peuvent modifier après le statut Brouillon (pour ajouter les dates de retrait et pièces comptables)
-        if self.status != '0_draft' and not self.rights_in_root_unit('SECREATARIAT'):
+        if self.status != '0_draft' and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
 
         return super(_Withdrawal, self).rights_can_EDIT(user)
@@ -597,13 +603,13 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             s.switch_status_signal(request, old_status, dest_status)
 
         if dest_status == '1_agep_validable':
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accountable_validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
         elif dest_status == '2_withdrawn':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.withdrawn' % (self.__class__.__name__,), 'accountable_withdrawn', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE', no_parent=True))
+            notify_people(request, '%s.withdrawn' % (self.__class__.__name__,), 'accounting_withdrawn', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE', no_parent=True))
         elif dest_status == '3_used':
             unotify_people('%s.withdrawn' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.used' % (self.__class__.__name__,), 'accountable_used', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE'))
+            notify_people(request, '%s.used' % (self.__class__.__name__,), 'accounting_used', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE'))
         elif dest_status == '4_archived':
             unotify_people('%s.used' % (self.__class__.__name__,), self)
 
