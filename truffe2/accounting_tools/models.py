@@ -455,7 +455,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
     def get_bvr_number(self):
         return self.custom_bvr_number or \
-            self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number), int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 08402~T2~Truffe2
+            self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number.replace('.', '')) % 10000, int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 08402~T2~Truffe2
 
     def get_esr(self):
         return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(self.get_total() * 100)), self.get_bvr_number().replace(' ', ''))
