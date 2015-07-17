@@ -487,6 +487,7 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
 
         base_title = _(u'Retraits cash')
         list_title = _(u'Liste des retraits cash')
+        files_title = _(u'Pièces comptables')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-share-square-o'
 
