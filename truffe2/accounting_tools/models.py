@@ -223,27 +223,27 @@ class SubventionLine(ModelUsedAsLine):
 class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, GenericGroupsModel, GenericContactableModel, AccountingYearLinked, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
-        access = 'TRESORERIE'
+        access = ['TRESORERIE', 'SECRETARIAT']
 
     title = models.CharField(max_length=255)
     unit = FalseFK('units.models.Unit')
 
-    custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro alléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
+    custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro aléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
 
     address = models.TextField(_('Adresse'), help_text=_(u'Exemple: \'Monsieur Poney - Rue Des Canard 19 - 1015 Lausanne\''), blank=True, null=True)
     date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
     preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
-    ending = models.CharField(_(u'Conclusion'), help_text=_(u'Affiché après la liste, avant les moyens de payements'), max_length=1024, default='', blank=True, null=True)
-    display_bvr = models.BooleanField(_(u'Afficher payement via BVR'), help_text=_(u'Génère un BVR (il est possible d\'obtenir un \'vrai\' BVR via Marianne) et le texte corespondant. Attention, le BVR généré n\'est pas utilisable à la poste !'), default=True)
-    display_account = models.BooleanField(_(u'Afficher payement via compte'), help_text=_(u'Affiche le texte pour le payement via le compte de l\'AGEPoly.'), default=True)
-    greetins = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
+    ending = models.TextField(_(u'Conclusion'), help_text=_(u'Affiché après la liste, avant les moyens de paiements'), max_length=1024, blank=True, null=True)
+    display_bvr = models.BooleanField(_(u'Afficher paiement via BVR'), help_text=_(u'Affiche un BVR et le texte corespondant dans le PDF. Attention, le BVR généré n\'est pas utilisable à la poste ! (Il est possible d\'obtenir un \'vrai\' BVR via Marianne.)'), default=True)
+    display_account = models.BooleanField(_(u'Afficher paiement via compte'), help_text=_(u'Affiche le texte pour le paiement via le compte de l\'AGEPoly.'), default=True)
+    greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
     sign = models.CharField(_(u'Signature'), max_length=512, help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
 
     class MetaData:
         list_display = [
             ('title', _('Titre')),
-            ('status', _('Status')),
+            ('status', _('Statut')),
             ('costcenter', _(u'Centre de coût')),
             ('get_reference', _(u'Référence')),
             ('get_bvr_number', _(u'Numéro de BVR')),
@@ -253,9 +253,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('date_and_place', _(u'Lieu et date')),
             ('preface', _(u'Introduction')),
             ('ending', _(u'Conclusion')),
-            ('display_bvr', _(u'Afficher payement via BVR')),
-            ('display_account', _(u'Afficher payement via compte')),
-            ('greetins', _(u'Salutations')),
+            ('display_bvr', _(u'Afficher paiement via BVR')),
+            ('display_account', _(u'Afficher paiement via compte')),
+            ('greetings', _(u'Salutations')),
             ('sign', _(u'Signature')),
             ('annex', _(u'Annexes')),
 
@@ -309,8 +309,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         states = {
             '0_preparing': _(u'En préparation'),
             '1_need_bvr': _(u'En attente d\'un numéro BVR'),
-            '2_sent': _(u'Envoyée / payement en attente'),
-            '3_archived': _(u'Terminé / Payement reçu'),
+            '2_sent': _(u'Envoyée / paiement en attente'),
+            '3_archived': _(u'Archivée / Payement reçu'),
             '4_canceled': _(u'Annulée'),
         }
 
@@ -318,9 +318,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         states_texts = {
             '0_preparing': _(u'La facture est en cours de rédaction'),
-            '1_need_bvr': _(u'La facture nécessaire un vrai BVR, en attente d\'attribution'),
-            '2_sent': _(u'La facture à été envoyé, le payement est en attente.'),
-            '3_archived': _(u'Le payement de la facture à été reçu, le processus de la facture est terminé.'),
+            '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
+            '2_sent': _(u'La facture à été envoyée, le paiement est en attente.'),
+            '3_archived': _(u'Le paiement de la facture à été reçu, le processus de facturation est terminé.'),
             '4_canceled': _(u'La facture à été annulée'),
         }
 
@@ -356,7 +356,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         status_col_id = 1
 
         class FormBVR(Form):
-            bvr = CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 (...) étant rajouté automatiquement'), required=False)
+            bvr = CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
 
         states_bonus_form = {
             '0_preparing': FormBVR
@@ -385,7 +385,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
                     bvr = '94421{}'.format(bvr)
 
                 if len(bvr) != 27:
-                    messages.warning(request, _(u'Numéro BVR invalide (Ne contiens pas 27 chiffres)'))
+                    messages.warning(request, _(u'Numéro BVR invalide (Ne contenant pas 27 chiffres)'))
 
                 elif bvr != self._add_checksum(bvr[:-1]):
                     messages.warning(request, _(u'Numéro BVR invalide (Checksum)'))
@@ -404,6 +404,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             notify_people(request, '%s.sent' % (self.__class__.__name__,), 'invoices_sent', self, self.people_in_root_unit('SECRETARIAT'))
 
         if dest_status == '3_archived':
+            unotify_people('%s.sent' % (self.__class__.__name__,), self)
             notify_people(request, '%s.done' % (self.__class__.__name__,), 'invoices_done', self, self.build_group_members_for_editors())
 
     def may_switch_to(self, user, dest_state):
@@ -449,15 +450,15 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         nTab = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5]
         resultnumber = 0
         for number in part_validation.replace(" ", ""):
-            resultnumber = nTab[(resultnumber + int(number) - 0) % 10]
-        return part_validation + str((10 - resultnumber) % 10)
+            resultnumber = nTab[(resultnumber + int(number)) % 10]
+        return '{}{}'.format(part_validation, (10 - resultnumber) % 10)
 
     def get_bvr_number(self):
         return self.custom_bvr_number or \
-            self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number), int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 04202~T2~Truffe2
+            self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number), int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 08402~T2~Truffe2
 
     def get_esr(self):
-        return '{}>{}+ 010025703>'.format(self._add_checksum("01%010d" % (self.get_total() * 100)), self.get_bvr_number().replace(' ', ''))
+        return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(self.get_total() * 100)), self.get_bvr_number().replace(' ', ''))
 
     def get_lines(self):
         return self.lines.order_by('order').all()
@@ -528,7 +529,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             bvr = ''.join(filter(lambda x: x in string.digits, data['custom_bvr_number']))
 
             if len(bvr) != 27:
-                raise forms.ValidationError(_(u'Numéro BVR invalide (Ne contiens pas 27 chiffres)'))
+                raise forms.ValidationError(_(u'Numéro BVR invalide (ne contenant pas 27 chiffres)'))
 
             if bvr != self._add_checksum(bvr[:-1]):
                 raise forms.ValidationError(_(u'Numéro BVR invalide (Checksum)'))
@@ -550,7 +551,7 @@ class InvoiceLine(ModelUsedAsLine):
     value_ttc = models.DecimalField(_('Montant (TTC)'), max_digits=20, decimal_places=2)
 
     def __unicode__(self):
-        return u'%s: %s * (%s + %s%% == %s)' % (self.label, self.quantity, self.value, self.tva, self.value_ttc)
+        return u'{}: {} * ({} + {}% == {})'.format(self.label, self.quantity, self.value, self.tva, self.value_ttc)
 
     def total(self):
         return float(self.quantity) * float(self.value_ttc)

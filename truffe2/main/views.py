@@ -45,7 +45,9 @@ def home(request):
 
     else:
         invoices_need_bvr = None
-        invoices_waiting = None
+
+        from accounting_tools.models import Invoice
+        invoices_waiting = filter(lambda i: i.rights_can('SHOW', request.user), Invoice.objects.filter(deleted=False, status='2_sent'))
 
     internaltransfer_to_validate = None
     internaltransfer_to_account = None

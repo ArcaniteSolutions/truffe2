@@ -183,9 +183,9 @@
 
         {% if invoice.display_account %}
             {% if invoice.display_bvr %}
-                {% trans "Vous pouvez aussi effectuer le payement sur le compte suivant:" %}<br />
+                {% trans "Vous pouvez aussi effectuer le payement sur le compte suivant :" %}<br />
             {% else %}
-                {% trans "Nous vous remercions de bien vouloir payer ce montant à 30 jours sur le compte suivant" %}
+                {% trans "Nous vous remercions de bien vouloir payer ce montant à 30 jours sur le compte suivant :" %}
             {% endif %}
 
             <br />
@@ -226,8 +226,8 @@
 
         {% endif %}
 
-        {% if invoice.greetins %}
-            {{invoice.greetins}}
+        {% if invoice.greetings %}
+            {{invoice.greetings|linebreaksbr}}
             <br /><br />
         {% endif %}
 
