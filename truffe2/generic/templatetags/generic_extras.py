@@ -60,7 +60,6 @@ def args(obj, arg):
 
 @register.filter
 def get_class(value):
-    print value
     return value.__class__.__name__
 
 

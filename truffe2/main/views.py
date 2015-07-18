@@ -49,7 +49,7 @@ def home(request):
     rcash_to_justify = Withdrawal.objects.filter(deleted=False, status='3_used').order_by('withdrawn_date')
     if not request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
         for rcash_qs in [rcash_to_withdraw, rcash_to_justify]:
-            rcash_qs = filter(lambda rcash: rcash.rights_in_unit(request.user, rcash.unit, access='TRESORIER'), list(rcash_qs))
+            rcash_qs = filter(lambda rcash: rcash.rights_can_SHOW(request.user), list(rcash_qs))
         rcash_to_validate = None
 
     return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate, 'internaltransfer_to_validate': internaltransfer_to_validate,

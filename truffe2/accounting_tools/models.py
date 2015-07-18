@@ -462,7 +462,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
-        access = 'TRESORERIE'
+        access = ['TRESORERIE', 'SECRETARIAT']
 
     name = models.CharField(_('Raison du retrait'), max_length=255, unique=True)
     unit = FalseFK('units.models.Unit')
@@ -591,7 +591,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             return False
 
         # Seules les secrétaires peuvent modifier après le statut Brouillon (pour ajouter les dates de retrait et pièces comptables)
-        if self.status != '0_draft' and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if self.status != '0_draft' and not self.rights_in_root_unit(user, self.MetaRightsUnit.access):
             return False
 
         return super(_Withdrawal, self).rights_can_EDIT(user)
@@ -604,7 +604,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             s.switch_status_signal(request, old_status, dest_status)
 
         if dest_status == '1_agep_validable':
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(self.MetaRightsUnit.access))
         elif dest_status == '2_withdrawn':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
             notify_people(request, '%s.withdrawn' % (self.__class__.__name__,), 'accounting_withdrawn', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE', no_parent=True))
