@@ -5,11 +5,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField, Form
 from django.contrib import messages
+from django.conf import settings
 
 
 import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
+import os
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
@@ -458,7 +460,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number.replace('.', '')) % 10000, int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 08402~T2~Truffe2
 
     def get_esr(self):
-        return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(self.get_total() * 100)), self.get_bvr_number().replace(' ', ''))
+        return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(int(self.get_total() * 100))), self.get_bvr_number().replace(' ', ''))
 
     def get_lines(self):
         return self.lines.order_by('order').all()
@@ -475,9 +477,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         line_color = (0xED, 0xA7, 0x5F)
 
-        ocr_b = ImageFont.truetype('media/fonts/OCR_BB.TTF', int(42 * F))
+        ocr_b = ImageFont.truetype(os.path.join(settings.DJANGO_ROOT, 'media/fonts/OCR_BB.TTF'), int(42 * F))
 
-        img = Image.open('media/img/base_bvr.png')
+        img = Image.open(os.path.join(settings.DJANGO_ROOT, 'media/img/base_bvr.png'))
 
         draw = ImageDraw.Draw(img)
 
