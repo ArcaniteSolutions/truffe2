@@ -321,6 +321,16 @@
                         <li>
                             <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> <span class="menu-item-parent">{% trans "Comptabilité" %}</span></a>
                             <ul>
+                               <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> {% trans "Comptabilité" %}</span></a>
+                                    <ul>
+                                        {% ifhasright 'accounting_main.models.AccountingLine' user 'LIST' %}
+                                            <li id="menu-compta-compta">
+                                                <a href="{% url 'accounting_main.views.accountingline_list' %}"><i class="fa fa-lg fa-fw fa-ellipsis-horizontal"></i> {% trans "Ma compta" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                    </ul>
+                                </li>
                                 <li>
                                     <a href="#"><i class="fa fa-lg fa-fw fa-gear"></i> {% trans "Gestion" %}</span></a>
                                     <ul>
