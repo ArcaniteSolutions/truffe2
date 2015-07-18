@@ -517,6 +517,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             '2_withdrawn': _(u'Prêt à être récupéré'),
             '3_used': _(u'Récupéré / A justifier'),
             '4_archived': _(u'Archivé'),
+            '4_canceled': _(u'Annulé'),
         }
         default = '0_draft'
 
@@ -526,14 +527,16 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             '2_withdrawn': _(u'La somme est prête à être récupérée.'),
             '3_used': _(u'La somme a été retirée et doit maintenant être justifiée.'),
             '4_archived': _(u'La demande est archivée. Elle n\'est plus modifiable.'),
+            '4_canceled': _(u'La demande a été annulée, potentiellement par refus.'),
         }
 
         states_links = {
-            '0_draft': ['1_agep_validable'],
-            '1_agep_validable': ['2_withdrawn'],
-            '2_withdrawn': ['3_used'],
+            '0_draft': ['1_agep_validable', '4_canceled'],
+            '1_agep_validable': ['2_withdrawn', '4_canceled'],
+            '2_withdrawn': ['3_used', '4_canceled'],
             '3_used': ['4_archived'],
             '4_archived': [],
+            '4_canceled': [],
         }
 
         list_quick_switch = {
@@ -548,22 +551,24 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             '1_agep_validable': 'warning',
             '2_withdrawn': 'success',
             '3_used': 'danger',
-            '4_archived': 'default',
+            '4_archived': 'info',
+            '4_canceled': 'default',
         }
 
         states_icons = {
             '0_draft': '',
             '1_agep_validable': '',
             '2_withdrawn': '',
-            '4_archived': '',
             '3_used': '',
+            '4_archived': '',
+            '4_canceled': '',
         }
 
         states_default_filter = '0_draft,2_withdrawn,3_used'
         status_col_id = 3
 
     def may_switch_to(self, user, dest_state):
-        if self.status == '4_archived' and not user.is_superuser:
+        if self.status[0] == '4' and not user.is_superuser:
             return False
 
         return super(_Withdrawal, self).may_switch_to(user, dest_state)
@@ -572,8 +577,8 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         if user.is_superuser:
             return (True, None)
 
-        if self.status == '4_archived' and not user.is_superuser:
-            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé.'))
+        if self.status[0] == '4' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé/annulé.'))
 
         if self.status in ['1_agep_validable', '2_withdrawn', '3_used'] and not self.rights_in_root_unit(user, 'SECREATARIAT'):
             return (False, _(u'Seules les secrétaires de l\'AGEPoly peuvent passer à l\'état suivant.'))
@@ -613,6 +618,8 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             notify_people(request, '%s.used' % (self.__class__.__name__,), 'accounting_used', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE'))
         elif dest_status == '4_archived':
             unotify_people('%s.used' % (self.__class__.__name__,), self)
+        elif dest_status == '4_canceled' and self.status != '0_draft':
+            notify_people(request, '%s.canceled' % (self.__class__.__name__,), 'accounting_canceled', self, self.build_group_members_for_canedit())
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.costcenter)
