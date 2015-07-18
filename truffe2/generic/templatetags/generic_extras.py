@@ -4,10 +4,27 @@ from django.utils.safestring import mark_safe
 import bleach
 from bleach.sanitizer import BleachSanitizer
 from bleach.encoding import force_unicode
+from bootstrap3.renderers import FieldRenderer
+from bootstrap3.text import text_value
 import html5lib
 import re
 
 register = template.Library()
+
+pos = [(0, 0), (1, 0), (0, 1), (2, 3), (1, 2), (2, 1), (2, 2)]
+re_spaceless = re.compile("(\n|\r)+")
+
+
+@register.filter
+def node_x(value):
+    x, _ = pos[value]
+    return x
+
+
+@register.filter
+def node_y(value):
+    _, y = pos[value]
+    return y
 
 
 @register.filter
@@ -40,26 +57,15 @@ def args(obj, arg):
     obj.__callArg += [arg]
     return obj
 
-pos = [(0, 0), (1, 0), (0, 1), (2, 3), (1, 2), (2, 1), (2, 2)]
-
 
 @register.filter
-def node_x(value):
-    x, _ = pos[value]
-    return x
-
-
-@register.filter
-def node_y(value):
-    _, y = pos[value]
-    return y
+def get_class(value):
+    return value.__class__.__name__
 
 
 @register.simple_tag(takes_context=True)
 def switchable(context, obj, user, id):
     return 'true' if obj.may_switch_to(user, id) else 'false'
-
-re_spaceless = re.compile("(\n|\r)+")
 
 
 @register.tag
@@ -102,9 +108,6 @@ def html_check_and_safe(value):
     parser = html5lib.HTMLParser(tokenizer=s)
 
     return mark_safe(bleach._render(parser.parseFragment(text)))
-
-from bootstrap3.renderers import FieldRenderer
-from bootstrap3.text import text_value
 
 
 class SimpleFieldRenderer(FieldRenderer):

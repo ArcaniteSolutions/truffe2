@@ -1,0 +1,17 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        // Move CostCenter field down
+        var cost_center = $('#id_costcenter').parents('.form-group').remove();
+        $('#id_name').parents('.form-group').after(cost_center);
+
+        // Move SECRETARIAT field down
+        var withdrawn_date = $('#id_withdrawn_date').parents('.form-group').remove();
+        if (withdrawn_date.length)
+            $('h3').eq(1).before("<h3>{% trans "Réservé au Comité de Direction" %}</h3>");
+        $('h3').eq(1).after(withdrawn_date);
+    </script>
+{% endblock %}

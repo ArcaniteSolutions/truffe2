@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.core.management.base import BaseCommand, CommandError
+from django.utils.timezone import now
 
 from accounting_core.models import AccountingYear
-from accounting_tools.models import Subvention, SubventionLine, SubventionLogging
+from accounting_tools.models import Subvention, SubventionLine, SubventionLogging, SubventionFile
 from units.models import Unit
 from users.models import TruffeUser
 
@@ -11,9 +12,12 @@ import datetime
 import json
 import pytz
 import sys
+import os
 
 
 class Command(BaseCommand):
+    """ Requirements : files in /media/uploads/_generic/Subvention/"""
+
     help = 'Import subventions'
 
     def handle(self, *args, **options):
@@ -64,3 +68,8 @@ class Command(BaseCommand):
                             subvline, created = SubventionLine.objects.get_or_create(subvention=subv, name=line_data['name'], start_date=start_date, end_date=start_date, nb_spec=0)
                             if created:
                                 print "  + ", subvline.name
+
+                    for file_data in subvention_data['uploads']:
+                        __, created = SubventionFile.objects.get_or_create(uploader=user, object=subv, file=os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1]), defaults={'upload_date': now()})
+                        if created:
+                            print "  (L)", file_data
