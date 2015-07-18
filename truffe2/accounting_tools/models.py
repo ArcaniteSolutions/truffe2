@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField, Form
 from django.contrib import messages
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 
@@ -909,3 +911,19 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
         if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
             del form.fields['withdrawn_date']
+
+    def linked_info(self):
+        return self.linkedinfo_set.first()
+
+
+class LinkedInfo(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    linked_object = GenericForeignKey('content_type', 'object_id')
+
+    first_name = models.CharField(_(u'Prénom'), max_length=50)
+    last_name = models.CharField(_(u'Nom de famille'), max_length=50)
+    address = models.TextField(_(u'Adresse'))
+    phone = models.CharField(_(u'Numéro de téléphone'), max_length=15)
+    bank = models.CharField(_(u'Nom de la banque'), max_length=128)
+    iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)

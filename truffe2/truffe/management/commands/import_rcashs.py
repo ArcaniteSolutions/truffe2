@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.timezone import now
 
 from accounting_core.models import CostCenter, AccountingYear
-from accounting_tools.models import Withdrawal, WithdrawalFile, WithdrawalLogging
+from accounting_tools.models import Withdrawal, WithdrawalFile, WithdrawalLogging, LinkedInfo
 from users.models import TruffeUser
 
 import json
@@ -56,6 +56,8 @@ class Command(BaseCommand):
                         rcash.name = rcash_data['name']
                         rcash.save()
                         WithdrawalLogging(who=user, what='imported', object=rcash).save()
+                        if rcash_data['linked_info']:
+                            LinkedInfo(linked_object=rcash, **rcash_data['linked_info']).save()
                         print "+ ", rcash.name
 
                     for file_data in rcash_data['uploads']:
