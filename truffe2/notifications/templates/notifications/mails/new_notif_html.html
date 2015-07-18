@@ -6,7 +6,22 @@
 
     <p>{% filter linebreaks %}{% include notification.get_email_template %}{% endfilter %}</p>
 
-    <a href="https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}">{% trans "Détails" %}</a>
+        </td>
+    </tr>
+
+    <tr style="text-align: center;">
+        <td class="button" style="text-align: center;">
+            <center>
+                <div><!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}" style="height:45px;v-text-anchor:middle;width:155px;" arcsize="15%" strokecolor="#ffffff" fillcolor="#ff6f6f">
+                    <w:anchorlock/>
+                    <center style="color:#ffffff;font-family:Helvetica, Arial, sans-serif;font-size:14px;font-weight:regular;">{% trans "Détails" %}</center>
+                    </v:roundrect>
+                    <![endif]--><a href="https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}" style="background-color:#ff6f6f;border-radius:5px;color:#ffffff;display:inline-block;font-family:'Cabin', Helvetica, Arial, sans-serif;font-size:14px;font-weight:regular;line-height:45px;text-align:center;text-decoration:none;width:155px;-webkit-text-size-adjust:none;mso-hide:all;">{% trans "Détails" %}</a>
+                </div>
+            </center>
+
+
 {% endblock %}
 
 {% block signature %}
