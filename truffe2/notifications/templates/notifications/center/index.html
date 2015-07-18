@@ -47,7 +47,7 @@
 
 </div>
 
-{% with id="main_list_table" json_url="notifications.views.notification_json" datatable_notools="yes" default_sort="[0, 'desc']" with_extradata="function() {  return '?current_type=' + NOTIFICATIONS_CURRENT_TYPE}" %}{% include "datatables.html" %}{% endwith %}
+{% with id="main_list_table" json_url="notifications.views.notification_json" datatable_notools="yes" default_sort="[0, 'desc']" with_extradata="function() {  return '&current_type=' + NOTIFICATIONS_CURRENT_TYPE}" %}{% include "datatables.html" %}{% endwith %}
 
 <script type="text/javascript">
 

@@ -308,6 +308,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         except (ValueError, model_class.DoesNotExist):
             obj = model_class()
 
+            if hasattr(model_class, 'MetaEdit') and hasattr(model_class.MetaEdit, 'set_extra_defaults'):
+                model_class.MetaEdit.set_extra_defaults(obj, request)
+
             if unit_mode:
                 if unit_blank and not current_unit:
                     obj.unit_blank_user = request.user
@@ -374,7 +377,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 file_key = request.POST.get('file_key')
 
             if tag_mode:
-                tags = filter(lambda t: t, request.POST.get('tags').split(', '))
+                tags = filter(lambda t: t, request.POST.get('tags').split(','))
 
             all_forms_valids = True
 

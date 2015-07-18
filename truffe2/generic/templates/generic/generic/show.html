@@ -221,6 +221,8 @@
 
     <div style="float: right;">
 
+        {% block bonus_buttons %}{% endblock %}
+
         {% ifhasright obj user 'LIST' %}
         <a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}" class="btn btn-info">
           <i class="fa fa-list"></i>

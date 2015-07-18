@@ -37,6 +37,18 @@ def home(request):
     else:
         accreds_to_validate = []
 
+    if request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
+        from accounting_tools.models import Invoice
+
+        invoices_need_bvr = Invoice.objects.filter(deleted=False, status='1_need_bvr')
+        invoices_waiting = Invoice.objects.filter(deleted=False, status='2_sent')
+
+    else:
+        invoices_need_bvr = None
+
+        from accounting_tools.models import Invoice
+        invoices_waiting = filter(lambda i: i.rights_can('SHOW', request.user), Invoice.objects.filter(deleted=False, status='2_sent'))
+
     internaltransfer_to_validate = None
     internaltransfer_to_account = None
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']):
@@ -54,7 +66,7 @@ def home(request):
 
     return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate, 'internaltransfer_to_validate': internaltransfer_to_validate,
                                               'internaltransfer_to_account': internaltransfer_to_account, 'rcash_to_validate': rcash_to_validate, 'rcash_to_withdraw': rcash_to_withdraw,
-                                              'rcash_to_justify': rcash_to_justify})
+                                              'rcash_to_justify': rcash_to_justify, 'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting})
 
 
 @login_required

@@ -142,12 +142,12 @@ def tva_available_list(request):
 
     if init:
         try:
-            value_init = round(float(q), 2)
+            value_init = round(float(init), 2)
             tvas = tvas.filter(value__istartswith=value_init)
 
-            bonus_tva = [{'id': value_init, 'text': '{}% (TVA Spéciale)'.format(value_q)}]
+            bonus_tva = [{'id': value_init, 'text': '{}% (TVA Spéciale)'.format(value_init)}]
         except:
-            tvas = tvas.filter(name__istartswith=q)
+            tvas = tvas.filter(name__istartswith=init)
 
     retour = [{'id': float(tva.value), 'text': tva.__unicode__()} for tva in tvas]
 
