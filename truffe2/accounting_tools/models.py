@@ -632,8 +632,8 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 
         states_links = {
             '0_draft': ['1_agep_validable', '3_canceled'],
-            '1_agep_validable': ['2_accountable', '3_canceled'],
-            '2_accountable': ['3_archived', '3_canceled'],
+            '1_agep_validable': ['0_draft', '2_accountable', '3_canceled'],
+            '2_accountable': ['0_draft', '3_archived', '3_canceled'],
             '3_archived': [],
             '3_canceled': [],
         }
