@@ -32,10 +32,10 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         world_ro_access = False
 
     name = models.CharField(_(u'Nom du projet'), max_length=255)
-    amount_asked = models.SmallIntegerField(_(u'Montant demandé'))
-    amount_given = models.SmallIntegerField(_(u'Montant attribué'), blank=True, null=True)
-    mobility_asked = models.SmallIntegerField(_(u'Montant mobilité demandé'), blank=True, null=True)
-    mobility_given = models.SmallIntegerField(_(u'Montant mobilité attribué'), blank=True, null=True)
+    amount_asked = models.IntegerField(_(u'Montant demandé'))
+    amount_given = models.IntegerField(_(u'Montant attribué'), blank=True, null=True)
+    mobility_asked = models.IntegerField(_(u'Montant mobilité demandé'), blank=True, null=True)
+    mobility_given = models.IntegerField(_(u'Montant mobilité attribué'), blank=True, null=True)
     description = models.TextField(_('Description'), blank=True, null=True)
     comment_root = models.TextField(_('Commentaire AGEPoly'), blank=True, null=True)
     kind = models.CharField(_(u'Type de soutien'), max_length=15, choices=SUBVENTION_TYPE, blank=True, null=True)
@@ -54,6 +54,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
             ('get_unit_name', _(u'Association / Commission')),
             ('amount_asked', _(u'Montant demandé')),
             ('mobility_asked', _(u'Montant mobilité demandé')),
+            ('status', _(u'Statut')),
         ]
 
         default_sort = "[2, 'asc']"  # unit
