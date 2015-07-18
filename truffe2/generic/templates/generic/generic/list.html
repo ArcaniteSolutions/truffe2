@@ -92,6 +92,7 @@
 
             {% if unit_mode or Model.MetaData.help_list or year_mode or tag_mode %}
                 <div class="col-sm-12 col-md-2 col-lg-2">
+
                     {% if unit_mode %}
                       {% with function_to_call="unit_updated" %}
                           {% include "units/selector/unit_selector.html" %}
@@ -103,6 +104,9 @@
                           {% include "accounting_core/selector/year_selector.html" %}
                       {% endwith %}
                     {% endif %}
+
+                    {% block lateral_selector_block %}
+                    {% endblock %}
 
                     {% if tag_mode %}
                         {% with w_title="Tags" %}{% include "widget/header.html" %}{% endwith %}
@@ -221,7 +225,7 @@
     {% endif %}
 
     {% block datatables %}
-        {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id with_upk=unit_mode with_ypk=year_mode with_ctag=tag_mode force_last_width=Model.MetaData.list_display|length|add:"1" force_width=Model.MetaData.forced_widths force_first_width=True draw_callback="update_multi_do" default_sort=Model.MetaData.default_sort %}{% include "datatables.html" %}{% endwith %}
+        {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id with_upk=unit_mode with_ypk=year_mode with_ctag=tag_mode force_last_width=Model.MetaData.list_display|length|add:"1" force_width=Model.MetaData.forced_widths force_first_width=True draw_callback="update_multi_do" default_sort=Model.MetaData.default_sort with_extradata=Model.MetaData.extradata %}{% include "datatables.html" %}{% endwith %}
     {% endblock %}
 
 

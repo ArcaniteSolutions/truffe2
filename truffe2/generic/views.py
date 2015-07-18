@@ -148,6 +148,9 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
         data.update(extra_data)
 
+        if hasattr(model_class.MetaData, 'extra_args_for_list'):
+            data.update(model_class.MetaData.extra_args_for_list(request, current_unit, current_year))
+
         return render(request, ['%s/%s/%s.html' % (module.__name__, base_name, template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], data)
 
     return _generic_generic_list
@@ -198,6 +201,11 @@ def generate_list_json(module, base_name, model_class, tag_class):
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
             raise Http404
 
+        if hasattr(model_class.MetaData, 'extra_filter_for_list'):
+            filter____ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year)
+        else:
+            filter____ = filter___
+
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_json.html', 'generic/generic/list_json.html'],
             {'Model': model_class,
              'show_view': show_view,
@@ -207,7 +215,7 @@ def generate_list_json(module, base_name, model_class, tag_class):
              'list_display': model_class.MetaData.list_display,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter___,
+            bonus_filter_function=filter____,
             selector_column=True,
         )
 

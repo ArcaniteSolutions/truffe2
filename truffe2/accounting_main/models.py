@@ -2,6 +2,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
+from django.shortcuts import get_object_or_404
 
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -73,9 +74,22 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
 
         has_unit = True
 
+        extradata = 'cost_center_extradata'
+
         help_list = _(u"""Les lignes de la compta de l'AGEPoly.
 
 Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons corespondants.""")
+
+        @staticmethod
+        def extra_args_for_list(request, current_unit, current_year):
+            from accounting_core.models import CostCenter
+            return {'costcenters': CostCenter.objects.filter(unit=current_unit, accounting_year=current_year, deleted=False).order_by('account_number')}
+
+        @staticmethod
+        def extra_filter_for_list(request, current_unit, current_year):
+            from accounting_core.models import CostCenter
+            cc = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
+            return lambda x: x.filter(costcenter=cc)
 
     class MetaState:
 
