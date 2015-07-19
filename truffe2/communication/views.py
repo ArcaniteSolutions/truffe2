@@ -46,7 +46,7 @@ def website_news(request):
     retour = []
 
     for news in WebsiteNews.objects.filter(status='2_online').exclude(deleted=True).filter(Q(start_date=None) | Q(start_date__lt=now())).filter(Q(end_date=None) | Q(end_date__gt=now())).order_by('?'):
-        retour.append({'title': news.title, 'content': news.content, 'url': news.url})
+        retour.append({'id': 'T2V1N{}'.format(news.pk), 'title': news.title, 'content': news.content, 'url': news.url})
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
