@@ -63,6 +63,8 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         filter_fields = ('name', 'kind', 'unit')
 
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
+        details_display.insert(3, ('amount_given', _(u'Montant attribué')))
+        details_display.insert(5, ('mobility_given', _(u'Montant mobilité attribué')))
         extra_right_display = {'comment_root': lambda (obj, user): obj.rights_can('LIST', user)}
 
         files_title = _(u'Fichiers')
