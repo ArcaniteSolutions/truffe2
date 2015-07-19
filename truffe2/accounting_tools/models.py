@@ -60,7 +60,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         ]
 
         default_sort = "[2, 'asc']"  # unit
-        filter_fields = ('name', 'kind', 'unit')
+        filter_fields = ('name', 'unit__name', 'unit_blank_name')
 
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
         details_display.insert(3, ('amount_given', _(u'Montant attribué')))
