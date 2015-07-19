@@ -56,6 +56,12 @@ class Command(BaseCommand):
                     subv, created = Subvention.objects.get_or_create(name=u"{} {}".format(unit_name, ay.name), unit=unit, unit_blank_name=blank_unit_name, accounting_year=ay, amount_asked=subvention_data['amount_asked'],
                         amount_given=subvention_data['amount_given'], mobility_asked=subvention_data['mobility_asked'], mobility_given=subvention_data['mobility_given'], description=subvention_data['description'])
 
+                    if subvention_data['traitee']:
+                        subv.status = '2_treated'
+                    elif subvention_data['deposee']:
+                        subv.status = '1_submited'
+                    subv.save()
+
                     if created:
                         SubventionLogging(who=user, what='imported', object=subv).save()
                         print "+ {!r}".format(subv.name)
