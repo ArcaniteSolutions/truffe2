@@ -431,7 +431,7 @@
     {% endif %}
 
     function switch_to_tva_field(field) {
-        field.css('width', '100%').addClass('select2').removeClass('form-control').select2({
+        field.css('width', '100%').css('min-width', '100px').addClass('select2').removeClass('form-control').select2({
             ajax: {
                 url: '{% url 'accounting_core.views.tva_available_list' %}',
                 dataType: "json",
