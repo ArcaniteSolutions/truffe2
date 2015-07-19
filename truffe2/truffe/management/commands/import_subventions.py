@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
                     if created:
                         SubventionLogging(who=user, what='imported', object=subv).save()
-                        print "+ ", subv.name
+                        print "+ {!r}".format(subv.name)
 
                     for line_data in subvention_data['lines']:
                         if line_data['name']:
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                             start_date = paris_tz.localize(datetime.datetime.strptime(line_data['date'], '%Y-%m-%d'))
                             subvline, created = SubventionLine.objects.get_or_create(subvention=subv, name=line_data['name'], start_date=start_date, end_date=start_date, nb_spec=0)
                             if created:
-                                print "  + ", subvline.name
+                                print "  + {!r}".format(subvline.name)
 
                     for file_data in subvention_data['uploads']:
                         __, created = SubventionFile.objects.get_or_create(uploader=user, object=subv, file=os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1]), defaults={'upload_date': now()})
