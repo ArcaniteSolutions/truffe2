@@ -99,7 +99,7 @@
         });
 
         {% if status_filter %}
-            $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px;">/select>');
+            $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px; min-width: 200px; z-index: 300;">/select>');
 
             var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
 
