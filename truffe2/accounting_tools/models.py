@@ -785,7 +785,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
     class MetaEdit:
         files_title = _(u'Pièces comptables')
         files_help = _(u'Pièces comptables liées au retrait cash.')
-        datetime_fields = ['desired_date', 'withdrawn_date']
+        date_fields = ['desired_date', 'withdrawn_date']
 
     class MetaGroups(GenericGroupsModel.MetaGroups):
         pass
