@@ -13,6 +13,13 @@
                     margin-right: 1cm;
                     height: 1cm;
                 }
+
+                @frame logoFrame {
+                    -pdf-frame-content: logoFrameContent;
+                    top: 0.4cm;
+                    right: 1.2cm;
+                    width: 25%;
+                }
             }
 
             .td-a {
@@ -52,9 +59,11 @@
         </style>
     </head>
     <body>
-        <img src="{{media}}img/agep_logo.png">
+        <div id="logoFrameContent">
+            <img src="media/img/logo_factures.png" style="text-align: right;">
+        </div>
     
-        <h1 style="text-align: center; font-size: 32px;">{% trans "Demande de retrait cash" %}</h1>
+        <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">{% trans "Demande de retrait cash" %}</h1>
     
         <table>
             <tr class="tr-a"><td class="td-a">{% trans "Pour" %} {% if withdrawal.unit.is_equipe %}{% trans "l'équipe" %}{% elif withdrawal.unit.is_commission %}{% trans "la commission" %}{% endif %}{%trans " : " %}</td><td class="td-a2">{{withdrawal.unit}}</td></tr>
@@ -114,7 +123,7 @@
 
     {% for u in  withdrawal.get_uploaded_images %}
         <pdf:nextpage/>
-        <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
+        <img src="{{media}}..{{u.file.url}}">
     {% endfor %}
     
 

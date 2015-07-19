@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.timezone import now
 
@@ -22,6 +23,7 @@ class Command(BaseCommand):
         data = json.loads(sys.stdin.read())
 
         root_user = TruffeUser.objects.get(username=179189)
+        withdrawal_ct = ContentType.objects.get(app_label="accounting_tools", model="withdrawal")
         status_mapping = {'1': '0_draft', '2': '1_agep_validable', '3': '2_withdrawn', '4': '4_archived'}
 
         for rcash_data in data['data']:
@@ -56,9 +58,12 @@ class Command(BaseCommand):
                         rcash.name = rcash_data['name']
                         rcash.save()
                         WithdrawalLogging(who=user, what='imported', object=rcash).save()
-                        if rcash_data['linked_info']:
-                            LinkedInfo(linked_object=rcash, **rcash_data['linked_info']).save()
                         print "+ ", rcash.name
+
+                    if rcash_data['linked_info']:
+                        linked, created = LinkedInfo.objects.get_or_create(object_id=rcash.pk, content_type=withdrawal_ct, **rcash_data['linked_info'])
+                        if created:
+                            print "  (I)", linked.first_name, linked.last_name
 
                     for file_data in rcash_data['uploads']:
                             __, created = WithdrawalFile.objects.get_or_create(uploader=user, object=rcash, file=os.path.join('uploads', '_generic', 'Withdrawal', file_data.split('/')[-1]), defaults={'upload_date': now()})
