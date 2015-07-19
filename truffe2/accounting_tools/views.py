@@ -57,7 +57,7 @@ def export_all_demands(request):
     years = AccountingYear.objects.order_by('start_date')
     subventions = []
     for ay in years:
-        subv = Subvention.objects.filter(accounting_year=ay).order_by('unit__name')
+        subv = Subvention.objects.filter(accounting_year=ay).order_by('unit__name', 'unit_blank_name')
         if subv:
             subv = list(subv) + [get_statistics(subv)]
         subventions.append((ay.name, subv))
