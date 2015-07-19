@@ -36,7 +36,7 @@ def export_demands_yearly(request, ypk):
 
     try:
         ay = AccountingYear.objects.get(pk=ypk)
-        subventions = Subvention.objects.filter(accounting_year=ay).order_by('unit__name')
+        subventions = Subvention.objects.filter(accounting_year=ay).order_by('unit__name', 'unit_blank_name')
         if subventions:
             subventions = list(subventions) + [get_statistics(subventions)]
         subv = [(ay.name, subventions)]
@@ -63,7 +63,7 @@ def export_all_demands(request):
         subventions.append((ay.name, subv))
 
     summary = []
-    units = map(lambda subv: subv.get_real_unit_name(), sorted(list(Subvention.objects.distinct('unit', 'unit_blank_name')), key=lambda subv: subv.get_real_unit_name()))
+    units = sorted(list(set(map(lambda subv: subv.get_real_unit_name(), list(Subvention.objects.all())))))
     for unit_name in units:
         line = [unit_name]
         for year in years:
