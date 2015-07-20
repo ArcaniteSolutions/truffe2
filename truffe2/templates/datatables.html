@@ -8,7 +8,7 @@
 
         var diff = (dtf_{{id}}.find('.select2-container').height() - 31);
 
-        dtf_{{id}}.parent().parent().parent().find('.widget-body-toolbar').css('min-height', 42 + diff + 'px');
+        dtf_{{id}}.parents('.widget-body').find('.widget-body-toolbar').css('min-height', 42 + diff + 'px');
         dtf_{{id}}.parent().children().css('top', -38 - diff + 'px');
 
     }

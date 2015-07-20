@@ -90,9 +90,9 @@ def invoice_pdf(request, pk):
 
     img = invoice.generate_bvr()
     img = img.resize((1414, 1000), Image.LANCZOS)
-    img.save(os.path.join(settings.DJANGO_ROOT, 'media/cache/bvr/{}.png').format(invoice.pk))
+    img.save(os.path.join(settings.MEDIA_ROOT, 'cache/bvr/{}.png').format(invoice.pk))
 
-    return generate_pdf("accounting_tools/invoice/pdf.html", {'invoice': invoice, 'user': request.user, 'cdate': now(), 'DJANGO_ROOT': settings.DJANGO_ROOT})
+    return generate_pdf("accounting_tools/invoice/pdf.html", {'invoice': invoice, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
 
 
 @login_required
