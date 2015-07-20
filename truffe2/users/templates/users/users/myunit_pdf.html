@@ -7,45 +7,50 @@
                 font-family: DejaVu;
                 src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
             }
+
             @font-face {
-                font-family: DejaVu;
+                font-family: DejaVuBold;
                 src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
+            }
+
+            @page {
+                size: a4 landscape;
+                margin: 1cm;
+                margin-bottom: 2cm;
+                @frame footer {
+                    -pdf-frame-content: footerContent;
+                    bottom: 0cm;
+                    margin-left: 1cm;
+                    margin-right: 1cm;
+                    height: 1cm;
+                }
+            }
+
+            body {
+                font-family: "DejaVu";
+            }
+
+            body b {
+                font-family: "DejaVuBold";
+            }
+
+            .tr-a {
+                border-bottom: 2px black solid;
                 font-weight: bold;
             }
-          @page {
-              size: a4 landscape;
-              margin: 1cm;
-              margin-bottom: 2cm;
-              @frame footer {
-              -pdf-frame-content: footerContent;
-                bottom: 0cm;
-              margin-left: 1cm;
-              margin-right: 1cm;
-              height: 1cm;
-              }
-          }
-          body {
-              font-family: "DejaVu";
-          }
-          .tr-a {
-              border-bottom: 2px black solid;
-              font-weight: bold;
-          }
 
-          tr {
-              border-bottom: 1px #ddd solid;
-          }
+            tr {
+                border-bottom: 1px #ddd solid;
+            }
 
-          .liste {
-              font-size: 15px;
-              padding-top: 5px;
-          }
-
+            .liste {
+                font-size: 15px;
+                padding-top: 5px;
+            }
         </style>
     </head>
 
     <body>
-
         <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des membres du comité" %} <u>{{unit}}</u></h3>
 
         <table class="liste">
@@ -68,7 +73,5 @@
         </table>
 
         <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
-
     </body>
-
 </html>
