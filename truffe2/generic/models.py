@@ -612,7 +612,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
 
         states_quick_switch = {
             '0_draft': [('1_asking', _(u'Demander à modérer')), ],
-            '1_asking': [('2_online', _(u'Mettre en ligne')), ],
+            '1_asking': [('2_online', _(u'Valider')), ],
             '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
 

@@ -374,6 +374,11 @@
                                                 <a href="{% url 'accounting_tools.views.internaltransfer_list' %}"><i class="fa fa-lg fa-fw fa-exchange"></i> {% trans "Transferts internes" %}</a>
                                             </li>
                                         {% endifhasright %}
+                                        {% ifhasright 'accounting_tools.models.Withdrawal' user 'LIST' %}
+                                            <li id="menu-compta-rcash">
+                                                <a href="{% url 'accounting_tools.views.withdrawal_list' %}"><i class="fa fa-lg fa-fw fa-share-square-o"></i> {% trans "Retraits cash" %}</a>
+                                            </li>
+                                        {% endifhasright %}
                                         {% ifhasright 'accounting_tools.models.Invoice' user 'LIST' %}
                                             <li id="menu-compta-invoice">
                                                 <a href="{% url 'accounting_tools.views.invoice_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Factures" %}</a>

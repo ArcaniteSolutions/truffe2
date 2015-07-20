@@ -5,11 +5,15 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField, Form
 from django.contrib import messages
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 
 
 import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
+import os
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
@@ -30,10 +34,10 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         world_ro_access = False
 
     name = models.CharField(_(u'Nom du projet'), max_length=255)
-    amount_asked = models.SmallIntegerField(_(u'Montant demandé'))
-    amount_given = models.SmallIntegerField(_(u'Montant attribué'), blank=True, null=True)
-    mobility_asked = models.SmallIntegerField(_(u'Montant mobilité demandé'), blank=True, null=True)
-    mobility_given = models.SmallIntegerField(_(u'Montant mobilité attribué'), blank=True, null=True)
+    amount_asked = models.IntegerField(_(u'Montant demandé'))
+    amount_given = models.IntegerField(_(u'Montant attribué'), blank=True, null=True)
+    mobility_asked = models.IntegerField(_(u'Montant mobilité demandé'), blank=True, null=True)
+    mobility_given = models.IntegerField(_(u'Montant mobilité attribué'), blank=True, null=True)
     description = models.TextField(_('Description'), blank=True, null=True)
     comment_root = models.TextField(_('Commentaire AGEPoly'), blank=True, null=True)
     kind = models.CharField(_(u'Type de soutien'), max_length=15, choices=SUBVENTION_TYPE, blank=True, null=True)
@@ -52,12 +56,15 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
             ('get_unit_name', _(u'Association / Commission')),
             ('amount_asked', _(u'Montant demandé')),
             ('mobility_asked', _(u'Montant mobilité demandé')),
+            ('status', _(u'Statut')),
         ]
 
         default_sort = "[2, 'asc']"  # unit
-        filter_fields = ('name', 'kind', 'unit')
+        filter_fields = ('name', 'unit__name', 'unit_blank_name')
 
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
+        details_display.insert(3, ('amount_given', _(u'Montant attribué')))
+        details_display.insert(5, ('mobility_given', _(u'Montant mobilité attribué')))
         extra_right_display = {'comment_root': lambda (obj, user): obj.rights_can('LIST', user)}
 
         files_title = _(u'Fichiers')
@@ -458,7 +465,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number.replace('.', '')) % 10000, int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 08402~T2~Truffe2
 
     def get_esr(self):
-        return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(self.get_total() * 100)), self.get_bvr_number().replace(' ', ''))
+        return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(int(self.get_total() * 100))), self.get_bvr_number().replace(' ', ''))
 
     def get_lines(self):
         return self.lines.order_by('order').all()
@@ -475,9 +482,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         line_color = (0xED, 0xA7, 0x5F)
 
-        ocr_b = ImageFont.truetype('media/fonts/OCR_BB.TTF', int(42 * F))
+        ocr_b = ImageFont.truetype(os.path.join(settings.DJANGO_ROOT, 'media/fonts/OCR_BB.TTF'), int(42 * F))
 
-        img = Image.open('media/img/base_bvr.png')
+        img = Image.open(os.path.join(settings.DJANGO_ROOT, 'media/img/base_bvr.png'))
 
         draw = ImageDraw.Draw(img)
 
@@ -629,8 +636,8 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 
         states_links = {
             '0_draft': ['1_agep_validable', '3_canceled'],
-            '1_agep_validable': ['2_accountable', '3_canceled'],
-            '2_accountable': ['3_archived', '3_canceled'],
+            '1_agep_validable': ['0_draft', '2_accountable', '3_canceled'],
+            '2_accountable': ['0_draft', '3_archived', '3_canceled'],
             '3_archived': [],
             '3_canceled': [],
         }
@@ -711,14 +718,14 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             s.switch_status_signal(request, old_status, dest_status)
 
         if dest_status == '1_agep_validable':
-            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'internaltransfer_validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
         elif dest_status == '2_accountable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'internaltransfer_accountable', self, self.people_in_root_unit('SECRETARIAT'))
+            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'accounting_accountable', self, self.people_in_root_unit('SECRETARIAT'))
         elif dest_status[0] == '3':
             unotify_people('%s.accountable' % (self.__class__.__name__,), self)
             tresoriers = self.people_in_unit(self.cost_center_from.unit, 'TRESORERIE', no_parent=True) + self.people_in_unit(self.cost_center_to.unit, 'TRESORERIE', no_parent=True)
-            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'internaltransfer_accepted', self, list(set(tresoriers + self.build_group_members_for_editors())))
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, list(set(tresoriers + self.build_group_members_for_editors())))
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
@@ -734,3 +741,194 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
     def genericFormExtraClean(self, data, form):
         if data['cost_center_from'] == data['cost_center_to']:
             raise forms.ValidationError(_(u'Les deux centres de coûts doivent être différents.'))
+
+
+class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    name = models.CharField(_('Raison du retrait'), max_length=255, unique=True)
+    unit = FalseFK('units.models.Unit')
+    description = models.TextField(_('Description'), blank=True, null=True)
+    amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
+    desired_date = models.DateField(_(u'Date souhaitée'))
+    withdrawn_date = models.DateField(_(u'Date réelle de retrait'), blank=True, null=True)
+
+    class MetaData:
+        list_display = [
+            ('name', _('Raison')),
+            ('amount', _('Montant')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('description', _(u'Description')), ('desired_date', _(u'Date souhaitée')), ('withdrawn_date', _(u'Date retrait')), ('accounting_year', _(u'Année comptable')), ]
+        filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number')
+        datetime_fields = ['desired_date', 'withdrawn_date']
+
+        default_sort = "[6, 'desc']"  # Creation date (pk) descending
+
+        base_title = _(u'Retraits cash')
+        list_title = _(u'Liste des retraits cash')
+        files_title = _(u'Pièces comptables')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-share-square-o'
+
+        has_unit = True
+
+        menu_id = 'menu-compta-rcash'
+
+        help_list = _(u"""Les demandes de retrait cash doivent impérativement être remplies pour pouvoir retirer de l'argent depuis le compte d'une unité.
+
+L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Pièces comptables')
+        files_help = _(u'Pièces comptables liées au retrait cash.')
+        datetime_fields = ['desired_date', 'withdrawn_date']
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState:
+        states = {
+            '0_draft': _('Brouillon'),
+            '1_agep_validable': _(u'Attente accord AGEPoly'),
+            '2_withdrawn': _(u'Prêt à être récupéré'),
+            '3_used': _(u'Récupéré / A justifier'),
+            '4_archived': _(u'Archivé'),
+            '4_canceled': _(u'Annulé'),
+        }
+        default = '0_draft'
+
+        states_texts = {
+            '0_draft': _(u'La demande est en cours de création.'),
+            '1_agep_validable': _(u'La demande doit être acceptée par l\'AGEPoly.'),
+            '2_withdrawn': _(u'La somme est prête à être récupérée.'),
+            '3_used': _(u'La somme a été retirée et doit maintenant être justifiée.'),
+            '4_archived': _(u'La demande est archivée. Elle n\'est plus modifiable.'),
+            '4_canceled': _(u'La demande a été annulée, potentiellement par refus.'),
+        }
+
+        states_links = {
+            '0_draft': ['1_agep_validable', '4_canceled'],
+            '1_agep_validable': ['2_withdrawn', '4_canceled'],
+            '2_withdrawn': ['3_used', '4_canceled'],
+            '3_used': ['4_archived'],
+            '4_archived': [],
+            '4_canceled': [],
+        }
+
+        list_quick_switch = {
+            '0_draft': [('1_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly'))],
+            '1_agep_validable': [('2_withdrawn', 'fa fa-check', _(u'Marquer comme retiré'))],
+            '2_withdrawn': [('3_used', 'glyphicon glyphicon-remove-circle', _(u'Demander justification'))],
+            '3_used': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver'))],
+        }
+
+        states_colors = {
+            '0_draft': 'primary',
+            '1_agep_validable': 'warning',
+            '2_withdrawn': 'success',
+            '3_used': 'danger',
+            '4_archived': 'info',
+            '4_canceled': 'default',
+        }
+
+        states_icons = {
+            '0_draft': '',
+            '1_agep_validable': '',
+            '2_withdrawn': '',
+            '3_used': '',
+            '4_archived': '',
+            '4_canceled': '',
+        }
+
+        states_default_filter = '0_draft,2_withdrawn,3_used'
+        status_col_id = 3
+
+    def may_switch_to(self, user, dest_state):
+        if self.status[0] == '4' and not user.is_superuser:
+            return False
+
+        return super(_Withdrawal, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+        if user.is_superuser:
+            return (True, None)
+
+        if self.status[0] == '4' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé/annulé.'))
+
+        if self.status in ['1_agep_validable', '2_withdrawn', '3_used'] and not self.rights_in_root_unit(user, 'SECREATARIAT'):
+            return (False, _(u'Seules les secrétaires de l\'AGEPoly peuvent passer à l\'état suivant.'))
+
+        if dest_state == '2_withdrawn' and not self.withdrawn_date:
+            return (False, _(u'Il faut renseigner la date réelle du retrait avant de poursuivre.'))
+
+        if not self.rights_can('EDIT', user):
+            return (False, _('Pas les droits.'))
+
+        return super(_Withdrawal, self).can_switch_to(user, dest_state)
+
+    def rights_can_EDIT(self, user):
+        if int(self.status[0]) > 2:
+            return False
+
+        # Seules les secrétaires peuvent modifier après le statut Brouillon (pour ajouter les dates de retrait et pièces comptables)
+        if self.status != '0_draft' and not self.rights_in_root_unit(user, self.MetaRightsUnit.access):
+            return False
+
+        return super(_Withdrawal, self).rights_can_EDIT(user)
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(_Withdrawal, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '1_agep_validable':
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(self.MetaRightsUnit.access))
+        elif dest_status == '2_withdrawn':
+            unotify_people('%s.validable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.withdrawn' % (self.__class__.__name__,), 'accounting_withdrawn', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE', no_parent=True))
+        elif dest_status == '3_used':
+            unotify_people('%s.withdrawn' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.used' % (self.__class__.__name__,), 'accounting_used', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE'))
+        elif dest_status == '4_archived':
+            unotify_people('%s.used' % (self.__class__.__name__,), self)
+        elif dest_status == '4_canceled' and self.status != '0_draft':
+            notify_people(request, '%s.canceled' % (self.__class__.__name__,), 'accounting_canceled', self, self.build_group_members_for_canedit())
+
+    def __unicode__(self):
+        return u"{} ({})".format(self.name, self.costcenter)
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Remove fields that should be edited by SECRETARIAT CDD only."""
+
+        if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
+            del form.fields['withdrawn_date']
+
+    def linked_info(self):
+        from accounting_tools.models import LinkedInfo
+
+        withdrawal_ct = ContentType.objects.get(app_label="accounting_tools", model="withdrawal")
+        return LinkedInfo.objects.filter(content_type=withdrawal_ct, object_id=self.pk).first()
+
+
+class LinkedInfo(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    linked_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    first_name = models.CharField(_(u'Prénom'), max_length=50)
+    last_name = models.CharField(_(u'Nom de famille'), max_length=50)
+    address = models.TextField(_(u'Adresse'))
+    phone = models.CharField(_(u'Numéro de téléphone'), max_length=20)
+    bank = models.CharField(_(u'Nom de la banque'), max_length=128)
+    iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)

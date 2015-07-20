@@ -16,7 +16,7 @@
         var ht = $(obj.target).val();
         var tt = ht * (1.0 + tva / 100.0);
 
-        tt = (Math.ceil(tt * 20.0) / 20.0).toFixed(2);
+        tt = (Math.ceil(tt * 20) / 20).toFixed(2);
 
         $(obj.target).parents('tr').find('.line_field_lines_value_ttc input').val(tt).pulse();
 

@@ -6,6 +6,10 @@ from django.http import Http404, HttpResponse
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+
+
+import os
 
 
 from app.utils import generate_pdf
@@ -32,7 +36,7 @@ def export_demands_yearly(request, ypk):
 
     try:
         ay = AccountingYear.objects.get(pk=ypk)
-        subventions = Subvention.objects.filter(accounting_year=ay).order_by('unit__name')
+        subventions = Subvention.objects.filter(accounting_year=ay).order_by('unit__name', 'unit_blank_name')
         if subventions:
             subventions = list(subventions) + [get_statistics(subventions)]
         subv = [(ay.name, subventions)]
@@ -53,13 +57,13 @@ def export_all_demands(request):
     years = AccountingYear.objects.order_by('start_date')
     subventions = []
     for ay in years:
-        subv = Subvention.objects.filter(accounting_year=ay).order_by('unit__name')
+        subv = Subvention.objects.filter(accounting_year=ay).order_by('unit__name', 'unit_blank_name')
         if subv:
             subv = list(subv) + [get_statistics(subv)]
         subventions.append((ay.name, subv))
 
     summary = []
-    units = map(lambda subv: subv.get_real_unit_name(), sorted(list(Subvention.objects.distinct('unit', 'unit_blank_name')), key=lambda subv: subv.get_real_unit_name()))
+    units = sorted(list(set(map(lambda subv: subv.get_real_unit_name(), list(Subvention.objects.all())))))
     for unit_name in units:
         line = [unit_name]
         for year in years:
@@ -84,9 +88,9 @@ def invoice_pdf(request, pk):
         raise Http404
 
     img = invoice.generate_bvr()
-    img.save('media/cache/bvr/{}.png'.format(invoice.pk))
+    img.save(os.path.join(settings.DJANGO_ROOT, 'media/cache/bvr/{}.png').format(invoice.pk))
 
-    return generate_pdf("accounting_tools/invoice/pdf.html", {'invoice': invoice, 'user': request.user, 'cdate': now()})
+    return generate_pdf("accounting_tools/invoice/pdf.html", {'invoice': invoice, 'user': request.user, 'cdate': now(), 'DJANGO_ROOT': settings.DJANGO_ROOT})
 
 
 @login_required
@@ -104,3 +108,16 @@ def invoice_bvr(request, pk):
     response = HttpResponse(mimetype="image/png")
     img.save(response, 'png')
     return response
+
+
+@login_required
+def withdrawal_pdf(request, pk):
+
+    from accounting_tools.models import Withdrawal
+
+    withdrawal = get_object_or_404(Withdrawal, pk=pk, deleted=False)
+
+    if not withdrawal.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    return generate_pdf("accounting_tools/withdrawal/pdf.html", {'withdrawal': withdrawal, 'user': request.user, 'cdate': now(), 'media': settings.MEDIA_ROOT})

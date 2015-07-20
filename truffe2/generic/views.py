@@ -316,7 +316,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         except (ValueError, model_class.DoesNotExist):
             obj = model_class()
 
-            if hasattr(model_class.MetaEdit, 'set_extra_defaults'):
+            if hasattr(model_class, 'MetaEdit') and hasattr(model_class.MetaEdit, 'set_extra_defaults'):
                 model_class.MetaEdit.set_extra_defaults(obj, request)
 
             if unit_mode:
