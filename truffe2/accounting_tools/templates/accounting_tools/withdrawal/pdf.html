@@ -3,6 +3,10 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style>
+            @font-face {
+                font-family: DejaVu;
+                src: url({{media}}fonts/DejaVuSans.ttf);
+            }
             @page {
                 margin: 1cm;
                 margin-bottom: 2.5cm;
@@ -20,6 +24,10 @@
                     right: 1.2cm;
                     width: 25%;
                 }
+            }
+
+            body {
+                font-family: "DejaVu";
             }
 
             .td-a {
@@ -84,7 +92,7 @@
             <tr><td colspan="4">&nbsp;</td></tr>
              
              
-            <tr><td class="td-b" style="color: red;"><b>{% trans "Montant : " %}</b></td><td></td><td></td><td class="td-a" style="text-align: right;"><b>CHF {{withdrawal.amount|intcomma|floatformat:"2"}}</b></td></tr>
+            <tr><td class="td-b" style="color: red;"><b>{% trans "Montant : " %}</b></td><td></td><td></td><td class="td-a" style="text-align: right;"><b>CHF {{withdrawal.amount|floatformat:"2"|intcomma}}</b></td></tr>
 
             <tr><td colspan="4">&nbsp;</td></tr>
              
