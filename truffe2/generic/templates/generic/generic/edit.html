@@ -102,6 +102,10 @@
 
                 <script type="text/javascript">
 
+                    function escape_html(html) {
+                        return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    }
+
                     $(function () {
                         {% for line_form in line_data.forms %}
                             {% for field in line_data.date_fields %}
@@ -199,11 +203,6 @@
                 </div>
 
                 <script type="text/javascript">
-
-                    function escape_html(html) {
-                        return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    }
-
                     $(function () {
 
                         $('#tags').css('width', '100%').select2({
@@ -407,28 +406,18 @@
                 var options = '<option value=""></option>';
 
                 $.each(data.data, function (index, option) {
-
                     options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
-
-
                 });
 
                 $('#id_costcenter').select2('destroy');
-
                 $('#id_costcenter').html(options);
-
                 $('#id_costcenter').val(old_value);
-
                 $('#id_costcenter').select2();
-
-
             });
-
         }
 
         $(function () {
             $('#id_costcenter').css('width', '100%').addClass('select2').removeClass('form-control').select2();
-
             load_costcenter();
         });
 
