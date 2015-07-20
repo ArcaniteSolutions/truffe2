@@ -36,7 +36,6 @@ import copy
 from generic.datatables import generic_list_json
 from generic.forms import ContactForm
 from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail
-from accounting_tools.models import LinkedInfo
 from rights.utils import BasicRightModel
 
 
@@ -274,6 +273,7 @@ def generate_list_related_json(module, base_name, model_class):
 
 
 def generate_edit(module, base_name, model_class, form_class, log_class, file_class, tag_class):
+    from accounting_tools.models import LinkedInfo
 
     @login_required
     @csrf_exempt

@@ -668,7 +668,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         status_col_id = 4
 
     class MetaEdit:
-        set_linked_info = True
+        pass
 
     def may_switch_to(self, user, dest_state):
         if self.status[0] == '3' and not user.is_superuser:
