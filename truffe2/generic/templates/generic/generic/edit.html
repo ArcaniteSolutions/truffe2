@@ -24,7 +24,7 @@
         <h1>{% trans "Création d'un élément" %}</h1>
     {% endif %}
   <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-7">
+    <div class="col-sm-12 col-md-12 col-lg-10" style="max-width: 1000px;">
       <div class="well">
           <form class="form-horizontal" method="POST" enctype="multipart/form-data" id="generic_main_form">
             {% csrf_token %}
@@ -105,7 +105,7 @@
                     $(function () {
                         {% for line_form in line_data.forms %}
                             {% for field in line_data.date_fields %}
-                                $("#id__LINES_{{line_data.related_name}}_{{line_form.id}}-{{field}}").datetimepicker({format: 'yyyy-mm-dd', weekStart: 1, autoclose: true, todayBtn: true});
+                                $("#id__LINES_{{line_data.related_name}}_{{line_form.id}}-{{field}}").datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
                             {% endfor %}
 
                             {% for field in line_data.tva_fields %}
@@ -126,7 +126,7 @@
                         var new_line = $('#lines_tbody_{{line_data.related_name}}').append(html);
 
                         {% for field in line_data.date_fields %}
-                            $("#id__LINES_{{line_data.related_name}}_" + line_id + "-{{field}}").datetimepicker({format: 'yyyy-mm-dd', weekStart: 1, autoclose: true, todayBtn: true});
+                            $("#id__LINES_{{line_data.related_name}}_" + line_id + "-{{field}}").removeClass('hasDatepicker').datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
                         {% endfor %}
 
                         {% for field in line_data.tva_fields %}
@@ -359,6 +359,10 @@
         $("#id_{{field}}").datetimepicker({format: 'yyyy-mm-dd hh:ii', weekStart: 1, autoclose: true, todayBtn: true});
     {% endfor %}
 
+    {% for field in Model.MetaEdit.date_fields %}
+        $("#id_{{field}}").datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
+    {% endfor %}
+
     {% for field in Model.MetaEdit.html_fields %}
         $("#id_{{field}}").summernote({
             height : 180,
@@ -431,7 +435,7 @@
     {% endif %}
 
     function switch_to_tva_field(field) {
-        field.css('width', '100%').addClass('select2').removeClass('form-control').select2({
+        field.css('width', '100%').css('min-width', '100px').addClass('select2').removeClass('form-control').select2({
             ajax: {
                 url: '{% url 'accounting_core.views.tva_available_list' %}',
                 dataType: "json",

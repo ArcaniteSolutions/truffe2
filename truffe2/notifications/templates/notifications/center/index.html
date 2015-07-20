@@ -10,122 +10,126 @@
 
 
 {% block content %}
-  <h1>{% trans "Gestion des notifications" %}</h1>
+    <h1>{% trans "Gestion des notifications" %}</h1>
 
 
-<div id="inbox-content" class="inbox-body no-content-padding">
+    <style>
+        /* No scrolling header */
+        .fixedHeader { display: none !important; }
+    </style>
 
-    <div class="inbox-side-bar">
+    <div id="inbox-content" class="inbox-body no-content-padding">
 
-      <h5>{% trans "Type de notification" %}</h5>
+        <div class="inbox-side-bar" style="overflow: scroll;">
 
-      <ul class="inbox-menu-lg" id="notification_types">
-      </ul>
+            <h5>{% trans "Type de notification" %}</h5>
 
-      <h5>{% trans "Restrictions" %}</h5>
+            <ul class="inbox-menu-lg" id="notification_types">
+            </ul>
 
-      <div id="notification_restrictions"></div>
+            <h5>{% trans "Restrictions" %}</h5>
+
+            <div id="notification_restrictions"></div>
+
+        </div>
+
+        <div class="table-wrap" style="padding-top: 50px;">
+
+            <table id="main_list_table" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Date" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Objet lié" %}</th>
+                        <th>{% trans "Message" %}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
 
     </div>
 
-    <div class="table-wrap" style="padding-top: 50px;">
+    {% with id="main_list_table" json_url="notifications.views.notification_json" datatable_notools="yes" default_sort="[0, 'desc']" with_extradata="function() {  return '&current_type=' + NOTIFICATIONS_CURRENT_TYPE}" %}{% include "datatables.html" %}{% endwith %}
 
-        <table id="main_list_table" class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>{% trans "Date" %}</th>
-                    <th>{% trans "Type" %}</th>
-                    <th>{% trans "Objet lié" %}</th>
-                    <th>{% trans "Message" %}</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+    <script type="text/javascript">
 
-</div>
+        function tableHeightSize() {
 
-{% with id="main_list_table" json_url="notifications.views.notification_json" datatable_notools="yes" default_sort="[0, 'desc']" with_extradata="function() {  return '&current_type=' + NOTIFICATIONS_CURRENT_TYPE}" %}{% include "datatables.html" %}{% endwith %}
+            var tableHeight = $(window).height() - 212;
 
-<script type="text/javascript">
+            if (tableHeight < 320) {
+                $('.table-wrap').css('height', 320 + 'px');
+            } else {
+                $('.table-wrap').css('height', tableHeight + 'px');
+            }
 
-
-    function tableHeightSize() {
-
-        var tableHeight = $(window).height() - 212;
-
-        if (tableHeight < 320) {
-            $('.table-wrap').css('height', 320 + 'px');
-        } else {
-            $('.table-wrap').css('height', tableHeight + 'px');
         }
 
-    }
-
-    tableHeightSize()
-
-    $(window).resize(function() {
         tableHeightSize()
-    });
 
-    var NOTIFICATIONS_CURRENT_TYPE = '';
+            $(window).resize(function() {
+                tableHeightSize()
+            });
 
-    function load_types() {
+        var NOTIFICATIONS_CURRENT_TYPE = '';
 
-        $.ajax('{% url 'notifications.views.notification_keys' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
-            function (data) {
-                $('#notification_types').html(data);
-            }
-        );
+        function load_types() {
 
-    }
+            $.ajax('{% url 'notifications.views.notification_keys' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
+                    function (data) {
+                        $('#notification_types').html(data);
+                    }
+                    );
 
-    load_types();
+        }
 
-    function load_restrictions() {
-
-        $.ajax('{% url 'notifications.views.notification_restrictions' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
-            function (data) {
-                $('#notification_restrictions').html(data);
-
-                $('#notifications_mute, #notifications_mail').on('change', function (e) {
-
-                  $.ajax('{% url 'notifications.views.notification_restrictions_update' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE + '&mail=' + $('#notifications_mail').is(':checked') + '&mute=' + $('#notifications_mute').is(':checked') + '&elem=' + $(e.target).attr('id')).done(function() { load_restrictions(); });
-
-
-                });
-            }
-        );
-
-    }
-
-    load_restrictions();
-
-    function reload_data() {
-        data_table_main_list_table._fnAjaxUpdate();
-    }
-
-    function switch_type(type) {
-        NOTIFICATIONS_CURRENT_TYPE = type;
-        reload_data();
         load_types();
+
+        function load_restrictions() {
+
+            $.ajax('{% url 'notifications.views.notification_restrictions' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
+                    function (data) {
+                        $('#notification_restrictions').html(data);
+
+                        $('#notifications_mute, #notifications_mail').on('change', function (e) {
+
+                            $.ajax('{% url 'notifications.views.notification_restrictions_update' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE + '&mail=' + $('#notifications_mail').is(':checked') + '&mute=' + $('#notifications_mute').is(':checked') + '&elem=' + $(e.target).attr('id')).done(function() { load_restrictions(); });
+
+
+                        });
+                    }
+                    );
+
+        }
+
         load_restrictions();
 
-    }
+        function reload_data() {
+            data_table_main_list_table._fnAjaxUpdate();
+        }
 
-    function notification_list_ignore(notif_pk) {
+        function switch_type(type) {
+            NOTIFICATIONS_CURRENT_TYPE = type;
+            reload_data();
+            load_types();
+            load_restrictions();
 
-        $.ajax('{% url 'notifications.views.mark_as_read' %}?pk=' +notif_pk).done(
-            function (data) {
-                reload_data();
-                load_types();
-            }
-        );
-    }
+        }
 
-</script>
+        function notification_list_ignore(notif_pk) {
+
+            $.ajax('{% url 'notifications.views.mark_as_read' %}?pk=' +notif_pk).done(
+                    function (data) {
+                        reload_data();
+                        load_types();
+                    }
+                    );
+        }
+
+    </script>
 
 
 
