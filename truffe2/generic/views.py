@@ -9,6 +9,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.db import connections
 from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
@@ -18,10 +19,10 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db.models import Max, Q
-from jfu.http import upload_receive, UploadResponse, JFUResponse
+
+
 from easy_thumbnails.files import get_thumbnailer
-
-
+from jfu.http import upload_receive, UploadResponse, JFUResponse
 import json
 import datetime
 import pytz
@@ -35,6 +36,7 @@ import copy
 from generic.datatables import generic_list_json
 from generic.forms import ContactForm
 from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail
+from accounting_tools.models import LinkedInfo
 from rights.utils import BasicRightModel
 
 
@@ -369,6 +371,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         if tag_mode:
             tags_before = ','.join([t.tag for t in obj.tags.order_by('tag')]) if obj.pk else ''
 
+        linked_info_mode = hasattr(model_class, 'MetaEdit') and hasattr(model_class.MetaEdit, 'set_linked_info') and model_class.MetaEdit.set_linked_info
+
         if request.method == 'POST':  # If the form has been submitted...
             form = form_class(request.user, request.POST, request.FILES, instance=obj)
             form.truffe_request = request
@@ -470,6 +474,13 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     tag_class.objects.filter(object=obj).exclude(tag__in=tags).delete()
 
                     tags_after = ', '.join([t.tag for t in obj.tags.order_by('tag')])
+
+                if linked_info_mode:
+                    object_ct = ContentType.objects.get(app_label=module.__name__, model=base_name)
+                    infos, __ = LinkedInfo.objects.get_or_create(content_type=object_ct, object_id=obj.pk)
+                    for (info_field, user_field) in (('first_name', 'first_name'), ('last_name', 'last_name'), ('address', 'adresse'), ('phone', 'mobile'), ('bank', 'nom_banque'), ('iban_ccp', 'iban_ou_ccp')):
+                        setattr(infos, info_field, getattr(request.user, user_field))
+                    infos.save()
 
                 if isinstance(obj, BasicRightModel):
                     obj.rights_expire()

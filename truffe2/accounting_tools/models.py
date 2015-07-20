@@ -668,7 +668,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         status_col_id = 4
 
     class MetaEdit:
-        pass
+        set_linked_info = True
 
     def may_switch_to(self, user, dest_state):
         if self.status[0] == '3' and not user.is_superuser:
@@ -790,6 +790,8 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         files_title = _(u'Pièces comptables')
         files_help = _(u'Pièces comptables liées au retrait cash.')
         date_fields = ['desired_date', 'withdrawn_date']
+
+        set_linked_info = True
 
     class MetaGroups(GenericGroupsModel.MetaGroups):
         pass
