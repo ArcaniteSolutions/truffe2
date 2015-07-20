@@ -17,7 +17,7 @@ import os
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
@@ -305,7 +305,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
                 'show_list': [
                     ('label', _(u'Titre')),
                     ('quantity', _(u'Quantité')),
-                    ('value', _(u'Montant (HT)')),
+                    ('value', _(u'Montant unitaire (HT)')),
                     ('get_tva', _(u'TVA')),
                     ('total', _(u'Montant (TTC)')),
                 ]},
@@ -767,7 +767,7 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
         filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number')
         datetime_fields = ['desired_date', 'withdrawn_date']
 
-        default_sort = "[6, 'desc']"  # Creation date (pk) descending
+        default_sort = "[5, 'desc']"  # Creation date (pk) descending
 
         base_title = _(u'Retraits cash')
         list_title = _(u'Liste des retraits cash')
@@ -932,3 +932,118 @@ class LinkedInfo(models.Model):
     phone = models.CharField(_(u'Numéro de téléphone'), max_length=20)
     bank = models.CharField(_(u'Nom de la banque'), max_length=128)
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
+
+
+class _ExpenseClaim(GenericModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, GenericAccountingStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+    """Modèle pour les notes de frais (NdF)"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    name = models.CharField(_(u'Titre de la note de frais'), max_length=255, unique=True)
+    unit = FalseFK('units.models.Unit')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    nb_just = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+
+    class MetaData:
+        list_display = [
+            ('name', _('Titre')),
+            ('get_fullname', _(u'Personne')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('nb_just', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ]
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
+
+        default_sort = "[6, 'desc']"  # Creation date (pk) descending
+        not_sortable_colums = ['get_fullname']
+
+        base_title = _(u'Notes de frais')
+        list_title = _(u'Liste des notes de frais')
+        files_title = _(u'Justificatifs')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-pencil-square-o'
+
+        has_unit = True
+
+        menu_id = 'menu-compta-ndf'
+
+        help_list = _(u"""Les notes de frais permettent de se faire rembourser des frais avancés pour une unité.
+
+Il est nécessaire de fournir les preuves d'achat et que celles-ci contiennent uniquement des choses qui doivent être remboursées.
+Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si certains achats à la Migros sont à 8% et d'autres à 0%, il faut les séparer en 2 lignes.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Justificatifs')
+        files_help = _(u'Justificatifs pour le remboursement de la note de frais.')
+
+        set_linked_info = True
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.ExpenseClaimLine',
+                'form': 'accounting_tools.forms.ExpenseClaimLineForm',
+                'related_name': 'lines',
+                'field': 'expense_claim',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'show_list': [
+                    ('label', _(u'Titre')),
+                    ('proof', _(u'Justificatif')),
+                    ('account', _(u'Compte')),
+                    ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('total', _(u'Montant (TTC)')),
+                ]},
+        ]
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.name, self.costcenter)
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Order user queryset and restraint it if does not have right TRESORIER/SECRETARIAT."""
+        # TODO Order?!
+
+        from users.models import TruffeUser
+
+        if current_user in self.people_in_linked_unit(access=self.MetaRightsUnit.access) or current_user.is_superuser:
+            form.fields['user'].queryset = TruffeUser.objects.all()
+        else:
+            form.fields['user'].queryset = TruffeUser.objects.filter(pk=current_user.pk)
+
+    def linked_info(self):
+        from accounting_tools.models import LinkedInfo
+
+        expenseclaim_ct = ContentType.objects.get(app_label="accounting_tools", model="expenseclaim")
+        return LinkedInfo.objects.filter(content_type=expenseclaim_ct, object_id=self.pk).first()
+
+    def get_fullname(self):
+        infos = self.linked_info()
+        return u"{} {}".format(infos.first_name, infos.last_name)
+
+
+class ExpenseClaimLine(ModelUsedAsLine):
+
+    expense_claim = models.ForeignKey('ExpenseClaim', related_name="lines")
+
+    label = models.CharField(_(u'Concerne'), max_length=255)
+    proof = models.CharField(_(u'Justificatif'), max_length=255)
+    account = FalseFK('accounting_core.models.Account', verbose_name=_('Compte'))
+    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)

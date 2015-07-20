@@ -376,6 +376,16 @@
                                         {% endifhasright %}
                                     </ul>
                                 </li>
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-edit"></i> {% trans "Justifications" %}</span></a>
+                                    <ul>
+                                        {% ifhasright 'accounting_tools.models.ExpenseClaim' user 'LIST' %}
+                                            <li id="menu-compta-ndf">
+                                                <a href="{% url 'accounting_tools.views.expenseclaim_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Notes de frais" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                     {% endif %}

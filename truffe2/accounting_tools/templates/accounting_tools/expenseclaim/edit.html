@@ -1,0 +1,69 @@
+{% extends "generic/generic/edit.html" %}
+
+{% block line_add_line_bonus %}
+    new_line.find('.line_field_lines_value input').on('change', handle_tva_ht);
+    new_line.find('.line_field_lines_value_ttc input').on('change', handle_tva_ttc);
+    new_line.find('.line_field_lines_tva input').on('change', handle_tva_tva);
+{% endblock %}
+
+{% block line_js_bonus %}
+
+    function handle_tva_ht(obj) {
+
+        var tva = $(obj.target).parents('tr').find('.line_field_lines_tva input').select2('val');
+        if (tva < 0)
+            tva = 0;
+        var ht = $(obj.target).val();
+        var tt = ht * (1.0 + tva / 100.0);
+
+        tt = (Math.round(tt * 20) / 20).toFixed(2);
+
+        $(obj.target).parents('tr').find('.line_field_lines_value_ttc input').val(tt).pulse();
+
+    }
+
+    function handle_tva_ttc(obj) {
+
+        var tva = $(obj.target).parents('tr').find('.line_field_lines_tva input').select2('val');
+        if (tva < 0)
+            tva = 0;
+        var ttc = $(obj.target).val();
+        var ht = ttc / (1.0 + tva / 100.0);
+
+        ht = ht.toFixed(2);
+
+        $(obj.target).parents('tr').find('.line_field_lines_value input').val(ht).pulse();
+    }
+
+    function handle_tva_tva(obj) {
+
+        var ttc = $(obj.target).parents('tr').find('.line_field_lines_value_ttc input').val();
+        var tva = $(obj.target).parents('tr').find('.line_field_lines_tva input').select2('val');
+
+        if (tva < 0)
+            tva = 0;
+
+        if (ttc == 0 || ttc == "") {
+
+            var ht = $(obj.target).parents('tr').find('.line_field_lines_value input').val();
+            var tt = ht * (1.0 + tva / 100.0);
+
+            tt = (Math.round(tt * 20) / 20).toFixed(2);
+
+            $(obj.target).parents('tr').find('.line_field_lines_value_ttc input').val(tt).pulse();
+
+        } else {
+            var ht = ttc / (1.0 + tva / 100.0);
+            ht = ht.toFixed(2);
+            $(obj.target).parents('tr').find('.line_field_lines_value input').val(ht).pulse();
+        }
+
+    }
+
+    $(function () {
+        $('.line_field_lines_value input').on('change', handle_tva_ht);
+        $('.line_field_lines_value_ttc input').on('change', handle_tva_ttc);
+        $('.line_field_lines_tva input').on('change', handle_tva_tva);
+    });
+
+{% endblock %}

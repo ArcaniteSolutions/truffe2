@@ -677,20 +677,12 @@ class GenericAccountingStateModel(object):
             '4_canceled': [],
         }
 
-        states_quick_switch = {
-            '0_draft': [('1_unit_validable', _(u'Demander accord unité')), ('4_canceled', _(u'Annuler')), ],
-            '0_correct': [('1_unit_validable', _(u'Demander accord unité')), ('4_canceled', _(u'Annuler')), ],
-            '1_unit_validable': [('2_agep_validable', _(u'Demander accord AGEPoly')), ('0_correct', _(u'Demander des corrections')), ('4_canceled', _(u'Annuler')), ],
-            '2_agep_validable': [('0_correct', _(u'Demander des corrections')), ('3_accountable', _(u'Demander à comptabiliser')), ('4_canceled', _(u'Annuler')), ],
-            '3_accountable': [('4_archived', _(u'Archiver')), ('4_canceled', _(u'Annuler')), ]
-        }
-
         list_quick_switch = {
-            '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('4_canceled', 'fa fa-ban', _(u'Annuler')), ],
-            '0_correct': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('4_canceled', 'fa fa-ban', _(u'Annuler')), ],
-            '1_unit_validable': [('2_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
-            '2_agep_validable': [('3_accountable', 'fa fa-check', _(u'Demander à comptabiliser')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
-            '3_accountable': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
+            '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité'))],
+            '0_correct': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité'))],
+            '1_unit_validable': [('2_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly'))],
+            '2_agep_validable': [('3_accountable', 'fa fa-check', _(u'Demander à comptabiliser'))],
+            '3_accountable': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver'))],
         }
 
         states_colors = {
@@ -714,7 +706,7 @@ class GenericAccountingStateModel(object):
         }
 
         states_default_filter = '0_draft,0_correct,1_unit_validable,2_agep_validable'
-        status_col_id = 4
+        status_col_id = 3
 
     def may_switch_to(self, user, dest_state):
         if self.status[0] == '4' and not user.is_superuser:
@@ -755,6 +747,9 @@ class GenericAccountingStateModel(object):
         return super(GenericAccountingStateModel, self).rights_can_SHOW(user)
 
     def rights_can_EDIT(self, user):
+        if not self.pk:
+            return True
+
         if self.status[0] == '4':
             return False
 
