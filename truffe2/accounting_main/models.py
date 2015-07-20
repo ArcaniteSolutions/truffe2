@@ -10,6 +10,7 @@ from app.utils import get_current_year, get_current_unit
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
+from users.models import TruffeUser
 
 
 class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, GenericContactableModel, UnitEditableModel):
@@ -316,3 +317,14 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
     def get_line_title(self):
         return _(u'Erreur #{} du {} signalée par {}'.format(self.pk, str(self.get_creation_date())[:10], self.get_creator()))
+
+    def get_messages(self):
+        return self.accountingerrormessage_set.order_by('when')
+
+
+class AccountingErrorMessage(models.Model):
+
+    author = models.ForeignKey(TruffeUser)
+    when = models.DateTimeField(auto_now_add=True)
+    message = models.TextField()
+    error = models.ForeignKey('AccountingError')

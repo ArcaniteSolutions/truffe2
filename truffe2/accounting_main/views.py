@@ -43,3 +43,18 @@ def accounting_graph(request):
         data[timestamp] = line.current_sum
 
     return render(request, 'accounting_main/accountingline/graph.html', {'costcenter': costcenter, 'random': str(uuid.uuid4()), 'data': data})
+
+
+def errors_send_message(request, pk):
+    from accounting_main.models import AccountingError, AccountingErrorMessage
+
+    error = get_object_or_404(AccountingError, pk=pk)
+
+    if not error.rights_can('ADD_COMMENT', request.user):
+        raise Http404
+
+    AccountingErrorMessage(author=request.user, message=request.POST.get('message'), error=error).save()
+
+    messages.success(request, _(u'Message ajouté !'))
+
+    return HttpResponse('')

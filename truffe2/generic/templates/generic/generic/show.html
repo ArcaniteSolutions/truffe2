@@ -7,10 +7,10 @@
     {{block.super}}
     <li><a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
     <li><i class="{{Model.MetaData.elem_icon}}"></i> {{obj}}</li>
-  {% endblock %}
+{% endblock %}
 
 {% block content %}
-<h1>{{obj}}</h1>
+    <h1>{{obj}}</h1>
     <section id="widget-grid" class="">
         <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-6">
