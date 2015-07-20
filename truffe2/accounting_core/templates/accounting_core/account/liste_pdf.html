@@ -8,12 +8,11 @@
                 font-family: DejaVu;
                 src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
             }
-
             @font-face {
-                font-family: DejaVuBold;
+                font-family: DejaVu;
                 src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
+                font-weight: bold;
             }
-
             @page {
                 size: a4 portrait;
                 margin: 1cm;
@@ -30,10 +29,6 @@
 
             body {
                 font-family: "DejaVu";
-            }
-
-            body b {
-                font-family: "DejaVuBold";
             }
 
             .tr-a {
@@ -54,6 +49,7 @@
                 padding-top: 5px;
                 text-align: center;
             }
+
         </style>
     </head>
 
@@ -66,5 +62,7 @@
         {% endfor %}
 
         <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
+
     </body>
+
 </html>
