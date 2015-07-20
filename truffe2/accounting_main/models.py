@@ -172,3 +172,147 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             return '<span class="txt-color-red">{}</span>'.format(self.current_sum)
         else:
             return '0.00'
+
+
+class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, GenericContactableModel, UnitEditableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+        world_ro_access = False
+
+    unit = FalseFK('units.models.Unit')
+
+    linked_line = FalseFK('accounting_main.models.AccountingLine', verbose_name=_(u'Ligne liée'), blank=True, null=True)
+    linked_line_text = models.CharField(max_length=4096)
+
+    initial_remark = models.TextField(_(u'Remarque initiale'), help_text=_(u'Décrit le problème'))
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        pass
+
+    class MetaData:
+        list_display = [
+            ('get_line_title', _(u'Erreur')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('get_linked_line', _(u'Ligne')),
+            ('status', _(u'Statut')),
+        ]
+
+        default_sort = "[0, 'desc']"  # pk
+        filter_fields = ('linked_line__text', 'linked_line_text')
+
+        details_display = list_display + [
+            ('initial_remark', _(u'Remarque initiale')),
+        ]
+
+        base_title = _(u'Erreurs')
+        list_title = _(u'Liste des erreurs de la comptabilité')
+        base_icon = 'fa fa-list-ol'
+        elem_icon = 'fa fa-warning'
+
+        menu_id = 'menu-compta-errors'
+        not_sortable_colums = ['get_line_title', 'costcenter']
+        trans_sort = {'get_linked_line': 'linked_line_text'}
+        safe_fields = []
+
+        has_unit = True
+
+        help_list = _(u"""Les erreurs signalées dans la compta de l'AGEPoly.""")
+
+    class MetaState:
+
+        states = {
+            '0_drafting': _(u'Établisement du problème'),
+            '1_fixing': _(u'En attente de correction'),
+            '2_fixed': _(u'Correction effectuée'),
+        }
+
+        default = '0_drafting'
+
+        states_texts = {
+            '0_drafting': _(u'L\'erreur à été signalée, les détails sont en cours d\'élaboration.'),
+            '1_fixing': _(u'L\'erreur à été déterminée et une correction est en attente.'),
+            '2_fixed': _(u'L\'erreur à été corrigée.'),
+        }
+
+        states_links = {
+            '0_drafting': ['1_fixing', '2_fixed'],
+            '1_fixing': ['0_drafting', '2_fixed'],
+            '2_fixed': ['1_fixing'],
+        }
+
+        states_colors = {
+            '0_drafting': 'warning',
+            '1_fixing': 'danger',
+            '2_fixed': 'success',
+        }
+
+        states_icons = {
+        }
+
+        list_quick_switch = {
+            '0_drafting': [('1_fixing', 'fa fa-warning', _(u'Marquer comme \'En attente de correction\'')), ('2_fixed', 'fa fa-check', _(u'Marquer comme corrigé')), ],
+            '1_fixing': [('2_fixed', 'fa fa-check', _(u'Marquer comme corrigé')), ],
+            '2_fixed': [('1_fixing', 'fa fa-warning', _(u'Marquer comme \'En attente de correction\'')), ],
+        }
+
+        states_default_filter = '0_drafting,1_fixing'
+        status_col_id = 4
+
+    def may_switch_to(self, user, dest_state):
+
+        return super(_AccountingError, self).rights_can_EDIT(user) and super(_AccountingError, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+
+        if not super(_AccountingError, self).rights_can_EDIT(user):
+            return (False, _('Pas les droits.'))
+
+        return super(_AccountingError, self).can_switch_to(user, dest_state)
+
+    def rights_can_EDIT(self, user):
+        if self.status == '2_fixed':
+            return False  # Never !
+
+        return super(_AccountingError, self).rights_can_EDIT(user)
+
+    def rights_can_ADD_COMMENT(self, user):
+        return super(_AccountingError, self).rights_can_EDIT(user)
+
+    def rights_can_DISPLAY_LOG(self, user):
+        """Always display log, even if current state dosen't allow edit"""
+        return super(_AccountingError, self).rights_can_EDIT(user)
+
+    def __unicode__(self):
+        return u'Erreur: {}'.format(self.get_linked_line())
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        del form.fields['linked_line_text']
+        del form.fields['linked_line']
+
+    def get_linked_line(self):
+        if self.linked_line:
+            return self.linked_line.__unicode__()
+        else:
+            return self.linked_line_text or _(u'(Aucune ligne liée)')
+
+    def save(self, *args, **kwargs):
+
+        if not self.linked_line_text and self.linked_line:
+            self.linked_line_text = self.linked_line.__unicode__()
+
+        return super(_AccountingError, self).save(*args, **kwargs)
+
+    def __init__(self, *args, **kwargs):
+        super(_AccountingError, self).__init__(*args, **kwargs)
+
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
+        self.MetaRights.rights_update({
+            'ADD_COMMENT': _(u'Peut ajouter un commentaire'),
+        })
+
+    def get_line_title(self):
+        return _(u'Erreur #{} du {} signalée par {}'.format(self.pk, str(self.get_creation_date())[:10], self.get_creator()))
