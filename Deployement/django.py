@@ -194,7 +194,7 @@ def stop_celery():
 
 @task
 def configure_truffe():
-    """Configure the djagno application"""
+    """Configure the django application"""
     upload_template('files/settingsLocal.py', '/var/www/git-repo/truffe2/truffe2/app/settingsLocal.py', {
         'mysql_password': config.MYSQL_PASSWORD,
         'secret_key': str(uuid.uuid4()),
