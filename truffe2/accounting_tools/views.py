@@ -122,4 +122,16 @@ def withdrawal_pdf(request, pk):
     if not withdrawal.static_rights_can('SHOW', request.user):
         raise Http404
 
-    return generate_pdf("accounting_tools/withdrawal/pdf.html", {'withdrawal': withdrawal, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+    return generate_pdf("accounting_tools/withdrawal/pdf.html", {'object': withdrawal, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+
+
+@login_required
+def internaltransfer_pdf(request, pk):
+    from accounting_tools.models import InternalTransfer
+
+    internaltransfer = get_object_or_404(InternalTransfer, pk=pk, deleted=False)
+
+    if not internaltransfer.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    return generate_pdf("accounting_tools/internaltransfer/pdf.html", {'object': internaltransfer, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
