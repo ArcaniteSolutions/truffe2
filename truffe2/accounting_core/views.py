@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
+from django.conf import settings
 
 
 import json
@@ -95,7 +96,7 @@ def pdf_list_cost_centers(request, pk):
 
     cc = CostCenter.objects.filter(accounting_year=ay).order_by('account_number')
 
-    return generate_pdf("accounting_core/costcenter/liste_pdf.html", {'cost_centers': cc, 'ay': ay, 'user': request.user, 'cdate': now()})
+    return generate_pdf("accounting_core/costcenter/liste_pdf.html", {'cost_centers': cc, 'ay': ay, 'user': request.user, 'cdate': now(), 'media': settings.MEDIA_ROOT})
 
 
 @login_required
@@ -112,7 +113,7 @@ def pdf_list_accounts(request, pk):
 
     root_ac = AccountCategory.objects.filter(accounting_year=ay, parent_hierarchique=None).order_by('order')
 
-    return generate_pdf("accounting_core/account/liste_pdf.html", {'root_ac': root_ac, 'ay': ay, 'user': request.user, 'cdate': now()})
+    return generate_pdf("accounting_core/account/liste_pdf.html", {'root_ac': root_ac, 'ay': ay, 'user': request.user, 'cdate': now(), 'media': settings.MEDIA_ROOT})
 
 
 @login_required
