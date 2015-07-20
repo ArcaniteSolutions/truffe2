@@ -1,6 +1,21 @@
 {% load i18n generic_extras %}
 
 <script type="text/javascript">
+
+    var data_table_{{id}} = undefined;
+
+    function fix_height_{{id}}() {
+
+        var diff = (dtf_{{id}}.find('.select2-container').height() - 31);
+
+        dtf_{{id}}.parents('.widget-body').find('.widget-body-toolbar').css('min-height', 42 + diff + 'px');
+        dtf_{{id}}.parent().children().css('top', -38 - diff + 'px');
+
+    }
+
+    var dtf_{{id}} = undefined;
+
+
     $(function() { loadDataTableScripts_{{id}}()});
 
     function loadDataTableScripts_{{id}}() {
@@ -34,8 +49,6 @@
             loadScript("{{MEDIA_URL}}js/plugin/select2/select2.min.js", runDataTables_{{id}});
         }
     }
-
-    var data_table_{{id}} = undefined;
 
     function runDataTables_{{id}}() {
         data_table_{{id}} = $('#{{id}}').dataTable({
@@ -99,7 +112,12 @@
         });
 
         {% if status_filter %}
-            $('#{{id}}').parent().parent().find('.dataTables_filter').css('width', '75%').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px;">/select>');
+
+            dtf_{{id}} = $('#{{id}}').parent().parent().find('.dataTables_filter');
+
+            var max_w = dtf_{{id}}.parent().width() - 280;
+
+            dtf_{{id}}.css('width', max_w + 'px').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px; min-width: 200px; z-index: 300;">/select>');
 
             var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
 
@@ -107,7 +125,7 @@
                 select_{{id}}.append('<option value="{{id_}}" {% if id_ in status_filter %}selected{% endif %}>{{text|escapejs}}</option>"');
             {% endfor %}
 
-            select_{{id}}.select2(); //.css('width', '300px')
+            select_{{id}}.select2().on('change', fix_height_{{id}}); //.css('width', '300px')
 
             function select2_filter() {
                 data_table_{{id}}.fnFilter(select_{{id}}.val(), {{status_col_id}});
@@ -118,6 +136,8 @@
             });
 
             select2_filter();
+
+            fix_height_{{id}}();
         {% endif %}
 
         {% if object_filter %}

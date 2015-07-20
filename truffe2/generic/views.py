@@ -570,7 +570,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         costcenter_mode = isinstance(obj, CostCenterLinked)
 
         return render(request, ['%s/%s/edit.html' % (module.__name__, base_name), 'generic/generic/edit.html'], {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view,
-            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_mode,
+            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user),
             'related_mode': related_mode, 'list_related_view': list_related_view,
             'file_mode': file_mode, 'file_upload_view': file_upload_view, 'file_delete_view': file_delete_view, 'files': files, 'file_key': file_key, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
