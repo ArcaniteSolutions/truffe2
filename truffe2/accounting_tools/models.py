@@ -17,7 +17,7 @@ import os
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
@@ -228,6 +228,7 @@ class SubventionLine(ModelUsedAsLine):
 
 
 class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, GenericGroupsModel, GenericContactableModel, AccountingYearLinked, UnitEditableModel):
+    """Modèle pour les factures"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -575,6 +576,7 @@ class InvoiceLine(ModelUsedAsLine):
 
 
 class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, AccountingYearLinked, AgepolyEditableModel, GenericGroupsModel, GenericContactableModel):
+    """Modèle pour les transferts internes"""
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
@@ -744,6 +746,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 
 
 class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+    """Modèle pour les retraits cash"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -924,6 +927,8 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
 
 class LinkedInfo(models.Model):
+    """Modèle pour les infos liées aux modèles de leur choix"""
+
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     linked_object = generic.GenericForeignKey('content_type', 'object_id')
@@ -934,3 +939,64 @@ class LinkedInfo(models.Model):
     phone = models.CharField(_(u'Numéro de téléphone'), max_length=20)
     bank = models.CharField(_(u'Nom de la banque'), max_length=128)
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
+
+
+class _ExpenseClaim(GenericModel, GenericStateModel, GenericModelWithFiles, GenericAccountingStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+    """Modèle pour les notes de frais (NdF)"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    name = models.CharField(_('Raison du retrait'), max_length=255, unique=True)
+    unit = FalseFK('units.models.Unit')
+    description = models.TextField(_('Description'), blank=True, null=True)
+    amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
+    desired_date = models.DateField(_(u'Date souhaitée'))
+    withdrawn_date = models.DateField(_(u'Date réelle de retrait'), blank=True, null=True)
+
+    class MetaData:
+        list_display = [
+            ('name', _('Raison')),
+            ('amount', _('Montant')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('description', _(u'Description')), ('desired_date', _(u'Date souhaitée')), ('withdrawn_date', _(u'Date retrait')), ('accounting_year', _(u'Année comptable')), ]
+        filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number')
+        datetime_fields = ['desired_date', 'withdrawn_date']
+
+        default_sort = "[6, 'desc']"  # Creation date (pk) descending
+
+        base_title = _(u'Retraits cash')
+        list_title = _(u'Liste des retraits cash')
+        files_title = _(u'Pièces comptables')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-share-square-o'
+
+        has_unit = True
+
+        menu_id = 'menu-compta-rcash'
+
+        help_list = _(u"""Les demandes de retrait cash doivent impérativement être remplies pour pouvoir retirer de l'argent depuis le compte d'une unité.
+
+L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Pièces comptables')
+        files_help = _(u'Pièces comptables liées au retrait cash.')
+        date_fields = ['desired_date', 'withdrawn_date']
+
+        set_linked_info = True
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+
+    def __unicode__(self):
+        return "{} - {}".format(self.name, self.costcenter)
