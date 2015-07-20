@@ -44,7 +44,7 @@ def export_demands_yearly(request, ypk):
     except AccountingYear.DoesNotExist:
         subv = [(_(u'Période inconnue'), Subvention.objects.none())]
 
-    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", {'subventions': subv, 'user': request.user, 'cdate': now()})
+    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", {'subventions': subv, 'user': request.user, 'cdate': now(), 'media': settings.MEDIA_ROOT})
 
 
 @login_required
@@ -75,7 +75,7 @@ def export_all_demands(request):
                 line += ["", "", "", ""]
         summary.append(line)
 
-    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", {'subventions': subventions, 'summary': summary, 'years': years, 'user': request.user, 'cdate': now()})
+    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", {'subventions': subventions, 'summary': summary, 'years': years, 'user': request.user, 'cdate': now(), 'media': settings.MEDIA_ROOT})
 
 
 @login_required
