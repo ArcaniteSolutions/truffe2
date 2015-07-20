@@ -58,14 +58,14 @@ class Command(BaseCommand):
                         rcash.name = rcash_data['name']
                         rcash.save()
                         WithdrawalLogging(who=user, what='imported', object=rcash).save()
-                        print "+ ", rcash.name
+                        print "+ {!r}".format(rcash.name)
 
                     if rcash_data['linked_info']:
                         linked, created = LinkedInfo.objects.get_or_create(object_id=rcash.pk, content_type=withdrawal_ct, **rcash_data['linked_info'])
                         if created:
-                            print "  (I)", linked.first_name, linked.last_name
+                            print "  (I) {!r} {!r}".format(linked.first_name, linked.last_name)
 
                     for file_data in rcash_data['uploads']:
                             __, created = WithdrawalFile.objects.get_or_create(uploader=user, object=rcash, file=os.path.join('uploads', '_generic', 'Withdrawal', file_data.split('/')[-1]), defaults={'upload_date': now()})
                             if created:
-                                print "  (L)", file_data
+                                print "  (L) {!r}".format(file_data)
