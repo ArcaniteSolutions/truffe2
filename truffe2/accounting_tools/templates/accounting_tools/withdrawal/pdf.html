@@ -5,11 +5,11 @@
         <style>
             @font-face {
                 font-family: DejaVu;
-                src: url({{media}}fonts/DejaVuSans.ttf);
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
             }
             @font-face {
                 font-family: DejaVu;
-                src: url({{media}}fonts/DejaVuSans-Bold.ttf);
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
                 font-weight: bold;
             }
             @page {
@@ -73,7 +73,7 @@
     </head>
     <body>
         <div id="logoFrameContent">
-            <img src="{{media}}img/logo_factures.png" style="text-align: right;">
+            <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
         </div>
     
         <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">{% trans "Demande de retrait cash" %}</h1>
@@ -113,7 +113,7 @@
             <tr><td colspan="4">&nbsp;</td></tr>
             <tr><td colspan="4">&nbsp;</td></tr>
              
-            <tr><td colspan="4">{% trans "*ATTENTION - La personne de la commission est responsable du suivi du retrait" %}</td></tr>
+            <tr><td colspan="4">{% trans "*ATTENTION - La personne qui vise est responsable du suivi du retrait" %}</td></tr>
             
             <tr><td colspan="4">&nbsp;</td></tr>
             <tr><td colspan="4">&nbsp;</td></tr>
@@ -136,7 +136,7 @@
 
     {% for u in  withdrawal.get_uploaded_images %}
         <pdf:nextpage/>
-        <img src="{{media}}..{{u.file.url}}">
+        <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
     {% endfor %}
     
 
