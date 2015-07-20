@@ -11,4 +11,6 @@ urlpatterns = patterns(
 
     url(r'^invoice/(?P<pk>[0-9]+)/pdf/', 'invoice_pdf'),
     url(r'^invoice/(?P<pk>[0-9]+)/bvr/', 'invoice_bvr'),
+
+    url(r'^withdrawal/(?P<pk>[0-9]+)/pdf/', 'withdrawal_pdf'),
 )

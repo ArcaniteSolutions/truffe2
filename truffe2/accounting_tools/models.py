@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField, Form
 from django.contrib import messages
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 
@@ -58,9 +60,11 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         ]
 
         default_sort = "[2, 'asc']"  # unit
-        filter_fields = ('name', 'kind', 'unit')
+        filter_fields = ('name', 'unit__name', 'unit_blank_name')
 
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
+        details_display.insert(3, ('amount_given', _(u'Montant attribué')))
+        details_display.insert(5, ('mobility_given', _(u'Montant mobilité attribué')))
         extra_right_display = {'comment_root': lambda (obj, user): obj.rights_can('LIST', user)}
 
         files_title = _(u'Fichiers')
@@ -632,8 +636,8 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 
         states_links = {
             '0_draft': ['1_agep_validable', '3_canceled'],
-            '1_agep_validable': ['2_accountable', '3_canceled'],
-            '2_accountable': ['3_archived', '3_canceled'],
+            '1_agep_validable': ['0_draft', '2_accountable', '3_canceled'],
+            '2_accountable': ['0_draft', '3_archived', '3_canceled'],
             '3_archived': [],
             '3_canceled': [],
         }
@@ -909,3 +913,22 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
         if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
             del form.fields['withdrawn_date']
+
+    def linked_info(self):
+        from accounting_tools.models import LinkedInfo
+
+        withdrawal_ct = ContentType.objects.get(app_label="accounting_tools", model="withdrawal")
+        return LinkedInfo.objects.filter(content_type=withdrawal_ct, object_id=self.pk).first()
+
+
+class LinkedInfo(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    linked_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    first_name = models.CharField(_(u'Prénom'), max_length=50)
+    last_name = models.CharField(_(u'Nom de famille'), max_length=50)
+    address = models.TextField(_(u'Adresse'))
+    phone = models.CharField(_(u'Numéro de téléphone'), max_length=20)
+    bank = models.CharField(_(u'Nom de la banque'), max_length=128)
+    iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)

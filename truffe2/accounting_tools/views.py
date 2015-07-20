@@ -108,3 +108,16 @@ def invoice_bvr(request, pk):
     response = HttpResponse(mimetype="image/png")
     img.save(response, 'png')
     return response
+
+
+@login_required
+def withdrawal_pdf(request, pk):
+
+    from accounting_tools.models import Withdrawal
+
+    withdrawal = get_object_or_404(Withdrawal, pk=pk, deleted=False)
+
+    if not withdrawal.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    return generate_pdf("accounting_tools/withdrawal/pdf.html", {'withdrawal': withdrawal, 'user': request.user, 'cdate': now(), 'media': settings.MEDIA_ROOT})
