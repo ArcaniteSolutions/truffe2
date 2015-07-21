@@ -1,74 +1,39 @@
-{% load i18n %}
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <style>
-            @font-face {
-                font-family: DejaVu;
-                src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
-            }
-            @font-face {
-                font-family: DejaVu;
-                src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
-                font-weight: bold;
-            }
-          @page {
-              size: a4 landscape;
-              margin: 1cm;
-              margin-bottom: 2cm;
-              @frame footer {
-              -pdf-frame-content: footerContent;
-                bottom: 0cm;
-              margin-left: 1cm;
-              margin-right: 1cm;
-              height: 1cm;
-              }
-          }
-          body {
-              font-family: "DejaVu";
-          }
-          .tr-a {
-              border-bottom: 2px black solid;
-              font-weight: bold;
-          }
+{% include "template/base_pdf.html" %}
+{% block bonus_css_pdf %}
+    @page {
+        size: a4 landscape;
+        margin: 1cm;
+        margin-bottom: 2cm;
+        @frame footer {
+            -pdf-frame-content: footerContent;
+            bottom: 0cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            height: 1cm;
+        }
+    }
+{% endblock %}
 
-          tr {
-              border-bottom: 1px #ddd solid;
-          }
+{% block content %}
+    <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des membres du comité" %} <u>{{unit}}</u></h3>
 
-          .liste {
-              font-size: 15px;
-              padding-top: 5px;
-          }
+    <table class="liste">
+        <tr class="tr-header">
+            <td>{% trans "Poste" %}</td>
+            <td>{% trans "Nom" %}</td>
+            <td>{% trans "Prénom" %}</td>
+            <td>{% trans "Adresse email" %}</td>
+            <td>{% trans "Téléphone" %}</td>
+        </tr>
 
-        </style>
-    </head>
-
-    <body>
-
-        <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des membres du comité" %} <u>{{unit}}</u></h3>
-
-        <table class="liste">
-            <tr class="tr-a">
-                <td>{% trans "Poste" %}</td>
-                <td>{% trans "Nom" %}</td>
-                <td>{% trans "Prénom" %}</td>
-                <td>{% trans "Adresse email" %}</td>
-                <td>{% trans "Téléphone" %}</td>
+        {% for accred in liste %}
+            <tr>
+                <td width="23%">{{accred.get_role_or_display_name}}</td>
+                <td width="20%">{{accred.user.first_name}}</td>
+                <td width="20%">{{accred.user.last_name}}</td>
+                <td width="22%">{{accred.user.email}}</td>
+                <td width="15%">{% if accred.truffe2_tmp_pdf_display_mobile %}{{accred.user.mobile}}{% endif %}</td>
             </tr>
-            {% for accred in liste %}
-                <tr>
-                    <td width="23%">{{accred.get_role_or_display_name}}</td>
-                    <td width="20%">{{accred.user.first_name}}</td>
-                    <td width="20%">{{accred.user.last_name}}</td>
-                    <td width="22%">{{accred.user.email}}</td>
-                    <td width="15%">{% if accred.truffe2_tmp_pdf_display_mobile %}{{accred.user.mobile}}{% endif %}</td>
-                </tr>
-            {% endfor %}
-        </table>
-
-        <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
-
-    </body>
-
-</html>
+        {% endfor %}
+    </table>
+{% endblock %}

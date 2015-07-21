@@ -1,141 +1,100 @@
-{% load i18n humanize %}
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <style>
-            @font-face {
-                font-family: DejaVu;
-                src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
-            }
-            @font-face {
-                font-family: DejaVu;
-                src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
-                font-weight: bold;
-            }
-          @page {
-              size: a4 landscape;
-              margin: 1cm;
-              margin-bottom: 2cm;
-              @frame footer {
-              -pdf-frame-content: footerContent;
-                bottom: 0cm;
-              margin-left: 1cm;
-              margin-right: 1cm;
-              height: 1cm;
-              }
-          }
+{% include "template/base_pdf.html" %}
+{% block bonus_css_pdf %}
+    @page {
+        size: a4 landscape;
+        margin: 1cm;
+        margin-bottom: 2cm;
 
-          body {
-              font-family: "DejaVu";
-          }
+        @frame footer {
+            -pdf-frame-content: footerContent;
+            bottom: 0cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            height: 1cm;
+        }
+    }
+{% endblock %}
 
-          .tr-a {
-              border-bottom: 2px black solid;
-              font-weight: bold;
-          }
+{% block content %}
+    {% for subv in subventions %}
+        <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des demandes de subvention pour" %} {{subv.0}}</h3>
 
-          .tr-b {
-              border-top: 2px black solid;
-          }
+        <table class="liste">
+            <tr class="tr-header">
+                <td>{% trans "Unité" %}</td>
+                <td>{% trans "Projet" %}</td>
+                <td>{% trans "Nb. personnes attendues" %}</td>
+                <td>{% trans "Type de soutien" %}</td>
+                <td>{% trans "Demandé" %}</td>
+                <td>{% trans "Attribué" %}</td>
+                <td>{% trans "Mobilité demandée" %}</td>
+                <td>{% trans "Mobilité attribué" %}</td>
+            </tr>
 
-          tr {
-              border-bottom: 1px #ddd solid;
-          }
+            {% for sub in subv.1 %}
+                {% if forloop.last %}
+                  <tr class="tr-sep">
+                      <td colspan="4" width="60%">{% trans "Total Commissions" %}</td>
+                      <td width="10%">{{sub.comm_amount_asked|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.comm_amount_given|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.comm_mobility_asked|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.comm_mobility.given|default:0|intcomma}}</td>
+                  </tr>
+                  <tr>
+                      <td colspan="4" width="60%">{% trans "Total Associations" %}</td>
+                      <td width="10%">{{sub.asso_amount_asked|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.asso_amount_given|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.asso_mobility_asked|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.asso_mobility.given|default:0|intcomma}}</td>
+                  </tr>
+                {% else %}
+                  <tr>
+                      <td width="20%">{{sub.get_real_unit_name}}</td>
+                      <td width="15%">{{sub.name}}</td>
+                      <td width="13%">{{sub.total_people}}</td>
+                      <td width="12%">{{sub.get_kind_display|default:'N/A'}}</td>
+                      <td width="10%">{{sub.amount_asked|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.amount_given|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.mobility_asked|default:0|intcomma}}</td>
+                      <td width="10%">{{sub.mobility.given|default:0|intcomma}}</td>
+                  </tr>
+                {% endif %}
+            {% empty %}
+              <tr>
+                <td colspan="7" style="text-align:center;">{% trans "Pas de subventions pour cette année" %}</td>
+              </tr>
+            {% endfor %}
+        </table>
+        <pdf:nextpage/>
+    {% endfor %}
 
-          .liste, .summary {
-              font-size: 15px;
-              padding-top: 5px;
-              text-align: center;
-          }
+    {% if summary %}
+        <h3 style="text-align: center; font-size: 20px;">{% trans "Résumé de toutes les demandes de subvention" %}</h3>
 
-        </style>
-    </head>
+        <table class="summary">
+            <tr>
+                <td rowspan="2">{% trans "Unité" %}</td>
+                {% for year in years %}
+                    <td colspan="4" style="border-left: solid black 2px; border-right: solid black 2px;">{{year.name}}</td>
+                {% endfor %}
+            </tr>
 
-    <body>
-        {% for subv in subventions %}
-            <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des demandes de subvention pour" %} {{subv.0}}</h3>
-
-            <table class="liste">
-                <tr class="tr-a">
-                    <td>{% trans "Unité" %}</td>
-                    <td>{% trans "Projet" %}</td>
-                    <td>{% trans "Nb. personnes attendues" %}</td>
-                    <td>{% trans "Type de soutien" %}</td>
-                    <td>{% trans "Demandé" %}</td>
+            <tr class="tr-header">
+                {% for year in years %}
+                    <td style="border-left: solid 2px black;">{% trans "Demandé" %}</td>
                     <td>{% trans "Attribué" %}</td>
                     <td>{% trans "Mobilité demandée" %}</td>
-                    <td>{% trans "Mobilité attribué" %}</td>
-
-                </tr>
-                {% for sub in subv.1 %}
-                    {% if forloop.last %}
-                      <tr class="tr-b">
-                          <td colspan="4" width="60%">{% trans "Total Commissions" %}</td>
-                          <td width="10%">{{sub.comm_amount_asked|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.comm_amount_given|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.comm_mobility_asked|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.comm_mobility.given|default:0|intcomma}}</td>
-                      </tr>
-                      <tr>
-                          <td colspan="4" width="60%">{% trans "Total Associations" %}</td>
-                          <td width="10%">{{sub.asso_amount_asked|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.asso_amount_given|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.asso_mobility_asked|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.asso_mobility.given|default:0|intcomma}}</td>
-                      </tr>
-                    {% else %}
-                      <tr>
-                          <td width="20%">{{sub.get_real_unit_name}}</td>
-                          <td width="15%">{{sub.name}}</td>
-                          <td width="13%">{{sub.total_people}}</td>
-                          <td width="12%">{{sub.get_kind_display|default:'N/A'}}</td>
-                          <td width="10%">{{sub.amount_asked|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.amount_given|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.mobility_asked|default:0|intcomma}}</td>
-                          <td width="10%">{{sub.mobility.given|default:0|intcomma}}</td>
-                      </tr>
-                    {% endif %}
-                {% empty %}
-                  <tr>
-                    <td colspan="7" style="text-align:center;">{% trans "Pas de subventions pour cette année" %}</td>
-                  </tr>
+                    <td style="border-right: solid 2px black;">{% trans "Mobilité attribué" %}</td>
                 {% endfor %}
-            </table>
-            <pdf:nextpage/>
-        {% endfor %}
+            </tr>
 
-        {% if summary %}
-
-            <h3 style="text-align: center; font-size: 20px;">{% trans "Résumé de toutes les demandes de subvention" %}</h3>
-
-            <table class="summary">
+            {% for summary_line in summary %}
                 <tr>
-                    <td rowspan="2">{% trans "Unité" %}</td>
-                    {% for year in years %}
-                        <td colspan="4" style="border-left: solid black 2px; border-right: solid black 2px;">{{year.name}}</td>
+                    {% for entry in summary_line %}
+                        <td {% if forloop.counter == 1 %}width="10%"{% endif %}{% if forloop.revcounter > 1 %}style="{% cycle 'border-right: solid 2px black;' '' '' '' %}"{% else %}style="border-right: solid 2px black;"{% endif %}>{{entry|default:''|intcomma}}</td>
                     {% endfor %}
                 </tr>
-                <tr class="tr-a">
-                    {% for year in years %}
-                        <td style="border-left: solid 2px black;">{% trans "Demandé" %}</td>
-                        <td>{% trans "Attribué" %}</td>
-                        <td>{% trans "Mobilité demandée" %}</td>
-                        <td style="border-right: solid 2px black;">{% trans "Mobilité attribué" %}</td>
-                    {% endfor %}
-                </tr>
-
-                {% for summary_line in summary %}
-                    <tr>
-                        {% for entry in summary_line %}
-                            <td {% if forloop.counter == 1 %}width="10%"{% endif %}{% if forloop.revcounter > 1 %}style="{% cycle 'border-right: solid 2px black;' '' '' '' %}"{% else %}style="border-right: solid 2px black;"{% endif %}>{{entry|default:''|intcomma}}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </table>
-        {% endif %}
-
-        <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
-
-    </body>
-
-</html>
+            {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}

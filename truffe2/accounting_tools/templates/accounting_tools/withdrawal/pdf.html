@@ -1,146 +1,40 @@
-{% load i18n humanize %}
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <style>
-            @font-face {
-                font-family: DejaVu;
-                src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
-            }
-            @font-face {
-                font-family: DejaVu;
-                src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
-                font-weight: bold;
-            }
+{% include "template/base_pdf.html" %}
 
-            @page {
-                margin: 1cm;
-                margin-bottom: 2.5cm;
-                @frame footer {
-                    -pdf-frame-content: footerContent;
-                    bottom: 0cm;
-                    margin-left: 1cm;
-                    margin-right: 1cm;
-                    height: 1cm;
-                }
+{% block title %}
+    <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">{% trans "Demande de retrait cash" %}</h1>
+{% endblock %}
 
-                @frame logoFrame {
-                    -pdf-frame-content: logoFrameContent;
-                    top: 0.4cm;
-                    right: 1.2cm;
-                    width: 25%;
-                }
-            }
+{% block post_linkedinfo %}
+    <tr class="tr-sep"><td class="td-label">{% trans "Date de la demande : " %}</td><td class="td-large">{{object.desired_date|date:"d/m/Y"}}</td></tr>
+    <tr class="tr-sep"><td class="td-label">{% trans "Date de remise de l'argent : " %}</td><td class="td-large">{{object.withdrawn_date|date:"d/m/Y"}}</td></tr>
+{% endblock %}
 
-            body {
-                font-family: "DejaVu";
-            }
+{% block detail_table %}    
+    <table class="liste">
+        <tr><td class="td-label"><b>{% trans "Motif du retrait : " %}</b></td><td colspan ="3" class="td-label" style="text-align: left;"><b>{{object.description}}</b></td></tr>
+        <tr><td colspan="4">&nbsp;</td></tr>
 
-            .td-a {
-                font-size: 16px;
-                color: blue;
-                font-weight: bold;
-            }
+        <tr><td class="td-label" style="color: red;"><b>{% trans "Montant : " %}</b></td><td></td><td></td><td class="td-title" style="text-align: right;"><b>CHF {{object.amount|floatformat:"2"|intcomma}}</b></td></tr>
+        <tr><td colspan="4">&nbsp;</td></tr>
+         
+        <tr><td colspan="2"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
 
-            .td-a2 {
-                font-size: 14px;
-            }
+        <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
 
-            .td-b {
-                font-size: 16px;
-                font-weight: bold;
-            }
+        <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
 
-            .td-b2 {
-                font-size: 14px;
-            }
+        <tr><td colspan="4">{% trans "*ATTENTION - La personne qui vise est responsable du suivi du retrait" %}</td></tr>
+        <tr rowspan="3"><td colspan="4">&nbsp;</td></tr>
 
-            .tr-a td {
-                padding-top: 5px;
-            }
+        <tr><td colspan="2" class="td-label"><b>{% trans "Reçu CHF." %} </b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr><td colspan="4">&nbsp;</td></tr>
 
-            .td-c {
-                font-weight: bold;
-            }
+        <tr><td colspan="2" class="td-label"><b>{% trans "Le :" %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"><span style="width: 30%;"></td></tr>
+        <tr><td colspan="4">&nbsp;</td></tr>
 
-            .tr-a {
-                border-bottom: 1px black solid;
-            }
-
-            .listeChose {
-                font-size: 12px;
-            }
-        </style>
-    </head>
-
-    <body>
-        <div id="logoFrameContent">
-            <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
-        </div>
-    
-        <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">{% trans "Demande de retrait cash" %}</h1>
-    
-        <table>
-            <tr class="tr-a"><td class="td-a">{% trans "Pour" %} {% if object.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.unit.is_commission %}{% trans "la commission" %}{% endif %}{%trans " : " %}</td><td class="td-a2">{{object.unit}}</td></tr>
-            <tr class="tr-a"><td class="td-a">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-a2">{{object.costcenter}}</td></tr>
-            
-            <tr class="tr-a"><td class="td-b">{% trans "Nom : " %}</td><td class="td-b2">{{object.linked_info.last_name|upper}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Prenom : " %}</td><td class="td-b2">{{object.linked_info.first_name}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Telephone : " %}</td><td class="td-b2">{{object.linked_info.phone}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Date de la demande : " %}</td><td class="td-b2">{{object.desired_date|date:"d/m/Y"}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Date de remise de l'argent : " %}</td><td class="td-b2">{{object.withdrawn_date|date:"d/m/Y"}}</td></tr>
-        </table>
-        
-        <br /><br />
-        
-        <table class="listeChose">
-            <tr><td class="td-b"><b>{% trans "Motif du retrait : " %}</b></td><td colspan ="3" class="td-b" style="text-align: left;"><b>{{object.description}}</b></td></tr>
-            
-            <tr><td colspan="4">&nbsp;</td></tr>
-             
-             
-            <tr><td class="td-b" style="color: red;"><b>{% trans "Montant : " %}</b></td><td></td><td></td><td class="td-a" style="text-align: right;"><b>CHF {{object.amount|floatformat:"2"|intcomma}}</b></td></tr>
-
-            <tr><td colspan="4">&nbsp;</td></tr>
-             
-            <tr><td colspan="2"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-
-            <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-             
-            <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-             
-            <tr><td colspan="4">{% trans "*ATTENTION - La personne qui vise est responsable du suivi du retrait" %}</td></tr>
-            
-            <tr><td colspan="4">&nbsp;</td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-            
-
-            <tr>
-                <td colspan="2" class="td-b"><b>{% trans "Reçu CHF." %} </b></td><td colspan="2" style="border-bottom: 1px black solid;"></td>
-            </tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-            <tr>
-                <td colspan="2" class="td-b"><b>{% trans "Le :" %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"><span style="width: 30%;"></td>
-            </tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
-            <tr>
-                <td colspan="2" class="td-b"><b>{% trans "Signature :" %}&nbsp;&nbsp;&nbsp;</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td>
-            </tr>
-            
-        </table>
-
-        {% for u in  object.get_uploaded_images %}
-            <pdf:nextpage/>
-            <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
-        {% endfor %}
-
-        <div id="footerContent">Page <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>    
-    </body>
-</html>
+        <tr><td colspan="2" class="td-label"><b>{% trans "Signature :" %}&nbsp;&nbsp;&nbsp;</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+    </table>
+{% endblock %}
