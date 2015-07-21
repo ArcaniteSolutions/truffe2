@@ -1012,16 +1012,10 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def __unicode__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
-    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
-        """Order user queryset and restraint it if does not have right TRESORIER/SECRETARIAT."""
-        # TODO Order?!
-
-        from users.models import TruffeUser
-
-        if current_user in self.people_in_linked_unit(access=self.MetaRightsUnit.access) or current_user.is_superuser:
-            form.fields['user'].queryset = TruffeUser.objects.all()
-        else:
-            form.fields['user'].queryset = TruffeUser.objects.filter(pk=current_user.pk)
+    def genericFormExtraClean(self, data, form):
+        if not data['user'].is_profile_ok():
+            form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
 
     def linked_info(self):
         from accounting_tools.models import LinkedInfo

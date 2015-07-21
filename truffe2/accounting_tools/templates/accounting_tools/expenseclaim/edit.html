@@ -6,6 +6,10 @@
     new_line.find('.line_field_lines_tva input').on('change', handle_tva_tva);
 {% endblock %}
 
+{% block bonus_unit_updated %}
+    update_users(pk);
+{% endblock %}
+
 {% block line_js_bonus %}
 
     function handle_tva_ht(obj) {
@@ -64,6 +68,32 @@
         $('.line_field_lines_value input').on('change', handle_tva_ht);
         $('.line_field_lines_value_ttc input').on('change', handle_tva_ttc);
         $('.line_field_lines_tva input').on('change', handle_tva_tva);
+
+        // Move costcenter up
+        var costcenter = $('#id_costcenter').parents('.form-group').remove();
+        $('#id_name').parents('.form-group').after(costcenter);
+
+        // Transform id_user in select2
+        $('#id_user').removeClass('form-control');
+        $('#id_user').width('72%').select2();
+
+        update_users({{CURRENT_UNIT_PK}});
     });
 
+    function update_users(pk) {
+        $.ajax('{% url 'accounting_core.views.users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+
+            var old_value = $('#id_user').val();
+            var options = '<option value=""></option>';
+
+            $.each(data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+            });
+
+            $('#id_user').select2('destroy');
+            $('#id_user').html(options);
+            $('#id_user').val(old_value);
+            $('#id_user').select2();
+        });
+    }
 {% endblock %}

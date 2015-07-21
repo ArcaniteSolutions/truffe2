@@ -52,7 +52,6 @@ def get_current_unit(request, unit_blank=True):
 
 def update_current_unit(request, unit_pk):
     """Update the current unit"""
-
     if request.GET.get('_upkns') == '_':
         return
 

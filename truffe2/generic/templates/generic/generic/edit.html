@@ -307,6 +307,7 @@
                   <script type="text/javascript">
                         function unit_updated(pk, name, can_edit) {
                             $('#input_upk').val(pk);
+                            {% block bonus_unit_updated %}{% endblock %}
                             {% if costcenter_mode %}load_costcenter();{% endif %}
                         }
                   </script>

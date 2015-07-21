@@ -54,7 +54,6 @@ def get_unit_data(model_class, request, allow_blank=True):
 
         if request.POST.get('upk'):
             update_current_unit(request, request.POST.get('upk'))
-
         current_unit = get_current_unit(request, unit_blank)
 
     if current_unit and current_unit.is_hidden:
