@@ -1,0 +1,116 @@
+{% load i18n humanize %}
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style>
+            @font-face {
+                font-family: DejaVu;
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
+            }
+
+            @font-face {
+                font-family: DejaVu;
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
+                font-weight: bold;
+            }
+
+            @page {
+                size: a4 portrait;
+                margin: 1cm;
+                margin-bottom: 2.5cm;
+                @frame footer {
+                    -pdf-frame-content: footerContent;
+                    bottom: 0cm;
+                    margin-left: 1cm;
+                    margin-right: 1cm;
+                    height: 1cm;
+                }
+                @frame logoFrame {
+                    -pdf-frame-content: logoFrameContent;
+                    top: 0.4cm;
+                    right: 1.2cm;
+                    width: 25%;
+                }
+            }
+
+            body {
+                font-family: "DejaVu";
+            }
+
+            .td-a {
+                font-size: 16px;
+                color: blue;
+                font-weight: bold;
+            }
+
+            .td-a2 {
+                font-size: 14px;
+            }
+
+            .td-b {
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            .td-b2 {
+                font-size: 14px;
+            }
+
+            .tr-a td {
+                padding-top: 5px;
+            }
+
+            .td-c {
+                font-weight: bold;
+            }
+
+            .tr-a {
+                border-bottom: 1px black solid;
+            }
+
+            .listeChose {
+                font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="logoFrameContent">
+            <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
+        </div>
+    
+        <h1 style="text-align: center; font-size: 32px; padding-top: 2cm;">{% trans "Transfert interne" %}</h1>
+    
+        <table>
+            <tr class="tr-a"><td class="td-a">{% trans "Pour : " %}</td><td class="td-a2">{{object.name}}</td></tr>
+            <tr class="tr-a"><td class="td-a">{% trans "Compte concerné : " %}</td><td class="td-a2">{{object.account}}</td></tr>
+            
+            <tr class="tr-a"><td class="td-b">{% trans "Pris sur le centre de coût : " %}</td><td class="td-b2">{{object.cost_center_from}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Versé sur le compte : " %}</td><td class="td-b2">{{object.cost_center_to}}</td></tr>
+        </table>
+        <br /><br />
+        
+        <table class="listeChose">
+            <tr><td class="td-b"><b>{% trans "Motif du transfert : " %}</b></td><td colspan ="3" class="td-b" style="text-align: left;"><b>{{object.description}}</b></td></tr>
+            
+            <tr><td colspan="4">&nbsp;</td></tr>
+             
+            <tr><td colspan="3" class="td-b" style="color: red;"><b>{% trans "Montant : " %}</b></td><td class="td-a" style="text-align: right;"><b>CHF {{object.amount|intcomma}}</b></td></tr>
+
+            <tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr>
+
+            <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+             
+            <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+             
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+        </table>
+
+        <div id="footerContent">Page <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
+    </body>    
+</html>
