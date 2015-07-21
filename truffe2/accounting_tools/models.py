@@ -948,8 +948,8 @@ class _ExpenseClaim(GenericModel, GenericStateModel, GenericModelWithFiles, Gene
     class MetaData:
         list_display = [
             ('name', _('Titre')),
-            ('get_fullname', _(u'Personne')),
             ('costcenter', _(u'Centre de coûts')),
+            ('get_fullname', _(u'Personne')),
             ('status', _('Statut')),
         ]
 
@@ -1013,6 +1013,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         return u"{} - {}".format(self.name, self.costcenter)
 
     def genericFormExtraClean(self, data, form):
+        # TO CHECK : Pourquoi je peux pas save dans une unit ou j'ai pas les droits (user disparait du form)
         if not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
@@ -1026,6 +1027,15 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def get_fullname(self):
         infos = self.linked_info()
         return u"{} {}".format(infos.first_name, infos.last_name)
+
+    def get_lines(self):
+        return self.lines.order_by('order')
+
+    def get_total(self):
+        return sum([line.value_ttc for line in self.get_lines()])
+
+    def get_total_ht(self):
+        return sum([line.value for line in self.get_lines()])
 
 
 class ExpenseClaimLine(ModelUsedAsLine):
@@ -1041,3 +1051,6 @@ class ExpenseClaimLine(ModelUsedAsLine):
 
     def __unicode__(self):
         return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def display_amount(self):
+        return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)

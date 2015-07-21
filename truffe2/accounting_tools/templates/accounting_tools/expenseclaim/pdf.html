@@ -1,0 +1,150 @@
+{% load i18n humanize %}
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style>
+        @font-face {
+            font-family: DejaVu;
+            src: url({{media}}fonts/DejaVuSans.ttf);
+        }
+        @font-face {
+            font-family: DejaVu;
+            src: url({{media}}fonts/DejaVuSans-Bold.ttf);
+            font-weight: bold;
+        }
+        @page {
+            margin: 1cm;
+            margin-bottom: 2.5cm;
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 0cm;
+                margin-left: 1cm;
+                margin-right: 1cm;
+                height: 1cm;
+            }
+
+            @frame logoFrame {
+                -pdf-frame-content: logoFrameContent;
+                top: 0.4cm;
+                right: 1.2cm;
+                width: 25%;
+            }
+        }
+
+        body {
+            font-family: "DejaVu";
+        }
+
+        .td-a {
+            font-size: 16px;
+            color: blue;
+            font-weight: bold;
+        }
+        
+        .td-a2 {
+            font-size: 14px;
+        }
+        
+        .td-b {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .td-b2 {
+            font-size: 14px;
+        }
+        
+        .tr-a td {
+            
+           padding-top: 5px;
+        }
+        
+        .td-c {
+            font-weight: bold;
+        }
+        
+        .tr-a {
+             border-bottom: 1px black solid;
+        }
+        .tr-b{
+             border: 1px black solid;
+             padding:3px;          
+        }
+        .listeChose {
+            font-size: 12px;
+        }
+            
+        </style>
+        
+    </head>
+    <body>
+
+        <div id="logoFrameContent">
+            <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
+        </div>
+    
+        <h1 style="text-align: center; font-size: 30px; margin-top:-150px;">{% trans "Note de frais" %}</h1>
+    
+        <table style="margin-top:-150px;">
+            <tr class="tr-a"><td class="td-a">{% trans "Pour" %} {% if object.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.unit.is_commission %}{% trans "la commission" %}{% endif %}{%trans " : " %}</td><td class="td-a2">{{object.unit}}</td></tr>
+            <tr class="tr-a"><td class="td-a">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-a2">{{object.costcenter}}</td></tr>
+            
+            <tr class="tr-a"><td class="td-b">{% trans "Titre de la note de frais : " %}</td><td class="td-b2">{{object.name}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Nom : " %}</td><td class="td-b2">{{object.linked_info.last_name|upper}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Prenom : " %}</td><td class="td-b2">{{object.linked_info.first_name}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Téléphone : " %}</td><td class="td-b2">{{object.linked_info.phone}}</td></tr>
+            <tr class="tr-a"><td class="td-b" valign="top">{% trans "Adresse : " %}</td><td class="td-b2">{{object.linked_info.address|linebreaksbr}}</td></tr>
+            <tr><td colspan="2">&nbsp;</td></tr>
+            <tr><td class="td-b2">{% trans "Nom de la banque (Ou poste) : " %}</td><td class="td-b2">{{object.linked_info.bank}}</td></tr>
+            <tr class="tr-a"><td class="td-b2">{% trans "IBAN / CCP : " %}</td><td class="td-b2">{{object.linked_info.iban_ccp}}</td></tr>
+        </table>
+        <br /><br />
+        <table class="listeChose">
+            <tr><td style="width: 38%;"><b>{% trans "Concerne" %}</b></td><td style="width: 20%;"><b>{% trans "Justificatif" %}</b></td><td style="width: 30%;"><b>{% trans "Numéro de compte" %}</b></td><td style="width: 12%; text-align: right;"><b>{% trans "Montant" %}</b></td></tr>
+            
+                 
+            {% for line in object.get_lines %}
+                <tr class="tr-b">
+                     <td class="td-b2" valign="top">{{line.label}}</td>
+                     <td class="td-b2" valign="top">{{line.proof}}</td>
+                     <td class="td-b2" valign="top">{{line.account}}</td>
+                     <td class="td-b2" valign="top" style="text-align: right;">{{line.display_amount}}</td>
+                </tr>
+             {% endfor %}
+             
+             <tr><td colspan="4">&nbsp;</td></tr>
+             
+             <tr><td class="td-b2" style="color: red;"><b>{% trans "Solde en ma faveur : " %}</b></td><td></td><td></td><td class="td-b2" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
+             
+             <tr><td colspan="4">&nbsp;</td></tr>
+             
+             <tr><td>{% trans "Nombre de justificatifs : " %}</td><td>{{object.nb_just}}</td><td olspan="2"></td></tr>
+             
+             <tr><td colspan="4">&nbsp;</td></tr>
+             
+            <tr><td colspan="2"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+             
+            <tr><td colspan="2"><b>{% trans "Visa responsable commision : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+
+            <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+             
+            <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+            
+            <tr><td colspan="4">&nbsp;</td></tr>
+
+        </table>
+
+        {% for u in object.get_uploaded_images %}
+            <pdf:nextpage/>
+            <img src="{{MERIA_ROOT}}..{{u.file.url}}">
+        {% endfor %}
+
+        <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
+    </body>
+</html>
