@@ -370,6 +370,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
         if request.method == 'POST':  # If the form has been submitted...
             form = form_class(request.user, request.POST, request.FILES, instance=obj)
+
             form.truffe_request = request
 
             if file_mode:
@@ -499,7 +500,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         else:
                             if not after_data[key]:
                                 deleted[key] = before_data[key]
-                                del after_data[key]
+                                del after_data[key]  # TO CHECK : comment tu peux delete un truc qui n'existe pas?
                             elif before_data[key]:
                                 edited[key] = (before_data[key], after_data[key])
                                 del after_data[key]
