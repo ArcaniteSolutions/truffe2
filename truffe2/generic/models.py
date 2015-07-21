@@ -779,7 +779,7 @@ class GenericAccountingStateModel(object):
 
         elif dest_status == '2_agep_validable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(['TRESORERIE', 'SECRETARIAT']))
 
         elif dest_status == '3_accountable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
@@ -787,7 +787,10 @@ class GenericAccountingStateModel(object):
 
         elif dest_status == '4_archived':
             unotify_people('%s.accountable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, self.get_creator())
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, self.build_group_members_for_canedit())
+
+        elif dest_status == '4_canceled' and self.status != '0_draft':
+            notify_people(request, '%s.canceled' % (self.__class__.__name__,), 'accounting_canceled', self, self.build_group_members_for_canedit())
 
 
 class GenericStateRootModerable(GenericStateModerable):
