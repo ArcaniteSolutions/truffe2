@@ -5,7 +5,7 @@
 
             <ul>
                 {% for expenseclaim in expenseclaim_to_validate %}
-                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-primary">{% trans "A valider" %}{% if object.status == '1_unit_validable' %} {%trans "électroniquement" %}{% endif %}</span></a></li>
+                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-primary">{% trans "A valider" %}{% if object.status == '1_unit_validable' %} {% trans "électroniquement" %}{% endif %}</span></a></li>
                 {% endfor %}
 
                 {% for expenseclaim in expenseclaim_to_account %}

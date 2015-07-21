@@ -685,6 +685,14 @@ class GenericAccountingStateModel(object):
             '3_accountable': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver'))],
         }
 
+        states_quick_switch = {
+            '0_draft': [('1_unit_validable', _(u'Demander accord unité'))],
+            '0_correct': [('1_unit_validable', _(u'Demander accord unité'))],
+            '1_unit_validable': [('2_agep_validable', _(u'Demander accord AGEPoly')), ('0_correct', _(u'Demander des corrections'))],
+            '2_agep_validable': [('0_correct', _(u'Demander des corrections')), ('3_accountable', _(u'Demander à comptabiliser'))],
+            '3_accountable': [('4_archived', _(u'Archiver'))]
+        }
+
         states_colors = {
             '0_draft': 'primary',
             '0_correct': 'warning',
@@ -739,9 +747,11 @@ class GenericAccountingStateModel(object):
 
         return super(GenericAccountingStateModel, self).can_switch_to(user, dest_state)
 
-    def rights_can_SHOW(self, user):
+    def rights_can_LIST(self, user):
+        return super(GenericAccountingStateModel, self).rights_can_SHOW(user)
 
-        if self.get_creator() == user:
+    def rights_can_SHOW(self, user):
+        if (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info() and self.linked_info().pk == user.pk) or self.get_creator() == user:
             return True
 
         return super(GenericAccountingStateModel, self).rights_can_SHOW(user)

@@ -135,3 +135,15 @@ def internaltransfer_pdf(request, pk):
         raise Http404
 
     return generate_pdf("accounting_tools/internaltransfer/pdf.html", {'object': internaltransfer, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+
+
+@login_required
+def expenseclaim_pdf(request, pk):
+    from accounting_tools.models import ExpenseClaim
+
+    expenseclaim = get_object_or_404(ExpenseClaim, pk=pk, deleted=False)
+
+    if not expenseclaim.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    return generate_pdf("accounting_tools/expenseclaim/pdf.html", {'object': expenseclaim, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})

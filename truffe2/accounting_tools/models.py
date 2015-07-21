@@ -950,7 +950,8 @@ class _ExpenseClaim(GenericModel, GenericStateModel, GenericModelWithFiles, Gene
     name = models.CharField(_(u'Titre de la note de frais'), max_length=255, unique=True)
     unit = FalseFK('units.models.Unit')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    nb_just = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
 
     class MetaData:
         list_display = [
@@ -960,7 +961,7 @@ class _ExpenseClaim(GenericModel, GenericStateModel, GenericModelWithFiles, Gene
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [('nb_just', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ]
+        details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
         filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
 
         default_sort = "[6, 'desc']"  # Creation date (pk) descending
@@ -989,6 +990,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         files_help = _(u'Justificatifs pour le remboursement de la note de frais.')
 
         set_linked_info = True
+        all_users = True
 
     class MetaLines:
         lines_objects = [
@@ -1025,6 +1027,10 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
 
+        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
+            form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
+
     def linked_info(self):
         from accounting_tools.models import LinkedInfo
 
@@ -1044,7 +1050,8 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def get_total_ht(self):
         return sum([line.value for line in self.get_lines()])
 
-    def can_unit_validate(self, user):
+    def is_unit_validator(self, user):
+        """Check if user is a validator for the step '1_unit_validable'."""
         return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
 

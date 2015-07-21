@@ -62,7 +62,7 @@ def home(request):
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']):
         expenseclaim_to_validate = ExpenseClaim.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable']).order_by('-pk')
     else:
-        expenseclaim_to_validate = sorted(filter(lambda ec: ec.can_unit_validate(request.user), list(ExpenseClaim.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec: -ec.pk)
+        expenseclaim_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ExpenseClaim.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec: -ec.pk)
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
         expenseclaim_to_account = ExpenseClaim.objects.filter(deleted=False, status='3_accountable').order_by('pk')
