@@ -1037,6 +1037,9 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def get_total_ht(self):
         return sum([line.value for line in self.get_lines()])
 
+    def can_unit_validate(self, user):
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
 
 class ExpenseClaimLine(ModelUsedAsLine):
 
