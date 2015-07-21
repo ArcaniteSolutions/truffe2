@@ -17,7 +17,7 @@ import os
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
@@ -228,6 +228,7 @@ class SubventionLine(ModelUsedAsLine):
 
 
 class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, GenericGroupsModel, GenericContactableModel, AccountingYearLinked, UnitEditableModel):
+    """Modèle pour les factures"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -575,6 +576,7 @@ class InvoiceLine(ModelUsedAsLine):
 
 
 class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, AccountingYearLinked, AgepolyEditableModel, GenericGroupsModel, GenericContactableModel):
+    """Modèle pour les transferts internes"""
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
@@ -744,6 +746,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 
 
 class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+    """Modèle pour les retraits cash"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -790,6 +793,8 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         files_title = _(u'Pièces comptables')
         files_help = _(u'Pièces comptables liées au retrait cash.')
         date_fields = ['desired_date', 'withdrawn_date']
+
+        set_linked_info = True
 
     class MetaGroups(GenericGroupsModel.MetaGroups):
         pass
@@ -922,6 +927,8 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
 
 class LinkedInfo(models.Model):
+    """Modèle pour les infos liées aux modèles de leur choix"""
+
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     linked_object = generic.GenericForeignKey('content_type', 'object_id')
@@ -932,3 +939,4 @@ class LinkedInfo(models.Model):
     phone = models.CharField(_(u'Numéro de téléphone'), max_length=20)
     bank = models.CharField(_(u'Nom de la banque'), max_length=128)
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
+
