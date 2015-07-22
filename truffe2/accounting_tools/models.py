@@ -997,7 +997,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             {
                 'title': _(u'Lignes'),
                 'class': 'accounting_tools.models.ExpenseClaimLine',
-                'form': 'accounting_tools.forms.ExpenseClaimLineForm',
+                'form': 'accounting_tools.forms2.ExpenseClaimLineForm',
                 'related_name': 'lines',
                 'field': 'expense_claim',
                 'sortable': True,
@@ -1061,7 +1061,8 @@ class ExpenseClaimLine(ModelUsedAsLine):
 
     label = models.CharField(_(u'Concerne'), max_length=255)
     proof = models.CharField(_(u'Justificatif'), max_length=255)
-    account = FalseFK('accounting_core.models.Account', verbose_name=_('Compte'))
+
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
     value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
     tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
     value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
