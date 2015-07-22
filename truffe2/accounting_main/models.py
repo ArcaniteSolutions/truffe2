@@ -10,6 +10,7 @@ import json
 
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
+from accounting_core.models import AccountingGroupModels
 from app.utils import get_current_year, get_current_unit
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
 from notifications.utils import notify_people, unotify_people
@@ -17,7 +18,7 @@ from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEd
 from users.models import TruffeUser
 
 
-class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, GenericContactableModel, UnitEditableModel):
+class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -37,6 +38,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
 
     class MetaEdit:
         pass
+
 
     class MetaData:
         list_display = [
@@ -225,7 +227,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         return self.accountingerror_set.filter(deleted=False).order_by('status')
 
 
-class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, GenericContactableModel, UnitEditableModel):
+class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -242,6 +244,9 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         abstract = True
 
     class MetaEdit:
+        pass
+
+    class MetaGroups(AccountingGroupModels.MetaGroups):
         pass
 
     class MetaData:
@@ -374,6 +379,10 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
             'ADD_COMMENT': _(u'Peut ajouter un commentaire'),
         })
 
+        self.MetaGroups.groups_update({
+            'compta_everyone_with_messages': _(u'Toutes les personnes liées via la compta (Admin et secrétaires AGEP, trésorier unité, editeur de l\'objet) + les personnes ayant commenté'),
+        })
+
     def get_line_title(self):
         return _(u'Erreur #{} du {} signalée par {}'.format(self.pk, str(self.get_creation_date())[:10], self.get_creator()))
 
@@ -401,6 +410,16 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
                     AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': unicode(self.linked_line.MetaState.states.get(old_status)), 'new': unicode(self.linked_line.MetaState.states.get('1_valided'))})).save()
                     # TODO: Notification
+
+    def build_group_members_for_compta_everyone_with_messages(self):
+
+        retour = self.build_group_members_for_compta_everyone()
+
+        for message in self.accountingerrormessage_set.all():
+            if message.author not in retour:
+                retour.append(message.author)
+
+        return retour
 
 
 class AccountingErrorMessage(models.Model):
