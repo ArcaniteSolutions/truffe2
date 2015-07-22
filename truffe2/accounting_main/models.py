@@ -3,6 +3,10 @@
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.forms import CharField, Form, Textarea, BooleanField
+
+
+import json
 
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -133,6 +137,17 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         states_default_filter_related = '0_imported,1_valided,2_error'
         status_col_id = 6
 
+        class FormError(Form):
+            error = CharField(label=_('Description de l\'erreur'), help_text=_(u'Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide si tu ne veux pas créer une erreur (mais ceci est fortement peut recommandé)'), required=False, widget=Textarea)
+
+        class FormValid(Form):
+            fix_errors = BooleanField(label=_(u'Résoudre les erreurs liées'), help_text=_(u'Fix automatiquement les erreurs liées à la ligne. Attention, des erreurs peuvent être dissociées !'), required=False, initial=True)
+
+        states_bonus_form = {
+            '2_error': FormError,
+            '1_valided': FormValid
+        }
+
     def may_switch_to(self, user, dest_state):
 
         return super(_AccountingLine, self).rights_can_EDIT(user) and super(_AccountingLine, self).may_switch_to(user, dest_state)
@@ -173,6 +188,41 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             return '<span class="txt-color-red">{}</span>'.format(self.current_sum)
         else:
             return '0.00'
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(_AccountingLine, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '2_error':
+
+            if request.POST.get('error'):
+                from accounting_main.models import AccountingError, AccountingErrorLogging
+                ae = AccountingError(initial_remark=request.POST.get('error'), unit=self.unit, linked_line=self, accounting_year=self.accounting_year, costcenter=self.costcenter)
+                ae.save()
+                AccountingErrorLogging(who=request.user, what='created', object=ae).save()
+                # TODO: CreateNotif
+            else:
+                # TODO: CreateNotif
+                pass
+
+        if dest_status == '1_valided':
+
+            if request.POST.get('fix_errors'):
+                from accounting_main.models import AccountingErrorLogging
+
+                for error in self.accountingerror_set.filter(deleted=False).exclude(status='2_fixed'):
+                    old_status = error.status
+                    error.status = '2_fixed'
+                    error.save()
+
+                    AccountingErrorLogging(who=request.user, what='state_changed', object=error, extra_data=json.dumps({'old': unicode(error.MetaState.states.get(old_status)), 'new': unicode(error.MetaState.states.get('2_fixed'))})).save()
+                    # TODO: Notification
+
+    def get_errors(self):
+        return self.accountingerror_set.filter(deleted=False).order_by('status')
 
 
 class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, GenericContactableModel, UnitEditableModel):
@@ -263,6 +313,13 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         states_default_filter = '0_drafting,1_fixing'
         status_col_id = 4
 
+        class FormFixed(Form):
+            fix_errors = BooleanField(label=_(u'Mettre la ligne liée comme valide'), help_text=_(u'Met automatiquement la ligne liée comme valide. Attention, la ligne n\'est plus forcément liée !'), required=False, initial=True)
+
+        states_bonus_form = {
+            '2_fixed': FormFixed
+        }
+
     def may_switch_to(self, user, dest_state):
 
         return super(_AccountingError, self).rights_can_EDIT(user) and super(_AccountingError, self).may_switch_to(user, dest_state)
@@ -297,8 +354,10 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
     def get_linked_line(self):
         if self.linked_line:
             return self.linked_line.__unicode__()
+        elif self.linked_line_text:
+            return '{} (Cache)'.format(self.linked_line_text)
         else:
-            return self.linked_line_text or _(u'(Aucune ligne liée)')
+            return _(u'(Aucune ligne liée)')
 
     def save(self, *args, **kwargs):
 
@@ -320,6 +379,28 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
     def get_messages(self):
         return self.accountingerrormessage_set.order_by('when')
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(_AccountingError, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '2_fixed':
+
+            if request.POST.get('fix_errors'):
+
+                if self.linked_line and not self.linked_line.deleted and self.linked_line.status == '2_error':
+
+                    from accounting_main.models import AccountingLineLogging
+
+                    old_status = self.linked_line.status
+                    self.linked_line.status = '1_valided'
+                    self.linked_line.save()
+
+                    AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': unicode(self.linked_line.MetaState.states.get(old_status)), 'new': unicode(self.linked_line.MetaState.states.get('1_valided'))})).save()
+                    # TODO: Notification
 
 
 class AccountingErrorMessage(models.Model):

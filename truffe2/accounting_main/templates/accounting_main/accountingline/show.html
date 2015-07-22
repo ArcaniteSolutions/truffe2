@@ -1,0 +1,13 @@
+{% extends "generic/generic/show.html" %}
+{% load i18n %}
+
+{% block bonus_block_infos %}
+    <h3>{% trans "Erreurs" %}</h3>
+
+    <ul>
+        {% for error in obj.get_errors %}
+            <li><a href="{{error.display_url}}">{{error.get_line_title}}</a> <span class="label label-{{error.status_color}}"><i class="{{error.status_icon}}"></i> {{error.get_status_display}}</span></li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
