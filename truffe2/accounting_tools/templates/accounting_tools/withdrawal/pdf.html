@@ -5,8 +5,14 @@
         <style>
             @font-face {
                 font-family: DejaVu;
-                src: url({{media}}fonts/DejaVuSans.ttf);
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
             }
+            @font-face {
+                font-family: DejaVu;
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
+                font-weight: bold;
+            }
+
             @page {
                 margin: 1cm;
                 margin-bottom: 2.5cm;
@@ -66,33 +72,34 @@
             }
         </style>
     </head>
+
     <body>
         <div id="logoFrameContent">
-            <img src="{{media}}img/logo_factures.png" style="text-align: right;">
+            <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
         </div>
     
         <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">{% trans "Demande de retrait cash" %}</h1>
     
         <table>
-            <tr class="tr-a"><td class="td-a">{% trans "Pour" %} {% if withdrawal.unit.is_equipe %}{% trans "l'équipe" %}{% elif withdrawal.unit.is_commission %}{% trans "la commission" %}{% endif %}{%trans " : " %}</td><td class="td-a2">{{withdrawal.unit}}</td></tr>
-            <tr class="tr-a"><td class="td-a">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-a2">{{withdrawal.costcenter}}</td></tr>
+            <tr class="tr-a"><td class="td-a">{% trans "Pour" %} {% if object.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.unit.is_commission %}{% trans "la commission" %}{% endif %}{%trans " : " %}</td><td class="td-a2">{{object.unit}}</td></tr>
+            <tr class="tr-a"><td class="td-a">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-a2">{{object.costcenter}}</td></tr>
             
-            <tr class="tr-a"><td class="td-b">{% trans "Nom : " %}</td><td class="td-b2">{{withdrawal.linked_info.last_name|upper}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Prenom : " %}</td><td class="td-b2">{{withdrawal.linked_info.first_name}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Telephone : " %}</td><td class="td-b2">{{withdrawal.linked_info.phone}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Date de la demande : " %}</td><td class="td-b2">{{withdrawal.desired_date|date:"d/m/Y"}}</td></tr>
-            <tr class="tr-a"><td class="td-b">{% trans "Date de remise de l'argent : " %}</td><td class="td-b2">{{withdrawal.withdrawn_date|date:"d/m/Y"}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Nom : " %}</td><td class="td-b2">{{object.linked_info.last_name|upper}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Prenom : " %}</td><td class="td-b2">{{object.linked_info.first_name}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Telephone : " %}</td><td class="td-b2">{{object.linked_info.phone}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Date de la demande : " %}</td><td class="td-b2">{{object.desired_date|date:"d/m/Y"}}</td></tr>
+            <tr class="tr-a"><td class="td-b">{% trans "Date de remise de l'argent : " %}</td><td class="td-b2">{{object.withdrawn_date|date:"d/m/Y"}}</td></tr>
         </table>
         
         <br /><br />
         
         <table class="listeChose">
-            <tr><td class="td-b"><b>{% trans "Motif du retrait : " %}</b></td><td colspan ="3" class="td-b" style="text-align: left;"><b>{{withdrawal.description}}</b></td></tr>
+            <tr><td class="td-b"><b>{% trans "Motif du retrait : " %}</b></td><td colspan ="3" class="td-b" style="text-align: left;"><b>{{object.description}}</b></td></tr>
             
             <tr><td colspan="4">&nbsp;</td></tr>
              
              
-            <tr><td class="td-b" style="color: red;"><b>{% trans "Montant : " %}</b></td><td></td><td></td><td class="td-a" style="text-align: right;"><b>CHF {{withdrawal.amount|floatformat:"2"|intcomma}}</b></td></tr>
+            <tr><td class="td-b" style="color: red;"><b>{% trans "Montant : " %}</b></td><td></td><td></td><td class="td-a" style="text-align: right;"><b>CHF {{object.amount|floatformat:"2"|intcomma}}</b></td></tr>
 
             <tr><td colspan="4">&nbsp;</td></tr>
              
@@ -108,7 +115,7 @@
             <tr><td colspan="4">&nbsp;</td></tr>
             <tr><td colspan="4">&nbsp;</td></tr>
              
-            <tr><td colspan="4">{% trans "*ATTENTION - La personne de la commission est responsable du suivi du retrait" %}</td></tr>
+            <tr><td colspan="4">{% trans "*ATTENTION - La personne qui vise est responsable du suivi du retrait" %}</td></tr>
             
             <tr><td colspan="4">&nbsp;</td></tr>
             <tr><td colspan="4">&nbsp;</td></tr>
@@ -129,16 +136,11 @@
             
         </table>
 
-    {% for u in  withdrawal.get_uploaded_images %}
-        <pdf:nextpage/>
-        <img src="{{media}}..{{u.file.url}}">
-    {% endfor %}
-    
+        {% for u in  object.get_uploaded_images %}
+            <pdf:nextpage/>
+            <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
+        {% endfor %}
 
-    <div id="footerContent">Page <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>
-    
-   
-    
+        <div id="footerContent">Page <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.polylan.ch - {% trans "par" %} {{user}}</div>    
     </body>
-    
 </html>
