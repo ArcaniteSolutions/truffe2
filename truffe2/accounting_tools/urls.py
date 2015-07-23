@@ -15,4 +15,5 @@ urlpatterns = patterns(
     url(r'^withdrawal/(?P<pk>[0-9]+)/pdf/', 'withdrawal_pdf'),
     url(r'^internaltransfer/(?P<pk>[0-9]+)/pdf/', 'internaltransfer_pdf'),
     url(r'^expenseclaim/(?P<pk>[0-9]+)/pdf/', 'expenseclaim_pdf'),
+    url(r'^cashbook/(?P<pk>[0-9]+)/pdf/', 'cashbook_pdf'),
 )

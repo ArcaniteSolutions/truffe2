@@ -1,0 +1,69 @@
+{% extends "base_pdf.html" %}
+{% load i18n humanize %}
+
+{% block title %}
+    <h1 style="text-align: center; font-size: 30px; margin-top:-150px;">{% trans "Journal de caisse" %}</h1>
+{% endblock %}
+
+{% block pre_linkedinfo %}
+    <tr class="tr-sep"><td class="td-label">{% trans "Titre du journal de caisse : " %}</td><td class="td-large">{{object.name}}</td></tr>
+    {% if object.proving_object %}
+        {% if object.proving_object.content_type.model == "withdrawal" %}
+        <tr class="tr-sep"><td class="td-label">{% trans "Date du retrait cash lié : "%}</td><td class="td-b2">{{object.proving_object.withdrawn_date}}</td></tr>
+        <tr class="tr-sep"><td class="td-label"><i>{% trans "Nom du retrait cash lié : " %}</i></td><td class="td-b2"><i>{{object.proving_object.name}}</i></td></tr>
+        {% else %}
+            <tr class="tr-sep"><td class="td-label">{% trans "Attention, objet lié inconnu : "%}</td><td class="td-b2">{{object.proving_object}}</td></tr>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block detail_table %}
+    <table class="liste">
+        <tr>
+            <td style="width: 12%;"><b>{% trans "Date" %}</b></td>
+            <td style="width: 23%;"><b>{% trans "Concerne" %}</b></td>
+            <td style="width: 20%;"><b>{% trans "Justificatif" %}</b></td>
+            <td style="width: 15%;"><b>{% trans "Numéro de compte" %}</b></td>
+            <td style="width: 10%; text-align: center;"><b>{% trans "Entrée" %}</b></td>
+            <td style="width: 10%; text-align: center;"><b>{% trans "Sortie" %}</b></td>
+            <td style="width: 10%; text-align: center;"><b>{% trans "Solde" %}</b></td>
+        </tr>
+
+        {% for line in object.get_lines %}
+            <tr class="tr-line">
+                <td class="td-large" valign="top">{{line.date|date:"d/m/Y"}}</td>
+                <td class="td-large" valign="top">{{line.label}}</td>
+                <td class="td-large" valign="top">{{line.proof}}</td>
+                <td class="td-large" valign="top">{{line.account}}</td>
+                <td class="td-large" valign="top" style="text-align: right;">{{line.input_amount}}</td>
+                <td class="td-large" valign="top" style="text-align: right;">{{line.output_amount}}</td>
+                <td class="td-large" valign="top" style="text-align: right;">{{line.sub_total}}</td>
+            </tr>
+         {% endfor %}
+
+         <tr><td colspan="4">&nbsp;</td></tr>
+
+        {% if object.total > 0 %}
+            <tr><td colspan="3" class="td-large" style="color: red;"><b>{% trans "Solde dû : " %}</b></td><td class="td-large" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+        {% elif object.total < 0 %}
+            <tr><td colspan="3" class="td-large" style="color: red;"><b>{% trans "Solde en sa faveur : " %}</b></td><td class="td-large" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
+            <tr><td colspan="4">&nbsp;</td></tr>
+        {% else %}
+        {% endif %}
+
+         <tr><td>{% trans "Nombre de justificatifs : " %}</td><td>{{object.nb_proofs}}</td><td colspan="2"></td></tr>
+         <tr><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa responsable commision : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>        
+    </table>
+{% endblock %}

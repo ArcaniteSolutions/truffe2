@@ -956,8 +956,8 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
         details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
         filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
 
-        default_sort = "[6, 'desc']"  # Creation date (pk) descending
-        not_sortable_colums = ['get_fullname']
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+        trans_sort = {'get_fullname': 'user__first_name'}
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
@@ -1013,7 +1013,6 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         return u"{} - {}".format(self.name, self.costcenter)
 
     def genericFormExtraClean(self, data, form):
-        # TO CHECK : Pourquoi je peux pas save dans une unit ou j'ai pas les droits (user disparait du form)
         if not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
@@ -1040,6 +1039,146 @@ class ExpenseClaimLine(ModelUsedAsLine):
 
     expense_claim = models.ForeignKey('ExpenseClaim', related_name="lines")
 
+    label = models.CharField(_(u'Concerne'), max_length=255)
+    proof = models.CharField(_(u'Justificatif'), max_length=255)
+
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
+    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def display_amount(self):
+        return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
+
+
+class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
+    """Modèle pour les journaux de caisse (JdC)"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    name = models.CharField(_(u'Titre de la note de frais'), max_length=255, unique=True)
+    unit = FalseFK('units.models.Unit')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    proving_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class MetaData:
+        list_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('get_fullname', _(u'Personne')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
+
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+        trans_sort = {'get_fullname': 'user__first_name'}
+
+        base_title = _(u'Journaux de caisse')
+        list_title = _(u'Liste des journaux de caisse')
+        files_title = _(u'Justificatifs')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-pencil-square-o'
+
+        has_unit = True
+
+        menu_id = 'menu-compta-jdc'
+
+        help_list = _(u"""Les journaux de caisse servent à justifier des dépenses et des recettes liées à des versements à la banque ou des retraits cash.
+
+Il est nécessaire de fournir les preuves d'achat et que celles-ci contiennent uniquement des choses qui doivent être remboursées.
+Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si certains achats à la Migros sont à 8% et d'autres à 0%, il faut les séparer en 2 lignes.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Justificatifs')
+        files_help = _(u'Justificatifs liés aux lignes du journal de caisse.')
+
+        all_users = True
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.CashBookLine',
+                'form': 'accounting_tools.forms2.CashBookLineForm',
+                'related_name': 'lines',
+                'field': 'cashbook',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'show_list': [
+                    ('date', _(u'Date')),
+                    ('get_helper_display', _(u'Type')),
+                    ('label', _(u'Titre')),
+                    ('proof', _(u'Justificatif')),
+                    ('account', _(u'Compte')),
+                    ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('total', _(u'Montant (TTC)')),
+                ]},
+        ]
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.name, self.costcenter)
+
+    def genericFormExtraClean(self, data, form):
+        if not data['user'].is_profile_ok():
+            form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
+
+        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
+            form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
+
+    def get_lines(self):
+        return self.lines.order_by('order')
+
+    def get_total(self):
+        return sum([line.value_ttc for line in self.get_lines()])
+
+    def get_total_ht(self):
+        return sum([line.value for line in self.get_lines()])
+
+    def is_unit_validator(self, user):
+        """Check if user is a validator for the step '1_unit_validable'."""
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+
+class CashBookLine(ModelUsedAsLine):
+
+    HELPER_TYPE = (
+        ('0_withdraw', _(u'J\'ai fait un retrait cash : ')),
+        ('1_deposit', _(u'J\'ai fait un versement à la banque : ')),
+        ('2_sell', _(u'J\'ai vendu quelque chose : ')),
+        ('3_invoice', _(u'J\'ai payé une facture avec la caisse : ')),
+        ('4_buy', _(u'J\'ai achecté quelque chose avec la caisse : ')),
+        ('5_reimburse', _(u'J\'ai remboursé quelqu\'un avec la caisse : ')),
+        ('6_input', _(u'Je fais un Crédit manuel')),
+        ('7_output', _(u'Je fais un Débit manuel')),
+    )
+
+    cashbook = models.ForeignKey('CashBook', related_name="lines")
+
+    date = models.DateField(_(u'Date'))
+    helper = models.CharField(max_length=15, choices=HELPER_TYPE)
     label = models.CharField(_(u'Concerne'), max_length=255)
     proof = models.CharField(_(u'Justificatif'), max_length=255)
 

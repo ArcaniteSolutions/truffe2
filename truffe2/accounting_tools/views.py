@@ -147,3 +147,15 @@ def expenseclaim_pdf(request, pk):
         raise Http404
 
     return generate_pdf("accounting_tools/expenseclaim/pdf.html", {'object': expenseclaim, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+
+
+@login_required
+def cashbook_pdf(request, pk):
+    from accounting_tools.models import CashBook
+
+    cashbook = get_object_or_404(CashBook, pk=pk, deleted=False)
+
+    if not cashbook.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    return generate_pdf("accounting_tools/cashbook/pdf.html", {'object': cashbook, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
