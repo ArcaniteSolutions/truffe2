@@ -28,5 +28,4 @@ class Command(BaseCommand):
                 print "Destination file {} already exists !".format(dest_path)
             else:
                 print "{} -> {}".format(source_path, dest_path)
-                shutil.copyfile(source_paht, dest_path)
-
+                shutil.copyfile(source_path, dest_path)
