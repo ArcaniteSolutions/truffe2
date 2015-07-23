@@ -41,29 +41,29 @@
             </tr>
          {% endfor %}
 
-         <tr><td colspan="4">&nbsp;</td></tr>
+         <tr><td colspan="7">&nbsp;</td></tr>
 
         {% if object.total > 0 %}
-            <tr><td colspan="3" class="td-large" style="color: red;"><b>{% trans "Solde dû : " %}</b></td><td class="td-large" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="6" class="td-large" style="color: red;"><b>{% trans "Solde dû : " %}</b></td><td class="td-large" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
+            <tr><td colspan="7">&nbsp;</td></tr>
         {% elif object.total < 0 %}
-            <tr><td colspan="3" class="td-large" style="color: red;"><b>{% trans "Solde en sa faveur : " %}</b></td><td class="td-large" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
-            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr><td colspan="6" class="td-large" style="color: red;"><b>{% trans "Solde en sa faveur : " %}</b></td><td class="td-large" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
+            <tr><td colspan="7">&nbsp;</td></tr>
         {% else %}
         {% endif %}
 
-         <tr><td>{% trans "Nombre de justificatifs : " %}</td><td>{{object.nb_proofs}}</td><td colspan="2"></td></tr>
-         <tr><td colspan="4">&nbsp;</td></tr>
+         <tr><td colspan="3">{% trans "Nombre de justificatifs : " %}</td><td>{{object.nb_proofs}}</td><td colspan="4"></td></tr>
+         <tr><td colspan="7">&nbsp;</td></tr>
 
-        <tr><td colspan="2"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+        <tr><td colspan="3"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="4" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="7">&nbsp;</td></tr>
 
-        <tr><td colspan="2"><b>{% trans "Visa responsable commision : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+        <tr><td colspan="3"><b>{% trans "Visa responsable commision : " %}</b></td><td colspan="4" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="7">&nbsp;</td></tr>
 
-        <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+        <tr><td colspan="3"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="4" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="7">&nbsp;</td></tr>
 
-        <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>        
+        <tr><td colspan="3"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="4" style="border-bottom: 1px black solid;"></td></tr>        
     </table>
 {% endblock %}

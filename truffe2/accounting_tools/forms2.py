@@ -1,6 +1,5 @@
 from django.forms import ModelForm
 
-
 from accounting_tools.models import ExpenseClaimLine, CashBookLine
 
 
@@ -15,4 +14,4 @@ class CashBookLineForm(ModelForm):
 
     class Meta:
         model = CashBookLine
-        exclude = ('expense_claim', 'order',)
+        exclude = ('cashbook', 'order',)

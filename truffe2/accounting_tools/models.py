@@ -1066,8 +1066,8 @@ class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, Ge
     nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
 
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
     proving_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class MetaData:
@@ -1152,10 +1152,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         return self.lines.order_by('order')
 
     def get_total(self):
-        return sum([line.value_ttc for line in self.get_lines()])
-
-    def get_total_ht(self):
-        return sum([line.value for line in self.get_lines()])
+        return sum([line.get_line_delta() for line in self.get_lines()])
 
     def is_unit_validator(self, user):
         """Check if user is a validator for the step '1_unit_validable'."""
@@ -1171,8 +1168,8 @@ class CashBookLine(ModelUsedAsLine):
         ('3_invoice', _(u'J\'ai payé une facture avec la caisse : ')),
         ('4_buy', _(u'J\'ai achecté quelque chose avec la caisse : ')),
         ('5_reimburse', _(u'J\'ai remboursé quelqu\'un avec la caisse : ')),
-        ('6_input', _(u'Je fais un Crédit manuel')),
-        ('7_output', _(u'Je fais un Débit manuel')),
+        ('6_input', _(u'Je fais un Crédit manuel : ')),
+        ('7_output', _(u'Je fais un Débit manuel : ')),
     )
 
     cashbook = models.ForeignKey('CashBook', related_name="lines")
@@ -1192,3 +1189,16 @@ class CashBookLine(ModelUsedAsLine):
 
     def display_amount(self):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
+
+    def input_amount(self):
+        return self.value_ttc if self.helper[0] in ['0', '2', '6'] else 0
+
+    def output_amount(self):
+        return self.value_ttc if self.helper[0] not in ['0', '2', '6'] else 0
+
+    def get_line_delta(self):
+        return self.input_amount() - self.output_amount()
+
+    def sub_total(self):
+        previous_lines = list(self.cashbook.lines.filter(order__gte=self.order))  # including self
+        return sum(map(lambda line: line.get_line_delta(), previous_lines))
