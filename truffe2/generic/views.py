@@ -500,6 +500,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 if not before_data:
                     log_class(who=request.user, what='created', object=obj).save()
+
+                    if hasattr(obj, 'create_signal'):
+                        obj.create_signal(request)
                 else:
                     # Compute diff
                     after_data = obj.build_state()

@@ -66,7 +66,9 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
         default_sort = "[1, 'desc']"  # date
         filter_fields = ('date', 'text', 'tva', 'output', 'input', 'current_sum')
 
-        details_display = list_display
+        details_display = list_display + [
+            ('unit', _(u'Unité')),
+        ]
 
         base_title = _(u'Comptabilité')
         list_title = _(u'Liste des entrées de la comptabilité')
@@ -205,12 +207,17 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
                 ae = AccountingError(initial_remark=request.POST.get('error'), unit=self.unit, linked_line=self, accounting_year=self.accounting_year, costcenter=self.costcenter)
                 ae.save()
                 AccountingErrorLogging(who=request.user, what='created', object=ae).save()
-                # TODO: CreateNotif
-            else:
-                # TODO: CreateNotif
-                pass
+
+                notify_people(request, 'AccountingError.{}.created', 'accounting_error_created', ae, ae.build_group_members_for_compta_everyone_with_messages())
+
+            unotify_people('AccountingLine.{}.fixed'.format(self.unit), self)
+            notify_people(request, 'AccountingLine.{}.error'.format(self.unit), 'accounting_line_error', self, self.build_group_members_for_compta_everyone())
 
         if dest_status == '1_valided':
+
+            if old_status == '2_error':
+                unotify_people('AccountingLine.{}.error'.format(self.unit), self)
+                notify_people(request, 'AccountingLine.{}.fixed'.format(self.unit), 'accounting_line_fixed', self, self.build_group_members_for_compta_everyone())
 
             if request.POST.get('fix_errors'):
                 from accounting_main.models import AccountingErrorLogging
@@ -221,7 +228,9 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
                     error.save()
 
                     AccountingErrorLogging(who=request.user, what='state_changed', object=error, extra_data=json.dumps({'old': unicode(error.MetaState.states.get(old_status)), 'new': unicode(error.MetaState.states.get('2_fixed'))})).save()
-                    # TODO: Notification
+
+                    unotify_people('AccountingError.{}.created'.format(self.unit), error)
+                    notify_people(request, 'AccountingError.{}.fixed'.format(self.unit), 'accounting_error_fixed', error, error.build_group_members_for_compta_everyone_with_messages())
 
     def get_errors(self):
         return self.accountingerror_set.filter(deleted=False).order_by('status')
@@ -262,6 +271,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
         details_display = list_display + [
             ('initial_remark', _(u'Remarque initiale')),
+            ('unit', _(u'Unité')),
         ]
 
         base_title = _(u'Erreurs')
@@ -409,7 +419,15 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
                     self.linked_line.save()
 
                     AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': unicode(self.linked_line.MetaState.states.get(old_status)), 'new': unicode(self.linked_line.MetaState.states.get('1_valided'))})).save()
-                    # TODO: Notification
+
+                    unotify_people('AccountingLine.{}.error'.format(self.unit), self.linked_line)
+                    notify_people(request, 'AccountingLine.{}.fixed'.format(self.unit), 'accounting_line_fixed', self.linked_line, self.linked_line.build_group_members_for_compta_everyone())
+
+            unotify_people('AccountingError.{}.created'.format(self.unit), self)
+            notify_people(request, 'AccountingError.{}.fixed'.format(self.unit), 'accounting_error_fixed', self, self.build_group_members_for_compta_everyone_with_messages())
+
+    def create_signal(self, request):
+        notify_people(request, 'AccountingError.{}.created'.format(self.unit), 'accounting_error_created', self, self.build_group_members_for_compta_everyone_with_messages())
 
     def build_group_members_for_compta_everyone_with_messages(self):
 
