@@ -17,7 +17,7 @@ import os
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel, LinkedInfoModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
@@ -745,7 +745,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             raise forms.ValidationError(_(u'Les deux centres de coûts doivent être différents.'))
 
 
-class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
     """Modèle pour les retraits cash"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -793,8 +793,6 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         files_title = _(u'Pièces comptables')
         files_help = _(u'Pièces comptables liées au retrait cash.')
         date_fields = ['desired_date', 'withdrawn_date']
-
-        set_linked_info = True
 
     class MetaGroups(GenericGroupsModel.MetaGroups):
         pass
@@ -919,12 +917,6 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
             del form.fields['withdrawn_date']
 
-    def linked_info(self):
-        from accounting_tools.models import LinkedInfo
-
-        withdrawal_ct = ContentType.objects.get(app_label="accounting_tools", model="withdrawal")
-        return LinkedInfo.objects.filter(content_type=withdrawal_ct, object_id=self.pk).first()
-
 
 class LinkedInfo(models.Model):
     """Modèle pour les infos liées aux modèles de leur choix"""
@@ -941,7 +933,7 @@ class LinkedInfo(models.Model):
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
 
 
-class _ExpenseClaim(GenericModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, GenericAccountingStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
     """Modèle pour les notes de frais (NdF)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -989,7 +981,6 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         files_title = _(u'Justificatifs')
         files_help = _(u'Justificatifs pour le remboursement de la note de frais.')
 
-        set_linked_info = True
         all_users = True
 
     class MetaLines:
@@ -1030,16 +1021,6 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
             form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
             # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
-
-    def linked_info(self):
-        from accounting_tools.models import LinkedInfo
-
-        expenseclaim_ct = ContentType.objects.get(app_label="accounting_tools", model="expenseclaim")
-        return LinkedInfo.objects.filter(content_type=expenseclaim_ct, object_id=self.pk).first()
-
-    def get_fullname(self):
-        infos = self.linked_info()
-        return u"{} {}".format(infos.first_name, infos.last_name)
 
     def get_lines(self):
         return self.lines.order_by('order')

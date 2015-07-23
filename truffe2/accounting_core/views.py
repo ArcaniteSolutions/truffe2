@@ -218,11 +218,12 @@ def users_available_list_by_unit(request, upk):
     users = [request.user]
     if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']):
         unit_users = unit.users_with_access(no_parent=True)
-        unit_users_pk = map(lambda user: user.pk, unit_users)  # includes request.user
+        unit_users_pk = map(lambda user: user.pk, unit_users)
         unit_users = filter(lambda user: user != request.user, unit_users)
+
         users += sorted(unit_users, key=lambda user: user.first_name)
 
-        other_users = TruffeUser.objects.exclude(pk__in=unit_users_pk).order_by('first_name')
+        other_users = TruffeUser.objects.exclude(Q(pk=request.user.pk) | Q(pk__in=unit_users_pk)).order_by('first_name')
         users += list(other_users)
 
     retour = [{'pk': user.pk, 'name': user.__unicode__()} for user in users]

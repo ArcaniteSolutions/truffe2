@@ -2,11 +2,12 @@
 
 from django.db import models
 from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.conf.urls import patterns, url
+from django.core.urlresolvers import reverse
+from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, Textarea, Form
 from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _
 
 import json
 import copy
@@ -723,7 +724,7 @@ class GenericAccountingStateModel(object):
         if dest_state == '4_canceled' and self.rights_can('EDIT', user):
             return True
 
-        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
+        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, ['SECRETARIAT', 'TRESORERIE']):
             return False
 
         return super(GenericAccountingStateModel, self).may_switch_to(user, dest_state)
@@ -736,10 +737,10 @@ class GenericAccountingStateModel(object):
         if dest_state == '4_canceled' and self.rights_can('EDIT', user):
             return (True, None)
 
-        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
+        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, ['SECRETARIAT', 'TRESORERIE']):
             return (False, _(u'Seul l\'admin peut valider cet élément pour le moment. Merci de patienter.'))
 
-        if self.status[0] == '1' and not self.right_in_linked_unit(user, 'TRESORERIE'):
+        if self.status[0] == '1' and not self.rights_in_linked_unit(user, 'TRESORERIE'):
             return (False, _(u'Seul ton trésorier peut valider cet élément pour le moment.'))
 
         if not self.rights_can('EDIT', user):
@@ -748,7 +749,7 @@ class GenericAccountingStateModel(object):
         return super(GenericAccountingStateModel, self).can_switch_to(user, dest_state)
 
     def rights_can_LIST(self, user):
-        return super(GenericAccountingStateModel, self).rights_can_SHOW(user)
+        return super(GenericAccountingStateModel, self).rights_can("EDIT", user)
 
     def rights_can_SHOW(self, user):
         if (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info() and self.linked_info().pk == user.pk) or self.get_creator() == user:
@@ -985,3 +986,23 @@ class GenericTag(models.Model):
 
     class Meta:
         abstract = True
+
+
+class LinkedInfoModel(object):
+
+    def __init__(self, *args, **kwargs):
+
+        super(LinkedInfoModel, self).__init__(*args, **kwargs)
+
+        if hasattr(self, 'MetaEdit'):
+            self.MetaEdit.set_linked_info = True
+
+    def linked_info(self):
+        from accounting_tools.models import LinkedInfo
+
+        object_ct = ContentType.objects.get(app_label=self._meta.app_label, model=self._meta.model_name)
+        return LinkedInfo.objects.filter(content_type=object_ct, object_id=self.pk).first()
+
+    def get_fullname(self):
+        infos = self.linked_info()
+        return u"{} {}".format(infos.first_name, infos.last_name)
