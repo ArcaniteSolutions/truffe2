@@ -1,4 +1,5 @@
-{% include "template/base_pdf.html" %}
+{% extends "base_pdf.html" %}
+{% load i18n humanize %}
 
 {% block title %}
     <h1 style="text-align: center; font-size: 30px; margin-top:-150px;">{% trans "Note de frais" %}</h1>
@@ -6,7 +7,7 @@
 
 {% block pre_linkedinfo %}
     <tr class="tr-sep"><td class="td-label">{% trans "Titre de la note de frais : " %}</td><td class="td-large">{{object.name}}</td></tr>
-{% endblock}
+{% endblock %}
 
 {% block detail_table %}
     <table class="liste">

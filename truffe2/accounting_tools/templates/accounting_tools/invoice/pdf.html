@@ -1,4 +1,6 @@
-{% include "template/base_pdf.html" %}
+{% extends "base_pdf.html" %}
+{% load i18n %}
+
 {% block bonus_css_pdf %}
     @page {
         size: a4 portrait;
