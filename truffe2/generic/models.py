@@ -277,7 +277,7 @@ class GenericModel(models.Model):
         return getattr(self.logs.filter(what='created').first(), 'who', None)
 
     def get_creation_date(self):
-        """Return the creator (based on logs)"""
+        """Return the creation date (based on logs)"""
         return getattr(self.logs.filter(what='created').first(), 'when', None)
 
     def display_url(self):

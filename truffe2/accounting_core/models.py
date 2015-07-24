@@ -436,7 +436,7 @@ class AccountingGroupModels(object):
             'agep_compta': _(u'L\'administrateur de l\'AGEPoly'),
             'agep_secretaire': _(u'Les secrétaires de l\'AGEPoly'),
             'unit_compta': _(u'Le trésorier de l\'unité liée'),
-            'compta_everyone': _(u'Toutes les personnes liées via la compta (Admin et secrétaires AGEP, trésorier unité, editeur de l\'objet)'),
+            'compta_everyone': _(u'Toutes les personnes liées via la compta (Admin et secrétaires AGEP, trésorier unité, éditeurs de l\'objet)'),
         })
 
     def build_group_members_for_agep_compta(self):

@@ -846,7 +846,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
         bonus_form = None
 
         if hasattr(model_class.MetaState, 'states_bonus_form'):
-            bonus_form = model_class.MetaState.states_bonus_form.get(dest_status, None)
+            bonus_form = model_class.MetaState.states_bonus_form.get((obj.status, dest_status), model_class.MetaState.states_bonus_form.get(dest_status, None))
 
         if can_switch and request.method == 'POST' and request.POST.get('do') == 'it':
 

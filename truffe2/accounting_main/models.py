@@ -32,6 +32,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
     output = models.DecimalField(_(u'Débit'), max_digits=20, decimal_places=2)
     input = models.DecimalField(_(u'Crédit'), max_digits=20, decimal_places=2)
     current_sum = models.DecimalField(_('Situation'), max_digits=20, decimal_places=2)
+    document_id = models.PositiveIntegerField(_(u'Numéro de pièce comptable'), blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -39,12 +40,12 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
     class MetaEdit:
         pass
 
-
     class MetaData:
         list_display = [
             ('date', _(u'Date')),
             ('account', _(u'Compte de CG')),
-            ('text', _(u'Text')),
+            ('document_id', _(u'Pièce comptable')),
+            ('text', _(u'Texte')),
             ('tva', _(u'% TVA')),
             ('get_output_display', _(u'Débit')),
             ('get_input_display', _(u'Crédit')),
@@ -55,19 +56,20 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
         forced_widths = {
             '1': '100px',
             '2': '300px',
-            '4': '75px',
+            '3': '75px',
             '5': '75px',
             '6': '75px',
             '7': '75px',
             '8': '75px',
             '9': '75px',
+            '10': '75px',
         }
 
         default_sort = "[1, 'desc']"  # date
         filter_fields = ('date', 'text', 'tva', 'output', 'input', 'current_sum')
 
         details_display = list_display + [
-            ('unit', _(u'Unité')),
+            ('costcenter', _(u'Centre de coûts')),
         ]
 
         base_title = _(u'Comptabilité')
@@ -104,27 +106,27 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
         states = {
             '0_imported': _(u'En attente'),
-            '1_valided': _(u'Validé'),
+            '1_validated': _(u'Validé'),
             '2_error': _(u'Erreur'),
         }
 
         default = '0_imported'
 
         states_texts = {
-            '0_imported': _(u'La ligne viens d\'être importée'),
-            '1_valided': _(u'La ligne est validée'),
-            '2_error': _(u'La ligne est fausse et nécessaire une correction'),
+            '0_imported': _(u'La ligne vient d\'être importée'),
+            '1_validated': _(u'La ligne est validée'),
+            '2_error': _(u'La ligne est fausse et nécessite une correction'),
         }
 
         states_links = {
-            '0_imported': ['1_valided', '2_error'],
-            '1_valided': ['2_error'],
-            '2_error': ['1_valided'],
+            '0_imported': ['1_validated', '2_error'],
+            '1_validated': ['2_error'],
+            '2_error': ['1_validated'],
         }
 
         states_colors = {
             '0_imported': 'primary',
-            '1_valided': 'success',
+            '1_validated': 'success',
             '2_error': 'danger',
         }
 
@@ -132,24 +134,24 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         }
 
         list_quick_switch = {
-            '0_imported': [('2_error', 'fa fa-warning', _(u'Signaler une erreur')), ('1_valided', 'fa fa-check', _(u'Marquer comme validé')), ],
-            '1_valided': [('2_error', 'fa fa-warning', _(u'Signaler une erreur')), ],
-            '2_error': [('1_valided', 'fa fa-check', _(u'Marquer comme validé')), ],
+            '0_imported': [('2_error', 'fa fa-warning', _(u'Signaler une erreur')), ('1_validated', 'fa fa-check', _(u'Marquer comme validé')), ],
+            '1_validated': [('2_error', 'fa fa-warning', _(u'Signaler une erreur')), ],
+            '2_error': [('1_validated', 'fa fa-check', _(u'Marquer comme validé')), ],
         }
 
-        states_default_filter = '0_imported,1_valided,2_error'
-        states_default_filter_related = '0_imported,1_valided,2_error'
+        states_default_filter = '0_imported,1_validated,2_error'
+        states_default_filter_related = '0_imported,1_validated,2_error'
         status_col_id = 6
 
         class FormError(Form):
-            error = CharField(label=_('Description de l\'erreur'), help_text=_(u'Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide si tu ne veux pas créer une erreur (mais ceci est fortement peut recommandé)'), required=False, widget=Textarea)
+            error = CharField(label=_('Description de l\'erreur'), help_text=_(u'Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide si tu ne veux pas créer une erreur (mais ceci est fortement déconseillé)'), required=False, widget=Textarea)
 
         class FormValid(Form):
             fix_errors = BooleanField(label=_(u'Résoudre les erreurs liées'), help_text=_(u'Fix automatiquement les erreurs liées à la ligne. Attention, des erreurs peuvent être dissociées !'), required=False, initial=True)
 
         states_bonus_form = {
             '2_error': FormError,
-            '1_valided': FormValid
+            ('2_error', '1_validated'): FormValid
         }
 
     def may_switch_to(self, user, dest_state):
@@ -171,11 +173,16 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         return super(_AccountingLine, self).rights_can_EDIT(user)
 
     def __unicode__(self):
-        return u'{}: {} (-{}/+{})'.format(self.date, self.text, self.output, self.input)
+        if self.output and self.input:
+            return u'{}: {} (-{}/+{})'.format(self.date, self.text, self.output, self.input)
+        elif self.output:
+            return u'{}: {} (-{})'.format(self.date, self.text, self.output)
+        else:
+            return u'{}: {} (+{})'.format(self.date, self.text, self.input)
 
     def get_output_display(self):
         if self.output:
-            return '<span class="txt-color-red">{}</span>'.format(self.output)
+            return '<span class="txt-color-red">-{}</span>'.format(self.output)
         else:
             return ''
 
@@ -189,11 +196,13 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         if self.current_sum > 0:
             return '<span class="txt-color-green">{}</span>'.format(self.current_sum)
         elif self.current_sum < 0:
-            return '<span class="txt-color-red">{}</span>'.format(self.current_sum)
+            return '<span class="txt-color-red">-{}</span>'.format(self.current_sum)
         else:
             return '0.00'
 
     def switch_status_signal(self, request, old_status, dest_status):
+
+        from accounting_main.models import AccountingError, AccountingErrorLogging
 
         s = super(_AccountingLine, self)
 
@@ -203,7 +212,6 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         if dest_status == '2_error':
 
             if request.POST.get('error'):
-                from accounting_main.models import AccountingError, AccountingErrorLogging
                 ae = AccountingError(initial_remark=request.POST.get('error'), unit=self.unit, linked_line=self, accounting_year=self.accounting_year, costcenter=self.costcenter)
                 ae.save()
                 AccountingErrorLogging(who=request.user, what='created', object=ae).save()
@@ -213,14 +221,13 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             unotify_people('AccountingLine.{}.fixed'.format(self.unit), self)
             notify_people(request, 'AccountingLine.{}.error'.format(self.unit), 'accounting_line_error', self, self.build_group_members_for_compta_everyone())
 
-        if dest_status == '1_valided':
+        if dest_status == '1_validated':
 
             if old_status == '2_error':
                 unotify_people('AccountingLine.{}.error'.format(self.unit), self)
                 notify_people(request, 'AccountingLine.{}.fixed'.format(self.unit), 'accounting_line_fixed', self, self.build_group_members_for_compta_everyone())
 
             if request.POST.get('fix_errors'):
-                from accounting_main.models import AccountingErrorLogging
 
                 for error in self.accountingerror_set.filter(deleted=False).exclude(status='2_fixed'):
                     old_status = error.status
@@ -245,7 +252,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
     unit = FalseFK('units.models.Unit')
 
     linked_line = FalseFK('accounting_main.models.AccountingLine', verbose_name=_(u'Ligne liée'), blank=True, null=True)
-    linked_line_text = models.CharField(max_length=4096)
+    linked_line_cache = models.CharField(max_length=4096)
 
     initial_remark = models.TextField(_(u'Remarque initiale'), help_text=_(u'Décrit le problème'))
 
@@ -267,11 +274,10 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         ]
 
         default_sort = "[0, 'desc']"  # pk
-        filter_fields = ('linked_line__text', 'linked_line_text')
+        filter_fields = ('linked_line__text', 'linked_line_cache')
 
         details_display = list_display + [
             ('initial_remark', _(u'Remarque initiale')),
-            ('unit', _(u'Unité')),
         ]
 
         base_title = _(u'Erreurs')
@@ -281,7 +287,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
         menu_id = 'menu-compta-errors'
         not_sortable_colums = ['get_line_title', 'costcenter']
-        trans_sort = {'get_linked_line': 'linked_line_text'}
+        trans_sort = {'get_linked_line': 'linked_line_cache'}
         safe_fields = []
 
         has_unit = True
@@ -363,21 +369,21 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         return u'Erreur: {}'.format(self.get_linked_line())
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
-        del form.fields['linked_line_text']
+        del form.fields['linked_line_cache']
         del form.fields['linked_line']
 
     def get_linked_line(self):
         if self.linked_line:
             return self.linked_line.__unicode__()
-        elif self.linked_line_text:
-            return '{} (Cache)'.format(self.linked_line_text)
+        elif self.linked_line_cache:
+            return '{} (Cache)'.format(self.linked_line_cache)
         else:
             return _(u'(Aucune ligne liée)')
 
     def save(self, *args, **kwargs):
 
-        if not self.linked_line_text and self.linked_line:
-            self.linked_line_text = self.linked_line.__unicode__()
+        if not self.linked_line_cache and self.linked_line:
+            self.linked_line_cache = self.linked_line.__unicode__()
 
         return super(_AccountingError, self).save(*args, **kwargs)
 
@@ -390,7 +396,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         })
 
         self.MetaGroups.groups_update({
-            'compta_everyone_with_messages': _(u'Toutes les personnes liées via la compta (Admin et secrétaires AGEP, trésorier unité, editeur de l\'objet) + les personnes ayant commenté'),
+            'compta_everyone_with_messages': _(u'Toutes les personnes liées via la compta (Admin et secrétaires AGEP, trésorier unité, éditeurs de l\'objet) + les personnes ayant commenté'),
         })
 
     def get_line_title(self):
@@ -415,10 +421,10 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
                     from accounting_main.models import AccountingLineLogging
 
                     old_status = self.linked_line.status
-                    self.linked_line.status = '1_valided'
+                    self.linked_line.status = '1_validated'
                     self.linked_line.save()
 
-                    AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': unicode(self.linked_line.MetaState.states.get(old_status)), 'new': unicode(self.linked_line.MetaState.states.get('1_valided'))})).save()
+                    AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': unicode(self.linked_line.MetaState.states.get(old_status)), 'new': unicode(self.linked_line.MetaState.states.get('1_validated'))})).save()
 
                     unotify_people('AccountingLine.{}.error'.format(self.unit), self.linked_line)
                     notify_people(request, 'AccountingLine.{}.fixed'.format(self.unit), 'accounting_line_fixed', self.linked_line, self.linked_line.build_group_members_for_compta_everyone())
