@@ -30,7 +30,7 @@ def home(request):
 
     news = filter(lambda s: (not s.start_date or s.start_date <= now()) and (not s.end_date or s.end_date >= now()), list(news))
 
-    from units.models import Accreditation
+    from units.models import Accreditation, Unit
 
     if Accreditation.static_rights_can('VALIDATE', request.user):
         accreds_to_validate = Accreditation.objects.filter(end_date=None, need_validation=True)
@@ -64,9 +64,26 @@ def home(request):
             rcash_qs = filter(lambda rcash: rcash.rights_can_SHOW(request.user), list(rcash_qs))
         rcash_to_validate = None
 
+    from accounting_main.models import AccountingLine, AccountingError
+
+    lines_status_by_unit = {}
+
+    # ça serait beaucoup trop lourd de tester toutes les lignes, on fait donc
+    # de manière fausse: basée sur les droits
+    for unit in Unit.objects.filter(deleted=False).order_by('name'):
+        if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']):
+            lines_status_by_unit[unit] = (AccountingLine.objects.filter(deleted=False, unit=unit, status='0_imported').count(), AccountingLine.objects.filter(deleted=False, unit=unit, status='2_error').count())
+
+    open_errors = []
+
+    for error in AccountingError.objects.filter(deleted=False).exclude(status='2_fixed').order_by('pk'):
+        if error.rights_can('SHOW', request.user):
+            open_errors.append(error)
+
     return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate, 'internaltransfer_to_validate': internaltransfer_to_validate,
                                               'internaltransfer_to_account': internaltransfer_to_account, 'rcash_to_validate': rcash_to_validate, 'rcash_to_withdraw': rcash_to_withdraw,
-                                              'rcash_to_justify': rcash_to_justify, 'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting})
+                                              'rcash_to_justify': rcash_to_justify, 'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting,
+                                              'lines_status_by_unit': lines_status_by_unit, 'open_errors': open_errors})
 
 
 @login_required

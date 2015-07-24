@@ -5,15 +5,15 @@
 
             <ul>
                 {% for rcash in rcash_to_validate %}
-                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-primary">{% trans "A valider / retirer pour le" %} {{rcash.desired_date|date:"d M Y"}}</span></a></li>
+                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-primary pull-right">{% trans "A valider / retirer pour le" %} {{rcash.desired_date|date:"d M Y"}}</span></a></li>
                 {% endfor %}
 
                 {% for rcash in rcash_to_withdraw %}
-                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-success">{% trans "Prêt à être retiré depuis le" %} {{rcash.withdrawn_date|date:"d M Y"}}</span></a></li>
+                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-success pull-right">{% trans "Prêt à être retiré depuis le" %} {{rcash.withdrawn_date|date:"d M Y"}}</span></a></li>
                 {% endfor %}
 
                 {% for rcash in rcash_to_justify %}
-                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-warning">{% trans "A justifier" %}</span></a></li>
+                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-warning pull-right">{% trans "A justifier" %}</span></a></li>
                 {% endfor %}
             </ul>
         {% include "widget/footer.html" %}
