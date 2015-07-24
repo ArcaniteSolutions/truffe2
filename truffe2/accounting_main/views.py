@@ -24,6 +24,7 @@ from django.utils.html import strip_tags
 import uuid
 import datetime
 import time
+import collections
 
 
 from notifications.utils import notify_people
@@ -39,11 +40,11 @@ def accounting_graph(request):
     if not AccountingLine.static_rights_can('LIST', request.user, costcenter.unit, costcenter.accounting_year):
         raise Http404
 
-    data = {}
+    data = collections.OrderedDict()
 
     for line in AccountingLine.objects.filter(costcenter=costcenter).order_by('date'):
         timestamp = int((time.mktime(line.date.timetuple()) + 3600) * 1000)
-        data[timestamp] = line.current_sum
+        data[timestamp] = -line.current_sum
 
     return render(request, 'accounting_main/accountingline/graph.html', {'costcenter': costcenter, 'random': str(uuid.uuid4()), 'data': data})
 
