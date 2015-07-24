@@ -752,7 +752,7 @@ class GenericAccountingStateModel(object):
         return super(GenericAccountingStateModel, self).rights_can("EDIT", user)
 
     def rights_can_SHOW(self, user):
-        if (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info() and self.linked_info().pk == user.pk) or self.get_creator() == user:
+        if (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info() and '{} {}'.format(self.linked_info().first_name, self.linked_info().last_name) == '{} {}'.format(user.first_name, user.last_name)) or self.get_creator() == user:
             return True
 
         return super(GenericAccountingStateModel, self).rights_can_SHOW(user)

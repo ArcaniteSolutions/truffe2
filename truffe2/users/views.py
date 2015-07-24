@@ -332,4 +332,4 @@ def users_myunit_pdf(request):
         accred.truffe2_tmp_pdf_display_mobile = UserPrivacy.user_can_access(request.user, accred.user, 'mobile')
         liste.append(accred)
 
-    return generate_pdf("users/users/myunit_pdf.html", {'unit': current_unit, 'liste': liste, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+    return generate_pdf("users/users/myunit_pdf.html", {'unit': current_unit, 'liste': liste, 'user': request.user})

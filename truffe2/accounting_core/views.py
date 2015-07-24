@@ -96,7 +96,7 @@ def pdf_list_cost_centers(request, pk):
 
     cc = CostCenter.objects.filter(accounting_year=ay).order_by('account_number')
 
-    return generate_pdf("accounting_core/costcenter/liste_pdf.html", {'cost_centers': cc, 'ay': ay, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+    return generate_pdf("accounting_core/costcenter/liste_pdf.html", {'cost_centers': cc, 'ay': ay, 'user': request.user})
 
 
 @login_required
@@ -113,7 +113,7 @@ def pdf_list_accounts(request, pk):
 
     root_ac = AccountCategory.objects.filter(accounting_year=ay, parent_hierarchique=None).order_by('order')
 
-    return generate_pdf("accounting_core/account/liste_pdf.html", {'root_ac': root_ac, 'ay': ay, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+    return generate_pdf("accounting_core/account/liste_pdf.html", {'root_ac': root_ac, 'ay': ay, 'user': request.user})
 
 
 @login_required
