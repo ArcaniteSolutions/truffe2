@@ -8,11 +8,11 @@
 {% block pre_linkedinfo %}
     <tr class="tr-sep"><td class="td-label">{% trans "Titre du journal de caisse : " %}</td><td class="td-large">{{object.name}}</td></tr>
     {% if object.proving_object %}
-        {% if object.proving_object.content_type.model == "withdrawal" %}
-        <tr class="tr-sep"><td class="td-label">{% trans "Date du retrait cash lié : "%}</td><td class="td-b2">{{object.proving_object.withdrawn_date}}</td></tr>
-        <tr class="tr-sep"><td class="td-label"><i>{% trans "Nom du retrait cash lié : " %}</i></td><td class="td-b2"><i>{{object.proving_object.name}}</i></td></tr>
+        {% if object.content_type.model == "withdrawal" %}
+        <tr class="tr-sep"><td class="td-label"><i>{% trans "Nom du retrait cash lié : " %}</i></td><td class="td-large">{{object.proving_object.name}}</td></tr>
+        <tr class="tr-sep"><td class="td-label">{% trans "Date du retrait cash lié : "%}</td><td class="td-large">{{object.proving_object.withdrawn_date|date:"d/m/Y"}}</td></tr>
         {% else %}
-            <tr class="tr-sep"><td class="td-label">{% trans "Attention, objet lié inconnu : "%}</td><td class="td-b2">{{object.proving_object}}</td></tr>
+            <tr class="tr-sep"><td class="td-label">{% trans "Attention, objet lié inconnu : "%}</td><td class="td-large">{{object.proving_object}}</td></tr>
         {% endif %}
     {% endif %}
 {% endblock %}

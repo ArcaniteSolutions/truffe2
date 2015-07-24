@@ -96,7 +96,10 @@
                     </tbody>
                 </table>
 
-                <a href="#" onclick="lines_add_line_{{line_data.related_name}}(); return false;" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> {% trans "Ajouter" %}</a>
+                <div id="lines_footer">
+                    <span></span>
+                    <a href="#" onclick="lines_add_line_{{line_data.related_name}}(); return false;" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> {% trans "Ajouter" %}</a>
+                </div>
 
                 <hr style="clear: both; visibility: hidden;">
 
@@ -115,7 +118,12 @@
                             {% for field in line_data.tva_fields %}
                                 switch_to_tva_field($("#id__LINES_{{line_data.related_name}}_{{line_form.id}}-{{field}}"));
                             {% endfor %}
+
                         {% endfor %}
+
+                        // Make selects in old lines be select2
+                        $('#lines_tbody_{{line_data.related_name}} .line_field_line_lines select')
+                            .removeClass('form-control').addClass('select2').css('width', '100%').select2();
                     });
 
                     function lines_add_line_{{line_data.related_name}}() {
@@ -127,7 +135,8 @@
 
                         html = '<tr>' + html + '</tr>';
 
-                        var new_line = $('#lines_tbody_{{line_data.related_name}}').append(html);
+                        $('#lines_tbody_{{line_data.related_name}}').append(html);
+                        var new_line = $('#lines_tbody_{{line_data.related_name}} tr:last-child');
 
                         {% for field in line_data.date_fields %}
                             $("#id__LINES_{{line_data.related_name}}_" + line_id + "-{{field}}").removeClass('hasDatepicker').datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
@@ -139,9 +148,10 @@
 
                         lines_make_sortable_{{line_data.related_name}}();
 
-                        {% block line_add_line_bonus %}
+                        new_line.find('select')
+                            .removeClass('form-control').addClass('select2').css('width', '100%').select2();
 
-                        {% endblock %}
+                        {% block line_add_line_bonus %}{% endblock %}
                     }
 
                     function lines_remove_line_{{line_data.related_name}}(elem) {
@@ -181,9 +191,7 @@
 
                     lines_make_sortable_{{line_data.related_name}}();
 
-                    {% block line_js_bonus %}
-
-                    {% endblock %}
+                    {% block line_js_bonus %}{% endblock %}
                 </script>
 
             {% endfor %}

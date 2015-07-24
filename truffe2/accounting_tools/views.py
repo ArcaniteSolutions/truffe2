@@ -10,6 +10,7 @@ from django.conf import settings
 
 
 import os
+import json
 from PIL import Image
 
 
@@ -159,3 +160,37 @@ def cashbook_pdf(request, pk):
         raise Http404
 
     return generate_pdf("accounting_tools/cashbook/pdf.html", {'object': cashbook, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+
+
+@login_required
+def get_withdrawal_infos(request, pk):
+    from accounting_tools.models import Withdrawal
+
+    withdrawal = get_object_or_404(Withdrawal, pk=pk, deleted=False)
+
+    if not withdrawal.static_rights_can('SHOW', request.user):
+        raise Http404
+
+    return HttpResponse(json.dumps({'user_pk': withdrawal.user.pk, 'costcenter_pk': withdrawal.costcenter.pk}), content_type='application/json')
+
+
+@login_required
+def withdrawal_available_list(request):
+    """Return the list of available withdrawals for a given unit and year"""
+    from accounting_tools.models import Withdrawal
+    from accounting_core.models import AccountingYear
+    from units.models import Unit
+
+    withdrawals = Withdrawal.objects.filter(deleted=False).order_by('-withdrawn_date')
+
+    if request.GET.get('upk'):
+        unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
+        withdrawals = withdrawals.filter(unit=unit)
+
+    if request.GET.get('ypk'):
+        accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
+        withdrawals = withdrawals.filter(accounting_year=accounting_year)
+
+    retour = {'data': [{'pk': withdrawal.pk, 'name': withdrawal.__unicode__()} for withdrawal in withdrawals]}
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')

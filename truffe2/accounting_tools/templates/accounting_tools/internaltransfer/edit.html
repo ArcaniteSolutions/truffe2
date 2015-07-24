@@ -12,53 +12,53 @@
         $(function() {
             // Transform select2 for account and cost centers
             $('#id_account').removeClass('form-control');
-            $('#id_account').width('72%').select2();
+            $('#id_account').css('width', '100%').select2();
             $('#id_cost_center_from').removeClass('form-control');
-            $('#id_cost_center_from').width('72%').select2();
+            $('#id_cost_center_from').css('width', '100%').select2();
             $('#id_cost_center_to').removeClass('form-control');
-            $('#id_cost_center_to').width('72%').select2();
+            $('#id_cost_center_to').css('width', '100%').select2();
         });
 
         function update_accounts(pk) {
-            $.ajax('{% url 'accounting_core.views.accounts_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+            $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + pk).done(function (data) {
                 $('#id_account option').remove();
                 $('#id_account').append(
                     $('<option></option>').val('').html('---------')
                 );
-
+                var data = data.data;
                 for (var i = 0; i < data.length; i++) {
                     $('#id_account').append(
-                        $('<option></option>').val(data[i].value).html(data[i].text)
+                        $('<option></option>').val(data[i].pk).html(data[i].name)
                     );
                 }
             });
         }
 
         function update_cost_centers_from(pk) {
-            $.ajax('{% url 'accounting_core.views.costcenters_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+            $.ajax('{% url 'accounting_core.views.costcenter_available_list' %}?ypk=' + pk).done(function (data) {
                 $('#id_cost_center_from option').remove();
                 $('#id_cost_center_from').append(
                     $('<option></option>').val('').html('---------')
                 );
-
+                var data = data.data;
                 for (var i = 0; i < data.length; i++) {
                     $('#id_cost_center_from').append(
-                        $('<option></option>').val(data[i].value).html(data[i].text)
+                        $('<option></option>').val(data[i].pk).html(data[i].name)
                     );
                 }
             });
         }
 
         function update_cost_centers_to(pk) {
-            $.ajax('{% url 'accounting_core.views.costcenters_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+            $.ajax('{% url 'accounting_core.views.costcenter_available_list' %}?ypk=' +  pk).done(function (data) {
                 $('#id_cost_center_to option').remove();
                 $('#id_cost_center_to').append(
                     $('<option></option>').val('').html('---------')
                 );
-
+                var data = data.data;
                 for (var i = 0; i < data.length; i++) {
                     $('#id_cost_center_to').append(
-                        $('<option></option>').val(data[i].value).html(data[i].text)
+                        $('<option></option>').val(data[i].pk).html(data[i].name)
                     );
                 }
             });

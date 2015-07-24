@@ -752,6 +752,7 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
         access = ['TRESORERIE', 'SECRETARIAT']
 
     name = models.CharField(_('Raison du retrait'), max_length=255, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Responsable'))
     unit = FalseFK('units.models.Unit')
     description = models.TextField(_('Description'), blank=True, null=True)
     amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
@@ -766,11 +767,11 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [('description', _(u'Description')), ('desired_date', _(u'Date souhaitée')), ('withdrawn_date', _(u'Date retrait')), ('accounting_year', _(u'Année comptable')), ]
-        filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number')
+        details_display = list_display + [('user', _(u'Responsable')), ('description', _(u'Description')), ('desired_date', _(u'Date souhaitée')), ('withdrawn_date', _(u'Date retrait')), ('accounting_year', _(u'Année comptable')), ]
+        filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number', 'user__username', 'user__first_name', 'user__last_name')
         datetime_fields = ['desired_date', 'withdrawn_date']
 
-        default_sort = "[5, 'desc']"  # Creation date (pk) descending
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
 
         base_title = _(u'Retraits cash')
         list_title = _(u'Liste des retraits cash')
@@ -1012,6 +1013,12 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def __unicode__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
+    def rights_can_EDIT(self, user):
+        if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
+            return True
+
+        return super(_ExpenseClaim, self).rights_can_EDIT(user)
+
     def genericFormExtraClean(self, data, form):
         if not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
@@ -1118,6 +1125,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
                 'field': 'cashbook',
                 'sortable': True,
                 'tva_fields': ['tva'],
+                'date_fields': ['date'],
                 'show_list': [
                     ('date', _(u'Date')),
                     ('get_helper_display', _(u'Type')),
@@ -1140,6 +1148,18 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         return u"{} - {}".format(self.name, self.costcenter)
 
     def genericFormExtraClean(self, data, form):
+
+        if data['withdrawal']:
+            if data['withdrawal'].user != data['user'] or data['withdrawal'].costcenter != data['costcenter']:
+                raise forms.ValidationError(_(u'L\'utilisateur responsable et/ou le centre de coûts ne correspondent pas au retrait cash lié.'))
+
+            data['object_id'] = data['withdrawal'].pk
+            data['content_type'] = ContentType.objects.get(app_label=data['withdrawal']._meta.app_label, model=data['withdrawal']._meta.model_name)
+        else:
+            data['object_id'] = None
+            data['content_type'] = None
+        del data['withdrawal']
+
         if not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
@@ -1147,6 +1167,15 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
             form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
             # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Set related object correctly."""
+        from accounting_tools.models import Withdrawal
+
+        form.fields['withdrawal'] = forms.ModelChoiceField(queryset=Withdrawal.objects.filter(status='3_used'), initial=self.proving_object, required=False, label=_(u'Retrait cash lié'))
+
+        for field in ['content_type', 'object_id']:
+            del form.fields[field]
 
     def get_lines(self):
         return self.lines.order_by('order')

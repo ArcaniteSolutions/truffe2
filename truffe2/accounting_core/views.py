@@ -188,27 +188,6 @@ def parents_cat_by_year(request, ypk):
 
 
 @login_required
-def accounts_by_year(request, ypk):
-    from accounting_core.models import Account
-
-    retour = Account.objects.filter(accounting_year__pk=ypk).order_by('account_number')
-    retour = filter(lambda account: account.user_can_see(request.user), retour)
-    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
-
-    return HttpResponse(json.dumps(retour), content_type='application/json')
-
-
-@login_required
-def costcenters_by_year(request, ypk):
-    from accounting_core.models import CostCenter
-
-    retour = CostCenter.objects.filter(accounting_year__pk=ypk).order_by('account_number')
-    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
-
-    return HttpResponse(json.dumps(retour), content_type='application/json')
-
-
-@login_required
 def users_available_list_by_unit(request, upk):
     """Return the list of available users for a expenseclaim / cashbook ordered nicely (you / unit_people / rest) or just you if no right"""
     from units.models import Unit
@@ -227,5 +206,24 @@ def users_available_list_by_unit(request, upk):
         users += list(other_users)
 
     retour = [{'pk': user.pk, 'name': user.__unicode__()} for user in users]
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')
+
+
+@login_required
+def account_available_list(request):
+    """Return the list of available accounts for a given year"""
+    from units.models import Unit
+    from accounting_core.models import AccountingYear, Account
+
+    accounts = Account.objects.filter(deleted=False).order_by('account_number')
+
+    if request.GET.get('ypk'):
+        accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
+        accounts = accounts.filter(accounting_year=accounting_year)
+
+    accounts = filter(lambda acc: acc.user_can_see(request.user), list(accounts))
+
+    retour = {'data': [{'pk': account.pk, 'name': account.__unicode__()} for account in accounts]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
