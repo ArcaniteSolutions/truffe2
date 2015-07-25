@@ -8,6 +8,7 @@ from django import http
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.timezone import now
 from django.contrib.sites.models import get_current_site
 
 import cgi
@@ -52,7 +53,6 @@ def get_current_unit(request, unit_blank=True):
 
 def update_current_unit(request, unit_pk):
     """Update the current unit"""
-
     if request.GET.get('_upkns') == '_':
         return
 
@@ -126,8 +126,9 @@ def get_property(obj, prop):
     return obj
 
 
-def generate_pdf(template, contexte):
+def generate_pdf(template, request, contexte):
     template = get_template(template)
+    contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now(), 'user': request.user})
     context = Context(contexte)
 
     html = template.render(context)

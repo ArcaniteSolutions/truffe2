@@ -1,0 +1,139 @@
+{% load i18n humanize %}
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style>
+            @font-face {
+                font-family: DejaVu;
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans.ttf);
+            }
+
+            @font-face {
+                font-family: DejaVu;
+                src: url({{MEDIA_ROOT}}fonts/DejaVuSans-Bold.ttf);
+                font-weight: bold;
+            }
+
+            @page {
+                size: a4 portrait;
+                margin: 1cm;
+                margin-bottom: 2.5cm;
+
+                @frame logoFrame {
+                    -pdf-frame-content: logoFrameContent;
+                    top: 0.4cm;
+                    right: 1.2cm;
+                    width: 25%;
+                }
+
+                @frame footer {
+                    -pdf-frame-content: footerContent;
+                    bottom: 0cm;
+                    margin-left: 1cm;
+                    margin-right: 1cm;
+                    height: 1cm;
+                }
+            }
+
+            body {
+                font-family: "DejaVu";
+            }
+
+            tr {
+                border-bottom: 1px #ddd solid;
+            }
+
+            .tr-sep {
+                border-top: 2px black solid;
+            }
+
+            .tr-line{
+                 border: 1px black solid;
+                 padding:3px;
+            }
+
+            .tr-header {
+                border-bottom: 2px black solid;
+                font-weight: bold;
+            }
+
+            .tr-header td {
+               padding-top: 5px;
+            }
+
+            .td-title {
+                font-size: 16px;
+                color: blue;
+                font-weight: bold;
+            }
+
+            .td-label {
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            .td-large {
+                font-size: 14px;
+            }
+
+            .liste, .summary {
+                font-size: 15px;
+                padding-top: 5px;
+                text-align: center;
+            }
+
+            {% block bonus_css_pdf %}{% endblock %}
+        </style>
+    </head>
+
+    <body>
+        {% block content %}
+            {% block logo %}
+                <div id="logoFrameContent">
+                    <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
+                </div>
+            {% endblock %}
+            
+            {% block title %}<h1 style="text-align: center; font-size: 30px; margin-top:-150px;">{% trans "Note de frais" %}</h1>{% endblock %}
+            
+            <table style="margin-top:-150px;">
+                {% block unit_def %}
+                    <tr class="tr-sep"><td class="td-title">{% trans "Pour" %} {% if object.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.unit.is_commission %}{% trans "la commission" %}{% endif %}{% trans " : " %}</td><td class="td-large">{{object.unit}}</td></tr>
+                    <tr class="tr-sep"><td class="td-title">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-large">{{object.costcenter}}</td></tr>
+                {% endblock %}
+
+                {% block pre_linkedinfo %}{% endblock %}
+
+                {% block linkedinfo_basics %}
+                    <tr class="tr-sep"><td class="td-label">{% trans "Nom : " %}</td><td class="td-large">{{object.linked_info.last_name|upper}}</td></tr>
+                    <tr class="tr-sep"><td class="td-label">{% trans "Prenom : " %}</td><td class="td-large">{{object.linked_info.first_name}}</td></tr>
+                    <tr class="tr-sep"><td class="td-label">{% trans "Téléphone : " %}</td><td class="td-large">{{object.linked_info.phone}}</td></tr>
+                {% endblock %}
+
+                {% block linkedinfo_advanced %}
+                <tr><td colspan="2">&nbsp;</td></tr>
+                <tr class="tr-sep"><td class="td-label" valign="top">{% trans "Adresse : " %}</td><td class="td-large">{{object.linked_info.address|linebreaksbr}}</td></tr>
+                <tr><td class="td-large">{% trans "Nom de la banque (Ou poste) : " %}</td><td class="td-large">{{object.linked_info.bank}}</td></tr>
+                <tr class="tr-sep"><td class="td-large">{% trans "IBAN / CCP : " %}</td><td class="td-large">{{object.linked_info.iban_ccp}}</td></tr>
+                {% endblock %}
+
+                {% block post_linkedinfo %}{% endblock %}
+            </table>
+
+            <br /><br />
+
+            {% block detail_table %}{% endblock %}
+
+            {% block upload_files %}
+                {% for u in object.get_uploaded_images %}
+                    <pdf:nextpage/>
+                    <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
+                {% endfor %}
+            {% endblock %}
+        {% endblock %} <!-- block content -->
+
+        {% block footer %}
+            <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe.agepoly.ch - {% trans "par" %} {{user}}</div>
+        {% endblock %}
+    </body>
+</html>

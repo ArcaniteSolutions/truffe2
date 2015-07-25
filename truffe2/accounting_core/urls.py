@@ -16,4 +16,5 @@ urlpatterns = patterns(
 
     url(r'^costcenter/available_list$', 'costcenter_available_list'),
     url(r'^tva/available_list$', 'tva_available_list'),
+    url(r'^unit/(?P<upk>[0-9]+)/users_available_list$', 'users_available_list_by_unit'),
 )

@@ -2,11 +2,12 @@
 
 from django.db import models
 from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.conf.urls import patterns, url
+from django.core.urlresolvers import reverse
+from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, Textarea, Form
 from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _
 
 import json
 import copy
@@ -677,20 +678,20 @@ class GenericAccountingStateModel(object):
             '4_canceled': [],
         }
 
-        states_quick_switch = {
-            '0_draft': [('1_unit_validable', _(u'Demander accord unité')), ('4_canceled', _(u'Annuler')), ],
-            '0_correct': [('1_unit_validable', _(u'Demander accord unité')), ('4_canceled', _(u'Annuler')), ],
-            '1_unit_validable': [('2_agep_validable', _(u'Demander accord AGEPoly')), ('0_correct', _(u'Demander des corrections')), ('4_canceled', _(u'Annuler')), ],
-            '2_agep_validable': [('0_correct', _(u'Demander des corrections')), ('3_accountable', _(u'Demander à comptabiliser')), ('4_canceled', _(u'Annuler')), ],
-            '3_accountable': [('4_archived', _(u'Archiver')), ('4_canceled', _(u'Annuler')), ]
+        list_quick_switch = {
+            '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité'))],
+            '0_correct': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité'))],
+            '1_unit_validable': [('2_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly'))],
+            '2_agep_validable': [('3_accountable', 'fa fa-check', _(u'Demander à comptabiliser'))],
+            '3_accountable': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver'))],
         }
 
-        list_quick_switch = {
-            '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('4_canceled', 'fa fa-ban', _(u'Annuler')), ],
-            '0_correct': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité')), ('4_canceled', 'fa fa-ban', _(u'Annuler')), ],
-            '1_unit_validable': [('2_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
-            '2_agep_validable': [('3_accountable', 'fa fa-check', _(u'Demander à comptabiliser')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
-            '3_accountable': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
+        states_quick_switch = {
+            '0_draft': [('1_unit_validable', _(u'Demander accord unité'))],
+            '0_correct': [('1_unit_validable', _(u'Demander accord unité'))],
+            '1_unit_validable': [('2_agep_validable', _(u'Demander accord AGEPoly')), ('0_correct', _(u'Demander des corrections'))],
+            '2_agep_validable': [('0_correct', _(u'Demander des corrections')), ('3_accountable', _(u'Demander à comptabiliser'))],
+            '3_accountable': [('4_archived', _(u'Archiver'))]
         }
 
         states_colors = {
@@ -714,7 +715,7 @@ class GenericAccountingStateModel(object):
         }
 
         states_default_filter = '0_draft,0_correct,1_unit_validable,2_agep_validable'
-        status_col_id = 4
+        status_col_id = 3
 
     def may_switch_to(self, user, dest_state):
         if self.status[0] == '4' and not user.is_superuser:
@@ -723,7 +724,7 @@ class GenericAccountingStateModel(object):
         if dest_state == '4_canceled' and self.rights_can('EDIT', user):
             return True
 
-        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
+        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, ['SECRETARIAT', 'TRESORERIE']):
             return False
 
         return super(GenericAccountingStateModel, self).may_switch_to(user, dest_state)
@@ -736,10 +737,10 @@ class GenericAccountingStateModel(object):
         if dest_state == '4_canceled' and self.rights_can('EDIT', user):
             return (True, None)
 
-        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
+        if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, ['SECRETARIAT', 'TRESORERIE']):
             return (False, _(u'Seul l\'admin peut valider cet élément pour le moment. Merci de patienter.'))
 
-        if self.status[0] == '1' and not self.right_in_linked_unit(user, 'TRESORERIE'):
+        if self.status[0] == '1' and not self.rights_in_linked_unit(user, 'TRESORERIE'):
             return (False, _(u'Seul ton trésorier peut valider cet élément pour le moment.'))
 
         if not self.rights_can('EDIT', user):
@@ -747,14 +748,19 @@ class GenericAccountingStateModel(object):
 
         return super(GenericAccountingStateModel, self).can_switch_to(user, dest_state)
 
-    def rights_can_SHOW(self, user):
+    def rights_can_LIST(self, user):
+        return super(GenericAccountingStateModel, self).rights_can("EDIT", user)
 
-        if self.get_creator() == user:
+    def rights_can_SHOW(self, user):
+        if self.get_creator() == user or (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info().user_pk == user.pk):
             return True
 
         return super(GenericAccountingStateModel, self).rights_can_SHOW(user)
 
     def rights_can_EDIT(self, user):
+        if not self.pk:
+            return True
+
         if self.status[0] == '4':
             return False
 
@@ -784,7 +790,7 @@ class GenericAccountingStateModel(object):
 
         elif dest_status == '2_agep_validable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit('TRESORERIE'))
+            notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(['TRESORERIE', 'SECRETARIAT']))
 
         elif dest_status == '3_accountable':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
@@ -792,7 +798,10 @@ class GenericAccountingStateModel(object):
 
         elif dest_status == '4_archived':
             unotify_people('%s.accountable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, self.get_creator())
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, self.build_group_members_for_canedit())
+
+        elif dest_status == '4_canceled' and self.status != '0_draft':
+            notify_people(request, '%s.canceled' % (self.__class__.__name__,), 'accounting_canceled', self, self.build_group_members_for_canedit())
 
 
 class GenericStateRootModerable(GenericStateModerable):
@@ -977,3 +986,23 @@ class GenericTag(models.Model):
 
     class Meta:
         abstract = True
+
+
+class LinkedInfoModel(object):
+
+    def __init__(self, *args, **kwargs):
+
+        super(LinkedInfoModel, self).__init__(*args, **kwargs)
+
+        if hasattr(self, 'MetaEdit'):
+            self.MetaEdit.set_linked_info = True
+
+    def linked_info(self):
+        from accounting_tools.models import LinkedInfo
+
+        object_ct = ContentType.objects.get(app_label=self._meta.app_label, model=self._meta.model_name)
+        return LinkedInfo.objects.filter(content_type=object_ct, object_id=self.pk).first()
+
+    def get_fullname(self):
+        infos = self.linked_info()
+        return u"{} {}".format(infos.first_name, infos.last_name)

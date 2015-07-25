@@ -55,7 +55,6 @@ def get_unit_data(model_class, request, allow_blank=True):
 
         if request.POST.get('upk'):
             update_current_unit(request, request.POST.get('upk'))
-
         current_unit = get_current_unit(request, unit_blank)
 
     if current_unit and current_unit.is_hidden:
@@ -375,6 +374,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
         if request.method == 'POST':  # If the form has been submitted...
             form = form_class(request.user, request.POST, request.FILES, instance=obj)
+
             form.truffe_request = request
 
             if file_mode:
@@ -478,8 +478,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 if linked_info_mode:
                     object_ct = ContentType.objects.get(app_label=module.__name__, model=base_name)
                     infos, __ = LinkedInfo.objects.get_or_create(content_type=object_ct, object_id=obj.pk)
-                    for (info_field, user_field) in (('first_name', 'first_name'), ('last_name', 'last_name'), ('address', 'adresse'), ('phone', 'mobile'), ('bank', 'nom_banque'), ('iban_ccp', 'iban_ou_ccp')):
-                        setattr(infos, info_field, getattr(request.user, user_field))
+                    for (info_field, user_field) in (('first_name', 'first_name'), ('last_name', 'last_name'), ('address', 'adresse'), ('phone', 'mobile'), ('bank', 'nom_banque'), ('iban_ccp', 'iban_ou_ccp'), ('user_pk', 'pk')):
+                        setattr(infos, info_field, getattr(obj.user, user_field))
                     infos.save()
 
                 if isinstance(obj, BasicRightModel):
