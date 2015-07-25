@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel
 from rights.utils import AgepolyEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year
@@ -421,3 +421,42 @@ Les TVA ne sont pas liées aux autres objets comptables, il est possible de les 
             tva_object = None
 
         return u'{}% ({})'.format(tva, tva_object.name if tva_object else u'TVA Spéciale')
+
+
+class AccountingGroupModels(object):
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    def __init__(self, *args, **kwargs):
+
+        super(AccountingGroupModels, self).__init__(*args, **kwargs)
+
+        self.MetaGroups.groups_update({
+            'agep_compta': _(u'L\'administrateur de l\'AGEPoly'),
+            'agep_secretaire': _(u'Les secrétaires de l\'AGEPoly'),
+            'unit_compta': _(u'Le trésorier de l\'unité liée'),
+            'compta_everyone': _(u'Toutes les personnes liées via la compta (Admin et secrétaires AGEP, trésorier unité, éditeurs de l\'objet)'),
+        })
+
+    def build_group_members_for_agep_compta(self):
+        return self.people_in_root_unit('TRESORERIE')
+
+    def build_group_members_for_agep_secretaire(self):
+        return self.people_in_root_unit('SECRETARIAT')
+
+    def build_group_members_for_unit_compta(self):
+        return self.people_in_linked_unit('TRESORERIE')
+
+    def build_group_members_for_compta_everyone(self):
+
+        retour = []
+
+        def _do(f):
+            for user in f():
+                if user not in retour:
+                    retour.append(user)
+
+        map(_do, [self.build_group_members_for_agep_compta, self.build_group_members_for_agep_secretaire, self.build_group_members_for_unit_compta, self.build_group_members_for_editors])
+
+        return retour

@@ -1,0 +1,67 @@
+{% extends "generic/generic/list.html" %}
+{% load i18n rights_extras %}
+
+
+{% block lateral_selector_block %}
+
+    {% with w_title="Centre de coût" %}{% include "widget/header.html" %}{% endwith %}
+        <select id="ccostcenter" value="{{costcenter}}">
+            {% for costcenter in costcenters %}
+                <option value="{{costcenter.pk}}">{{costcenter}}</option>
+            {% endfor %}
+        </select>
+    {% include "widget/footer.html" %}
+
+    <script type="text/javascript">
+        $(function () {
+            $('#ccostcenter').css('width', '100%').select2().on('change', function() {
+                refresh_list();
+            });
+        });
+
+        function cost_center_extradata() {
+            return '&costcenter=' + $('#ccostcenter').val();
+        }
+
+        function reload_page() {
+            window.location.reload();
+        }
+    </script>
+
+{% endblock %}
+
+{% block bonus_year_updated %}
+    post_process_data_main_list_table = reload_page;
+    setTimeout("window.location.reload();", 2000);
+{% endblock %}
+
+{% block bonus_unit_updated %}
+    post_process_data_main_list_table = reload_page;
+    setTimeout("window.location.reload();", 2000);
+{% endblock %}
+
+{% block extrabuttons %}
+    <a href="#" onclick="display_graph();" class="btn btn-primary">
+        <i class="fa fa-bar-chart-o"></i>
+        {% trans "Graphique" %}
+    </a>
+
+    <div class="modal fade" id="modal-graph" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 95%;">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        function display_graph() {
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+            $('#modal-graph').find('.modal-content').html('');
+            $('#modal-graph').removeData('bs.modal');
+            $('#modal-graph').modal({remote: '{% url 'accounting_main.views.accounting_graph' %}?costcenter=' + $('#ccostcenter').val()});
+        }
+
+    </script>
+{% endblock %}

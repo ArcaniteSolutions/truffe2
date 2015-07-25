@@ -102,10 +102,6 @@
 
                 <script type="text/javascript">
 
-                    function escape_html(html) {
-                        return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    }
-
                     $(function () {
                         {% for line_form in line_data.forms %}
                             {% for field in line_data.date_fields %}
@@ -203,6 +199,7 @@
                 </div>
 
                 <script type="text/javascript">
+
                     $(function () {
 
                         $('#tags').css('width', '100%').select2({

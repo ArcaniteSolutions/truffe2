@@ -5,10 +5,10 @@
 
             <ul>
                 {% for invoice in invoices_need_bvr %}
-                    <li><a href="{{invoice.display_url}}">{{invoice}} <span class="label label-danger">{% trans "Besoin d'un BVR !" %}</span></a></li>
+                    <li><a href="{{invoice.display_url}}">{{invoice}} <span class="label label-danger pull-right">{% trans "Besoin d'un BVR !" %}</span></a></li>
                 {% endfor %}
                 {% for invoice in invoices_waiting %}
-                    <li><a href="{{invoice.display_url}}">{{invoice}} <span class="label label-primary">{{invoice.get_bvr_number}}</span></a></li>
+                    <li><a href="{{invoice.display_url}}">{{invoice}} <span class="label label-primary pull-right">{{invoice.get_bvr_number}}</span></a></li>
                 {% endfor %}
             </ul>
         {% include "widget/footer.html" %}

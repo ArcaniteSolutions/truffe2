@@ -130,6 +130,7 @@ INSTALLED_APPS = (
     'logistics',
     'accounting_core',
     'accounting_tools',
+    'accounting_main',
     'members',
 
     'generic',
