@@ -126,9 +126,9 @@ def get_property(obj, prop):
     return obj
 
 
-def generate_pdf(template, contexte):
+def generate_pdf(template, request, contexte):
     template = get_template(template)
-    contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now()})
+    contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now(), 'user': request.user})
     context = Context(contexte)
 
     html = template.render(context)

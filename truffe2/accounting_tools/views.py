@@ -44,7 +44,7 @@ def export_demands_yearly(request, ypk):
     except AccountingYear.DoesNotExist:
         subv = [(_(u'Période inconnue'), Subvention.objects.none())]
 
-    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", {'subventions': subv, 'user': request.user})
+    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", request, {'subventions': subv})
 
 
 @login_required
@@ -75,7 +75,7 @@ def export_all_demands(request):
                 line += ["", "", "", ""]
         summary.append(line)
 
-    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", {'subventions': subventions, 'summary': summary, 'years': years, 'user': request.user})
+    return generate_pdf("accounting_tools/subvention/subventions_pdf.html", request, {'subventions': subventions, 'summary': summary, 'years': years})
 
 
 @login_required
@@ -92,7 +92,7 @@ def invoice_pdf(request, pk):
     img = img.resize((1414, 1000), Image.LANCZOS)
     img.save(os.path.join(settings.MEDIA_ROOT, 'cache/bvr/{}.png').format(invoice.pk))
 
-    return generate_pdf("accounting_tools/invoice/pdf.html", {'invoice': invoice, 'user': request.user})
+    return generate_pdf("accounting_tools/invoice/pdf.html", request, {'invoice': invoice})
 
 
 @login_required
@@ -122,7 +122,7 @@ def withdrawal_pdf(request, pk):
     if not withdrawal.static_rights_can('SHOW', request.user):
         raise Http404
 
-    return generate_pdf("accounting_tools/withdrawal/pdf.html", {'object': withdrawal, 'user': request.user})
+    return generate_pdf("accounting_tools/withdrawal/pdf.html", request, {'object': withdrawal})
 
 
 @login_required
@@ -134,7 +134,7 @@ def internaltransfer_pdf(request, pk):
     if not internaltransfer.static_rights_can('SHOW', request.user):
         raise Http404
 
-    return generate_pdf("accounting_tools/internaltransfer/pdf.html", {'object': internaltransfer, 'user': request.user})
+    return generate_pdf("accounting_tools/internaltransfer/pdf.html", request, {'object': internaltransfer})
 
 
 @login_required
@@ -146,4 +146,4 @@ def expenseclaim_pdf(request, pk):
     if not expenseclaim.static_rights_can('SHOW', request.user):
         raise Http404
 
-    return generate_pdf("accounting_tools/expenseclaim/pdf.html", {'object': expenseclaim, 'user': request.user})
+    return generate_pdf("accounting_tools/expenseclaim/pdf.html", request, {'object': expenseclaim})
