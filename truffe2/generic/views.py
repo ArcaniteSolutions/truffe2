@@ -148,6 +148,9 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
         data.update(extra_data)
 
+        if hasattr(model_class.MetaData, 'extra_args_for_list'):
+            data.update(model_class.MetaData.extra_args_for_list(request, current_unit, current_year))
+
         return render(request, ['%s/%s/%s.html' % (module.__name__, base_name, template_to_use,), 'generic/generic/%s.html' % (template_to_use,)], data)
 
     return _generic_generic_list
@@ -198,6 +201,11 @@ def generate_list_json(module, base_name, model_class, tag_class):
         if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
             raise Http404
 
+        if hasattr(model_class.MetaData, 'extra_filter_for_list'):
+            filter____ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year)
+        else:
+            filter____ = filter___
+
         return generic_list_json(request, model_class, [col for (col, disp) in model_class.MetaData.list_display] + ['pk'], [module.__name__ + '/' + base_name + '/list_json.html', 'generic/generic/list_json.html'],
             {'Model': model_class,
              'show_view': show_view,
@@ -207,7 +215,7 @@ def generate_list_json(module, base_name, model_class, tag_class):
              'list_display': model_class.MetaData.list_display,
             },
             True, model_class.MetaData.filter_fields,
-            bonus_filter_function=filter___,
+            bonus_filter_function=filter____,
             selector_column=True,
         )
 
@@ -478,7 +486,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 if linked_info_mode:
                     object_ct = ContentType.objects.get(app_label=module.__name__, model=base_name)
                     infos, __ = LinkedInfo.objects.get_or_create(content_type=object_ct, object_id=obj.pk)
-                    for (info_field, user_field) in (('first_name', 'first_name'), ('last_name', 'last_name'), ('address', 'adresse'), ('phone', 'mobile'), ('bank', 'nom_banque'), ('iban_ccp', 'iban_ou_ccp')):
+                    for (info_field, user_field) in (('first_name', 'first_name'), ('last_name', 'last_name'), ('address', 'adresse'), ('phone', 'mobile'), ('bank', 'nom_banque'), ('iban_ccp', 'iban_ou_ccp'), ('user_pk', 'pk')):
                         setattr(infos, info_field, getattr(obj.user, user_field))
                     infos.save()
 
@@ -492,6 +500,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 if not before_data:
                     log_class(who=request.user, what='created', object=obj).save()
+
+                    if hasattr(obj, 'create_signal'):
+                        obj.create_signal(request)
                 else:
                     # Compute diff
                     after_data = obj.build_state()
@@ -835,7 +846,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
         bonus_form = None
 
         if hasattr(model_class.MetaState, 'states_bonus_form'):
-            bonus_form = model_class.MetaState.states_bonus_form.get(dest_status, None)
+            bonus_form = model_class.MetaState.states_bonus_form.get((obj.status, dest_status), model_class.MetaState.states_bonus_form.get(dest_status, None))
 
         if can_switch and request.method == 'POST' and request.POST.get('do') == 'it':
 

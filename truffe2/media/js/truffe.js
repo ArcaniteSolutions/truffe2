@@ -70,3 +70,8 @@ $.fn.pulse = function(options) {
         period.call(this, repeat);
     });
 };
+
+
+function escape_html(html) {
+    return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}

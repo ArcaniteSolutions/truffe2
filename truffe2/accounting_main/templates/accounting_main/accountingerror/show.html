@@ -1,0 +1,72 @@
+{% extends "generic/generic/show.html" %}
+{% load i18n  rights_extras %}
+
+{% block bonus_box_after_infos %}
+
+    <div class="col-sm-12 col-md-12 col-lg-6">
+        {% with w_title="Messages" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+
+
+            <!-- CHAT BODY -->
+            <div id="chat-body" class="chat-body custom-scroll">
+                <ul>
+                    {% for message in obj.get_messages %}
+                        <li class="message">
+                            <img src="{% url 'users.views.users_profile_picture' message.author.pk %}" style="width: 48px;" alt="">
+                            <div class="message-text">
+                                <time>
+                                    {{message.when|date:"Y-m-d"}} {{message.when|time:"H:i:s"}}
+                                </time>
+                                <a href="javascript:void(0);" class="username">{{message.author}}</a>
+                                {{message.message|linebreaks}}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+            {% ifhasright obj user 'ADD_COMMENT' %}
+                <!-- CHAT FOOTER -->
+                <div class="chat-footer">
+
+                    <!-- CHAT TEXTAREA -->
+                    <div class="textarea-div">
+
+                        <div class="typearea">
+                            <textarea style="background-color: #fff;" placeholder="{% trans "Nouveau message" %}" id="new-message" class="custom-scroll"></textarea>
+                        </div>
+
+                    </div>
+
+                    <!-- CHAT REPLY/SEND -->
+                    <span class="textarea-controls">
+                        <button class="btn btn-sm btn-primary pull-right" onclick="send_message();">
+                            {% trans "Envoyer" %}
+                        </button>
+                    </span>
+                </div>
+                {% csrf_token %}
+            {% endifhasright %}
+
+        {% include "widget/footer.html" %}
+    </div>
+
+    </div><div class="row">
+
+    <script type="text/javascript">
+        function send_message() {
+            $.ajax('{% url 'accounting_main.views.errors_send_message' obj.pk %}', {type: 'POST', data: 'message=' + encodeURIComponent($('#new-message').val()) + '&csrfmiddlewaretoken=' + $('input[name="csrfmiddlewaretoken"]').val(), contentType: "application/x-www-form-urlencoded;charset=UTF-8",}).success(function () {
+                $('#new-message').val('')
+                window.location.reload();
+            });
+        }
+
+        $(function () {
+            $("#chat-body").scrollTop($('#chat-body').height());
+        });
+    </script>
+
+{% endblock %}
+
+{% block row_for_logs %}{% endblock %}

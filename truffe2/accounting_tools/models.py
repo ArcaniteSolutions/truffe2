@@ -926,6 +926,7 @@ class LinkedInfo(models.Model):
     object_id = models.PositiveIntegerField()
     linked_object = generic.GenericForeignKey('content_type', 'object_id')
 
+    user_pk = models.PositiveIntegerField()
     first_name = models.CharField(_(u'Prénom'), max_length=50)
     last_name = models.CharField(_(u'Nom de famille'), max_length=50)
     address = models.TextField(_(u'Adresse'))

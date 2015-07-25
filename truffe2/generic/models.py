@@ -277,6 +277,10 @@ class GenericModel(models.Model):
         """Return the creator (based on logs)"""
         return getattr(self.logs.filter(what='created').first(), 'who', None)
 
+    def get_creation_date(self):
+        """Return the creation date (based on logs)"""
+        return getattr(self.logs.filter(what='created').first(), 'when', None)
+
     def display_url(self):
         return reverse(str(self.__class__._show_view), args=(self.pk,))
 
@@ -752,7 +756,7 @@ class GenericAccountingStateModel(object):
         return super(GenericAccountingStateModel, self).rights_can("EDIT", user)
 
     def rights_can_SHOW(self, user):
-        if (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info() and self.linked_info().pk == user.pk) or self.get_creator() == user:
+        if self.get_creator() == user or (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info().user_pk == user.pk):
             return True
 
         return super(GenericAccountingStateModel, self).rights_can_SHOW(user)

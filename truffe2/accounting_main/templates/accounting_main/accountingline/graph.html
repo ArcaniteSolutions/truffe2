@@ -1,0 +1,102 @@
+{% load i18n bootstrap3 generic_extras %}
+
+<div class="modal-content">
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">{% trans "Graphique du solde en fonction du temps sur le centre de coût " %} {{costcenter}}</h4>
+
+    </div>
+
+    <div class="modal-body">
+
+        <div id="main-chart-{{random}}" class="chart has-legend"></div>
+
+        <div class="modal-footer">
+        <button type="button" class="btn btn-default" id="modal-graph-cancel" data-dismiss="modal">
+            {% trans "Fermer" %}
+        </button>
+        </div>
+    </div>
+
+</div><!-- /.modal-content -->
+
+<script type="text/javascript">
+    setTimeout('loadScript("{{MEDIA_URL}}js/plugin/flot/jquery.flot.cust.js", loadFlotResize)', 1000);
+
+    function loadFlotResize() {
+        loadScript("{{MEDIA_URL}}js/plugin/flot/jquery.flot.resize.js", loadFlotFillbetween);
+    }
+    function loadFlotFillbetween() {
+        loadScript("{{MEDIA_URL}}js/plugin/flot/jquery.flot.fillbetween.js", loadFlotOrderBar);
+    }
+    function loadFlotOrderBar() {
+        loadScript("{{MEDIA_URL}}js/plugin/flot/jquery.flot.orderBar.js", loadFlotPie);
+    }
+    function loadFlotPie() {
+        loadScript("{{MEDIA_URL}}js/plugin/flot/jquery.flot.pie.js", loadFlotToolTip);
+    }
+    function loadFlotToolTip() {
+        loadScript("{{MEDIA_URL}}js/plugin/flot/jquery.flot.tooltip.js", generateAllFlotCharts);
+    }
+
+    function generateAllFlotCharts() {
+
+        /* chart colors default */
+        var $chrt_border_color = "#efefef";
+        var $chrt_grid_color = "#DDD"
+        var $chrt_main = "#E24913";         /* red       */
+        var $chrt_second = "#6595b4";       /* blue      */
+        var $chrt_third = "#FF9F01";        /* orange    */
+        var $chrt_fourth = "#7e9d3a";       /* green     */
+        var $chrt_fifth = "#BD362F";        /* dark red  */
+        var $chrt_mono = "#000";
+
+        var data = [];
+
+        {% for date, value in data.iteritems %}
+            data.push([{{date}}, {{value}}]);
+        {% endfor %}
+
+        var plot = $.plot($("#main-chart-{{random}}"), [{
+            data : data,
+            label : "{{costcenter.account_number}} - CHF"
+        }], {
+            series : {
+                lines : {
+                    show : true
+                },
+                points : {
+                    show : true
+                }
+            },
+            grid : {
+                hoverable : true,
+                clickable : true,
+                tickColor : $chrt_border_color,
+                borderWidth : 0,
+                borderColor : $chrt_border_color,
+                markings: [
+                    { yaxis: { from: -10000000, to: 0 }, color: "#ddd"}
+                ],
+            },
+            tooltip : true,
+            tooltipOpts : {
+                content : "%x: <span>%y CHF</span>",
+                defaultTheme : false
+            },
+            threshold: {
+                below: 0,
+                color: "#c00000"
+            },
+            colors : [$chrt_second],
+            xaxis: {
+                mode: "time",
+                timeformat:"%y/%m/%d"
+            },
+        });
+
+    }
+</script>
