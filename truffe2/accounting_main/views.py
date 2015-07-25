@@ -59,7 +59,7 @@ def errors_send_message(request, pk):
 
     AccountingErrorMessage(author=request.user, message=request.POST.get('message'), error=error).save()
 
-    notify_people(request, 'AccountingError.{}.message'.format(error.unit), 'accounting_error_message', error, error.build_group_members_for_compta_everyone_with_messages(), {'message': request.POST.get('message')})
+    notify_people(request, u'AccountingError.{}.message'.format(error.unit), 'accounting_error_message', error, error.build_group_members_for_compta_everyone_with_messages(), {'message': request.POST.get('message')})
 
     messages.success(request, _(u'Message ajouté !'))
 
