@@ -30,6 +30,7 @@ import collections
 from notifications.utils import notify_people
 
 
+@login_required
 def accounting_graph(request):
 
     from accounting_core.models import CostCenter
@@ -49,6 +50,7 @@ def accounting_graph(request):
     return render(request, 'accounting_main/accountingline/graph.html', {'costcenter': costcenter, 'random': str(uuid.uuid4()), 'data': data})
 
 
+@login_required
 def errors_send_message(request, pk):
     from accounting_main.models import AccountingError, AccountingErrorMessage
 
@@ -64,3 +66,250 @@ def errors_send_message(request, pk):
     messages.success(request, _(u'Message ajouté !'))
 
     return HttpResponse('')
+
+
+@login_required
+def accounting_import_step0(request):
+    """Phase 0 de l'import: Crée une nouvelle session d'import"""
+
+    from accounting_main.models import AccountingLine
+
+    if not AccountingLine.static_rights_can('IMPORT', request.user):
+        raise Http404
+
+    key = str(uuid.uuid4())
+    session_key = 'T2_ACCOUNTING_IMPORT_{}'.format(key)
+
+    request.session[session_key] = {'is_valid': True, 'has_data': False}
+
+    return redirect('accounting_main.views.accounting_import_step1', key)
+
+
+def _get_import_session_data(request, key):
+
+    from accounting_main.models import AccountingLine
+
+    if not AccountingLine.static_rights_can('IMPORT', request.user):
+        raise Http404
+
+    session_key = 'T2_ACCOUNTING_IMPORT_{}'.format(key)
+
+    session_data = request.session.get(session_key)
+
+    if not session_data or not session_data['is_valid']:
+        messages.warning(request, _(u'Session d\'importation invalide.'))
+        return (None, redirect('accounting_main.views.accounting_import_step0'))
+
+    return (session_key, session_data)
+
+
+def _csv_2014_processor(file):
+
+    def unicode_csv_reader(unicode_csv_data, *args, **kwargs):
+
+        import csv
+
+        # csv.py doesn't do Unicode; encode temporarily as UTF-8:
+        csv_reader = csv.reader(unicode_csv_data, *args, **kwargs)
+        for row in csv_reader:
+            # decode UTF-8 back to Unicode, cell by cell:
+            yield [unicode(cell, 'iso8859') for cell in row]
+
+    with open(file, 'rb') as csvfile:
+
+        spamreader = unicode_csv_reader(csvfile, 'excel-tab')
+
+        if spamreader.next()[0] != 'Extrait CdC':
+            messages.warning("L'header initial ne correspond pas ({} vs {})".format(spamreader.next()[0], 'Extrait CdC'))
+            return False
+
+        current_costcenter = None
+        phase_header = False
+        phase_solde = False
+        phase_compte = False
+
+        current_line = spamreader.next()
+
+        wanted_lines = []
+
+        order = 0
+
+        while True:
+
+            if current_line:
+
+                if current_costcenter:
+                    if current_line[0]:
+
+                        cDate = current_line[0]
+                        cNoPiece = current_line[1]
+                        cTexte = current_line[2]
+                        cCompte = current_line[3]
+                        cDebit = current_line[4]
+                        cCredit = current_line[5]
+                        cSituation = current_line[6]
+                        sCygne = current_line[7]
+                        cOrigine = ''
+                        cTva = 0.0
+
+                        if not cDebit:
+                            cDebit = 0.0
+                        else:
+                            cDebit = float(cDebit.replace('\'', ''))
+
+                        if not cCredit:
+                            cCredit = 0.0
+                        else:
+                            cCredit = float(cCredit.replace('\'', ''))
+
+                        if not cSituation or cSituation == '-':
+                            cSituation = 0.0
+                        else:
+                            cSituation = float(cSituation.replace('\'', ''))
+
+                        if sCygne == '-':
+                            cSituation *= -1
+
+                        cDate2 = cDate.split('.')
+
+                        wanted_lines.append({
+                            'costcenter': current_costcenter,
+                            'date': cDate2[2] + '-' + cDate2[1] + '-' + cDate2[0],
+                            'account': cCompte,
+                            'text': cTexte,
+                            'output': float(cDebit),
+                            'input': float(cCredit),
+                            'current_sum': float(cSituation),
+                            'tva': str(cTva),
+                            'order': order,
+                            'document_id': None,
+                        })
+
+                        order += 1
+
+                    elif current_line[2] == 'Total':
+                        current_costcenter = None
+                    else:
+                        messages.warning(u"Ligne étrange: {}".format(current_line))
+                        return False
+
+                elif phase_header:
+
+                    phase_header = False
+
+                    excepted_line = [u'Date', u'Pi\xe8ce', u"Texte d'\xe9criture", u'Type C.', u'D\xe9bit CHF', u'Cr\xe9dit CHF', u'Courant ']
+
+                    if current_line != excepted_line:
+                        messages.warning("L'header de début de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
+                        return False
+                    else:
+                        phase_solde = True
+
+                elif phase_solde:
+
+                    phase_solde = False
+
+                    excepted_line = [u'Solde CHF', u'']
+
+                    if current_line != excepted_line:
+                        messages.warning("L'header de fin de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
+                        return False
+                    else:
+                        phase_compte = True
+
+                elif phase_compte:
+
+                    phase_compte = False
+
+                    current_costcenter = current_line[0].split()[0].strip()
+
+                    order = 0
+
+                elif current_line[0] == 'CdC':
+                    phase_header = True
+                else:
+                    pass
+
+            try:
+                current_line = spamreader.next()
+            except StopIteration:
+                return wanted_lines
+
+    return wanted_lines
+
+
+def _diff_generator(year, data):
+
+    from accounting_main.models import AccountingLine
+    from accounting_core.models import CostCenter, Account
+
+    valids_ids = []
+
+    to_add = []
+    nop = []
+    to_update = []
+
+    for wanted_line in data:
+
+        try:
+            costcenter = CostCenter.objects.get(accounting_year=year, account_number=wanted_line['costcenter'])
+        except CostCenter.DoesNotExist:
+            messages.warning("Le centre de coûts {} n'existe pas !".format(wanted_line['costcenter']))
+            return False
+
+        try:
+            account = Account.objects.get(accounting_year=year, account_number=wanted_line['account'])
+        except CostCenter.DoesNotExist:
+            messages.warning("Le compte de CG {} n'existe pas !".format(wanted_line['account']))
+            return False
+
+        try:
+            line = AccountingLine.objects.get(unit=costcenter.unit, account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], current_sum=wanted_line['current_sum'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year)
+
+            if line.order != wanted_line['order']:
+                to_update.append((line, wanted_line, {'order': (line.order, wanted_line['order'])}))
+            else:
+                nop.append(line)
+
+            valids_ids.append(line.pk)
+        except AccountingLine.DoesNotExist:
+            to_add.append(wanted_line)
+
+    to_delete = AccountingLine.objects.filter(accounting_year=year).exclude(pk__in=valids_ids)
+
+    return {'to_add': to_add, 'to_update': to_update, 'nop': nop, 'to_delete': to_delete}
+
+
+@login_required
+def accounting_import_step1(request, key):
+
+    (session_key, session_data) = _get_import_session_data(request, key)
+
+    if not session_key:
+        return session_data  # ...
+
+    from accounting_main.forms2 import ImportForm
+
+    if request.method == 'POST':
+        form = ImportForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            file_key = '/tmp/truffe_import_{}_data.file'.format(key)
+            with open(file_key, 'wb+') as destination:
+                for chunk in request.FILES['file'].chunks():
+                    destination.write(chunk)
+
+            if form.cleaned_data['type'] == 'csv_2014':
+                wanted_data = _csv_2014_processor(file_key)
+                diff = _diff_generator(form.cleaned_data['year'], wanted_data)
+                print '(+)', diff['to_add'][:10], len(diff['to_add'])
+                print '(0)', diff['nop'][:10], len(diff['nop'])
+                print '(-)', diff['to_delete'][:10], len(diff['to_delete'])
+                print '(~)', diff['to_update'][:10], len(diff['to_update'])
+
+
+                print len(wanted_data), len(diff['to_add']) + len(diff['nop']) + len(diff['to_update'])
+    else:
+        form = ImportForm()
+
+    return render(request, "accounting_main/import/step1.html", {'key': key, 'form': form})

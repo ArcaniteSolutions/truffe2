@@ -334,6 +334,11 @@
                                                 <a href="{% url 'accounting_main.views.accountingerror_list' %}"><i class="fa fa-lg fa-fw fa-warning"></i> {% trans "Erreurs" %}</a>
                                             </li>
                                         {% endifhasright %}
+                                        {% ifhasright 'accounting_main.models.AccountingLine' user 'IMPORT' %}
+                                            <li id="menu-compta-import">
+                                                <a href="{% url 'accounting_main.views.accounting_import_step0' %}"><i class="fa-lg fa-fw glyphicon glyphicon-import"></i> {% trans "Importer la compta" %}</a>
+                                            </li>
+                                        {% endifhasright %}
                                     </ul>
                                 </li>
                                 <li>

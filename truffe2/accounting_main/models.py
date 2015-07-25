@@ -33,6 +33,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
     input = models.DecimalField(_(u'Crédit'), max_digits=20, decimal_places=2)
     current_sum = models.DecimalField(_('Situation'), max_digits=20, decimal_places=2)
     document_id = models.PositiveIntegerField(_(u'Numéro de pièce comptable'), blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -51,6 +52,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
             ('get_input_display', _(u'Crédit')),
             ('get_current_sum_display', _(u'Situation')),
             ('status', _(u'Statut')),
+            ('order', _(u'Ordre')),
         ]
 
         forced_widths = {
@@ -65,7 +67,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
             '10': '75px',
         }
 
-        default_sort = "[1, 'desc']"  # date
+        default_sort = "[0, 'desc']"  # order
         filter_fields = ('date', 'text', 'tva', 'output', 'input', 'current_sum')
 
         details_display = list_display + [
@@ -80,6 +82,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
         menu_id = 'menu-compta-compta'
         not_sortable_colums = []
         trans_sort = {'get_output_display': 'output', 'get_input_display': 'input', 'get_current_sum_display': 'current_sum'}
+        trans_sort = {'pk': 'order'}
         safe_fields = ['get_output_display', 'get_input_display', 'get_current_sum_display']
         datetime_fields = ['date']
 
@@ -244,6 +247,17 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
     def get_errors(self):
         return self.accountingerror_set.filter(deleted=False).order_by('status')
+
+    def __init__(self, *args, **kwargs):
+        super(_AccountingLine, self).__init__(*args, **kwargs)
+
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
+        self.MetaRights.rights_update({
+            'IMPORT': _(u'Peut import la compta'),
+        })
+
+    def rights_can_IMPORT(self, user):
+        return self.rights_in_root_unit(user, ['TRESORERIE', 'SECRETARIAT'])
 
 
 class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
