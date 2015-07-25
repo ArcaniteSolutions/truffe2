@@ -32,7 +32,7 @@ def notify_people(request, key, species, obj, users, metadata=None):
                 'notification': n,
             }
 
-            send_templated_mail(request, _('Truffe :: Notification :: %s') % (key,), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notif', context)
+            send_templated_mail(request, _(u'Truffe :: Notification :: %s') % (key,), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notif', context)
 
 
 def unotify_people(key, obj):
