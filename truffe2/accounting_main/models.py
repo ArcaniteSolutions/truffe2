@@ -99,7 +99,10 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         @staticmethod
         def extra_filter_for_list(request, current_unit, current_year):
             from accounting_core.models import CostCenter
-            cc = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
+            try:
+                cc = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
+            except:
+                cc = None
             return lambda x: x.filter(costcenter=cc)
 
     class MetaState:
