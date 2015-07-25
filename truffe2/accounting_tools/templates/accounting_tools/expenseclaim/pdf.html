@@ -1,0 +1,49 @@
+{% extends "base_pdf.html" %}
+{% load i18n humanize %}
+
+{% block title %}
+    <h1 style="text-align: center; font-size: 30px; margin-top:-150px;">{% trans "Note de frais" %}</h1>
+{% endblock %}
+
+{% block pre_linkedinfo %}
+    <tr class="tr-sep"><td class="td-label">{% trans "Titre de la note de frais : " %}</td><td class="td-large">{{object.name}}</td></tr>
+{% endblock %}
+
+{% block detail_table %}
+    <table class="liste">
+        <tr>
+            <td style="width: 38%;"><b>{% trans "Concerne" %}</b></td>
+            <td style="width: 20%;"><b>{% trans "Justificatif" %}</b></td>
+            <td style="width: 30%;"><b>{% trans "Numéro de compte" %}</b></td>
+            <td style="width: 12%; text-align: right;"><b>{% trans "Montant" %}</b></td>
+        </tr>
+
+        {% for line in object.get_lines %}
+            <tr class="tr-line">
+                 <td class="td-large" valign="top">{{line.label}}</td>
+                 <td class="td-large" valign="top">{{line.proof}}</td>
+                 <td class="td-large" valign="top">{{line.account}}</td>
+                 <td class="td-large" valign="top" style="text-align: right;">{{line.display_amount}}</td>
+            </tr>
+         {% endfor %}
+
+         <tr><td colspan="4">&nbsp;</td></tr>
+
+         <tr><td colspan="3" class="td-large" style="color: red;"><b>{% trans "Solde en ma faveur : " %}</b></td><td class="td-large" style="text-align: right;"><b>{{object.get_total|intcomma}}</b></td></tr>
+         <tr><td colspan="4">&nbsp;</td></tr>
+
+         <tr><td>{% trans "Nombre de justificatifs : " %}</td><td>{{object.nb_just}}</td><td colspan="2"></td></tr>
+         <tr><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa responsable commision : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>        
+    </table>
+{% endblock %}

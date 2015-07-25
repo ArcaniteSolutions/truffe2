@@ -96,7 +96,7 @@ def pdf_list_cost_centers(request, pk):
 
     cc = CostCenter.objects.filter(accounting_year=ay).order_by('account_number')
 
-    return generate_pdf("accounting_core/costcenter/liste_pdf.html", {'cost_centers': cc, 'ay': ay, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+    return generate_pdf("accounting_core/costcenter/liste_pdf.html", request, {'cost_centers': cc, 'ay': ay})
 
 
 @login_required
@@ -113,7 +113,7 @@ def pdf_list_accounts(request, pk):
 
     root_ac = AccountCategory.objects.filter(accounting_year=ay, parent_hierarchique=None).order_by('order')
 
-    return generate_pdf("accounting_core/account/liste_pdf.html", {'root_ac': root_ac, 'ay': ay, 'user': request.user, 'cdate': now(), 'MEDIA_ROOT': settings.MEDIA_ROOT})
+    return generate_pdf("accounting_core/account/liste_pdf.html", request, {'root_ac': root_ac, 'ay': ay})
 
 
 @login_required
@@ -204,5 +204,28 @@ def costcenters_by_year(request, ypk):
 
     retour = CostCenter.objects.filter(accounting_year__pk=ypk).order_by('account_number')
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')
+
+
+@login_required
+def users_available_list_by_unit(request, upk):
+    """Return the list of available users for a expenseclaim / cashbook ordered nicely (you / unit_people / rest) or just you if no right"""
+    from units.models import Unit
+    from users.models import TruffeUser
+
+    unit = get_object_or_404(Unit, pk=upk)
+    users = [request.user]
+    if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']):
+        unit_users = unit.users_with_access(no_parent=True)
+        unit_users_pk = map(lambda user: user.pk, unit_users)
+        unit_users = filter(lambda user: user != request.user, unit_users)
+
+        users += sorted(unit_users, key=lambda user: user.first_name)
+
+        other_users = TruffeUser.objects.exclude(Q(pk=request.user.pk) | Q(pk__in=unit_users_pk)).order_by('first_name')
+        users += list(other_users)
+
+    retour = [{'pk': user.pk, 'name': user.__unicode__()} for user in users]
 
     return HttpResponse(json.dumps(retour), content_type='application/json')

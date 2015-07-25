@@ -24,7 +24,7 @@ def home(request):
     """Dummy home page"""
 
     from main.models import HomePageNews
-    from accounting_tools.models import InternalTransfer, Withdrawal
+    from accounting_tools.models import InternalTransfer, Withdrawal, ExpenseClaim, Invoice
 
     news = HomePageNews.objects.filter(status='1_online').order_by('-pk').all()
 
@@ -38,27 +38,21 @@ def home(request):
         accreds_to_validate = []
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
-        from accounting_tools.models import Invoice
-
-        invoices_need_bvr = Invoice.objects.filter(deleted=False, status='1_need_bvr')
-        invoices_waiting = Invoice.objects.filter(deleted=False, status='2_sent')
-
+        invoices_need_bvr = Invoice.objects.filter(deleted=False, status='1_need_bvr').order_by('-pk')
+        invoices_waiting = Invoice.objects.filter(deleted=False, status='2_sent').order_by('-pk')
     else:
         invoices_need_bvr = None
-
-        from accounting_tools.models import Invoice
         invoices_waiting = filter(lambda i: i.rights_can('SHOW', request.user), Invoice.objects.filter(deleted=False, status='2_sent'))
 
-    internaltransfer_to_validate = None
-    internaltransfer_to_account = None
+    internaltransfer_to_validate, internaltransfer_to_account = None, None
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']):
-        internaltransfer_to_validate = InternalTransfer.objects.filter(deleted=False, status='1_agep_validable')
+        internaltransfer_to_validate = InternalTransfer.objects.filter(deleted=False, status='1_agep_validable').order_by('-pk')
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
-        internaltransfer_to_account = InternalTransfer.objects.filter(deleted=False, status='2_accountable')
+        internaltransfer_to_account = InternalTransfer.objects.filter(deleted=False, status='2_accountable').order_by('-pk')
 
-    rcash_to_validate = Withdrawal.objects.filter(deleted=False, status='1_agep_validable').order_by('desired_date')
-    rcash_to_withdraw = Withdrawal.objects.filter(deleted=False, status='2_withdrawn').order_by('withdrawn_date')
-    rcash_to_justify = Withdrawal.objects.filter(deleted=False, status='3_used').order_by('withdrawn_date')
+    rcash_to_validate = Withdrawal.objects.filter(deleted=False, status='1_agep_validable').order_by('-desired_date')
+    rcash_to_withdraw = Withdrawal.objects.filter(deleted=False, status='2_withdrawn').order_by('-withdrawn_date')
+    rcash_to_justify = Withdrawal.objects.filter(deleted=False, status='3_used').order_by('-withdrawn_date')
     if not request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
         for rcash_qs in [rcash_to_withdraw, rcash_to_justify]:
             rcash_qs = filter(lambda rcash: rcash.rights_can_SHOW(request.user), list(rcash_qs))
@@ -80,10 +74,20 @@ def home(request):
         if error.rights_can('SHOW', request.user):
             open_errors.append(error)
 
+    expenseclaim_to_account = None
+    if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']):
+        expenseclaim_to_validate = ExpenseClaim.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable']).order_by('-pk')
+    else:
+        expenseclaim_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ExpenseClaim.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec: -ec.pk)
+
+    if request.user.rights_in_root_unit(request.user, 'SECRETARIAT'):
+        expenseclaim_to_account = ExpenseClaim.objects.filter(deleted=False, status='3_accountable').order_by('pk')
+
     return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate, 'internaltransfer_to_validate': internaltransfer_to_validate,
                                               'internaltransfer_to_account': internaltransfer_to_account, 'rcash_to_validate': rcash_to_validate, 'rcash_to_withdraw': rcash_to_withdraw,
                                               'rcash_to_justify': rcash_to_justify, 'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting,
-                                              'lines_status_by_unit': lines_status_by_unit, 'open_errors': open_errors})
+                                              'lines_status_by_unit': lines_status_by_unit, 'open_errors': open_errors,
+                                              'expenseclaim_to_validate': expenseclaim_to_validate, 'expenseclaim_to_account': expenseclaim_to_account})
 
 
 @login_required

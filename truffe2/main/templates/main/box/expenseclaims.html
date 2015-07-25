@@ -1,0 +1,17 @@
+{% load i18n humanize %}
+{% if expenseclaim_to_validate or expenseclaim_to_account %}
+    <div class="col-sm-12 col-md-12 col-lg-6">
+        {% with w_title="Notes de frais en attente" %}{% include "widget/header.html" %}{% endwith %}
+
+            <ul>
+                {% for expenseclaim in expenseclaim_to_validate %}
+                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-primary pull-right">{% trans "A valider" %}{% if object.status == '1_unit_validable' %} {% trans "électroniquement" %}{% endif %}</span></a></li>
+                {% endfor %}
+
+                {% for expenseclaim in expenseclaim_to_account %}
+                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-success pull-right">{% trans "A comptabiliser" %}</span></a></li>
+                {% endfor %}
+            </ul>
+        {% include "widget/footer.html" %}
+    </div>
+{% endif %}

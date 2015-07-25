@@ -5,11 +5,11 @@
 
             <ul>
                 {% for internaltransfer in internaltransfer_to_validate %}
-                    <li><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}} : {{internaltransfer.cost_center_from.account_number}} ({{internaltransfer.account.account_number}}) &#10140; {{internaltransfer.cost_center_to.account_number}} ({{internaltransfer.account.account_number}}) <span class="label label-primary pull-right">{% trans "A valider" %}</span></a></li>
+                    <li><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}} : {{internaltransfer.cost_center_from }} &#10140; {{internaltransfer.cost_center_to}} <span class="label label-primary pull-right">{% trans "A valider" %}</span></a></li>
                 {% endfor %}
 
                 {% for internaltransfer in internaltransfer_to_account %}
-                    <li><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}} : {{internaltransfer.cost_center_from.account_number}} ({{internaltransfer.account.account_number}}) &#10140; {{internaltransfer.cost_center_to.account_number}} ({{internaltransfer.account.account_number}}) <span class="label label-primary pull-right">{% trans "A comptabiliser" %}</span></a></li>
+                    <li><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}} : {{internaltransfer.cost_center_from }} &#10140; {{internaltransfer.cost_center_to}} <span class="label label-success pull-right">{% trans "A comptabiliser" %}</span></a></li>
                 {% endfor %}
             </ul>
         {% include "widget/footer.html" %}

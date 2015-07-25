@@ -102,6 +102,10 @@
 
                 <script type="text/javascript">
 
+                    function escape_html(html) {
+                        return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    }
+
                     $(function () {
                         {% for line_form in line_data.forms %}
                             {% for field in line_data.date_fields %}
@@ -304,6 +308,7 @@
                   <script type="text/javascript">
                         function unit_updated(pk, name, can_edit) {
                             $('#input_upk').val(pk);
+                            {% block bonus_unit_updated %}{% endblock %}
                             {% if costcenter_mode %}load_costcenter();{% endif %}
                         }
                   </script>
@@ -403,28 +408,18 @@
                 var options = '<option value=""></option>';
 
                 $.each(data.data, function (index, option) {
-
                     options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
-
-
                 });
 
                 $('#id_costcenter').select2('destroy');
-
                 $('#id_costcenter').html(options);
-
                 $('#id_costcenter').val(old_value);
-
                 $('#id_costcenter').select2();
-
-
             });
-
         }
 
         $(function () {
             $('#id_costcenter').css('width', '100%').addClass('select2').removeClass('form-control').select2();
-
             load_costcenter();
         });
 

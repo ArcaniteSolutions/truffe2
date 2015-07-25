@@ -17,7 +17,7 @@ import os
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel, LinkedInfoModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
@@ -306,7 +306,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
                 'show_list': [
                     ('label', _(u'Titre')),
                     ('quantity', _(u'Quantité')),
-                    ('value', _(u'Montant (HT)')),
+                    ('value', _(u'Montant unitaire (HT)')),
                     ('get_tva', _(u'TVA')),
                     ('total', _(u'Montant (TTC)')),
                 ]},
@@ -745,7 +745,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             raise forms.ValidationError(_(u'Les deux centres de coûts doivent être différents.'))
 
 
-class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel):
+class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
     """Modèle pour les retraits cash"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -770,7 +770,7 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
         filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number')
         datetime_fields = ['desired_date', 'withdrawn_date']
 
-        default_sort = "[6, 'desc']"  # Creation date (pk) descending
+        default_sort = "[5, 'desc']"  # Creation date (pk) descending
 
         base_title = _(u'Retraits cash')
         list_title = _(u'Liste des retraits cash')
@@ -793,8 +793,6 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         files_title = _(u'Pièces comptables')
         files_help = _(u'Pièces comptables liées au retrait cash.')
         date_fields = ['desired_date', 'withdrawn_date']
-
-        set_linked_info = True
 
     class MetaGroups(GenericGroupsModel.MetaGroups):
         pass
@@ -919,12 +917,6 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
             del form.fields['withdrawn_date']
 
-    def linked_info(self):
-        from accounting_tools.models import LinkedInfo
-
-        withdrawal_ct = ContentType.objects.get(app_label="accounting_tools", model="withdrawal")
-        return LinkedInfo.objects.filter(content_type=withdrawal_ct, object_id=self.pk).first()
-
 
 class LinkedInfo(models.Model):
     """Modèle pour les infos liées aux modèles de leur choix"""
@@ -933,6 +925,7 @@ class LinkedInfo(models.Model):
     object_id = models.PositiveIntegerField()
     linked_object = generic.GenericForeignKey('content_type', 'object_id')
 
+    user_pk = models.PositiveIntegerField()
     first_name = models.CharField(_(u'Prénom'), max_length=50)
     last_name = models.CharField(_(u'Nom de famille'), max_length=50)
     address = models.TextField(_(u'Adresse'))
@@ -940,3 +933,124 @@ class LinkedInfo(models.Model):
     bank = models.CharField(_(u'Nom de la banque'), max_length=128)
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
 
+
+class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
+    """Modèle pour les notes de frais (NdF)"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    name = models.CharField(_(u'Titre de la note de frais'), max_length=255, unique=True)
+    unit = FalseFK('units.models.Unit')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
+
+    class MetaData:
+        list_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('get_fullname', _(u'Personne')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
+
+        default_sort = "[6, 'desc']"  # Creation date (pk) descending
+        not_sortable_colums = ['get_fullname']
+
+        base_title = _(u'Notes de frais')
+        list_title = _(u'Liste des notes de frais')
+        files_title = _(u'Justificatifs')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-pencil-square-o'
+
+        has_unit = True
+
+        menu_id = 'menu-compta-ndf'
+
+        help_list = _(u"""Les notes de frais permettent de se faire rembourser des frais avancés pour une unité.
+
+Il est nécessaire de fournir les preuves d'achat et que celles-ci contiennent uniquement des choses qui doivent être remboursées.
+Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si certains achats à la Migros sont à 8% et d'autres à 0%, il faut les séparer en 2 lignes.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Justificatifs')
+        files_help = _(u'Justificatifs pour le remboursement de la note de frais.')
+
+        all_users = True
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.ExpenseClaimLine',
+                'form': 'accounting_tools.forms2.ExpenseClaimLineForm',
+                'related_name': 'lines',
+                'field': 'expense_claim',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'show_list': [
+                    ('label', _(u'Titre')),
+                    ('proof', _(u'Justificatif')),
+                    ('account', _(u'Compte')),
+                    ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('total', _(u'Montant (TTC)')),
+                ]},
+        ]
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.name, self.costcenter)
+
+    def genericFormExtraClean(self, data, form):
+        # TO CHECK : Pourquoi je peux pas save dans une unit ou j'ai pas les droits (user disparait du form)
+        if not data['user'].is_profile_ok():
+            form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
+
+        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
+            form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
+
+    def get_lines(self):
+        return self.lines.order_by('order')
+
+    def get_total(self):
+        return sum([line.value_ttc for line in self.get_lines()])
+
+    def get_total_ht(self):
+        return sum([line.value for line in self.get_lines()])
+
+    def is_unit_validator(self, user):
+        """Check if user is a validator for the step '1_unit_validable'."""
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+
+class ExpenseClaimLine(ModelUsedAsLine):
+
+    expense_claim = models.ForeignKey('ExpenseClaim', related_name="lines")
+
+    label = models.CharField(_(u'Concerne'), max_length=255)
+    proof = models.CharField(_(u'Justificatif'), max_length=255)
+
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
+    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def display_amount(self):
+        return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
