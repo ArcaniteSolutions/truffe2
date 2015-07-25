@@ -485,7 +485,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 if linked_info_mode:
                     object_ct = ContentType.objects.get(app_label=module.__name__, model=base_name)
-                    infos, __ = LinkedInfo.objects.get_or_create(content_type=object_ct, object_id=obj.pk)
+                    infos, __ = LinkedInfo.objects.get_or_create(content_type=object_ct, object_id=obj.pk, defaults={'user_pk': obj.user.pk})
                     for (info_field, user_field) in (('first_name', 'first_name'), ('last_name', 'last_name'), ('address', 'adresse'), ('phone', 'mobile'), ('bank', 'nom_banque'), ('iban_ccp', 'iban_ou_ccp'), ('user_pk', 'pk')):
                         setattr(infos, info_field, getattr(obj.user, user_field))
                     infos.save()
