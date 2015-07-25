@@ -219,7 +219,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
                 ae.save()
                 AccountingErrorLogging(who=request.user, what='created', object=ae).save()
 
-                notify_people(request, u'AccountingError.{}.created', 'accounting_error_created', ae, ae.build_group_members_for_compta_everyone_with_messages())
+                notify_people(request, u'AccountingError.{}.created'.format(self.unit), 'accounting_error_created', ae, ae.build_group_members_for_compta_everyone_with_messages())
 
             unotify_people(u'AccountingLine.{}.fixed'.format(self.unit), self)
             notify_people(request, u'AccountingLine.{}.error'.format(self.unit), 'accounting_line_error', self, self.build_group_members_for_compta_everyone())
