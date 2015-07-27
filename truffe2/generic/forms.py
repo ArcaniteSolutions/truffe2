@@ -16,7 +16,7 @@ class GenericForm(ModelForm):
 
         if 'user' in self.fields:
             if hasattr(self.Meta.model.MetaData, 'has_unit') and self.Meta.model.MetaData.has_unit:
-                if hasattr(self.Meta.model.MetaEdit, 'all_users') and self.Meta.model.MetaEdit.all_users:
+                if hasattr(self.Meta.model, 'MetaEdit') and hasattr(self.Meta.model.MetaEdit, 'all_users') and self.Meta.model.MetaEdit.all_users:
                     self.fields['user'].queryset = TruffeUser.objects.all()  # Some classes allow creation of instances for any user (NdF, JdC)
                 else:
                     self.fields['user'].queryset = TruffeUser.objects.filter(accreditation__unit=self.instance.unit, accreditation__end_date=None).distinct().order_by('first_name', 'last_name')
