@@ -6,6 +6,7 @@ from django.utils.timezone import now
 
 from accounting_core.models import CostCenter, AccountingYear
 from accounting_tools.models import Withdrawal, WithdrawalFile, WithdrawalLogging, LinkedInfo
+from app.ldaputils import get_attrs_of_sciper
 from users.models import TruffeUser
 
 import json
@@ -43,25 +44,28 @@ class Command(BaseCommand):
                 if costcenter:
                     try:
                         user = TruffeUser.objects.get(username=rcash_data['creator_username'])
-                    except:
+                    except TruffeUser.DoesNotExist:
+                        print "Creation of user {!r}".format(rcash_data['creator_username'])
+                        user = TruffeUser(username=rcash_data['creator_username'], is_active=True)
+                        user.last_name, user.first_name, user.email = get_attrs_of_sciper(rcash_data['creator_username'])
+                        user.save()
+                    except Exception as e:
+                        print "user is root_user", e
                         user = root_user
 
                     if rcash_data['withdrawn_date'] == "None":
                         rcash_data['withdrawn_date'] = rcash_data['desired_date']  # Histoire de fixer le problème salement
 
-                    rcash, created = Withdrawal.objects.get_or_create(unit=costcenter.unit, costcenter=costcenter, accounting_year=ay, status=status_mapping[rcash_data['status']],
-                        amount=rcash_data['amount'], description=rcash_data['description'], desired_date=rcash_data['desired_date'], withdrawn_date=rcash_data['withdrawn_date'])
+                    rcash, created = Withdrawal.objects.get_or_create(unit=costcenter.unit, user=user, costcenter=costcenter, accounting_year=ay, status=status_mapping[rcash_data['status']],
+                                                                      amount=rcash_data['amount'], name=rcash_data['name'], description=rcash_data['description'],
+                                                                      desired_date=rcash_data['desired_date'], withdrawn_date=rcash_data['withdrawn_date'])
 
                     if created:
-                        while Withdrawal.objects.filter(name=rcash_data['name']).exists():
-                            rcash_data['name'] += '*'
-                        rcash.name = rcash_data['name']
-                        rcash.save()
                         WithdrawalLogging(who=user, what='imported', object=rcash).save()
                         print "+ {!r}".format(rcash.name)
 
                     if rcash_data['linked_info']:
-                        linked, created = LinkedInfo.objects.get_or_create(object_id=rcash.pk, content_type=withdrawal_ct, **rcash_data['linked_info'])
+                        linked, created = LinkedInfo.objects.get_or_create(object_id=rcash.pk, content_type=withdrawal_ct, user_pk=user.pk, **rcash_data['linked_info'])
                         if created:
                             print "  (I) {!r} {!r}".format(linked.first_name, linked.last_name)
 

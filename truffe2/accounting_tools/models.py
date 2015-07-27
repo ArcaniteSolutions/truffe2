@@ -581,7 +581,7 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
 
-    name = models.CharField(_('Raison du transfert'), max_length=255, unique=True)
+    name = models.CharField(_('Raison du transfert'), max_length=255)
     description = models.TextField(_('Description'), blank=True, null=True)
     account = FalseFK('accounting_core.models.Account', verbose_name=_(u'Compte concerné'))
     cost_center_from = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_from', verbose_name=_(u'Centre de coûts prélevé'))
@@ -751,7 +751,7 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_('Raison du retrait'), max_length=255, unique=True)
+    name = models.CharField(_('Raison du retrait'), max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Responsable'))
     unit = FalseFK('units.models.Unit')
     description = models.TextField(_('Description'), blank=True, null=True)
@@ -941,7 +941,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_(u'Titre de la note de frais'), max_length=255, unique=True)
+    name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
     unit = FalseFK('units.models.Unit')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
@@ -1068,7 +1068,7 @@ class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, Ge
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_(u'Titre de la note de frais'), max_length=255, unique=True)
+    name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
     unit = FalseFK('units.models.Unit')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
