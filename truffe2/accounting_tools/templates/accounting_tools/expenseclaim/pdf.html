@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block pre_linkedinfo %}
-    <tr class="tr-sep"><td class="td-label">{% trans "Titre de la note de frais : " %}</td><td class="td-large">{{object.name}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Titre de la note de frais : " %}</td><td class="td-large">{{object.name}}</td></tr>
 {% endblock %}
 
 {% block detail_table %}
-    <table class="liste">
+    <table>
         <tr>
             <td style="width: 38%;"><b>{% trans "Concerne" %}</b></td>
             <td style="width: 20%;"><b>{% trans "Justificatif" %}</b></td>
@@ -20,10 +20,10 @@
 
         {% for line in object.get_lines %}
             <tr class="tr-line">
-                 <td class="td-large" valign="top">{{line.label}}</td>
-                 <td class="td-large" valign="top">{{line.proof}}</td>
-                 <td class="td-large" valign="top">{{line.account}}</td>
-                 <td class="td-large" valign="top" style="text-align: right;">{{line.display_amount}}</td>
+                 <td valign="top">{{line.label}}</td>
+                 <td valign="top">{{line.proof}}</td>
+                 <td valign="top">{{line.account}}</td>
+                 <td valign="top" style="text-align: right;">{{line.value_ttc}}</td>
             </tr>
          {% endfor %}
 

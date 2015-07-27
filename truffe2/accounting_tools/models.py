@@ -1001,7 +1001,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
                     ('account', _(u'Compte')),
                     ('value', _(u'Montant (HT)')),
                     ('get_tva', _(u'TVA')),
-                    ('total', _(u'Montant (TTC)')),
+                    ('value_ttc', _(u'Montant (TTC)')),
                 ]},
         ]
 
@@ -1057,6 +1057,10 @@ class ExpenseClaimLine(ModelUsedAsLine):
 
     def __unicode__(self):
         return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)
 
     def display_amount(self):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
@@ -1135,7 +1139,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
                     ('account', _(u'Compte')),
                     ('value', _(u'Montant (HT)')),
                     ('get_tva', _(u'TVA')),
-                    ('total', _(u'Montant (TTC)')),
+                    ('value_ttc', _(u'Montant (TTC)')),
                 ]},
         ]
 
@@ -1216,6 +1220,10 @@ class CashBookLine(ModelUsedAsLine):
 
     def __unicode__(self):
         return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)
 
     def display_amount(self):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)

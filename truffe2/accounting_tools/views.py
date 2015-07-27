@@ -191,6 +191,8 @@ def withdrawal_available_list(request):
         accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
         withdrawals = withdrawals.filter(accounting_year=accounting_year)
 
+    withdrawals = filter(lambda withdrawal: withdrawal.static_rights_can('SHOW', request.user), list(withdrawals))
+
     retour = {'data': [{'pk': withdrawal.pk, 'name': withdrawal.__unicode__()} for withdrawal in withdrawals]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')

@@ -1,4 +1,5 @@
 {% extends "accounting_tools/generic_tva_edit.html" %}
+{% load i18n %}
 
 {% block bonus_unit_updated %}
     update_users(pk);
@@ -9,6 +10,7 @@
 {% endblock %}
 
 {% block line_add_line_bonus %}
+    {{block.super}}
     // Update accounts for the new line
     update_accounts();
 
@@ -31,6 +33,17 @@
     var credit_suisse_id = null;
 
     $(function () {
+        // Remove style constraint on form max width
+        $('.row').children().css('max-width', '');
+
+        // Resize columns in the line table
+        sizes = ['100px', '200px', '', '', '150px', '120px', '', '120px', ''];
+        $("#lines_new_form_lines").children("td").each(function(index, element) {
+            $(element).css('width', sizes[index]);
+            if ($(element).find('select').length > 0)
+                $(element).css('max-width', sizes[index]);
+        });
+
         // Move costcenter and withdrawal up
         var costcenter = $('#id_costcenter').parents('.form-group').remove();
         $('#id_name').parents('.form-group').after(costcenter);
@@ -186,14 +199,17 @@
         total = Math.round(total * 100) / 100;
 
         if (total < 0) {
-            total_html = "<span style=\"color: orange;\">Le total de ton journal de caisse fait <b>" + total + " CHF</b>. En l'état, l'AGEPoly devra rembourser ce montant à l'utilisateur responsable.</span>";
+            color = 'orange';
+            remark = "{% trans "En l'état, l'AGEPoly devra rembourser ce montant à l'utilisateur responsable." %}";
         } else if (total > 0) {
-            total_html = "<span style=\"color: red;\">Le total de ton journal de caisse fait <b>" + total + " CHF</b>. Cet argent devra être remboursé par l'utilisateur responsable.</span>";
+            color = 'red';
+            remark = "{% trans "Cet argent devra être remboursé par l'utilisateur responsable." %}";
         } else {
-            total_html = "<span style=\"color: green;\">Le total de ton journal de caisse fait <b>" + total + " CHF</b>. C'est bien !</span>";
+            color = 'green';
+            remark = "{% trans "C'est bien !" %}";
         }
-
-        $('#lines_footer span').replaceWith(total_html);
+        $('#lines_footer span').css('color', color)
+            .html("{% trans "Le total de ton journal de caisse fait" %} <b>" + total + " CHF</b>. " + remark);
     }
 
 {% endblock %}

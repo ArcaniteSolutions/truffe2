@@ -56,7 +56,6 @@ class GenericForm(ModelForm):
             if hasattr(self.instance, 'accounting_year') and self.instance.accounting_year != cleaned_data['costcenter'].accounting_year:
                 raise ValidationError(_(u'Le centre de coût n\'est pas lié à l\'année comptable !'))
 
-        print cleaned_data
         return cleaned_data
 
 
