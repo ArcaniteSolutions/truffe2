@@ -25,6 +25,8 @@ import uuid
 import datetime
 import time
 import collections
+import decimal
+import json
 
 
 from notifications.utils import notify_people
@@ -120,7 +122,7 @@ def _csv_2014_processor(file):
         spamreader = unicode_csv_reader(csvfile, 'excel-tab')
 
         if spamreader.next()[0] != 'Extrait CdC':
-            messages.warning("L'header initial ne correspond pas ({} vs {})".format(spamreader.next()[0], 'Extrait CdC'))
+            messages.warning(request, "L'header initial ne correspond pas ({} vs {})".format(spamreader.next()[0], 'Extrait CdC'))
             return False
 
         current_costcenter = None
@@ -182,7 +184,7 @@ def _csv_2014_processor(file):
                             'current_sum': float(cSituation),
                             'tva': str(cTva),
                             'order': order,
-                            'document_id': None,
+                            'document_id': cNoPiece,
                         })
 
                         order += 1
@@ -190,7 +192,7 @@ def _csv_2014_processor(file):
                     elif current_line[2] == 'Total':
                         current_costcenter = None
                     else:
-                        messages.warning(u"Ligne étrange: {}".format(current_line))
+                        messages.warning(request, u"Ligne étrange: {}".format(current_line))
                         return False
 
                 elif phase_header:
@@ -200,7 +202,7 @@ def _csv_2014_processor(file):
                     excepted_line = [u'Date', u'Pi\xe8ce', u"Texte d'\xe9criture", u'Type C.', u'D\xe9bit CHF', u'Cr\xe9dit CHF', u'Courant ']
 
                     if current_line != excepted_line:
-                        messages.warning("L'header de début de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
+                        messages.warning(request, "L'header de début de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
                         return False
                     else:
                         phase_solde = True
@@ -212,7 +214,7 @@ def _csv_2014_processor(file):
                     excepted_line = [u'Solde CHF', u'']
 
                     if current_line != excepted_line:
-                        messages.warning("L'header de fin de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
+                        messages.warning(request, "L'header de fin de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
                         return False
                     else:
                         phase_compte = True
@@ -254,28 +256,44 @@ def _diff_generator(year, data):
         try:
             costcenter = CostCenter.objects.get(accounting_year=year, account_number=wanted_line['costcenter'])
         except CostCenter.DoesNotExist:
-            messages.warning("Le centre de coûts {} n'existe pas !".format(wanted_line['costcenter']))
+            messages.warning(request, "Le centre de coûts {} n'existe pas !".format(wanted_line['costcenter']))
             return False
 
         try:
             account = Account.objects.get(accounting_year=year, account_number=wanted_line['account'])
         except CostCenter.DoesNotExist:
-            messages.warning("Le compte de CG {} n'existe pas !".format(wanted_line['account']))
+            messages.warning(request, "Le compte de CG {} n'existe pas !".format(wanted_line['account']))
             return False
 
-        try:
-            line = AccountingLine.objects.get(unit=costcenter.unit, account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], current_sum=wanted_line['current_sum'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year)
+        line = AccountingLine.objects.filter(unit=costcenter.unit, account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year).exclude(pk__in=valids_ids).first()
 
-            if line.order != wanted_line['order']:
-                to_update.append((line, wanted_line, {'order': (line.order, wanted_line['order'])}))
+        if line:
+
+            diffs = {}
+
+            fields_to_check = ['order', 'current_sum', ]
+
+            for field in fields_to_check:
+
+                v = getattr(line, field)
+
+                if isinstance(v, decimal.Decimal):
+                    v = float(v)
+                    wanted_line[field] = float(wanted_line[field])
+
+                if v != wanted_line[field]:
+                    diffs[field] = (v, wanted_line[field])
+
+            if diffs:
+                to_update.append((line.pk, wanted_line, diffs))
             else:
-                nop.append(line)
+                nop.append(line.pk)
 
             valids_ids.append(line.pk)
-        except AccountingLine.DoesNotExist:
+        else:
             to_add.append(wanted_line)
 
-    to_delete = AccountingLine.objects.filter(accounting_year=year).exclude(pk__in=valids_ids)
+    to_delete = map(lambda line: line.pk, AccountingLine.objects.filter(accounting_year=year).exclude(pk__in=valids_ids))
 
     return {'to_add': to_add, 'to_update': to_update, 'nop': nop, 'to_delete': to_delete}
 
@@ -287,6 +305,9 @@ def accounting_import_step1(request, key):
 
     if not session_key:
         return session_data  # ...
+
+    if session_data['has_data']:
+        return redirect('accounting_main.views.accounting_import_step2', key)
 
     from accounting_main.forms2 import ImportForm
 
@@ -301,15 +322,80 @@ def accounting_import_step1(request, key):
 
             if form.cleaned_data['type'] == 'csv_2014':
                 wanted_data = _csv_2014_processor(file_key)
-                diff = _diff_generator(form.cleaned_data['year'], wanted_data)
-                print '(+)', diff['to_add'][:10], len(diff['to_add'])
-                print '(0)', diff['nop'][:10], len(diff['nop'])
-                print '(-)', diff['to_delete'][:10], len(diff['to_delete'])
-                print '(~)', diff['to_update'][:10], len(diff['to_update'])
 
+                if wanted_data:
+                    diff = _diff_generator(form.cleaned_data['year'], wanted_data)
 
-                print len(wanted_data), len(diff['to_add']) + len(diff['nop']) + len(diff['to_update'])
+                    if diff:
+
+                        session_data['data'] = diff
+                        session_data['year'] = form.cleaned_data['year'].pk
+                        session_data['has_data'] = True
+
+                        request.session[session_key] = session_data
+                        return redirect('accounting_main.views.accounting_import_step2', key)
+
     else:
         form = ImportForm()
 
     return render(request, "accounting_main/import/step1.html", {'key': key, 'form': form})
+
+
+@login_required
+def accounting_import_step2(request, key):
+
+    from accounting_main.models import AccountingLine, AccountingLineLogging
+    from accounting_core.models import AccountingYear, CostCenter, Account
+
+    (session_key, session_data) = _get_import_session_data(request, key)
+
+    if not session_key:
+        return session_data  # ...
+
+    if not session_data['has_data']:
+        return redirect('accounting_main.views.accounting_import_step1', key)
+
+    year = get_object_or_404(AccountingYear, pk=session_data['year'])
+
+    # Map line id to have lines (efficentily)
+    line_cache = {}
+    for line in AccountingLine.objects.filter(accounting_year=year, deleted=False):
+        line_cache[line.pk] = line
+
+    diff = session_data['data']
+
+    diff['nop'] = map(lambda line_pk: line_cache[line_pk], diff['nop'])
+    diff['to_delete'] = map(lambda line_pk: line_cache[line_pk], diff['to_delete'])
+    diff['to_update'] = map(lambda (line_pk, __, ___): (line_cache[line_pk], __, ___), diff['to_update'])
+
+    if request.method == 'POST':
+
+        for wanted_line in diff['to_add']:
+            # NB: Si quelqu'un modifie les trucs pendant l'import, ça pétera.
+            # C'est ultra peut proptable, donc ignoré
+            costcenter = CostCenter.objects.get(accounting_year=year, account_number=wanted_line['costcenter'])
+            account = Account.objects.get(accounting_year=year, account_number=wanted_line['account'])
+
+            line = AccountingLine(unit=costcenter.unit, account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year, current_sum=wanted_line['current_sum'], order=wanted_line['order'])
+            line.save()
+            AccountingLineLogging(object=line, who=request.user, what='created').save()
+
+        for line, wanted_line, diffs in diff['to_update']:
+
+            for field, (old, new) in diffs.iteritems():
+                setattr(line, field, new)
+
+            line.save()
+            AccountingLineLogging(object=line, who=request.user, what='edited', extra_data=json.dumps({'added': None, 'edited': diffs, 'deleted': None})).save()
+
+        for line in diff['to_delete']:
+            for error in line.accountingerror_set.all():
+                error.linked_line = None
+                error.save()
+            line.delete()  # harddelete.
+
+        request.session[session_key] = {}
+        messages.success(request, _(u"Compta importée !"))
+        return redirect('accounting_main.views.accounting_import_step0')
+
+    return render(request, "accounting_main/import/step2.html", {'key': key, 'diff': diff})

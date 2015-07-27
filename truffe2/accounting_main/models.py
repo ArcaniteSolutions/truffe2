@@ -52,7 +52,6 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
             ('get_input_display', _(u'Crédit')),
             ('get_current_sum_display', _(u'Situation')),
             ('status', _(u'Statut')),
-            ('order', _(u'Ordre')),
         ]
 
         forced_widths = {
@@ -393,7 +392,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         if self.linked_line:
             return self.linked_line.__unicode__()
         elif self.linked_line_cache:
-            return '{} (Cache)'.format(self.linked_line_cache)
+            return u'{} (Cache)'.format(self.linked_line_cache)
         else:
             return _(u'(Aucune ligne liée)')
 
