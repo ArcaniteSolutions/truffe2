@@ -80,8 +80,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
 
         menu_id = 'menu-compta-compta'
         not_sortable_colums = []
-        trans_sort = {'get_output_display': 'output', 'get_input_display': 'input', 'get_current_sum_display': 'current_sum'}
-        trans_sort = {'pk': 'order'}
+        trans_sort = {'get_output_display': 'output', 'get_input_display': 'input', 'get_current_sum_display': 'current_sum', 'pk': 'order'}
         safe_fields = ['get_output_display', 'get_input_display', 'get_current_sum_display']
         datetime_fields = ['date']
 
