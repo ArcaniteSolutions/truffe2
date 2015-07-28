@@ -1238,5 +1238,5 @@ class CashBookLine(ModelUsedAsLine):
         return self.input_amount() - self.output_amount()
 
     def sub_total(self):
-        previous_lines = list(self.cashbook.lines.filter(order__gte=self.order))  # including self
+        previous_lines = list(self.cashbook.lines.filter(order__lte=self.order))  # including self
         return sum(map(lambda line: line.get_line_delta(), previous_lines))

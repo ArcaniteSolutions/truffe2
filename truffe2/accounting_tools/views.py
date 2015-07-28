@@ -130,12 +130,15 @@ def withdrawal_pdf(request, pk):
 def internaltransfer_pdf(request, pk):
     from accounting_tools.models import InternalTransfer
 
-    internaltransfer = get_object_or_404(InternalTransfer, pk=pk, deleted=False)
+    transfers = [get_object_or_404(InternalTransfer, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
+    transfers = filter(lambda tr: tr.static_rights_can('SHOW', request.user), transfers)
 
-    if not internaltransfer.static_rights_can('SHOW', request.user):
+    if not transfers:
         raise Http404
-
-    return generate_pdf("accounting_tools/internaltransfer/pdf.html", request, {'object': internaltransfer})
+    elif len(transfers) == 1:
+        return generate_pdf("accounting_tools/internaltransfer/single_pdf.html", request, {'object': transfers[0]})
+    else:
+        return generate_pdf("accounting_tools/internaltransfer/multiple_pdf.html", request, {'objects': transfers})
 
 
 @login_required
