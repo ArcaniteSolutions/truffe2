@@ -971,7 +971,7 @@ class GenericModelWithLines(object):
 
 
 class ModelUsedAsLine(models.Model):
-    order = models.SmallIntegerField(default=0, unique=True)
+    order = models.SmallIntegerField(default=0)
 
     class Meta:
         abstract = True
