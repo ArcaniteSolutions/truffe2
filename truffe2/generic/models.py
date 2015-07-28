@@ -756,14 +756,12 @@ class GenericAccountingStateModel(object):
         return super(GenericAccountingStateModel, self).rights_can("EDIT", user)
 
     def rights_can_SHOW(self, user):
-        if self.get_creator() == user or (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info().user_pk == user.pk):
+        if self.get_creator() == user or (hasattr(self.MetaEdit, 'set_linked_info') and self.MetaEdit.set_linked_info and self.linked_info() and self.linked_info().user_pk == user.pk):
             return True
 
         return super(GenericAccountingStateModel, self).rights_can_SHOW(user)
 
     def rights_can_EDIT(self, user):
-        if not self.pk:
-            return True
 
         if self.status[0] == '4':
             return False
@@ -771,7 +769,7 @@ class GenericAccountingStateModel(object):
         if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, 'TRESORERIE'):
             return False
 
-        if self.status[0] == '1' and not self.rights_in_linked_unit(user, 'TRESORERIE'):
+        if self.status[0] in ['0', '1'] and not self.rights_in_linked_unit(user, 'TRESORERIE'):
             return False
 
         return super(GenericAccountingStateModel, self).rights_can_EDIT(user)

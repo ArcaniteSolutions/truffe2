@@ -10,15 +10,17 @@
     function handle_tva_ht(obj) {
 
         var tva = $(obj.target).parents('tr').find('.line_field_lines_tva input').select2('val');
+
         if (tva < 0)
             tva = 0;
         var ht = $(obj.target).val();
-        var tt = ht * (1.0 + tva / 100.0);
 
-        tt = (Math.round(tt * 20) / 20).toFixed(2);
+        if (tva != '') {
+            var tt = ht * (1.0 + tva / 100.0);
+            tt = (Math.round(tt * 20) / 20).toFixed(2);
 
-        $(obj.target).parents('tr').find('.line_field_lines_value_ttc input').val(tt).pulse();
-
+            $(obj.target).parents('tr').find('.line_field_lines_value_ttc input').val(tt).pulse();
+        }
     }
 
     function handle_tva_ttc(obj) {

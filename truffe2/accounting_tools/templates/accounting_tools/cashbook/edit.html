@@ -1,0 +1,215 @@
+{% extends "accounting_tools/generic_tva_edit.html" %}
+{% load i18n %}
+
+{% block bonus_unit_updated %}
+    update_users(pk);
+{% endblock %}
+
+{% block bonus_year_updated %}
+    update_accounts();
+{% endblock %}
+
+{% block line_add_line_bonus %}
+    {{block.super}}
+    // Update accounts for the new line
+    update_accounts();
+
+    // Auto fill for the new helper + update_total
+    new_line.find('.line_field_lines_helper select').change(function(e) {
+        helper_autofill(e);
+        update_total();
+    });
+
+    // Update total if valud_ttc changes
+    new_line.find('.line_field_lines_value_ttc input').change(function(e) {
+        update_total();
+    });
+{% endblock %}
+
+
+{% block line_js_bonus %}
+    {{block.super}}
+
+    var credit_suisse_id = null;
+
+    $(function () {
+        // Remove style constraint on form max width
+        $('.row').children().css('max-width', '');
+
+        // Resize columns in the line table
+        sizes = ['100px', '200px', '', '', '150px', '120px', '', '120px', ''];
+        $("#lines_new_form_lines").children("td").each(function(index, element) {
+            $(element).css('width', sizes[index]);
+            if ($(element).find('select').length > 0)
+                $(element).css('max-width', sizes[index]);
+        });
+
+        // Move costcenter and withdrawal up
+        var costcenter = $('#id_costcenter').parents('.form-group').remove();
+        $('#id_name').parents('.form-group').after(costcenter);
+
+        var withdrawal = $('#id_withdrawal').parents('.form-group').remove();
+        $('#id_name').parents('.form-group').after(withdrawal);
+
+        // Transform id_user and id_withdrawal in select2
+        $('#id_user').removeClass('form-control');
+        $('#id_user').css('width', '100%').select2();
+
+        $('#id_withdrawal').removeClass('form-control');
+        $('#id_withdrawal').css('width', '100%').select2();
+
+        // Enable/disable select2 if rcash chosen
+        $('#s2id_id_withdrawal').next('select').change(function(e) {
+            if (e.val != "") {
+                $.ajax('{% url 'accounting_tools.views.get_withdrawal_infos' 99942999 %}'.replace(99942999, e.val)).done(function(data) {
+
+                    $('#id_user').val(data['user_pk']);
+                    $('#id_user').attr('disabled', true);
+
+                    $('#id_costcenter').val(data['costcenter_pk']);
+                    $('#id_costcenter').attr('disabled', true);
+                });
+
+            } else {
+                $('select#id_user').attr('disabled', false);
+                $('select#id_costcenter').attr('disabled', false);
+            }
+        });
+        update_users({{CURRENT_UNIT_PK}});
+        update_rcashs();
+        update_accounts();
+        update_total();
+
+        // Disable fields if rcash selected on load
+        if ($('#id_withdrawal').val() != '') {
+            $('#id_user').attr('disabled', true);
+            $('#id_costcenter').attr('disabled', true);
+        }
+
+        // Required to post values
+        $('#generic_main_form').on('submit', function() {
+            $('#id_user').attr('disabled', false);
+            $('#id_costcenter').attr('disabled', false);
+        });
+
+        // Auto fill wrt helpers + update_total
+        $('.line_field_lines_helper select').change(function(e) {
+            helper_autofill(e);
+            update_total();
+        });
+
+        $('.line_field_lines_value_ttc input').change(function(e) {
+            update_total();
+        });
+
+    });
+
+    function update_users(pk) {
+        $.ajax('{% url 'accounting_core.views.users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+
+            var old_value = $('#id_user').val();
+            var options = '<option value=""></option>';
+
+            $.each(data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+            });
+
+            $('#id_user').select2('destroy');
+            $('#id_user').html(options);
+            $('#id_user').val(old_value);
+            $('#id_user').select2();
+        });
+    }
+
+    function update_rcashs() {
+        $.ajax('{% url 'accounting_tools.views.withdrawal_available_list' %}?ypk=' + $('#input_ypk').val() + '&upk=' + $('#input_upk').val()).done(function (data) {
+            var old_value = $('#id_withdrawal').val();
+            var options = '<option value=""></option>';
+
+            $.each(data.data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+            });
+
+            $('#id_withdrawal').select2('destroy');
+            $('#id_withdrawal').html(options);
+            $('#id_withdrawal').val(old_value);
+            $('#id_withdrawal').select2();
+        });
+    }
+
+    function update_accounts() {
+        $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
+
+            var options = '<option value="">----------</option>';
+            $.each(data.data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+                if (option.name.indexOf('1020 -') == 0)
+                    credit_suisse_id = option.pk;
+            });
+
+            $('.line_field_lines_account .select2').each(function(index, element) {
+                var elem = $(element).next('select');
+                var old_value = elem.val();
+
+                elem.select2('destroy');
+                elem.html(options);
+                elem.val(old_value);
+                elem.select2();
+            });
+        });
+    }
+
+    function helper_autofill(e) {
+        var row = $(e.target).parents('tr');
+        var index = e.val[0];
+        if (index == 0) {
+            row.find('.line_field_lines_label input').val('Retrait Cash');
+            row.find('.line_field_lines_proof input').val('');
+            row.find('.line_field_lines_account select').val(credit_suisse_id).change();
+            row.find('.line_field_lines_tva input').val(8).change();
+        } else if (index == 1) {
+            row.find('.line_field_lines_label input').val('Versement Crédit Suisse');
+            row.find('.line_field_lines_proof input').val('Crédit Suisse');
+            row.find('.line_field_lines_account select').val(credit_suisse_id).change();
+            row.find('.line_field_lines_tva input').val(8).change();
+        } else {
+            row.find('.line_field_lines_label input').val('');
+            row.find('.line_field_lines_proof input').val('');
+            row.find('.line_field_lines_account select').val('').change();
+            row.find('.line_field_lines_tva input').val('').change();
+        }
+    }
+
+    function update_total() {
+        var total = 0.0;
+
+        $('#lines_tbody_lines tr').each(function(index, element) {
+            var type = parseInt($(element).find('.line_field_lines_helper select').val()[0]);
+            var amount = parseFloat($(element).find('.line_field_lines_value_ttc input').val());
+
+            if (!isNaN(type) && !isNaN(amount)) {
+                if (type == 0 || type == 2 || type == 6) {
+                    total = total + amount;
+                } else {
+                    total = total - amount;
+                }
+            }
+        });
+
+        total = Math.round(total * 100) / 100;
+
+        if (total < 0) {
+            color = 'orange';
+            remark = "{% trans "En l'état, l'AGEPoly devra rembourser ce montant à l'utilisateur responsable." %}";
+        } else if (total > 0) {
+            color = 'red';
+            remark = "{% trans "Cet argent devra être remboursé par l'utilisateur responsable." %}";
+        } else {
+            color = 'green';
+            remark = "{% trans "C'est bien !" %}";
+        }
+        $('#lines_footer span').css('color', color)
+            .html("{% trans "Le total de ton journal de caisse fait" %} <b>" + total + " CHF</b>. " + remark);
+    }
+
+{% endblock %}
