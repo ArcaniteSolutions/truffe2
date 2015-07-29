@@ -97,13 +97,13 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             return {'costcenters': CostCenter.objects.filter(unit=current_unit, accounting_year=current_year, deleted=False).order_by('account_number')}
 
         @staticmethod
-        def extra_filter_for_list(request, current_unit, current_year):
+        def extra_filter_for_list(request, current_unit, current_year, filtering):
             from accounting_core.models import CostCenter
             try:
                 cc = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
             except:
                 cc = None
-            return lambda x: x.filter(costcenter=cc)
+            return lambda x: filtering(x).filter(costcenter=cc)
 
     class MetaState:
 

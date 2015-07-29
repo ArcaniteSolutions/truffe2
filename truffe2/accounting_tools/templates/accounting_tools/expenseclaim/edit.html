@@ -8,13 +8,22 @@
     {{block.super}}
 
     $(function () {
+        // Remove style constraint on form max width
+        $('.row').children().css('max-width', '');
+
+        // Resize columns in the line table
+        sizes = ['', '', '300px', '120px', '', '120px'];
+        $("#lines_new_form_lines").children("td").each(function(index, element) {
+            $(element).css('width', sizes[index]);
+        });
+
         // Move costcenter up
         var costcenter = $('#id_costcenter').parents('.form-group').remove();
         $('#id_name').parents('.form-group').after(costcenter);
 
         // Transform id_user in select2
         $('#id_user').removeClass('form-control');
-        $('#id_user').width('72%').select2();
+        $('#id_user').css('width', '100%').select2();
 
         update_users({{CURRENT_UNIT_PK}});
     });

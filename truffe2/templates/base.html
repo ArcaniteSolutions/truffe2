@@ -399,6 +399,11 @@
                                                 <a href="{% url 'accounting_tools.views.expenseclaim_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Notes de frais" %}</a>
                                             </li>
                                         {% endifhasright %}
+                                        {% ifhasright 'accounting_tools.models.CashBook' user 'LIST' %}
+                                            <li id="menu-compta-jdc">
+                                                <a href="{% url 'accounting_tools.views.cashbook_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Journaux de caisse" %}</a>
+                                            </li>
+                                        {% endifhasright %}
                                     </ul>
                                 </li>
                             </ul>

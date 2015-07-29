@@ -581,7 +581,7 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
 
-    name = models.CharField(_('Raison du transfert'), max_length=255, unique=True)
+    name = models.CharField(_('Raison du transfert'), max_length=255)
     description = models.TextField(_('Description'), blank=True, null=True)
     account = FalseFK('accounting_core.models.Account', verbose_name=_(u'Compte concerné'))
     cost_center_from = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_from', verbose_name=_(u'Centre de coûts prélevé'))
@@ -751,7 +751,8 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_('Raison du retrait'), max_length=255, unique=True)
+    name = models.CharField(_('Raison du retrait'), max_length=255)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Responsable'))
     unit = FalseFK('units.models.Unit')
     description = models.TextField(_('Description'), blank=True, null=True)
     amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
@@ -766,11 +767,11 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [('description', _(u'Description')), ('desired_date', _(u'Date souhaitée')), ('withdrawn_date', _(u'Date retrait')), ('accounting_year', _(u'Année comptable')), ]
-        filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number')
+        details_display = list_display + [('user', _(u'Responsable')), ('description', _(u'Description')), ('desired_date', _(u'Date souhaitée')), ('withdrawn_date', _(u'Date retrait')), ('accounting_year', _(u'Année comptable')), ]
+        filter_fields = ('name', 'status', 'amount', 'costcenter__name', 'costcenter__account_number', 'user__username', 'user__first_name', 'user__last_name')
         datetime_fields = ['desired_date', 'withdrawn_date']
 
-        default_sort = "[5, 'desc']"  # Creation date (pk) descending
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
 
         base_title = _(u'Retraits cash')
         list_title = _(u'Liste des retraits cash')
@@ -940,7 +941,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_(u'Titre de la note de frais'), max_length=255, unique=True)
+    name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
     unit = FalseFK('units.models.Unit')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
@@ -957,14 +958,21 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
         details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
         filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
 
-        default_sort = "[6, 'desc']"  # Creation date (pk) descending
-        not_sortable_colums = ['get_fullname']
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+        trans_sort = {'get_fullname': 'user__first_name'}
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
         files_title = _(u'Justificatifs')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-pencil-square-o'
+
+        @staticmethod
+        def extra_filter_for_list(request, current_unit, current_year, filtering):
+            if current_unit.is_user_in_groupe(request.user, access=['TRESORERIE', 'SECRETARIAT']):
+                return lambda x: filtering(x)
+            else:
+                return lambda x: filtering(x).filter(user=request.user)
 
         has_unit = True
 
@@ -1000,7 +1008,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
                     ('account', _(u'Compte')),
                     ('value', _(u'Montant (HT)')),
                     ('get_tva', _(u'TVA')),
-                    ('total', _(u'Montant (TTC)')),
+                    ('value_ttc', _(u'Montant (TTC)')),
                 ]},
         ]
 
@@ -1013,8 +1021,16 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def __unicode__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
+    def rights_can_EDIT(self, user):
+        if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
+            return True
+
+    def rights_can_LIST(self, user):
+        return super(_ExpenseClaim, self).rights_can("SHOW", user) or super(_ExpenseClaim, self).rights_can("EDIT", user)
+
+        return super(_ExpenseClaim, self).rights_can_EDIT(user)
+
     def genericFormExtraClean(self, data, form):
-        # TO CHECK : Pourquoi je peux pas save dans une unit ou j'ai pas les droits (user disparait du form)
         if not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
@@ -1052,5 +1068,189 @@ class ExpenseClaimLine(ModelUsedAsLine):
     def __unicode__(self):
         return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
 
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)
+
     def display_amount(self):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
+
+
+class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, GenericAccountingStateModel, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
+    """Modèle pour les journaux de caisse (JdC)"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    name = models.CharField(_(u'Titre du journal de caisse'), max_length=255)
+    unit = FalseFK('units.models.Unit')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
+
+    content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
+    proving_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class MetaData:
+        list_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('get_fullname', _(u'Personne')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
+
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+        trans_sort = {'get_fullname': 'user__first_name'}
+
+        base_title = _(u'Journaux de caisse')
+        list_title = _(u'Liste des journaux de caisse')
+        files_title = _(u'Justificatifs')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-pencil-square-o'
+
+        @staticmethod
+        def extra_args_for_edit(request, current_unit, current_year):
+            return {'CS_account_number': settings.CS_ACCOUNT_NUMBER}
+
+        has_unit = True
+
+        menu_id = 'menu-compta-jdc'
+
+        help_list = _(u"""Les journaux de caisse servent à justifier des dépenses et des recettes liées à des versements à la banque ou des retraits cash.
+
+Il est nécessaire de fournir les preuves d'achat et que celles-ci contiennent uniquement des choses qui doivent être remboursées.
+Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si certains achats à la Migros sont à 8% et d'autres à 0%, il faut les séparer en 2 lignes.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Justificatifs')
+        files_help = _(u'Justificatifs liés aux lignes du journal de caisse.')
+
+        all_users = True
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.CashBookLine',
+                'form': 'accounting_tools.forms2.CashBookLineForm',
+                'related_name': 'lines',
+                'field': 'cashbook',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'date_fields': ['date'],
+                'show_list': [
+                    ('date', _(u'Date')),
+                    ('get_helper_display', _(u'Type')),
+                    ('label', _(u'Titre')),
+                    ('proof', _(u'Justificatif')),
+                    ('account', _(u'Compte')),
+                    ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('value_ttc', _(u'Montant (TTC)')),
+                ]},
+        ]
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.name, self.costcenter)
+
+    def genericFormExtraClean(self, data, form):
+
+        if data['withdrawal']:
+            if data['withdrawal'].user != data['user'] or data['withdrawal'].costcenter != data['costcenter']:
+                raise forms.ValidationError(_(u'L\'utilisateur responsable et/ou le centre de coûts ne correspondent pas au retrait cash lié.'))
+
+            data['object_id'] = data['withdrawal'].pk
+            data['content_type'] = ContentType.objects.get(app_label=data['withdrawal']._meta.app_label, model=data['withdrawal']._meta.model_name)
+        else:
+            data['object_id'] = None
+            data['content_type'] = None
+        del data['withdrawal']
+
+        if not data['user'].is_profile_ok():
+            form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
+
+        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
+            form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
+            # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Set related object correctly."""
+        from accounting_tools.models import Withdrawal
+
+        form.fields['withdrawal'] = forms.ModelChoiceField(queryset=Withdrawal.objects.filter(status='3_used'), initial=self.proving_object, required=False, label=_(u'Retrait cash lié'))
+
+        for field in ['content_type', 'object_id']:
+            del form.fields[field]
+
+    def get_lines(self):
+        return self.lines.order_by('order')
+
+    def get_total(self):
+        return sum([line.get_line_delta() for line in self.get_lines()])
+
+    def is_unit_validator(self, user):
+        """Check if user is a validator for the step '1_unit_validable'."""
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+
+class CashBookLine(ModelUsedAsLine):
+
+    HELPER_TYPE = (
+        ('0_withdraw', _(u'J\'ai fait un retrait cash : ')),
+        ('1_deposit', _(u'J\'ai fait un versement à la banque : ')),
+        ('2_sell', _(u'J\'ai vendu quelque chose : ')),
+        ('3_invoice', _(u'J\'ai payé une facture avec la caisse : ')),
+        ('4_buy', _(u'J\'ai achecté quelque chose avec la caisse : ')),
+        ('5_reimburse', _(u'J\'ai remboursé quelqu\'un avec la caisse : ')),
+        ('6_input', _(u'Je fais un Crédit manuel : ')),
+        ('7_output', _(u'Je fais un Débit manuel : ')),
+    )
+
+    cashbook = models.ForeignKey('CashBook', related_name="lines")
+
+    date = models.DateField(_(u'Date'))
+    helper = models.CharField(max_length=15, choices=HELPER_TYPE)
+    label = models.CharField(_(u'Concerne'), max_length=255)
+    proof = models.CharField(_(u'Justificatif'), max_length=255)
+
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
+    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)
+
+    def display_amount(self):
+        return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
+
+    def input_amount(self):
+        return self.value_ttc if self.helper[0] in ['0', '2', '6'] else 0
+
+    def output_amount(self):
+        return self.value_ttc if self.helper[0] not in ['0', '2', '6'] else 0
+
+    def get_line_delta(self):
+        return self.input_amount() - self.output_amount()
+
+    def sub_total(self):
+        previous_lines = list(self.cashbook.lines.filter(order__gte=self.order))  # including self
+        return sum(map(lambda line: line.get_line_delta(), previous_lines))

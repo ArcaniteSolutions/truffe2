@@ -11,10 +11,9 @@ urlpatterns = patterns(
     url(r'^accountingyear/(?P<pk>[0-9]+)/accounts$', 'pdf_list_accounts'),
     url(r'^accountingyear/(?P<ypk>[0-9]+)/get_leaves_cat$', 'leaves_cat_by_year'),
     url(r'^accountingyear/(?P<ypk>[0-9]+)/get_parents_cat$', 'parents_cat_by_year'),
-    url(r'^accountingyear/(?P<ypk>[0-9]+)/get_accounts$', 'accounts_by_year'),
-    url(r'^accountingyear/(?P<ypk>[0-9]+)/get_costcenters$', 'costcenters_by_year'),
 
     url(r'^costcenter/available_list$', 'costcenter_available_list'),
+    url(r'^account/available_list$', 'account_available_list'),
     url(r'^tva/available_list$', 'tva_available_list'),
     url(r'^unit/(?P<upk>[0-9]+)/users_available_list$', 'users_available_list_by_unit'),
 )

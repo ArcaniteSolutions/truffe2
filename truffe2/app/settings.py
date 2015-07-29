@@ -209,6 +209,7 @@ LDAP = 'ldap://ldap.epfl.ch:389'
 
 ROOT_UNIT_PK = 1
 PRESIDENT_ROLE_PK = 1
+CS_ACCOUNT_NUMBER = "1020 -"  # Label of account for Credit Suisse
 
 SOUTH_MIGRATION_MODULES = {
     'easy_thumbnails': 'easy_thumbnails.south_migrations',

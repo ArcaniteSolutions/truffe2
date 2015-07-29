@@ -6,12 +6,13 @@
 {% endblock %}
 
 {% block post_linkedinfo %}
-    <tr class="tr-sep"><td class="td-label">{% trans "Date de la demande : " %}</td><td class="td-large">{{object.desired_date|date:"d/m/Y"}}</td></tr>
-    <tr class="tr-sep"><td class="td-label">{% trans "Date de remise de l'argent : " %}</td><td class="td-large">{{object.withdrawn_date|date:"d/m/Y"}}</td></tr>
+    <tr class="tr-info"><td colspan="2">&nbsp;</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Date de la demande : " %}</td><td class="td-large">{{object.get_creation_date|default:object.desired_date|date:"d/m/Y"}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Date de remise de l'argent : " %}</td><td class="td-large">{{object.withdrawn_date|date:"d/m/Y"}}</td></tr>
 {% endblock %}
 
 {% block detail_table %}    
-    <table class="liste">
+    <table>
         <tr><td class="td-label"><b>{% trans "Motif du retrait : " %}</b></td><td colspan ="3" class="td-label" style="text-align: left;"><b>{{object.description}}</b></td></tr>
         <tr><td colspan="4">&nbsp;</td></tr>
 
