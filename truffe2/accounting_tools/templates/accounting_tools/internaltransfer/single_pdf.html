@@ -1,25 +1,25 @@
 {% extends "base_pdf.html" %}
-{% load i18n %}
+{% load i18n humanize %}
 
 {% block title %}
     <h1 style="text-align: center; font-size: 32px; padding-top: 2cm;">{% trans "Transfert interne" %}</h1>
 {% endblock %}
 
 {% block unit_def %}
-    <tr class="tr-sep"><td class="td-title">{% trans "Pour : " %}</td><td class="td-large">{{object.name}}</td></tr>
-    <tr class="tr-sep"><td class="td-title">{% trans "Compte concerné : " %}</td><td class="td-large">{{object.account}}</td></tr>
+    <tr class="tr-info"><td class="td-title">{% trans "Titre du transfert : " %}</td><td class="td-large">{{object.name}}</td></tr>
+    <tr class="tr-info"><td class="td-title">{% trans "Compte concerné : " %}</td><td class="td-large">{{object.account}}</td></tr>
 {% endblock %}
 
 {% block linkedinfo_basics %}{% endblock %}
 {% block linkedinfo_advanced %}{% endblock %}
     
 {% block post_linkedinfo %}
-    <tr class="tr-sep"><td class="td-label">{% trans "Pris sur le centre de coût : " %}</td><td class="td-large">{{object.cost_center_from}}</td></tr>
-    <tr class="tr-sep"><td class="td-label">{% trans "Versé sur le compte : " %}</td><td class="td-large">{{object.cost_center_to}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Pris sur le centre de coût : " %}</td><td class="td-large">{{object.cost_center_from}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Versé sur le compte : " %}</td><td class="td-large">{{object.cost_center_to}}</td></tr>
 {% endblock %}
 
 {% block detail_table %}
-    <table class="liste">
+    <table>
         <tr><td class="td-label"><b>{% trans "Motif du transfert : " %}</b></td><td colspan ="3" class="td-label" style="text-align: left;"><b>{{object.description}}</b></td></tr>
         <tr><td colspan="4">&nbsp;</td></tr>
 
@@ -27,9 +27,9 @@
         <tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr>
 
         <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-        <tr rowspan="2"><td colspan="4">&nbsp;</td></tr>
+        <tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr>
          
         <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-        <tr rowspan="5"><td colspan="4">&nbsp;</td></tr>
+        <tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr>
     </table>
 {% endblock %}

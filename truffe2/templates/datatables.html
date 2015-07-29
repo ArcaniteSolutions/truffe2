@@ -149,7 +149,7 @@
                 obj_select_{{id}}.append('<option value="{{obj.pk}}">{{obj|escapejs}}</option>"');
             {% endfor %}
 
-            obj_select_{{id}}.select2({allowClear: true}); //.css('width', '300px')
+            obj_select_{{id}}.select2({allowClear: true});
 
             function obj_select2_filter_{{id}}() {
                 data_table_{{id}}.fnFilter(obj_select_{{id}}.val(), {{object_col_id}});

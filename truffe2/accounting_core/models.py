@@ -192,7 +192,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         copiable = True
 
     def __unicode__(self):
-        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
+        return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraClean(self, data, form):
         """Check that unique_together is fulfiled"""
@@ -323,7 +323,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         foreign = (('category', 'AccountCategory'),)
 
     def __unicode__(self):
-        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
+        return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible categories to the leaves of the hierarchical tree."""
