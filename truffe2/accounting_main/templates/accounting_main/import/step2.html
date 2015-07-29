@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% load i18n l10n generic_extras rights_extras bootstrap3 thumbnail humanize %}
+
+{% block title %}{{block.super}} :: {% trans "Comptabilité" %} :: {% trans "Import" %} :: {% trans "Étape 2" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li>{% trans "Import de la compta" %}</li>
+    <li>{% trans "Étape 1" %}</li>
+    <li>{% trans "Étape 2" %}</li>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="well">
+
+        <h1>{% trans "Import de la compta: Étape 2" %}</h1>
+
+        <p>{% trans "La compta à été parsée correctement, mais les modifications n'ont PAS encore été effectuées. Merci de confirmer que tout est ok et de valider pour appliquer les modifications." %}</p>
+
+
+        <div class="panel-group smart-accordion-default" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i class="fa fa-lg fa-angle-up pull-right"></i> {% trans "Lignes à rajouter" %} ({{diff.to_add|length}})</a></h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Centre de coûts" %}</th>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
+                                    <th>{% trans "Texte" %}</th>
+                                    <th>{% trans "Opération" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in diff.to_add %}
+                                    <tr class="success">
+                                        <td>{{line.costcenter}}</td>
+                                        <td>{{line.date}}</td>
+                                        <td>{{line.document_id}}</td>
+                                        <td>{{line.text}}</td>
+                                        <td>
+                                            {% if line.output %}
+                                                -{{line.output|floatformat:"2"|intcomma}} CHF
+                                            {% else %}
+                                                +{{line.input|floatformat:"2"|intcomma}} CHF
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i class="fa fa-lg fa-angle-up pull-right"></i> {% trans "Lignes à modifier" %} ({{diff.to_update|length}})</a></h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Centre de coûts" %}</th>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
+                                    <th>{% trans "Texte" %}</th>
+                                    <th>{% trans "Opération" %}</th>
+                                    <th>{% trans "Modification(s)" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in diff.to_update %}
+                                    <tr class="warning">
+                                        <td>{{line.0.costcenter}}</td>
+                                        <td>{{line.0.date}}</td>
+                                        <td>{{line.0.document_id}}</td>
+                                        <td>{{line.0.text}}</td>
+                                        <td>
+                                            {% if line.0.output %}
+                                                -{{line.0.output|floatformat:"2"|intcomma}} CHF
+                                            {% else %}
+                                                +{{line.0.input|floatformat:"2"|intcomma}} CHF
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <ul>
+                                                {% for field, data in line.2.iteritems %}
+                                                    <li>{{field}}: {{data.0}} <i class="fa fa-arrow-right"></i> {{data.1}}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i class="fa fa-lg fa-angle-up pull-right"></i> {% trans "Lignes à supprimer" %} ({{diff.to_delete|length}})</a></h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Centre de coûts" %}</th>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
+                                    <th>{% trans "Texte" %}</th>
+                                    <th>{% trans "Opération" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in diff.to_delete %}
+                                    <tr class="danger">
+                                        <td>{{line.costcenter}}</td>
+                                        <td>{{line.date}}</td>
+                                        <td>{{line.document_id}}</td>
+                                        <td>{{line.text}}</td>
+                                        <td>
+                                            {% if line.output %}
+                                                -{{line.output|floatformat:"2"|intcomma}} CHF
+                                            {% else %}
+                                                +{{line.input|floatformat:"2"|intcomma}} CHF
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i class="fa fa-lg fa-angle-up pull-right"></i> {% trans "Lignes sans modifications" %} ({{diff.nop|length}})</a></h4>
+                </div>
+                <div id="collapseFour" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Centre de coûts" %}</th>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
+                                    <th>{% trans "Texte" %}</th>
+                                    <th>{% trans "Opération" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in diff.nop %}
+                                    <tr class="info">
+                                        <td>{{line.costcenter}}</td>
+                                        <td>{{line.date}}</td>
+                                        <td>{{line.document_id}}</td>
+                                        <td>{{line.text}}</td>
+                                        <td>
+                                            {% if line.output %}
+                                                -{{line.output|floatformat:"2"|intcomma}} CHF
+                                            {% else %}
+                                                +{{line.input|floatformat:"2"|intcomma}} CHF
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <form class="form-horizontal" method="POST" enctype="multipart/form-data" id="generic_main_form">
+            {% csrf_token %}
+
+        </form>
+
+
+        <div class="form-actions">
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit(); $(this).html('{% trans "Merci de patienter..." %}');"><i class="glyphicon glyphicon-arrow-right"></i> {% trans "Appliquer les changements" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#id_year, #id_type').removeClass('form-control').css('width', '100%').select2();
+        });
+    </script>
+
+{% endblock %}
+
+{% block menuid %}menu-compta-import{% endblock %}
