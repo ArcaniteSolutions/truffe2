@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n l10n generic_extras rights_extras bootstrap3 thumbnail %}
+{% load i18n l10n generic_extras rights_extras bootstrap3 thumbnail humanize %}
 
 {% block title %}{{block.super}} :: {% trans "Comptabilité" %} :: {% trans "Import" %} :: {% trans "Étape 2" %}{% endblock %}
 
@@ -47,9 +47,9 @@
                                         <td>{{line.text}}</td>
                                         <td>
                                             {% if line.output %}
-                                                -{{line.output|floatformat:"2"}} CHF
+                                                -{{line.output|floatformat:"2"|intcomma}} CHF
                                             {% else %}
-                                                +{{line.input|floatformat:"2"}} CHF
+                                                +{{line.input|floatformat:"2"|intcomma}} CHF
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -85,9 +85,9 @@
                                         <td>{{line.0.text}}</td>
                                         <td>
                                             {% if line.0.output %}
-                                                -{{line.0.output|floatformat:"2"}} CHF
+                                                -{{line.0.output|floatformat:"2"|intcomma}} CHF
                                             {% else %}
-                                                +{{line.0.input|floatformat:"2"}} CHF
+                                                +{{line.0.input|floatformat:"2"|intcomma}} CHF
                                             {% endif %}
                                         </td>
                                         <td>
@@ -129,9 +129,9 @@
                                         <td>{{line.text}}</td>
                                         <td>
                                             {% if line.output %}
-                                                -{{line.output|floatformat:"2"}} CHF
+                                                -{{line.output|floatformat:"2"|intcomma}} CHF
                                             {% else %}
-                                                +{{line.input|floatformat:"2"}} CHF
+                                                +{{line.input|floatformat:"2"|intcomma}} CHF
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -166,9 +166,9 @@
                                         <td>{{line.text}}</td>
                                         <td>
                                             {% if line.output %}
-                                                -{{line.output|floatformat:"2"}} CHF
+                                                -{{line.output|floatformat:"2"|intcomma}} CHF
                                             {% else %}
-                                                +{{line.input|floatformat:"2"}} CHF
+                                                +{{line.input|floatformat:"2"|intcomma}} CHF
                                             {% endif %}
                                         </td>
                                     </tr>
