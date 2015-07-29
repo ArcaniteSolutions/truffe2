@@ -202,7 +202,7 @@ def generate_list_json(module, base_name, model_class, tag_class):
             raise Http404
 
         if hasattr(model_class.MetaData, 'extra_filter_for_list'):
-            filter____ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year)
+            filter____ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year, filter___)
         else:
             filter____ = filter___
 

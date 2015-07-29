@@ -967,6 +967,13 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-pencil-square-o'
 
+        @staticmethod
+        def extra_filter_for_list(request, current_unit, current_year, filtering):
+            if current_unit.is_user_in_groupe(request.user, access=['TRESORERIE', 'SECRETARIAT']):
+                return lambda x: filtering(x)
+            else:
+                return lambda x: filtering(x).filter(user=request.user)
+
         has_unit = True
 
         menu_id = 'menu-compta-ndf'
@@ -1018,6 +1025,9 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
             return True
 
+    def rights_can_LIST(self, user):
+        return super(_ExpenseClaim, self).rights_can("SHOW", user) or super(_ExpenseClaim, self).rights_can("EDIT", user)
+
         return super(_ExpenseClaim, self).rights_can_EDIT(user)
 
     def genericFormExtraClean(self, data, form):
@@ -1066,7 +1076,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
 
-class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
+class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, GenericAccountingStateModel, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
     """Modèle pour les journaux de caisse (JdC)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):

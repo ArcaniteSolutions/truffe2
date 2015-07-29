@@ -183,7 +183,6 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         return retour
 
     def is_user_in_groupe(self, user, access=None, parent_mode=False, no_parent=False):
-
         for accreditation in self.accreditation_set.filter(user=user, end_date=None):
 
             if accreditation.is_valid():
