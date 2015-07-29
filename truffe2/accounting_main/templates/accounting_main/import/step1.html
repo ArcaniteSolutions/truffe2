@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n l10n generic_extras rights_extras bootstrap3 thumbnail %}
 
-{% block title %}{{block.super}} :: {% trans "Comptabilité" %} :: {% trans "Importation" %} :: {% trans "Étape 1" %}{% endblock %}
+{% block title %}{{block.super}} :: {% trans "Comptabilité" %} :: {% trans "Import" %} :: {% trans "Étape 1" %}{% endblock %}
 
 {% block ribbon %}
     {{block.super}}
@@ -17,7 +17,7 @@
 
         <h1>{% trans "Import de la compta: Étape 1" %}</h1>
 
-        <p>{% trans "Merci de bien vouloir sélectionner l'année comptable, le fichier et le type de fichier pour commencer" %}</p>
+        <p>{% trans "Merci de bien vouloir sélectionner l'année comptable, le fichier et le type de fichier pour commencer." %}</p>
 
 
         <form class="form-horizontal" method="POST" enctype="multipart/form-data" id="generic_main_form">
@@ -33,7 +33,7 @@
         <div class="form-actions">
             <div class="row">
                 <div class="col-md-12">
-                    <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit(); $(this).html('{% trans "Merci de patentier..." %}');"><i class="glyphicon glyphicon-arrow-right"></i> {% trans "Continuer" %}</button>
+                    <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit(); $(this).html('{% trans "Merci de patienter..." %}');"><i class="glyphicon glyphicon-arrow-right"></i> {% trans "Continuer" %}</button>
                 </div>
             </div>
         </div>
@@ -46,6 +46,5 @@
     </script>
 
 {% endblock %}
-
 
 {% block menuid %}menu-compta-import{% endblock %}

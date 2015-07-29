@@ -119,10 +119,10 @@ def _csv_2014_processor(file):
 
     with open(file, 'rb') as csvfile:
 
-        spamreader = unicode_csv_reader(csvfile, 'excel-tab')
+        csvreader = unicode_csv_reader(csvfile, 'excel-tab')
 
-        if spamreader.next()[0] != 'Extrait CdC':
-            messages.warning(request, "L'header initial ne correspond pas ({} vs {})".format(spamreader.next()[0], 'Extrait CdC'))
+        if csvreader.next()[0] != 'Extrait CdC':
+            messages.warning(request, "L'header initial ne correspond pas ({} vs {})".format(csvreader.next()[0], 'Extrait CdC'))
             return False
 
         current_costcenter = None
@@ -130,7 +130,7 @@ def _csv_2014_processor(file):
         phase_solde = False
         phase_compte = False
 
-        current_line = spamreader.next()
+        current_line = csvreader.next()
 
         wanted_lines = []
 
@@ -150,7 +150,7 @@ def _csv_2014_processor(file):
                         cDebit = current_line[4]
                         cCredit = current_line[5]
                         cSituation = current_line[6]
-                        sCygne = current_line[7]
+                        sSigne = current_line[7]
                         cOrigine = ''
                         cTva = 0.0
 
@@ -169,19 +169,19 @@ def _csv_2014_processor(file):
                         else:
                             cSituation = float(cSituation.replace('\'', ''))
 
-                        if sCygne == '-':
+                        if sSigne == '-':
                             cSituation *= -1
 
                         cDate2 = cDate.split('.')
 
                         wanted_lines.append({
                             'costcenter': current_costcenter,
-                            'date': cDate2[2] + '-' + cDate2[1] + '-' + cDate2[0],
+                            'date': '{}-{}-{}'.format(cDate2[2], cDate2[1], cDate2[0]),
                             'account': cCompte,
                             'text': cTexte,
-                            'output': float(cDebit),
-                            'input': float(cCredit),
-                            'current_sum': float(cSituation),
+                            'output': cDebit,
+                            'input': cCredit,
+                            'current_sum': cSituation,
                             'tva': str(cTva),
                             'order': order,
                             'document_id': cNoPiece,
@@ -233,7 +233,7 @@ def _csv_2014_processor(file):
                     pass
 
             try:
-                current_line = spamreader.next()
+                current_line = csvreader.next()
             except StopIteration:
                 return wanted_lines
 
@@ -261,7 +261,7 @@ def _diff_generator(year, data):
 
         try:
             account = Account.objects.get(accounting_year=year, account_number=wanted_line['account'])
-        except CostCenter.DoesNotExist:
+        except Account.DoesNotExist:
             messages.warning(request, "Le compte de CG {} n'existe pas !".format(wanted_line['account']))
             return False
 
@@ -304,7 +304,7 @@ def accounting_import_step1(request, key):
     (session_key, session_data) = _get_import_session_data(request, key)
 
     if not session_key:
-        return session_data  # ...
+        return session_data  # Not very clean ^^'
 
     if session_data['has_data']:
         return redirect('accounting_main.views.accounting_import_step2', key)
@@ -350,14 +350,14 @@ def accounting_import_step2(request, key):
     (session_key, session_data) = _get_import_session_data(request, key)
 
     if not session_key:
-        return session_data  # ...
+        return session_data  # Not very clean ^^'
 
     if not session_data['has_data']:
         return redirect('accounting_main.views.accounting_import_step1', key)
 
     year = get_object_or_404(AccountingYear, pk=session_data['year'])
 
-    # Map line id to have lines (efficentily)
+    # Map line id to have lines (efficiently)
     line_cache = {}
     for line in AccountingLine.objects.filter(accounting_year=year, deleted=False):
         line_cache[line.pk] = line
@@ -372,7 +372,7 @@ def accounting_import_step2(request, key):
 
         for wanted_line in diff['to_add']:
             # NB: Si quelqu'un modifie les trucs pendant l'import, ça pétera.
-            # C'est ultra peut proptable, donc ignoré
+            # C'est ultra peu probable, donc ignoré
             costcenter = CostCenter.objects.get(accounting_year=year, account_number=wanted_line['costcenter'])
             account = Account.objects.get(accounting_year=year, account_number=wanted_line['account'])
 

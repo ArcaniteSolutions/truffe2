@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 {% load i18n l10n generic_extras rights_extras bootstrap3 thumbnail %}
 
-{% block title %}{{block.super}} :: {% trans "Comptabilité" %} :: {% trans "Importation" %} :: {% trans "Étape 1" %}{% endblock %}
+{% block title %}{{block.super}} :: {% trans "Comptabilité" %} :: {% trans "Import" %} :: {% trans "Étape 2" %}{% endblock %}
 
 {% block ribbon %}
     {{block.super}}
     <li>{% trans "Import de la compta" %}</li>
     <li>{% trans "Étape 1" %}</li>
+    <li>{% trans "Étape 2" %}</li>
 {% endblock %}
 
 {% block content %}
 
   <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-10" style="max-width: 1000px;">
+    <div class="col-sm-12 col-md-12 col-lg-12">
       <div class="well">
 
         <h1>{% trans "Import de la compta: Étape 2" %}</h1>
 
-        <p>{% trans "La compta à été parsée correctement, mais les motifications n'ont PAS encore été effectuées. Merci de confirmer que tout est ok et de valider pour appliquer les modifications." %}</p>
+        <p>{% trans "La compta à été parsée correctement, mais les modifications n'ont PAS encore été effectuées. Merci de confirmer que tout est ok et de valider pour appliquer les modifications." %}</p>
 
 
         <div class="panel-group smart-accordion-default" id="accordion">
@@ -26,21 +27,23 @@
                   <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i class="fa fa-lg fa-angle-up pull-right"></i> {% trans "Lignes à rajouter" %} ({{diff.to_add|length}})</a></h4>
                 </div>
                 <div id="collapseOne" class="panel-collapse collapse in">
-                    <div class="panel-body no-padding">
+                    <div class="panel-body">
                         <table class="table table-bordered table-condensed">
                             <thead>
                                 <tr>
                                     <th>{% trans "Centre de coûts" %}</th>
                                     <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
                                     <th>{% trans "Texte" %}</th>
                                     <th>{% trans "Opération" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for line in diff.to_add %}
-                                    <tr>
+                                    <tr class="success">
                                         <td>{{line.costcenter}}</td>
                                         <td>{{line.date}}</td>
+                                        <td>{{line.document_id}}</td>
                                         <td>{{line.text}}</td>
                                         <td>
                                             {% if line.output %}
@@ -67,6 +70,7 @@
                                 <tr>
                                     <th>{% trans "Centre de coûts" %}</th>
                                     <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
                                     <th>{% trans "Texte" %}</th>
                                     <th>{% trans "Opération" %}</th>
                                     <th>{% trans "Modification(s)" %}</th>
@@ -74,9 +78,10 @@
                             </thead>
                             <tbody>
                                 {% for line in diff.to_update %}
-                                    <tr>
+                                    <tr class="warning">
                                         <td>{{line.0.costcenter}}</td>
                                         <td>{{line.0.date}}</td>
+                                        <td>{{line.0.document_id}}</td>
                                         <td>{{line.0.text}}</td>
                                         <td>
                                             {% if line.0.output %}
@@ -110,15 +115,17 @@
                                 <tr>
                                     <th>{% trans "Centre de coûts" %}</th>
                                     <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
                                     <th>{% trans "Texte" %}</th>
                                     <th>{% trans "Opération" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for line in diff.to_delete %}
-                                    <tr>
+                                    <tr class="danger">
                                         <td>{{line.costcenter}}</td>
                                         <td>{{line.date}}</td>
+                                        <td>{{line.document_id}}</td>
                                         <td>{{line.text}}</td>
                                         <td>
                                             {% if line.output %}
@@ -145,15 +152,17 @@
                                 <tr>
                                     <th>{% trans "Centre de coûts" %}</th>
                                     <th>{% trans "Date" %}</th>
+                                    <th>{% trans "N° pièce comptable" %}</th>
                                     <th>{% trans "Texte" %}</th>
                                     <th>{% trans "Opération" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for line in diff.nop %}
-                                    <tr>
+                                    <tr class="info">
                                         <td>{{line.costcenter}}</td>
                                         <td>{{line.date}}</td>
+                                        <td>{{line.document_id}}</td>
                                         <td>{{line.text}}</td>
                                         <td>
                                             {% if line.output %}
@@ -182,7 +191,7 @@
         <div class="form-actions">
             <div class="row">
                 <div class="col-md-12">
-                    <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit(); $(this).html('{% trans "Merci de patentier..." %}');"><i class="glyphicon glyphicon-arrow-right"></i> {% trans "Appliquer les changements" %}</button>
+                    <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit(); $(this).html('{% trans "Merci de patienter..." %}');"><i class="glyphicon glyphicon-arrow-right"></i> {% trans "Appliquer les changements" %}</button>
                 </div>
             </div>
         </div>
@@ -195,6 +204,5 @@
     </script>
 
 {% endblock %}
-
 
 {% block menuid %}menu-compta-import{% endblock %}

@@ -251,7 +251,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
         self.MetaRights = type("MetaRights", (self.MetaRights,), {})
         self.MetaRights.rights_update({
-            'IMPORT': _(u'Peut import la compta'),
+            'IMPORT': _(u'Peut importer la compta'),
         })
 
     def rights_can_IMPORT(self, user):
