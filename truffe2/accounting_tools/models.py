@@ -1072,7 +1072,7 @@ class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, Ge
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
+    name = models.CharField(_(u'Titre du journal de caisse'), max_length=255)
     unit = FalseFK('units.models.Unit')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
@@ -1101,6 +1101,10 @@ class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, Ge
         files_title = _(u'Justificatifs')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-pencil-square-o'
+
+        @staticmethod
+        def extra_args_for_edit(request, current_unit, current_year):
+            return {'CS_account_number': settings.CS_ACCOUNT_NUMBER}
 
         has_unit = True
 
