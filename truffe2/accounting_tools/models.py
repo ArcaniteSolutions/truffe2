@@ -1168,16 +1168,16 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
 
     def genericFormExtraClean(self, data, form):
 
-        if data['withdrawal']:
+        if 'withdrawal' in data.keys() and data['withdrawal']:
             if data['withdrawal'].user != data['user'] or data['withdrawal'].costcenter != data['costcenter']:
                 raise forms.ValidationError(_(u'L\'utilisateur responsable et/ou le centre de coûts ne correspondent pas au retrait cash lié.'))
 
             data['object_id'] = data['withdrawal'].pk
             data['content_type'] = ContentType.objects.get(app_label=data['withdrawal']._meta.app_label, model=data['withdrawal']._meta.model_name)
+            del data['withdrawal']
         else:
             data['object_id'] = None
             data['content_type'] = None
-        del data['withdrawal']
 
         if not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
@@ -1191,7 +1191,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         """Set related object correctly."""
         from accounting_tools.models import Withdrawal
 
-        form.fields['withdrawal'] = forms.ModelChoiceField(queryset=Withdrawal.objects.filter(status='3_used'), initial=self.proving_object, required=False, label=_(u'Retrait cash lié'))
+        form.fields['withdrawal'] = forms.ModelChoiceField(queryset=Withdrawal.objects.order_by('-pk'), initial=self.proving_object, required=False, label=_(u'Retrait cash lié'))
 
         for field in ['content_type', 'object_id']:
             del form.fields[field]
