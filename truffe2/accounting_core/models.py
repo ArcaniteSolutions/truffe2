@@ -268,6 +268,13 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         """Return the categories whose parent is self."""
         return self.accountcategory_set.order_by('order', 'name')
 
+    def get_root_parent(self):
+        """Return the category at the root level"""
+        if self.parent_hierarchique:
+            return self.parent_hierarchique.get_root_parent()
+        else:
+            return self
+
     def get_accounts(self):
         """Return the list of accounts whose category is self ordered by account number."""
         return self.account_set.order_by('account_number')

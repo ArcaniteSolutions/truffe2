@@ -283,7 +283,6 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
     from accounting_tools.models import LinkedInfo
 
     @login_required
-    @csrf_exempt
     def _generic_edit(request, pk):
 
         list_view = '%s.views.%s_list' % (module.__name__, base_name)
@@ -495,6 +494,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 if hasattr(obj, 'save_signal'):
                     obj.save_signal()
+
+                if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
+                    obj.MetaEdit.do_extra_post_actions(obj, request.POST)
 
                 messages.success(request, _(u'Élément sauvegardé !'))
 

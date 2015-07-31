@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.forms import CharField, Form, Textarea, BooleanField
 
 
+import collections
 import json
 
 
@@ -455,3 +456,178 @@ class AccountingErrorMessage(models.Model):
     when = models.DateTimeField(auto_now_add=True)
     message = models.TextField()
     error = models.ForeignKey('AccountingError')
+
+
+class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel):
+    """Modèle pour les budgets"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+        unit_ro_access = True
+
+    name = models.CharField(_(u'Titre du budget'), max_length=255)
+    unit = FalseFK('units.models.Unit')
+
+    class MetaData:
+        list_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('accounting_year', _(u'Année comptable'))]
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number')
+
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+
+        base_title = _(u'Budgets')
+        list_title = _(u'Liste des budgets')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-briefcase'
+
+        has_unit = True
+
+        menu_id = 'menu-compta-budget'
+
+        help_list = _(u"""Les budgets permettent de prévoir les dépenses de l'unité sur l'année.
+
+Il est obligatoire de fournir un budget au plus tard 6 semaines après le début du semestre d'automne à l'AGEPoly.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        @staticmethod
+        def do_extra_post_actions(obj, post_request):
+            """Edit budget lines on edit"""
+            from accounting_core.models import Account
+            from accounting_main.models import BudgetLine
+
+            map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
+
+            lines = collections.defaultdict(dict)
+            for (field, value) in post_request.iteritems():
+
+                if field.startswith('account-'):
+                    field_arr = field.split('-')
+                    lines[field_arr[2]]['type'] = 1 if field_arr[1] == 'incomes' else -1
+                    lines[field_arr[2]]['account_pk'] = value
+
+                if field.startswith('description-'):
+                    field_arr = field.split('-')
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
+                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    lines[field_arr[2]]['entries'][field_arr[3]]['description'] = value
+
+                if field.startswith('amount-'):
+                    field_arr = field.split('-')
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
+                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    lines[field_arr[2]]['entries'][field_arr[3]]['amount'] = value
+
+            for __, line_object in lines.iteritems():
+                account = get_object_or_404(Account, pk=line_object['account_pk'])
+                coeff = line_object['type']  # -1 for outcomes, 1 for incomes
+                entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
+                for entry in entries:
+                    amount = coeff * abs(float(entry[1]['amount']))
+                    BudgetLine(budget=obj, account=account, description=entry[1]['description'], amount=amount).save()
+
+    class MetaState:
+        states = {
+            '0_draft': _(u'Brouillon'),
+            '0_correct': _(u'A corriger'),
+            '1_submited': _(u'Budget soumis'),
+            '1_private': _(u'Budget privé'),
+            '2_treated': _(u'Budget validé'),
+        }
+
+        default = '0_draft'
+
+        states_texts = {
+            '0_draft': _(u'Le budget est en cours de création et n\'est pas public.'),
+            '0_correct': _(u'Le budget doit être corrigé.'),
+            '1_submited': _(u'Le budget a été soumis.'),
+            '1_private': _(u'Le budget est terminé et privé.'),
+            '2_treated': _(u'Le budget a été validé.'),
+        }
+
+        states_links = {
+            '0_draft': ['1_submited', '1_private'],
+            '0_correct': ['1_submited'],
+            '1_submited': ['2_treated', '0_correct'],
+            '1_private': [],
+            '2_treated': [],
+        }
+
+        states_colors = {
+            '0_draft': 'primary',
+            '0_correct': 'warning',
+            '1_submited': 'default',
+            '1_private': 'info',
+            '2_treated': 'success',
+        }
+
+        states_icons = {
+            '0_draft': '',
+            '0_correct': '',
+            '1_submited': '',
+            '1_private': '',
+            '2_treated': '',
+        }
+
+        list_quick_switch = {
+            '0_draft': [('1_submited', 'fa fa-check', _(u'Soumettre le budget'))],
+            '0_correct': [('1_submited', 'fa fa-check', _(u'Soumettre le budget'))],
+            '1_submited': [('2_treated', 'fa fa-check', _(u'Marquer le budget comme validé')), ('0_correct', 'fa fa-exclamation', _(u'Demander des corrections'))],
+            '1_private': [('0_draft', 'fa fa-mail-reply', _(u'Remodifier'))],
+            '2_treated': [],
+        }
+
+        states_default_filter = '0_draft,0_correct'
+        status_col_id = 3
+
+    def may_switch_to(self, user, dest_state):
+        return super(_Budget, self).rights_can_EDIT(user) and super(_Budget, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+        if self.status == '2_treated' and not user.is_superuser:
+            return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état traité'))
+
+        if int(dest_state[0]) - int(self.status[0]) != 1 and not user.is_superuser:
+            if not (self.status == '1_submited' and dest_state == '0_correct'):  # Exception faite de la correction
+                return (False, _(u'Seul un super utilisateur peut sauter des étapes ou revenir en arrière.'))
+
+        if self.status == '1_submited' and not self.rights_in_root_unit(user, self.MetaRightsUnit.access):
+            return (False, _(u'Seul un membre du Comité de Direction peut marquer la demande comme validée ou à corriger.'))
+
+        if not self.rights_can('EDIT', user):
+            return (False, _('Pas les droits.'))
+
+        return super(_Budget, self).can_switch_to(user, dest_state)
+
+    def rights_can_EDIT(self, user):
+        if int(self.status[0]) > 0:
+            return False
+
+        return super(_Budget, self).rights_can_EDIT(user)
+
+    def rights_can_SHOW(self, user):
+        if self.status == '1_private' and not self.rights_in_unit(user, self.unit, access=self.MetaRightsUnit.access, no_parent=True):
+            return False
+
+        return super(_Budget, self).rights_can_SHOW(user)
+
+    def __unicode__(self):
+        return u"{} ({})".format(self.name, self.costcenter)
+
+
+class BudgetLine(models.Model):
+    budget = models.ForeignKey('Budget', verbose_name=_('Budget'))
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
+
+    amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
+    description = models.CharField(max_length=250)
+
+    def __unicode(self):
+        return "{} : {} ({} - {})".format(self.budget, self.amount, self.description, self.account.account_number)

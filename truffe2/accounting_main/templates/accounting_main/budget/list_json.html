@@ -1,0 +1,6 @@
+{% extends "generic/generic/list_json.html" %}
+{% load i18n %}
+
+{% block bonus_buttons %}
+    <a data-original-title=\"{% trans "Copier" %}\" href=\"{% url "accounting_main.views.copy_budget" elem.pk %}\" class=\"btn btn-xs btn-default\" title=\"{% trans "Copier" %}\" rel=\"tooltip\" multido_action=\"window.location = '{% url "accounting_main.views.copy_budget" 9999429999 %}';\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-default'><i class='fa fa-copy'></i> {% trans "Copier" %}</a>\"><i class=\"fa fa-copy\"></i></a>
+{% endblock %}

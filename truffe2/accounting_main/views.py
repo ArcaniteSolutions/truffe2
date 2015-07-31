@@ -22,11 +22,13 @@ from django.utils.html import strip_tags
 
 
 import uuid
-import datetime
+import json
 import time
 import collections
 
 
+from app.utils import update_current_unit, update_current_year
+from generic.views import get_unit_data, get_year_data
 from notifications.utils import notify_people
 
 
@@ -64,3 +66,46 @@ def errors_send_message(request, pk):
     messages.success(request, _(u'Message ajouté !'))
 
     return HttpResponse('')
+
+
+@login_required
+def copy_budget(request, pk):
+    from accounting_main.models import Budget
+
+    budgets = [get_object_or_404(Budget, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
+
+    for bud in budgets:
+        if not bud.rights_can('EDIT', request.user):
+            raise Http404
+
+        old_lines = bud.budgetline_set.all()
+        bud.name = 'Copy of {}'.format(bud.name)
+        bud.id = None
+        bud.save()
+
+        for line in old_lines:
+            line.budget = bud
+            line.id = None
+            line.save()
+
+    messages.success(request, _(u'Copie terminée avec succès'))
+
+    if len(budgets) == 1:
+        return redirect('accounting_main.views.budget_edit', budgets[0].pk)
+    else:
+        return redirect('accounting_main.views.budget_list')
+
+@login_required
+def budget_getinfos(request, pk):
+    from accounting_main.models import Budget
+
+    budget = get_object_or_404(Budget, pk=pk)
+    if not budget.rights_can_EDIT(request.user):
+        raise Http404
+
+    lines = map(lambda line: {'table_id': 'incomes' if line.amount > 0 else 'outcomes', 'account_id': line.account.pk,
+                              'description': line.description, 'amount': abs(float(line.amount))}, list(budget.budgetline_set.all()))
+    accounts = set(map(lambda line: line['account_id'], lines))
+    retour = [[line for line in lines if line['account_id'] == acc] for acc in accounts]
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')

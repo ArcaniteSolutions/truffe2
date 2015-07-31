@@ -193,8 +193,14 @@ def accounts_by_year(request, ypk):
 
     retour = Account.objects.filter(accounting_year__pk=ypk).order_by('account_number')
     retour = filter(lambda account: account.user_can_see(request.user), retour)
-    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
+    if request.GET.get('outcomes'):
+        retour = filter(lambda ac: ac.category.get_root_parent().name == "Charge", retour)
+
+    elif request.GET.get('incomes'):
+        retour = filter(lambda ac: ac.category.get_root_parent().name == "Produit", retour)
+
+    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
 
