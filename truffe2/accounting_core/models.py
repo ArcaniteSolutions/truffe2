@@ -21,6 +21,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
     end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
     subvention_deadline = models.DateTimeField(_(u'Délai pour les subventions'), blank=True, null=True)
+    last_accounting_import = models.DateTimeField(_(u'Dernier import de la compta'), blank=True, null=True)
 
     class MetaData:
         list_display = [
@@ -116,6 +117,10 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     class MetaEdit:
         datetime_fields = ['start_date', 'end_date', 'subvention_deadline']
+
+        only_if = {
+            'last_accounting_import': lambda _: False
+        }
 
     class Meta:
         abstract = True

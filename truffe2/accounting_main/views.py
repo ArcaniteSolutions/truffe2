@@ -117,127 +117,131 @@ def _csv_2014_processor(file):
             # decode UTF-8 back to Unicode, cell by cell:
             yield [unicode(cell, 'iso8859') for cell in row]
 
-    with open(file, 'rb') as csvfile:
+    try:
+        with open(file, 'rb') as csvfile:
 
-        csvreader = unicode_csv_reader(csvfile, 'excel-tab')
+            csvreader = unicode_csv_reader(csvfile, 'excel-tab')
 
-        if csvreader.next()[0] != 'Extrait CdC':
-            messages.warning(request, "L'header initial ne correspond pas ({} vs {})".format(csvreader.next()[0], 'Extrait CdC'))
-            return False
+            if csvreader.next()[0] != 'Extrait CdC':
+                messages.warning(request, "L'header initial ne correspond pas ({} vs {})".format(csvreader.next()[0], 'Extrait CdC'))
+                return False
 
-        current_costcenter = None
-        phase_header = False
-        phase_solde = False
-        phase_compte = False
+            current_costcenter = None
+            phase_header = False
+            phase_solde = False
+            phase_compte = False
 
-        current_line = csvreader.next()
+            current_line = csvreader.next()
 
-        wanted_lines = []
+            wanted_lines = []
 
-        order = 0
+            order = 0
 
-        while True:
+            while True:
 
-            if current_line:
+                if current_line:
 
-                if current_costcenter:
-                    if current_line[0]:
+                    if current_costcenter:
+                        if current_line[0]:
 
-                        cDate = current_line[0]
-                        cNoPiece = current_line[1]
-                        cTexte = current_line[2]
-                        cCompte = current_line[3]
-                        cDebit = current_line[4]
-                        cCredit = current_line[5]
-                        cSituation = current_line[6]
-                        sSigne = current_line[7]
-                        cOrigine = ''
-                        cTva = 0.0
+                            cDate = current_line[0]
+                            cNoPiece = current_line[1]
+                            cTexte = current_line[2]
+                            cCompte = current_line[3]
+                            cDebit = current_line[4]
+                            cCredit = current_line[5]
+                            cSituation = current_line[6]
+                            sSigne = current_line[7]
+                            cOrigine = ''
+                            cTva = 0.0
 
-                        if not cDebit:
-                            cDebit = 0.0
+                            if not cDebit:
+                                cDebit = 0.0
+                            else:
+                                cDebit = float(cDebit.replace('\'', ''))
+
+                            if not cCredit:
+                                cCredit = 0.0
+                            else:
+                                cCredit = float(cCredit.replace('\'', ''))
+
+                            if not cSituation or cSituation == '-':
+                                cSituation = 0.0
+                            else:
+                                cSituation = float(cSituation.replace('\'', ''))
+
+                            if sSigne == '-':
+                                cSituation *= -1
+
+                            cDate2 = cDate.split('.')
+
+                            wanted_lines.append({
+                                'costcenter': current_costcenter,
+                                'date': '{}-{}-{}'.format(cDate2[2], cDate2[1], cDate2[0]),
+                                'account': cCompte,
+                                'text': cTexte,
+                                'output': cDebit,
+                                'input': cCredit,
+                                'current_sum': cSituation,
+                                'tva': str(cTva),
+                                'order': order,
+                                'document_id': cNoPiece,
+                            })
+
+                            order += 1
+
+                        elif current_line[2] == 'Total':
+                            current_costcenter = None
                         else:
-                            cDebit = float(cDebit.replace('\'', ''))
+                            messages.warning(request, u"Ligne étrange: {}".format(current_line))
+                            return False
 
-                        if not cCredit:
-                            cCredit = 0.0
+                    elif phase_header:
+
+                        phase_header = False
+
+                        excepted_line = [u'Date', u'Pi\xe8ce', u"Texte d'\xe9criture", u'Type C.', u'D\xe9bit CHF', u'Cr\xe9dit CHF', u'Courant ']
+
+                        if current_line != excepted_line:
+                            messages.warning(request, "L'header de début de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
+                            return False
                         else:
-                            cCredit = float(cCredit.replace('\'', ''))
+                            phase_solde = True
 
-                        if not cSituation or cSituation == '-':
-                            cSituation = 0.0
+                    elif phase_solde:
+
+                        phase_solde = False
+
+                        excepted_line = [u'Solde CHF', u'']
+
+                        if current_line != excepted_line:
+                            messages.warning(request, "L'header de fin de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
+                            return False
                         else:
-                            cSituation = float(cSituation.replace('\'', ''))
+                            phase_compte = True
 
-                        if sSigne == '-':
-                            cSituation *= -1
+                    elif phase_compte:
 
-                        cDate2 = cDate.split('.')
+                        phase_compte = False
 
-                        wanted_lines.append({
-                            'costcenter': current_costcenter,
-                            'date': '{}-{}-{}'.format(cDate2[2], cDate2[1], cDate2[0]),
-                            'account': cCompte,
-                            'text': cTexte,
-                            'output': cDebit,
-                            'input': cCredit,
-                            'current_sum': cSituation,
-                            'tva': str(cTva),
-                            'order': order,
-                            'document_id': cNoPiece,
-                        })
+                        current_costcenter = current_line[0].split()[0].strip()
 
-                        order += 1
+                        order = 0
 
-                    elif current_line[2] == 'Total':
-                        current_costcenter = None
+                    elif current_line[0] == 'CdC':
+                        phase_header = True
                     else:
-                        messages.warning(request, u"Ligne étrange: {}".format(current_line))
-                        return False
+                        pass
 
-                elif phase_header:
+                try:
+                    current_line = csvreader.next()
+                except StopIteration:
+                    return wanted_lines
 
-                    phase_header = False
-
-                    excepted_line = [u'Date', u'Pi\xe8ce', u"Texte d'\xe9criture", u'Type C.', u'D\xe9bit CHF', u'Cr\xe9dit CHF', u'Courant ']
-
-                    if current_line != excepted_line:
-                        messages.warning(request, "L'header de début de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
-                        return False
-                    else:
-                        phase_solde = True
-
-                elif phase_solde:
-
-                    phase_solde = False
-
-                    excepted_line = [u'Solde CHF', u'']
-
-                    if current_line != excepted_line:
-                        messages.warning(request, "L'header de fin de lignes ne corespond pas ({} vs {})".format(current_line, excepted_line))
-                        return False
-                    else:
-                        phase_compte = True
-
-                elif phase_compte:
-
-                    phase_compte = False
-
-                    current_costcenter = current_line[0].split()[0].strip()
-
-                    order = 0
-
-                elif current_line[0] == 'CdC':
-                    phase_header = True
-                else:
-                    pass
-
-            try:
-                current_line = csvreader.next()
-            except StopIteration:
-                return wanted_lines
-
-    return wanted_lines
+        return wanted_lines
+    except Exception as e:
+        messages.warning(request, "Erreur durant la lecture du fichier CSV: {}".format(e))
+        return False
 
 
 def _diff_generator(year, data):
@@ -312,28 +316,46 @@ def accounting_import_step1(request, key):
     from accounting_main.forms2 import ImportForm
 
     if request.method == 'POST':
-        form = ImportForm(request.POST, request.FILES)
 
-        if form.is_valid():
-            file_key = '/tmp/truffe_import_{}_data.file'.format(key)
-            with open(file_key, 'wb+') as destination:
-                for chunk in request.FILES['file'].chunks():
-                    destination.write(chunk)
+        if request.GET.get('send') == 'notif':
 
-            if form.cleaned_data['type'] == 'csv_2014':
-                wanted_data = _csv_2014_processor(file_key)
+            from units.models import Unit
 
-                if wanted_data:
-                    diff = _diff_generator(form.cleaned_data['year'], wanted_data)
+            people = []
 
-                    if diff:
+            for unit in Unit.objects.filter(deleted=False):
+                for user in unit.people_in_unit(unit, 'TRESORERIE', no_parent=True):
+                    if user not in people:
+                        people.append(user)
 
-                        session_data['data'] = diff
-                        session_data['year'] = form.cleaned_data['year'].pk
-                        session_data['has_data'] = True
+            notify_people(request, 'Accounting.NewCompta', 'accounting_new_compta', request.user, people, {'notification_force_url': reverse('accounting_main.views.accountingline_list')})
+            messages.success(request, "Notification envoyée !")
 
-                        request.session[session_key] = session_data
-                        return redirect('accounting_main.views.accounting_import_step2', key)
+            form = ImportForm()
+        else:
+
+            form = ImportForm(request.POST, request.FILES)
+
+            if form.is_valid():
+                file_key = '/tmp/truffe_import_{}_data.file'.format(key)
+                with open(file_key, 'wb+') as destination:
+                    for chunk in request.FILES['file'].chunks():
+                        destination.write(chunk)
+
+                if form.cleaned_data['type'] == 'csv_2014':
+                    wanted_data = _csv_2014_processor(file_key)
+
+                    if wanted_data:
+                        diff = _diff_generator(form.cleaned_data['year'], wanted_data)
+
+                        if diff:
+
+                            session_data['data'] = diff
+                            session_data['year'] = form.cleaned_data['year'].pk
+                            session_data['has_data'] = True
+
+                            request.session[session_key] = session_data
+                            return redirect('accounting_main.views.accounting_import_step2', key)
 
     else:
         form = ImportForm()
@@ -394,8 +416,11 @@ def accounting_import_step2(request, key):
                 error.save()
             line.delete()  # harddelete.
 
+        year.last_accounting_import = now()
+        year.save()
+
         request.session[session_key] = {}
-        messages.success(request, _(u"Compta importée !"))
+        messages.success(request, _(u"Compta importée ! Si tout est ok, n'oublie pas de notifier les gens."))
         return redirect('accounting_main.views.accounting_import_step0')
 
     return render(request, "accounting_main/import/step2.html", {'key': key, 'diff': diff})
