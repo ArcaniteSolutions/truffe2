@@ -36,7 +36,19 @@
 
     <script type="text/javascript">
         $('#edit-accred-form').ajaxForm({replaceTarget: true, target: '#edit-accred-form'});
-        $('#id_role').css('width', '100%').addClass('select2').removeClass('form-control').select2();
+
+        $('#id_role').parent().after('<div class="alert alert-danger" id="validable_warning" style="display: none;"><i class="fa fa-warning"></i> {% trans "Tu dois notifier et justifier auprès du comité de l\\\'AGEPoly toutes les accréditations utilisant ce rôle !" %} <br /><b><center>comite@agepoly.ch</center></b></div>');
+
+        $('#id_role').css('width', '100%').addClass('select2').removeClass('form-control').select2().on('change', function () {
+
+            var v = $('#id_role').val();
+
+            if ({% for validable in validables %}v == '{{validable.pk}}' {% if not forloop.last %} || {% endif %}{% endfor %}) {
+                $('#validable_warning').show();
+            } else {
+                $('#validable_warning').hide();
+            }
+        });
 
         {% if done %}
             window.location.reload();
