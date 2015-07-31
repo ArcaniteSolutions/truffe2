@@ -281,7 +281,7 @@ class _Role(GenericModel, AgepolyEditableModel):
         ('INFORMATIQUE', _('Informatique')),
         ('ACCREDITATION', _(u'Accréditations')),
         ('LOGISTIQUE', _('Logistique')),
-        ('SECRETARIAT', _(u'Secrétariat'))
+        ('SECRETARIAT', _(u'Secrétariat')),
         ('COMMISSIONS', _(u'Commissions'))
     )
 
