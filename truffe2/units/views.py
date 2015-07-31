@@ -165,6 +165,7 @@ def accreds_edit(request, pk):
         raise Http404
 
     from units.forms2 import AccreditationEditForm
+    from units.models import Role
 
     done = False
     cannot_last_prez = False
@@ -233,7 +234,9 @@ def accreds_edit(request, pk):
     else:
         form = AccreditationEditForm(instance=accred)
 
-    return render(request, 'units/accreds/edit.html', {'form': form, 'done': done, 'cannot_last_prez': cannot_last_prez})
+    validables = Role.objects.filter(deleted=False, need_validation=True)
+
+    return render(request, 'units/accreds/edit.html', {'form': form, 'done': done, 'cannot_last_prez': cannot_last_prez, 'validables': validables})
 
 
 @login_required
@@ -322,6 +325,7 @@ def accreds_add(request):
         raise Http404
 
     from units.forms2 import AccreditationAddForm
+    from units.models import Role
 
     done = False
 
@@ -365,4 +369,6 @@ def accreds_add(request):
     else:
         form = AccreditationAddForm(request.user)
 
-    return render(request, 'units/accreds/add.html', {'form': form, 'done': done, 'unit': unit})
+    validables = Role.objects.filter(deleted=False, need_validation=True)
+
+    return render(request, 'units/accreds/add.html', {'form': form, 'done': done, 'unit': unit, 'validables': validables})
