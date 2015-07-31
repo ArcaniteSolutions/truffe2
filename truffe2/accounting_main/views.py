@@ -398,6 +398,9 @@ def accounting_import_step2(request, key):
                 error.save()
             line.delete()  # harddelete.
 
+        year.last_accounting_import = now()
+        year.save()
+
         request.session[session_key] = {}
         messages.success(request, _(u"Compta importée !"))
         return redirect('accounting_main.views.accounting_import_step0')
