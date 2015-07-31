@@ -316,28 +316,46 @@ def accounting_import_step1(request, key):
     from accounting_main.forms2 import ImportForm
 
     if request.method == 'POST':
-        form = ImportForm(request.POST, request.FILES)
 
-        if form.is_valid():
-            file_key = '/tmp/truffe_import_{}_data.file'.format(key)
-            with open(file_key, 'wb+') as destination:
-                for chunk in request.FILES['file'].chunks():
-                    destination.write(chunk)
+        if request.GET.get('send') == 'notif':
 
-            if form.cleaned_data['type'] == 'csv_2014':
-                wanted_data = _csv_2014_processor(file_key)
+            from units.models import Unit
 
-                if wanted_data:
-                    diff = _diff_generator(form.cleaned_data['year'], wanted_data)
+            people = []
 
-                    if diff:
+            for unit in Unit.objects.filter(deleted=False):
+                for user in unit.people_in_unit(unit, 'TRESORERIE', no_parent=True):
+                    if user not in people:
+                        people.append(user)
 
-                        session_data['data'] = diff
-                        session_data['year'] = form.cleaned_data['year'].pk
-                        session_data['has_data'] = True
+            notify_people(request, 'Accounting.NewCompta', 'accounting_new_compta', request.user, people, {'notification_force_url': reverse('accounting_main.views.accountingline_list')})
+            messages.success(request, "Notification envoyée !")
 
-                        request.session[session_key] = session_data
-                        return redirect('accounting_main.views.accounting_import_step2', key)
+            form = ImportForm()
+        else:
+
+            form = ImportForm(request.POST, request.FILES)
+
+            if form.is_valid():
+                file_key = '/tmp/truffe_import_{}_data.file'.format(key)
+                with open(file_key, 'wb+') as destination:
+                    for chunk in request.FILES['file'].chunks():
+                        destination.write(chunk)
+
+                if form.cleaned_data['type'] == 'csv_2014':
+                    wanted_data = _csv_2014_processor(file_key)
+
+                    if wanted_data:
+                        diff = _diff_generator(form.cleaned_data['year'], wanted_data)
+
+                        if diff:
+
+                            session_data['data'] = diff
+                            session_data['year'] = form.cleaned_data['year'].pk
+                            session_data['has_data'] = True
+
+                            request.session[session_key] = session_data
+                            return redirect('accounting_main.views.accounting_import_step2', key)
 
     else:
         form = ImportForm()
@@ -402,7 +420,7 @@ def accounting_import_step2(request, key):
         year.save()
 
         request.session[session_key] = {}
-        messages.success(request, _(u"Compta importée !"))
+        messages.success(request, _(u"Compta importée ! Si tout est ok, n'oublie pas de notifier les gens."))
         return redirect('accounting_main.views.accounting_import_step0')
 
     return render(request, "accounting_main/import/step2.html", {'key': key, 'diff': diff})
