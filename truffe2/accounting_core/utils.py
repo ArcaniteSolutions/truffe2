@@ -46,6 +46,8 @@ class CostCenterLinked(object):
     def do(module, models_module, model_class, cache):
         """Execute code at startup"""
 
+        setattr(model_class.MetaData, 'costcenterlinked', True)
+
         return {
             'costcenter': models.ForeignKey(cache['accounting_core.models.CostCenter'], verbose_name=_(u'Centre de coût')),
         }

@@ -24,7 +24,9 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
         access = ['TRESORERIE', 'SECRETARIAT']
         world_ro_access = False
 
-    unit = FalseFK('units.models.Unit')
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
     account = FalseFK('accounting_core.models.Account', verbose_name=_(u'Compte de CG'))
     date = models.DateField()
     tva = models.DecimalField(_('TVA'), max_digits=20, decimal_places=2)
@@ -264,7 +266,8 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         access = ['TRESORERIE', 'SECRETARIAT']
         world_ro_access = False
 
-    unit = FalseFK('units.models.Unit')
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
 
     linked_line = FalseFK('accounting_main.models.AccountingLine', verbose_name=_(u'Ligne liée'), blank=True, null=True)
     linked_line_cache = models.CharField(max_length=4096)
@@ -441,14 +444,14 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
                     AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': unicode(self.linked_line.MetaState.states.get(old_status)), 'new': unicode(self.linked_line.MetaState.states.get('1_validated'))})).save()
 
-                    unotify_people(u'AccountingLine.{}.error'.format(self.unit), self.linked_line)
-                    notify_people(request, u'AccountingLine.{}.fixed'.format(self.unit), 'accounting_line_fixed', self.linked_line, self.linked_line.build_group_members_for_compta_everyone())
+                    unotify_people(u'AccountingLine.{}.error'.format(self.costcenter.unit), self.linked_line)
+                    notify_people(request, u'AccountingLine.{}.fixed'.format(self.costcenter.unit), 'accounting_line_fixed', self.linked_line, self.linked_line.build_group_members_for_compta_everyone())
 
-            unotify_people(u'AccountingError.{}.created'.format(self.unit), self)
-            notify_people(request, u'AccountingError.{}.fixed'.format(self.unit), 'accounting_error_fixed', self, self.build_group_members_for_compta_everyone_with_messages())
+            unotify_people(u'AccountingError.{}.created'.format(self.costcenter.unit), self)
+            notify_people(request, u'AccountingError.{}.fixed'.format(self.costcenter.unit), 'accounting_error_fixed', self, self.build_group_members_for_compta_everyone_with_messages())
 
     def create_signal(self, request):
-        notify_people(request, u'AccountingError.{}.created'.format(self.unit), 'accounting_error_created', self, self.build_group_members_for_compta_everyone_with_messages())
+        notify_people(request, u'AccountingError.{}.created'.format(self.costcenter.unit), 'accounting_error_created', self, self.build_group_members_for_compta_everyone_with_messages())
 
     def build_group_members_for_compta_everyone_with_messages(self):
 
