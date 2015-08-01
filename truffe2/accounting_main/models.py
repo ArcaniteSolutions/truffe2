@@ -2,12 +2,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.forms import CharField, Form, Textarea, BooleanField
 
 
 import json
-
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from accounting_core.models import AccountingGroupModels
@@ -97,7 +97,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         @staticmethod
         def extra_args_for_list(request, current_unit, current_year):
             from accounting_core.models import CostCenter
-            return {'costcenters': CostCenter.objects.filter(unit=current_unit, accounting_year=current_year, deleted=False).order_by('account_number')}
+            return {'costcenters': CostCenter.objects.filter(accounting_year=current_year, deleted=False).filter(Q(unit=current_unit) | (Q(unit__parent_hierarchique=current_unit) & Q(unit__is_commission=False))).order_by('account_number')}
 
         @staticmethod
         def extra_filter_for_list(request, current_unit, current_year, filtering):
