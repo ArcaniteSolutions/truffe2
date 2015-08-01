@@ -3,10 +3,12 @@
 
 {% block bonus_unit_updated %}
     update_users(pk);
+    update_rcashs();
 {% endblock %}
 
 {% block bonus_year_updated %}
     update_accounts();
+    update_rcashs();
 {% endblock %}
 
 {% block line_add_line_bonus %}
@@ -63,10 +65,10 @@
             if (e.val != "") {
                 $.ajax('{% url 'accounting_tools.views.get_withdrawal_infos' 99942999 %}'.replace(99942999, e.val)).done(function(data) {
 
-                    $('#id_user').val(data['user_pk']);
+                    $('#id_user').select2('val', data['user_pk']);
                     $('#id_user').attr('disabled', true);
 
-                    $('#id_costcenter').val(data['costcenter_pk']);
+                    $('#id_costcenter').select2('val', data['costcenter_pk']);
                     $('#id_costcenter').attr('disabled', true);
                 });
 
