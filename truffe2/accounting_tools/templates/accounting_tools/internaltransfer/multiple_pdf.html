@@ -1,0 +1,89 @@
+{% extends "base_pdf.html" %}
+{% load i18n humanize %}
+
+{% block bonus_css_pdf %}
+    @page {
+        size: a4 landscape;
+        margin: 1cm;
+        margin-bottom: 2.5cm;
+
+        @frame logoFrame {
+            -pdf-frame-content: logoFrameContent;
+            top: 0.4cm;
+            right: 1.2cm;
+            width: 25%;
+        }
+
+        @frame footer {
+            -pdf-frame-content: footerContent;
+            bottom: 0cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            height: 1cm;
+        }
+    }
+
+    th {
+        border: 1px black solid;
+        background-color: #ddd;
+        padding-top: 3px;
+        v-align: bottom;
+    }
+
+    .tr-line td {
+        text-align: center;
+    }
+
+    table#internaltransfers {
+        margin-left: 5%; 
+        margin-right: 5%;
+    }
+{% endblock %}
+
+{% block content %}
+    <div id="logoFrameContent">
+        <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
+    </div>
+
+    <h1 style="text-align: center; font-size: 32px; padding-top: 1.5cm;">{% trans "Transferts internes" %}</h1>
+
+    <table id="internaltransfers" width="90%">
+        <thead>
+            <tr>
+                <th colspan="2">{% trans "Débit" %}</th><th colspan="2">{% trans "Crédit" %}</th><th rowspan="2" colspan="2">{% trans "Libellé" %}</th><th rowspan="2">{% trans "Montant" %}</th>
+            </tr>
+            <tr>
+                <th>{% trans "Compte" %}</th><th>{% trans "Centre de coûts" %}</th><th>{% trans "Compte" %}</th><th>{% trans "Centre de coûts" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in objects %}
+                <tr class="tr-line">
+                    <td width="6%">{{object.account.account_number}}</td>
+                    <td width="20%">{{object.cost_center_from}}</td>
+                    <td width="6%">{{object.account.account_number}}</td>
+                    <td width="20%">{{object.cost_center_to}}</td>
+                    <td width="33%" colspan="2">{{object.description}}</td>
+                    <td width="15%"><b>CHF {{object.amount|intcomma}}</b></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr>
+            <tr><td colspan="3">&nbsp;</td><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+            <tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr>
+             
+            <tr><td colspan="3">&nbsp;</td><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        </tfoot>
+    </table>
+
+    {% block upload_files %}
+        {% for u in object.get_uploaded_images %}
+            <pdf:nextpage/>
+            <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
+        {% endfor %}
+    {% endblock %}
+{% endblock %} <!-- block content -->
+
+
+

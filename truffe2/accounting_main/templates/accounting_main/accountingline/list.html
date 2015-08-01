@@ -65,3 +65,11 @@
 
     </script>
 {% endblock %}
+
+{% block content_title %}
+    {{block.super}}
+
+    {% if CURRENT_YEAR.last_accounting_import %}
+        {% trans "importée le " %} {{CURRENT_YEAR.last_accounting_import|date:"d.m.Y"}} {% trans "à" %} {{CURRENT_YEAR.last_accounting_import|time:"H:i:s"}}
+    {% endif %}
+{% endblock %}

@@ -12,10 +12,14 @@ def get_attrs_of_sciper(sciper):
     filter = '(uniqueIdentifier=' + str(sciper) + ')'
     attrs = ['sn', 'givenName', 'mail']
 
+    name, firstname, email = '', '', ''
     for someone in con.search_s(base_dn, ldap.SCOPE_SUBTREE, filter, attrs):
-        name = someone[1]['sn'][0].split(',')[0]
-        firstname = someone[1]['givenName'][0].split(',')[0]
-        email = someone[1]['mail'][0]
+        name = getattr(someone[1], 'sn', [''])[0].split(',')[0]
+        firstname = getattr(someone[1], 'givenName', [''])[0].split(',')[0]
+        email = getattr(someone[1], 'mail', [''])[0]
+
+    if not name:
+        print "No user in LDAP with sciper {}".format(sciper)
 
     return (name, firstname, email)
 

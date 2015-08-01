@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load i18n l10n generic_extras rights_extras bootstrap3 thumbnail %}
+
+{% block title %}{{block.super}} :: {% trans "Comptabilité" %} :: {% trans "Import" %} :: {% trans "Étape 1" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li>{% trans "Import de la compta" %}</li>
+    <li>{% trans "Étape 1" %}</li>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-10 col-md-10 col-lg-10" style="max-width: 1000px;">
+            <div class="well">
+
+                <h1>{% trans "Import de la compta: Étape 1" %}</h1>
+
+                <p>{% trans "Merci de bien vouloir sélectionner l'année comptable, le fichier et le type de fichier pour commencer." %}</p>
+
+
+                <form class="form-horizontal" method="POST" enctype="multipart/form-data" id="generic_main_form" action="?">
+                    {% csrf_token %}
+
+                    {% localize off %}
+                        {% bootstrap_form form layout='horizontal' %}
+                    {% endlocalize %}
+
+                </form>
+
+
+                <div class="form-actions">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit(); $(this).html('{% trans "Merci de patienter..." %}');"><i class="glyphicon glyphicon-arrow-right"></i> {% trans "Continuer" %}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                $(function () {
+                    $('#id_year, #id_type').removeClass('form-control').css('width', '100%').select2();
+                });
+            </script>
+
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2">
+            <div class="well">
+                <h3>{% trans "Notifier les trésoriers" %}</h3>
+
+                {% trans "Pour envoyer une notification à tous les trésoriers afin de les informer d'une nouvelle comptabilité, clique sur ce bouton:" %}
+
+                <form action="?send=notif" method="POST">
+                    {% csrf_token %}
+
+                    <center>
+                        <br />
+                        <button class="btn btn-warning"><i class="fa fa-envelope"></i> {% trans "Envoyer" %}</button>
+                        <br />
+                        <br />
+                    </center>
+
+                </form>
+
+                {% trans "Note qu'il faut commencer par uploader la compta avant :)" %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block menuid %}menu-compta-import{% endblock %}

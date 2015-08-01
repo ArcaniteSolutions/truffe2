@@ -183,7 +183,6 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         return retour
 
     def is_user_in_groupe(self, user, access=None, parent_mode=False, no_parent=False):
-
         for accreditation in self.accreditation_set.filter(user=user, end_date=None):
 
             if accreditation.is_valid():
@@ -282,7 +281,8 @@ class _Role(GenericModel, AgepolyEditableModel):
         ('INFORMATIQUE', _('Informatique')),
         ('ACCREDITATION', _(u'Accréditations')),
         ('LOGISTIQUE', _('Logistique')),
-        ('SECRETARIAT', _(u'Secrétariat'))
+        ('SECRETARIAT', _(u'Secrétariat')),
+        ('COMMISSIONS', _(u'Commissions'))
     )
 
     access = MultiSelectField(choices=ACCESS_CHOICES, blank=True, null=True)
@@ -412,6 +412,11 @@ class Accreditation(models.Model, UnitEditableModel):
 
         from notifications.utils import notify_people
         dest_users = self.people_in_root_unit('ACCREDITATION')
+
+        for user in self.people_in_root_unit('COMMISSIONS'):
+            if user not in dest_users:
+                dest_users.append(user)
+
         notify_people(request, 'Accreds.ToValidate', 'accreds_tovalidate', self, dest_users)
 
     def __unicode__(self):

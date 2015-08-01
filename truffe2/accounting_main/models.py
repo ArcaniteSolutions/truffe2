@@ -34,6 +34,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
     input = models.DecimalField(_(u'Crédit'), max_digits=20, decimal_places=2)
     current_sum = models.DecimalField(_('Situation'), max_digits=20, decimal_places=2)
     document_id = models.PositiveIntegerField(_(u'Numéro de pièce comptable'), blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -66,7 +67,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
             '10': '75px',
         }
 
-        default_sort = "[1, 'desc']"  # date
+        default_sort = "[0, 'desc']"  # order
         filter_fields = ('date', 'text', 'tva', 'output', 'input', 'current_sum')
 
         details_display = list_display + [
@@ -80,7 +81,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
 
         menu_id = 'menu-compta-compta'
         not_sortable_colums = []
-        trans_sort = {'get_output_display': 'output', 'get_input_display': 'input', 'get_current_sum_display': 'current_sum'}
+        trans_sort = {'get_output_display': 'output', 'get_input_display': 'input', 'get_current_sum_display': 'current_sum', 'pk': 'order'}
         safe_fields = ['get_output_display', 'get_input_display', 'get_current_sum_display']
         datetime_fields = ['date']
 
@@ -98,13 +99,13 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             return {'costcenters': CostCenter.objects.filter(unit=current_unit, accounting_year=current_year, deleted=False).order_by('account_number')}
 
         @staticmethod
-        def extra_filter_for_list(request, current_unit, current_year):
+        def extra_filter_for_list(request, current_unit, current_year, filtering):
             from accounting_core.models import CostCenter
             try:
                 cc = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
             except:
                 cc = None
-            return lambda x: x.filter(costcenter=cc)
+            return lambda x: filtering(x).filter(costcenter=cc)
 
     class MetaState:
 
@@ -145,7 +146,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
         states_default_filter = '0_imported,1_validated,2_error'
         states_default_filter_related = '0_imported,1_validated,2_error'
-        status_col_id = 6
+        status_col_id = 9
 
         class FormError(Form):
             error = CharField(label=_('Description de l\'erreur'), help_text=_(u'Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide si tu ne veux pas créer une erreur (mais ceci est fortement déconseillé)'), required=False, widget=Textarea)
@@ -245,6 +246,17 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
     def get_errors(self):
         return self.accountingerror_set.filter(deleted=False).order_by('status')
+
+    def __init__(self, *args, **kwargs):
+        super(_AccountingLine, self).__init__(*args, **kwargs)
+
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
+        self.MetaRights.rights_update({
+            'IMPORT': _(u'Peut importer la compta'),
+        })
+
+    def rights_can_IMPORT(self, user):
+        return self.rights_in_root_unit(user, ['TRESORERIE', 'SECRETARIAT'])
 
 
 class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
@@ -380,7 +392,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         if self.linked_line:
             return self.linked_line.__unicode__()
         elif self.linked_line_cache:
-            return '{} (Cache)'.format(self.linked_line_cache)
+            return u'{} (Cache)'.format(self.linked_line_cache)
         else:
             return _(u'(Aucune ligne liée)')
 

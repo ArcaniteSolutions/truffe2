@@ -13,5 +13,13 @@
         if (withdrawn_date.length)
             $('h3').eq(1).before("<h3>{% trans "Réservé au Comité de Direction" %}</h3>");
         $('h3').eq(1).after(withdrawn_date);
+        $('#id_withdrawn_date').removeClass('hasDatepicker').datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>',
+                                                                         nextText: '<i class="fa fa-chevron-right"></i>'});
+
+        $(function(){
+            // Select2 of user field
+            $('#id_user').removeClass('form-control');
+            $('#id_user').css('width', '100%').select2();
+        });
     </script>
 {% endblock %}

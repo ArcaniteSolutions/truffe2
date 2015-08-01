@@ -21,6 +21,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
     end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
     subvention_deadline = models.DateTimeField(_(u'Délai pour les subventions'), blank=True, null=True)
+    last_accounting_import = models.DateTimeField(_(u'Dernier import de la compta'), blank=True, null=True)
 
     class MetaData:
         list_display = [
@@ -117,6 +118,10 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
     class MetaEdit:
         datetime_fields = ['start_date', 'end_date', 'subvention_deadline']
 
+        only_if = {
+            'last_accounting_import': lambda _: False
+        }
+
     class Meta:
         abstract = True
 
@@ -192,7 +197,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
         copiable = True
 
     def __unicode__(self):
-        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
+        return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraClean(self, data, form):
         """Check that unique_together is fulfiled"""
@@ -330,7 +335,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         foreign = (('category', 'AccountCategory'),)
 
     def __unicode__(self):
-        return u"{} - {} ({})".format(self.account_number, self.name, self.accounting_year)
+        return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Reduce the list of possible categories to the leaves of the hierarchical tree."""

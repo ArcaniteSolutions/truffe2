@@ -1,4 +1,4 @@
-{% load i18n humanize %}
+{% load i18n %}
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -39,7 +39,7 @@
                 font-family: "DejaVu";
             }
 
-            tr {
+            .liste tr, .summary tr {
                 border-bottom: 1px #ddd solid;
             }
 
@@ -47,17 +47,25 @@
                 border-top: 2px black solid;
             }
 
-            .tr-line{
-                 border: 1px black solid;
-                 padding:3px;
+            .tr-line {
+                border: 1px black solid;
+                padding:3px;
+            }
+            
+            .tr-info {
+                border-bottom: 1px black solid;
             }
 
-            .tr-header {
+            .liste tr.tr-header, .summary tr.tr-header {
                 border-bottom: 2px black solid;
                 font-weight: bold;
             }
 
-            .tr-header td {
+            .tr-header td, .tr-info td, .tr-sep td {
+               padding-top: 5px;
+            }
+
+            .tr-line td {
                padding-top: 5px;
             }
 
@@ -98,23 +106,22 @@
             
             <table style="margin-top:-150px;">
                 {% block unit_def %}
-                    <tr class="tr-sep"><td class="td-title">{% trans "Pour" %} {% if object.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.unit.is_commission %}{% trans "la commission" %}{% endif %}{% trans " : " %}</td><td class="td-large">{{object.unit}}</td></tr>
-                    <tr class="tr-sep"><td class="td-title">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-large">{{object.costcenter}}</td></tr>
+                    <tr class="tr-info"><td class="td-title">{% trans "Pour" %} {% if object.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.unit.is_commission %}{% trans "la commission" %}{% endif %}{% trans " : " %}</td><td class="td-large">{{object.unit}}</td></tr>
+                    <tr class="tr-info"><td class="td-title">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-large">{{object.costcenter}}</td></tr>
                 {% endblock %}
 
                 {% block pre_linkedinfo %}{% endblock %}
 
                 {% block linkedinfo_basics %}
-                    <tr class="tr-sep"><td class="td-label">{% trans "Nom : " %}</td><td class="td-large">{{object.linked_info.last_name|upper}}</td></tr>
-                    <tr class="tr-sep"><td class="td-label">{% trans "Prenom : " %}</td><td class="td-large">{{object.linked_info.first_name}}</td></tr>
-                    <tr class="tr-sep"><td class="td-label">{% trans "Téléphone : " %}</td><td class="td-large">{{object.linked_info.phone}}</td></tr>
+                    <tr class="tr-info"><td class="td-label">{% trans "Nom : " %}</td><td class="td-large">{{object.linked_info.last_name|upper}}</td></tr>
+                    <tr class="tr-info"><td class="td-label">{% trans "Prenom : " %}</td><td class="td-large">{{object.linked_info.first_name}}</td></tr>
+                    <tr class="tr-info"><td class="td-label">{% trans "Téléphone : " %}</td><td class="td-large">{{object.linked_info.phone}}</td></tr>
                 {% endblock %}
 
                 {% block linkedinfo_advanced %}
-                <tr><td colspan="2">&nbsp;</td></tr>
-                <tr class="tr-sep"><td class="td-label" valign="top">{% trans "Adresse : " %}</td><td class="td-large">{{object.linked_info.address|linebreaksbr}}</td></tr>
-                <tr><td class="td-large">{% trans "Nom de la banque (Ou poste) : " %}</td><td class="td-large">{{object.linked_info.bank}}</td></tr>
-                <tr class="tr-sep"><td class="td-large">{% trans "IBAN / CCP : " %}</td><td class="td-large">{{object.linked_info.iban_ccp}}</td></tr>
+                <tr class="tr-info"><td class="td-label" valign="top">{% trans "Adresse : " %}</td><td class="td-large">{{object.linked_info.address|linebreaksbr}}</td></tr>
+                <tr class="tr-info"><td class="td-label">{% trans "Nom de la banque (Ou poste) : " %}</td><td class="td-large">{{object.linked_info.bank}}</td></tr>
+                <tr class="tr-info"><td class="td-label">{% trans "IBAN / CCP : " %}</td><td class="td-large">{{object.linked_info.iban_ccp}}</td></tr>
                 {% endblock %}
 
                 {% block post_linkedinfo %}{% endblock %}

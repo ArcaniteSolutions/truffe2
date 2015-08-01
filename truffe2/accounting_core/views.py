@@ -235,3 +235,22 @@ def users_available_list_by_unit(request, upk):
     retour = [{'pk': user.pk, 'name': user.__unicode__()} for user in users]
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
+
+
+@login_required
+def account_available_list(request):
+    """Return the list of available accounts for a given year"""
+    from units.models import Unit
+    from accounting_core.models import AccountingYear, Account
+
+    accounts = Account.objects.filter(deleted=False).order_by('account_number')
+
+    if request.GET.get('ypk'):
+        accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
+        accounts = accounts.filter(accounting_year=accounting_year)
+
+    accounts = filter(lambda acc: acc.user_can_see(request.user), list(accounts))
+
+    retour = {'data': [{'pk': account.pk, 'name': account.__unicode__()} for account in accounts]}
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')

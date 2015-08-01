@@ -1,0 +1,6 @@
+{% extends "generic/generic/list_json.html" %}
+{% load i18n %}
+
+{% block bonus_buttons %}
+	<a href=\"{% url 'accounting_tools.views.internaltransfer_pdf' elem.pk %}{% trans "Transfert interne" %} - {{elem.name}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-primary\" title=\"{% trans "PDF" %}\" rel=\"tooltip\" multido_action=\"window.location = '{% url "accounting_tools.views.internaltransfer_pdf" 9999429999 %}';\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-default'><i class='fa fa-download'></i> {% trans "PDF" %}</a>\"><i class=\"fa fa-download\"></i></a>
+{% endblock %}
