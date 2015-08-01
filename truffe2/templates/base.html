@@ -342,6 +342,7 @@
                                         {% ifhasright 'accounting_main.models.Budget' user 'LIST' %}
                                             <li id="menu-compta-budget">
                                                 <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
+                                        {% endifhasright %}
                                     </ul>
                                 </li>
                                 <li>

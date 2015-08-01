@@ -633,6 +633,22 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.costcenter)
 
+    def get_total_incomes(self):
+        total = 0.0
+
+        for line in self.budgetline_set.all():
+            if line.amount > 0:
+                total += float(line.amount)
+        return total
+
+    def get_total_outcomes(self):
+        total = 0.0
+
+        for line in self.budgetline_set.all():
+            if line.amount < 0:
+                total += abs(float(line.amount))
+        return total
+
 
 class BudgetLine(models.Model):
     budget = models.ForeignKey('Budget', verbose_name=_('Budget'))
