@@ -317,7 +317,7 @@
                             {% endifhasright %}
                         </ul>
                     </li>
-                    {% if user.is_superuser or user.is_impersonate %} <!-- Check temporaire pour ne pas perturber les gens temps que c'est pas en prod -->
+                    {% if user.is_superuser or user.is_impersonate or user.is_betatester %}
                         <li>
                             <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> <span class="menu-item-parent">{% trans "Comptabilité" %}</span></a>
                             <ul>

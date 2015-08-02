@@ -34,6 +34,8 @@
                         {% if user.is_superuser %}
                             <dt>{% trans "Est admin ?" %}</dt>
                             <dd>{% with v=user_to_display.is_superuser %}{% include "yesorno.html" %}{% endwith %}</dd>
+                            <dt>{% trans "Est betatesteur ?" %}</dt>
+                            <dd>{% with v=user_to_display.is_betatester %}{% include "yesorno.html" %}{% endwith %}</dd>
                         {% endif %}
                     </dl>
 
