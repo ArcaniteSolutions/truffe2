@@ -17,8 +17,7 @@ $('.minifyme, #hide-menu >:first-child > a').click(function(e) {
 //Hide useless menus
 $(document).ready(function() {
 
-    $('nav > ul > li > ul').each(function(__, elem) {
-
+    $('nav > ul li ul').each(function(__, elem) {
         if ($(elem).children().length === 0) {
             $(elem).parent().hide();
         }
@@ -37,7 +36,7 @@ function activate_menu(id) {
 
 $(function () {
     $('[data-toggle="tooltip"]').tooltip({'container': 'body'});
-})
+});
 
 function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1);
@@ -49,7 +48,7 @@ function getUrlParameter(sParam) {
         }
     }
 
-    return ''
+    return '';
 }
 
 $.fn.pulse = function(options) {
