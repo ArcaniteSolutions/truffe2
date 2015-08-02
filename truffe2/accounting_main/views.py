@@ -331,7 +331,7 @@ def _diff_generator(year, data):
             messages.warning(request, "Le compte de CG {} n'existe pas !".format(wanted_line['account']))
             return False
 
-        line = AccountingLine.objects.filter(unit=costcenter.unit, account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year).exclude(pk__in=valids_ids).first()
+        line = AccountingLine.objects.filter(account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year).exclude(pk__in=valids_ids).first()
 
         if line:
 
@@ -460,7 +460,7 @@ def accounting_import_step2(request, key):
             costcenter = CostCenter.objects.get(accounting_year=year, account_number=wanted_line['costcenter'])
             account = Account.objects.get(accounting_year=year, account_number=wanted_line['account'])
 
-            line = AccountingLine(unit=costcenter.unit, account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year, current_sum=wanted_line['current_sum'], order=wanted_line['order'])
+            line = AccountingLine(account=account, costcenter=costcenter, date=wanted_line['date'], tva=wanted_line['tva'], text=wanted_line['text'], output=wanted_line['output'], input=wanted_line['input'], document_id=wanted_line['document_id'], deleted=False, accounting_year=year, current_sum=wanted_line['current_sum'], order=wanted_line['order'])
             line.save()
             AccountingLineLogging(object=line, who=request.user, what='created').save()
 
