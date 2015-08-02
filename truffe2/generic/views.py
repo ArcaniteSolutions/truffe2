@@ -33,9 +33,10 @@ import importlib
 import copy
 
 
+from accounting_core.utils import CostCenterLinked
 from generic.datatables import generic_list_json
 from generic.forms import ContactForm
-from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail
+from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail, has_property, set_property
 from rights.utils import BasicRightModel
 
 
@@ -166,7 +167,6 @@ def generate_list_json(module, base_name, model_class, tag_class):
     @login_required
     @csrf_exempt
     def _generic_list_json(request):
-
         edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
         show_view = '%s.views.%s_show' % (module.__name__, base_name)
         delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
@@ -182,7 +182,10 @@ def generate_list_json(module, base_name, model_class, tag_class):
                 else:
                     filter_ = lambda x: x.filter(unit=None, unit_blank_user=request.user)
             else:
-                filter_ = lambda x: x.filter(unit=current_unit)
+                if hasattr(model_class.MetaData, 'costcenterlinked') and model_class.MetaData.costcenterlinked:
+                    filter_ = lambda x: x.filter(Q(costcenter__deleted=False) & (Q(costcenter__unit=current_unit) | (Q(costcenter__unit__parent_hierarchique=current_unit) & Q(costcenter__unit__is_commission=False))))
+                else:
+                    filter_ = lambda x: x.filter(unit=current_unit)
         else:
             filter_ = lambda x: x
 
@@ -323,7 +326,14 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             if unit_mode:
                 if unit_blank and not current_unit:
                     obj.unit_blank_user = request.user
-                obj.unit = current_unit
+
+                if has_property(obj, 'MetaData.costcenterlinked') and obj.MetaData.costcenterlinked and current_unit.costcenter_set.first():
+                    obj.costcenter = current_unit.costcenter_set.first()
+
+                if has_property(obj, obj.MetaRights.linked_unit_property):
+                    set_property(obj, obj.MetaRights.linked_unit_property, current_unit)
+                else:
+                    obj.unit = current_unit
 
             if year_mode:
 
@@ -416,8 +426,13 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
             if form.is_valid() and all_forms_valids:  # If the form is valid
 
-                obj = form.save()
+                right = 'EDIT' if obj.pk else 'CREATE'
+                obj = form.save(commit=False)
+                if not obj.rights_can(right, request.user):
+                    messages.error(_(u'Tu n\'as pas le droit de créer/modifier cet objet.'))
+                    return redirect('{}.views.{}_edit'.format(module.__name__, base_name), pk='~' if right == 'CREATE' else obj.pk)
 
+                obj.save()
                 lines_adds = {}
                 lines_updates = {}
                 lines_deletes = {}
@@ -579,8 +594,6 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         else:
             files = None
 
-        from accounting_core.utils import CostCenterLinked
-
         costcenter_mode = isinstance(obj, CostCenterLinked)
 
         data = {'Model': model_class, 'form': form, 'list_view': list_view, 'show_view': show_view, 'unit_mode': unit_mode, 'current_unit': current_unit,
@@ -621,8 +634,9 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
         if unit_mode:
-            update_current_unit(request, obj.unit.pk if obj.unit else -1)
-            current_unit = obj.unit
+            unit = obj.costcenter.unit if isinstance(obj, CostCenterLinked) else obj.unit
+            update_current_unit(request, unit.pk if unit else -1)
+            current_unit = unit
 
         if year_mode:
             update_current_year(request, obj.accounting_year.pk)

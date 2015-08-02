@@ -63,7 +63,7 @@ def copy_accounting_year(request, pk):
 
 @login_required
 def costcenter_available_list(request):
-    """Return the list of available costcenters for a given unit and year"""
+    """Return the list of available costcenters for a given unit and year plus its children (except commissions)"""
     from units.models import Unit
     from accounting_core.models import AccountingYear, CostCenter
 
@@ -71,7 +71,8 @@ def costcenter_available_list(request):
 
     if request.GET.get('upk'):
         unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
-        costcenters = costcenters.filter(unit=unit)
+        unit_and_sub_pks = [unit.pk] + map(lambda un: un.pk, unit.sub_eqi() + unit.sub_grp())
+        costcenters = costcenters.filter(unit__pk__in=unit_and_sub_pks)
 
     if request.GET.get('ypk'):
         accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))

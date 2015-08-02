@@ -126,6 +126,26 @@ def get_property(obj, prop):
     return obj
 
 
+def has_property(obj, prop):
+
+    for attr in prop.split('.'):
+        if not hasattr(obj, attr):
+            return False
+        obj = getattr(obj, attr)
+
+    return True
+
+
+def set_property(obj, prop, val):
+
+    for attr in prop.split('.')[:-1]:
+        if not hasattr(obj, attr):
+            raise AttributeError('Attribute {} of {} not found in {}'.format(attr, prop, obj))
+        obj = getattr(obj, attr)
+
+    setattr(obj, prop.split('.')[-1], val)
+
+
 def generate_pdf(template, request, contexte):
     template = get_template(template)
     contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now(), 'user': request.user})

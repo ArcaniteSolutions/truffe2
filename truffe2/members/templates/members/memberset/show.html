@@ -152,7 +152,6 @@
             var fix_headers = setInterval(function(){ remove_headers(); }, 1000);
 
             function remove_headers() {
-                console.log("LAUNCH");
                 var elem_removed = $('.FixedHeader_Cloned.dataTables_wrapper.fixedHeader.FixedHeader_Header').remove();
                 if (elem_removed.length > 0) {
                     clearInterval(fix_headers);
@@ -163,7 +162,7 @@
         // Get CSRF Cookie
         function getCookie(name) {
             var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
+            if (document.cookie && document.cookie !== '') {
                 var cookies = document.cookie.split(';');
                 for (var i = 0; i < cookies.length; i++) {
                     var cookie = jQuery.trim(cookies[i]);
@@ -193,9 +192,9 @@
         }
 
         function toggle_fees(mship_id) {
-            $.post("{% url "members.views.membership_toggle_fees" 99942999 %}".replace(99942999, mship_id),
-                   function(){data_table_main_list_table._fnAjaxUpdate()}
-            );
+            $.post("{% url "members.views.membership_toggle_fees" 99942999 %}".replace(99942999, mship_id), function(){
+                data_table_main_list_table._fnAjaxUpdate();
+            });
         }
     </script>
 {% endblock %}

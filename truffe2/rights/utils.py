@@ -9,6 +9,8 @@ import inspect
 import copy
 import time
 
+from app.utils import has_property, get_property, set_property
+
 
 class ModelWithRight(object):
     """A basic class for a model with right. Mainly implement the can(RIGHT, user) function and helper functions"""
@@ -30,7 +32,9 @@ class ModelWithRight(object):
         dummy = cls()
 
         if unit_to_link and hasattr(dummy.MetaRights, 'linked_unit_property') and dummy.MetaRights.linked_unit_property:
-            setattr(dummy, dummy.MetaRights.linked_unit_property, unit_to_link)
+            if hasattr(dummy, 'MetaData') and hasattr(dummy.MetaData, 'costcenterlinked') and dummy.MetaData.costcenterlinked and unit_to_link.costcenter_set.first():
+                setattr(dummy, 'costcenter', unit_to_link.costcenter_set.first())
+            set_property(dummy, dummy.MetaRights.linked_unit_property, unit_to_link)
 
         if unit_to_link and hasattr(dummy, 'generic_set_dummy_unit'):
             dummy.generic_set_dummy_unit(unit_to_link)
@@ -121,11 +125,10 @@ class ModelWithRight(object):
         return unit.is_user_in_groupe(user, access, no_parent=no_parent)
 
     def rights_in_linked_unit(self, user, access=None):
-        if not self.MetaRights.linked_unit_property or not hasattr(self, self.MetaRights.linked_unit_property):
+        if not self.MetaRights.linked_unit_property or not has_property(self, self.MetaRights.linked_unit_property):
             return False
 
-        unit = getattr(self, self.MetaRights.linked_unit_property)
-
+        unit = get_property(self, self.MetaRights.linked_unit_property)
         if not unit:
             e = Exception("Tried to test right in unit without an unit")
             raise e
@@ -157,10 +160,10 @@ class ModelWithRight(object):
 
     def people_in_linked_unit(self, access=None):
 
-        if not self.MetaRights.linked_unit_property or not hasattr(self, self.MetaRights.linked_unit_property):
+        if not self.MetaRights.linked_unit_property or not has_property(self, self.MetaRights.linked_unit_property):
             return False
 
-        unit = getattr(self, self.MetaRights.linked_unit_property)
+        unit = get_property(self, self.MetaRights.linked_unit_property)
 
         return self.people_in_unit(unit, access)
 
@@ -243,13 +246,18 @@ class UnitEditableModel(BasicRightModel):
 
     def rights_can_SHOW(self, user):
 
-        if not hasattr(self, self.MetaRights.linked_unit_property):
+        if not has_property(self, self.MetaRights.linked_unit_property):
             # Check if at least one of unit match
             for accred in user.accreditation_set.filter(end_date=None):
-                setattr(self, self.MetaRights.linked_unit_property, accred.unit)
-                if self.rights_can_SHOW(user):
-                    return True
-            return False
+                if hasattr(self, 'MetaData') and hasattr(self.MetaData, 'costcenterlinked') and self.MetaData.costcenterlinked and accred.unit.costcenter_set.first():
+                    setattr(self, 'costcenter', accred.unit.costcenter_set.first())
+                try:
+                    set_property(self, self.MetaRights.linked_unit_property, accred.unit)
+                    if self.rights_can_SHOW(user):
+                        return True
+                except:
+                    pass
+            return hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro
 
         return (hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro) or (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
@@ -275,10 +283,10 @@ class UnitExternalEditableModel(BasicRightModel):
     def rights_can_SHOW(self, user):
 
         # Peut toujours afficher, de manière générique
-        if not hasattr(self, self.MetaRights.linked_unit_property):
+        if not has_property(self, self.MetaRights.linked_unit_property):
             return True
 
-        if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
+        if not get_property(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
             try:
                 return not self.unit_blank_user or self.unit_blank_user == user
             except:
@@ -289,10 +297,10 @@ class UnitExternalEditableModel(BasicRightModel):
     def rights_can_EDIT(self, user):
 
         # Peut toujours afficher, de manière générique
-        if not hasattr(self, self.MetaRights.linked_unit_property):
+        if not has_property(self, self.MetaRights.linked_unit_property):
             return True
 
-        if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
+        if not get_property(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
             try:
                 return not self.unit_blank_user or self.unit_blank_user == user
             except:
@@ -302,7 +310,7 @@ class UnitExternalEditableModel(BasicRightModel):
 
     def rights_peoples_in_EDIT(self):
 
-        if not getattr(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
+        if not get_property(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
             return [self.unit_blank_user]
 
         return self.people_in_linked_unit(self.MetaRightsUnit.access)
