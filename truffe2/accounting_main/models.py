@@ -98,7 +98,128 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         @staticmethod
         def extra_args_for_list(request, current_unit, current_year):
             from accounting_core.models import CostCenter
-            return {'costcenters': CostCenter.objects.filter(accounting_year=current_year, deleted=False).filter(Q(linked_line=self, accounting_year=self.accounting_year, costcenter=self.costcenter)
+            return {'costcenters': CostCenter.objects.filter(accounting_year=current_year, deleted=False).filter(Q(unit=current_unit) | (Q(unit__parent_hierarchique=current_unit) & Q(unit__is_commission=False))).order_by('account_number')}
+
+        @staticmethod
+        def extra_filter_for_list(request, current_unit, current_year, filtering):
+            from accounting_core.models import CostCenter
+            try:
+                cc = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
+            except:
+                cc = None
+            return lambda x: filtering(x).filter(costcenter=cc)
+
+    class MetaState:
+
+        states = {
+            '0_imported': _(u'En attente'),
+            '1_validated': _(u'Validé'),
+            '2_error': _(u'Erreur'),
+        }
+
+        default = '0_imported'
+
+        states_texts = {
+            '0_imported': _(u'La ligne vient d\'être importée'),
+            '1_validated': _(u'La ligne est validée'),
+            '2_error': _(u'La ligne est fausse et nécessite une correction'),
+        }
+
+        states_links = {
+            '0_imported': ['1_validated', '2_error'],
+            '1_validated': ['2_error'],
+            '2_error': ['1_validated'],
+        }
+
+        states_colors = {
+            '0_imported': 'primary',
+            '1_validated': 'success',
+            '2_error': 'danger',
+        }
+
+        states_icons = {
+        }
+
+        list_quick_switch = {
+            '0_imported': [('2_error', 'fa fa-warning', _(u'Signaler une erreur')), ('1_validated', 'fa fa-check', _(u'Marquer comme validé')), ],
+            '1_validated': [('2_error', 'fa fa-warning', _(u'Signaler une erreur')), ],
+            '2_error': [('1_validated', 'fa fa-check', _(u'Marquer comme validé')), ],
+        }
+
+        states_default_filter = '0_imported,1_validated,2_error'
+        states_default_filter_related = '0_imported,1_validated,2_error'
+        status_col_id = 9
+
+        class FormError(Form):
+            error = CharField(label=_('Description de l\'erreur'), help_text=_(u'Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide si tu ne veux pas créer une erreur (mais ceci est fortement déconseillé)'), required=False, widget=Textarea)
+
+        class FormValid(Form):
+            fix_errors = BooleanField(label=_(u'Résoudre les erreurs liées'), help_text=_(u'Fix automatiquement les erreurs liées à la ligne. Attention, des erreurs peuvent être dissociées !'), required=False, initial=True)
+
+        states_bonus_form = {
+            '2_error': FormError,
+            ('2_error', '1_validated'): FormValid
+        }
+
+    def may_switch_to(self, user, dest_state):
+
+        return super(_AccountingLine, self).rights_can_EDIT(user) and super(_AccountingLine, self).may_switch_to(user, dest_state)
+
+    def can_switch_to(self, user, dest_state):
+
+        if not super(_AccountingLine, self).rights_can_EDIT(user):
+            return (False, _('Pas les droits.'))
+
+        return super(_AccountingLine, self).can_switch_to(user, dest_state)
+
+    def rights_can_EDIT(self, user):
+        return False  # Never !
+
+    def rights_can_DISPLAY_LOG(self, user):
+        """Always display log, even if current state dosen't allow edit"""
+        return super(_AccountingLine, self).rights_can_EDIT(user)
+
+    def __unicode__(self):
+        if self.output and self.input:
+            return u'{}: {} (-{}/+{})'.format(self.date, self.text, self.output, self.input)
+        elif self.output:
+            return u'{}: {} (-{})'.format(self.date, self.text, self.output)
+        else:
+            return u'{}: {} (+{})'.format(self.date, self.text, self.input)
+
+    def get_output_display(self):
+        if self.output:
+            return '<span class="txt-color-red">-{}</span>'.format(self.output)
+        else:
+            return ''
+
+    def get_input_display(self):
+        if self.input:
+            return '<span class="txt-color-green">{}</span>'.format(self.input)
+        else:
+            return ''
+
+    def get_current_sum_display(self):
+        if self.current_sum < 0:
+            return '<span class="txt-color-green">{}</span>'.format(-self.current_sum)
+        elif self.current_sum > 0:
+            return '<span class="txt-color-red">-{}</span>'.format(-self.current_sum)
+        else:
+            return '0.00'
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        from accounting_main.models import AccountingError, AccountingErrorLogging
+
+        s = super(_AccountingLine, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '2_error':
+
+            if request.POST.get('error'):
+                ae = AccountingError(initial_remark=request.POST.get('error'), linked_line=self, accounting_year=self.accounting_year, costcenter=self.costcenter)
                 ae.save()
                 AccountingErrorLogging(who=request.user, what='created', object=ae).save()
 
