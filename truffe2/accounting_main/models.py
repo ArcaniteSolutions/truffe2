@@ -649,6 +649,9 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                 total += abs(float(line.amount))
         return total
 
+    def get_total(self):
+        return sum(map(lambda line: line.amount, list(self.budgetline_set.all())))
+
 
 class BudgetLine(models.Model):
     budget = models.ForeignKey('Budget', verbose_name=_('Budget'))

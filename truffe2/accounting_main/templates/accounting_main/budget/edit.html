@@ -72,19 +72,22 @@
         function add_line(table_id, default_value) {
             $("#" + table_id).append("<tr class='account'><td><select width='100%' name='account-" + table_id + "-" + (nb_select++) + "'></select></td><td colspan='2' style='text-align: right; padding-right: 10px;'>CHF 0.00</td></tr>");
 
+            var new_select = $('#' + table_id + ' select:last');
+
             $.ajax(('{% url 'accounting_core.views.accounts_by_year' 99942999 %}?' + table_id + '=true').replace(99942999, $('#input_ypk').val())).done(function (data) {
-                $('#' + table_id + ' select:last option').remove();
+
+                new_select.find('option').remove();
 
                 for (var i = 0; i < data.length; i++) {
-                    $('#' + table_id + ' select:last').append(
+                    new_select.append(
                         $('<option></option>').val(data[i].value).html(data[i].text)
                     );
                 }
 
-                $('#' + table_id + ' select:last').css('width', '100%').select2();
+                new_select.css('width', '100%').select2();
 
                 if (typeof default_value !== 'undefined')
-                    $('#' + table_id + ' select:last').select2('val', default_value).trigger("change");
+                    new_select.select2('val', default_value).trigger("change");
             });
 
             row_id = add_subline($("#" + table_id + " tr:last"));
@@ -170,6 +173,11 @@
             total += sub_in;
 
             $('#total').text("CHF " + total.toFixed(2));
+
+            if(total < 0)
+                $('#total').css('color', 'red');
+            else
+                $('#total').css('color', '');
         }
 
         function get_initial_budget_infos() {

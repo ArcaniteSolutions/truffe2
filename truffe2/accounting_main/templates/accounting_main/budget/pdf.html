@@ -102,6 +102,12 @@
             <td>CHF {{object.get_total_outcomes|floatformat:"2"|intcomma}}</td>
             <td>CHF {{object.get_total_incomes|floatformat:"2"|intcomma}}</td>
         </tr>
+
+        <tr style="text-align: right;">
+        {% with total=object.get_total %}
+            <td colspan="2" {% if total < 0 %}style="color:red;"{% endif %}>CHF {{object.get_total|floatformat:"2"|intcomma}}</td>
+        {% endwith %}
+        </tr>
     </tfoot>
     </table>
 {% endblock %}
