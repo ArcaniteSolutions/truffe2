@@ -104,7 +104,7 @@ def budget_getinfos(request, pk):
     from accounting_main.models import Budget
 
     budget = get_object_or_404(Budget, pk=pk)
-    if not budget.rights_can_EDIT(request.user):
+    if not budget.rights_can('EDIT', request.user):
         raise Http404
 
     lines = map(lambda line: {'table_id': 'incomes' if line.amount > 0 else 'outcomes', 'account_id': line.account.pk,
@@ -121,7 +121,7 @@ def budget_pdf(request, pk):
 
     budget = get_object_or_404(Budget, pk=pk, deleted=False)
 
-    if not budget.static_rights_can('SHOW', request.user):
+    if not budget.rights_can('SHOW', request.user):
         raise Http404
 
     lines = map(lambda line: {'table_id': 'incomes' if line.amount > 0 else 'outcomes', 'account': line.account,

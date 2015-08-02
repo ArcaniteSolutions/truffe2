@@ -169,7 +169,7 @@ def tva_available_list(request):
 def leaves_cat_by_year(request, ypk):
     from accounting_core.models import AccountCategory
 
-    retour = AccountCategory.objects.filter(accounting_year__pk=ypk).order_by('order')
+    retour = AccountCategory.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('order')
     retour = filter(lambda ac: not ac.get_children_categories().exists(), retour)
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
@@ -180,7 +180,7 @@ def leaves_cat_by_year(request, ypk):
 def parents_cat_by_year(request, ypk):
     from accounting_core.models import AccountCategory
 
-    retour = AccountCategory.objects.filter(accounting_year__pk=ypk).order_by('order')
+    retour = AccountCategory.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('order')
     retour = filter(lambda ac: ac.get_children_categories().exists(), retour)
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
@@ -191,7 +191,7 @@ def parents_cat_by_year(request, ypk):
 def accounts_by_year(request, ypk):
     from accounting_core.models import Account
 
-    retour = Account.objects.filter(accounting_year__pk=ypk).order_by('account_number')
+    retour = Account.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('account_number')
     retour = filter(lambda account: account.user_can_see(request.user), retour)
 
     if request.GET.get('outcomes'):
@@ -208,7 +208,7 @@ def accounts_by_year(request, ypk):
 def costcenters_by_year(request, ypk):
     from accounting_core.models import CostCenter
 
-    retour = CostCenter.objects.filter(accounting_year__pk=ypk).order_by('account_number')
+    retour = CostCenter.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('account_number')
     retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
@@ -240,7 +240,6 @@ def users_available_list_by_unit(request, upk):
 @login_required
 def account_available_list(request):
     """Return the list of available accounts for a given year"""
-    from units.models import Unit
     from accounting_core.models import AccountingYear, Account
 
     accounts = Account.objects.filter(deleted=False).order_by('account_number')

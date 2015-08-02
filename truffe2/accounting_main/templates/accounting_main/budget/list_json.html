@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block bonus_buttons %}
-    <a data-original-title=\"{% trans "Copier" %}\" href=\"{% url "accounting_main.views.copy_budget" elem.pk %}\" class=\"btn btn-xs btn-default\" title=\"{% trans "Copier" %}\" rel=\"tooltip\" multido_action=\"window.location = '{% url "accounting_main.views.copy_budget" 9999429999 %}';\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-default'><i class='fa fa-copy'></i> {% trans "Copier" %}</a>\"><i class=\"fa fa-copy\"></i></a>
+    <a data-original-title=\"{% trans "Copier" %}\" href=\"{% url "accounting_main.views.copy_budget" elem.pk %}\" class=\"btn btn-xs btn-default\" title=\"{% trans "Copier" %}\" rel=\"tooltip\"><i class=\"fa fa-copy\"></i></a>
 
     <a href=\"{% url 'accounting_main.views.budget_pdf' elem.pk %}{% trans "Budget" %} - {{elem.name}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-primary\" title=\"{% trans "PDF" %}\" rel=\"tooltip\"><i class=\"fa fa-download\"></i></a>
 {% endblock %}

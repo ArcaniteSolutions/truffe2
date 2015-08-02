@@ -13,7 +13,7 @@ urlpatterns = patterns(
     url(r'^accounting/import/step/1/(?P<key>[0-9\-a-f]+)$', 'accounting_import_step1'),
     url(r'^accounting/import/step/2/(?P<key>[0-9\-a-f]+)$', 'accounting_import_step2'),
 
-    url(r'^budget/(?P<pk>[0-9,]+)/copy$', 'copy_budget'),
-    url(r'^budget/(?P<pk>[0-9,]+)/get_infos$', 'budget_getinfos'),
-    url(r'^budget/(?P<pk>[0-9,]+)/pdf/', 'budget_pdf'),
+    url(r'^budget/(?P<pk>[0-9]+)/copy$', 'copy_budget'),
+    url(r'^budget/(?P<pk>[0-9]+)/get_infos$', 'budget_getinfos'),
+    url(r'^budget/(?P<pk>[0-9]+)/pdf/', 'budget_pdf'),
 )
