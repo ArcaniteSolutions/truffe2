@@ -184,7 +184,7 @@ def withdrawal_available_list(request):
     from accounting_core.models import AccountingYear
     from units.models import Unit
 
-    withdrawals = Withdrawal.objects.filter(deleted=False).order_by('-withdrawn_date')
+    withdrawals = Withdrawal.objects.filter(deleted=False, status="3_used").order_by('-withdrawn_date')
 
     if request.GET.get('upk'):
         unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
@@ -196,6 +196,6 @@ def withdrawal_available_list(request):
 
     withdrawals = filter(lambda withdrawal: withdrawal.static_rights_can('SHOW', request.user), list(withdrawals))
 
-    retour = {'data': [{'pk': withdrawal.pk, 'name': withdrawal.__unicode__()} for withdrawal in withdrawals]}
+    retour = {'data': [{'pk': withdrawal.pk, 'name': withdrawal.__unicode__(), 'used': withdrawal.status == '3_used'} for withdrawal in withdrawals]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
