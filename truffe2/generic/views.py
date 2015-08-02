@@ -32,10 +32,11 @@ from sendfile import sendfile
 import importlib
 import copy
 
+
 from accounting_core.utils import CostCenterLinked
 from generic.datatables import generic_list_json
 from generic.forms import ContactForm
-from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail
+from app.utils import update_current_unit, get_current_unit, update_current_year, get_current_year, send_templated_mail, has_property, set_property
 from rights.utils import BasicRightModel
 
 
@@ -325,7 +326,14 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             if unit_mode:
                 if unit_blank and not current_unit:
                     obj.unit_blank_user = request.user
-                obj.unit = current_unit
+
+                if has_property(obj, 'MetaData.costcenterlinked') and obj.MetaData.costcenterlinked:
+                    obj.costcenter = current_unit.costcenter_set.first()
+
+                if has_property(obj, obj.MetaRights.linked_unit_property):
+                    set_property(obj, obj.MetaRights.linked_unit_property, current_unit)
+                else:
+                    obj.unit = current_unit
 
             if year_mode:
 
