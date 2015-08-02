@@ -43,9 +43,7 @@
 
             $('.no-border td').css('border', '').css('padding-top', '30px');
 
-            {% if form.instance.pk %}
-                get_initial_budget_infos();
-            {% endif %}
+            get_initial_budget_infos();
 
             // Ask before quitting to avoid loosing unsaved stuff.
             $(window).bind('beforeunload', function(){
@@ -175,25 +173,27 @@
         }
 
         function get_initial_budget_infos() {
-            $.ajax('{% url 'accounting_main.views.budget_getinfos' form.instance.pk %}').done(function (data) {
+            {% if form.instance.pk %}
+                $.ajax('{% url 'accounting_main.views.budget_getinfos' form.instance.pk %}').done(function (data) {
 
-                $.each(data, function (index, block) {
-                    new_row_id = add_line(block[0].table_id, block[0].account_id);
-                    new_row = $('#' + new_row_id);
-                    new_row.find('input').first().val(block[0].description);
-                    new_row.find('input').last().val(block[0].amount);
+                    $.each(data, function (index, block) {
+                        new_row_id = add_line(block[0].table_id, block[0].account_id);
+                        new_row = $('#' + new_row_id);
+                        new_row.find('input').first().val(block[0].description);
+                        new_row.find('input').last().val(block[0].amount);
 
-                    $.each(block, function (index, entry) {
-                        if (index > 0) {
-                            new_row_id = add_subline(new_row);
-                            new_row = $('#' + new_row_id);
-                            new_row.find('input').first().val(entry.description);
-                            new_row.find('input').last().val(entry.amount);
-                            new_row.find('input').last().change();
-                        }
+                        $.each(block, function (index, entry) {
+                            if (index > 0) {
+                                new_row_id = add_subline(new_row);
+                                new_row = $('#' + new_row_id);
+                                new_row.find('input').first().val(entry.description);
+                                new_row.find('input').last().val(entry.amount);
+                                new_row.find('input').last().change();
+                            }
+                        });
                     });
                 });
-            });
+            {% endif %}
         }
     </script>
 {% endblock %}
