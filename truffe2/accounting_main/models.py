@@ -470,7 +470,7 @@ class AccountingErrorMessage(models.Model):
     error = models.ForeignKey('AccountingError')
 
 
-class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel):
+class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericContactableModel, GenericTaggableObject, AccountingGroupModels):
     """Modèle pour les budgets"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
