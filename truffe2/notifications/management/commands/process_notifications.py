@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext_lazy as _
 from app.utils import send_templated_mail
 from django.utils.timezone import now
+from django.conf import settings
 
 
 import datetime
@@ -19,7 +20,7 @@ class Command(BaseCommand):
         for user in NotificationEmail.objects.values('user').distinct():
             user = TruffeUser.objects.get(pk=user['user'])
 
-            if NotificationEmail.objects.filter(user=user, date__gt=(now()- datetime.timedelta(minutes=5))).count() == 0 or NotificationEmail.objects.filter(user=user, date__lt=(now()- datetime.timedelta(minutes=15))).count() > 15:  # Si une notification plus veille que 15 minutes OU pas de notification depuis 5 minutes
+            if not NotificationEmail.objects.filter(user=user, date__gt=(now()- datetime.timedelta(minutes=settings.NOTIFS_MINIMUM_BLANK))).exists() or NotificationEmail.objects.filter(user=user, date__lt=(now()- datetime.timedelta(minutes=settings.NOTIFS_MAXIMUM_WAIT))).exists():  # Si une notification plus veille que 15/NOTIFS_MAXIMUM_WAIT minutes OU pas de notification depuis 5/NOTIFS_MINIMUM_BLANK minutes
 
                 notifications = list(NotificationEmail.objects.filter(user=user))
 
