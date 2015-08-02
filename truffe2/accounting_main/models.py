@@ -542,7 +542,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                 coeff = line_object['type']  # -1 for outcomes, 1 for incomes
                 entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
                 for entry in entries:
-                    amount = coeff * abs(float(entry[1]['amount']))
+                    amount = coeff * abs(float(entry[1]['amount'] or 0))
                     BudgetLine(budget=obj, account=account, description=entry[1]['description'], amount=amount).save()
 
     class MetaState:
