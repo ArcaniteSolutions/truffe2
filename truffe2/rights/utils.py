@@ -32,7 +32,7 @@ class ModelWithRight(object):
         dummy = cls()
 
         if unit_to_link and hasattr(dummy.MetaRights, 'linked_unit_property') and dummy.MetaRights.linked_unit_property:
-            if hasattr(dummy, 'MetaData') and hasattr(dummy.MetaData, 'costcenterlinked') and dummy.MetaData.costcenterlinked:
+            if hasattr(dummy, 'MetaData') and hasattr(dummy.MetaData, 'costcenterlinked') and dummy.MetaData.costcenterlinked and unit_to_link.costcenter_set.first():
                 setattr(dummy, 'costcenter', unit_to_link.costcenter_set.first())
             set_property(dummy, dummy.MetaRights.linked_unit_property, unit_to_link)
 
@@ -249,11 +249,14 @@ class UnitEditableModel(BasicRightModel):
         if not has_property(self, self.MetaRights.linked_unit_property):
             # Check if at least one of unit match
             for accred in user.accreditation_set.filter(end_date=None):
-                if hasattr(self, 'MetaData') and hasattr(self.MetaData, 'costcenterlinked') and self.MetaData.costcenterlinked:
+                if hasattr(self, 'MetaData') and hasattr(self.MetaData, 'costcenterlinked') and self.MetaData.costcenterlinked and accred.unit.costcenter_set.first():
                     setattr(self, 'costcenter', accred.unit.costcenter_set.first())
-                set_property(self, self.MetaRights.linked_unit_property, accred.unit)
-                if self.rights_can_SHOW(user):
-                    return True
+                try:
+                    set_property(self, self.MetaRights.linked_unit_property, accred.unit)
+                    if self.rights_can_SHOW(user):
+                        return True
+                except:
+                    return hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro
             return False
 
         return (hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro) or (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)

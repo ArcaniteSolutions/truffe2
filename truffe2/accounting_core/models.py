@@ -14,8 +14,7 @@ from app.utils import get_current_year
 class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
-        access = 'TRESORERIE'
-        world_ro_access = True
+        access = ['TRESORERIE', 'SECRETARIAT']
 
     name = models.CharField(_('Nom'), max_length=255, unique=True)
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
@@ -160,8 +159,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
-        access = 'TRESORERIE'
-        world_ro_access = True
+        access = ['TRESORERIE', 'SECRETARIAT']
 
     name = models.CharField(_(u'Nom du centre de coût'), max_length=255)
     account_number = models.CharField(_(u'Numéro associé au centre de coût'), max_length=10)
@@ -213,8 +211,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
-        access = 'TRESORERIE'
-        world_ro_access = False
+        access = ['TRESORERIE', 'SECRETARIAT']
 
     name = models.CharField(_(u'Nom de la catégorie'), max_length=255)
     parent_hierarchique = models.ForeignKey('AccountCategory', null=True, blank=True, help_text=_(u'Catégorie parente pour la hiérarchie'))
@@ -281,8 +278,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
 class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
-        access = 'TRESORERIE'
-        world_ro_access = True
+        access = ['TRESORERIE', 'SECRETARIAT']
 
     VISIBILITY_CHOICES = (
         ('all', _(u'Visible à tous')),
@@ -366,8 +362,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
 class _TVA(GenericModel, AgepolyEditableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
-        access = 'TRESORERIE'
-        world_ro_access = True
+        access = ['TRESORERIE', 'SECRETARIAT']
 
     name = models.CharField(_(u'Nom de la TVA'), max_length=255)
     value = models.DecimalField(_('Valeur (%)'), max_digits=20, decimal_places=2)

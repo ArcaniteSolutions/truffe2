@@ -4,6 +4,9 @@ from django.forms import ModelForm, Form, CharField, ChoiceField, Textarea, Vali
 from django.utils.translation import ugettext_lazy as _
 
 
+from app.utils import get_property
+
+
 class GenericForm(ModelForm):
     class Meta:
         pass
@@ -19,7 +22,8 @@ class GenericForm(ModelForm):
                 if hasattr(self.Meta.model, 'MetaEdit') and hasattr(self.Meta.model.MetaEdit, 'all_users') and self.Meta.model.MetaEdit.all_users:
                     self.fields['user'].queryset = TruffeUser.objects.all()  # Some classes allow creation of instances for any user (NdF, JdC)
                 else:
-                    self.fields['user'].queryset = TruffeUser.objects.filter(accreditation__unit=self.instance.unit, accreditation__end_date=None).distinct().order_by('first_name', 'last_name')
+                    unit = get_property(self.instance, self.instance.MetaRights.linked_unit_property) if get_property(self.instance, 'MetaRights.linked_unit_property') else self.instance.unit
+                    self.fields['user'].queryset = TruffeUser.objects.filter(accreditation__unit=unit, accreditation__end_date=None).distinct().order_by('first_name', 'last_name')
 
         if 'unit' in self.fields:
             self.fields['unit'].queryset = Unit.objects.order_by('name')

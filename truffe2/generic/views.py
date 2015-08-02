@@ -327,7 +327,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 if unit_blank and not current_unit:
                     obj.unit_blank_user = request.user
 
-                if has_property(obj, 'MetaData.costcenterlinked') and obj.MetaData.costcenterlinked:
+                if has_property(obj, 'MetaData.costcenterlinked') and obj.MetaData.costcenterlinked and current_unit.costcenter_set.first():
                     obj.costcenter = current_unit.costcenter_set.first()
 
                 if has_property(obj, obj.MetaRights.linked_unit_property):
