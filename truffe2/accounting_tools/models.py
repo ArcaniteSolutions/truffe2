@@ -233,8 +233,10 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
     title = models.CharField(max_length=255)
-    unit = FalseFK('units.models.Unit')
 
     custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro aléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
 
@@ -751,9 +753,11 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
     name = models.CharField(_('Raison du retrait'), max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Responsable'))
-    unit = FalseFK('units.models.Unit')
     description = models.TextField(_('Description'), blank=True, null=True)
     amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
     desired_date = models.DateField(_(u'Date souhaitée'))
@@ -941,8 +945,10 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
     name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
-    unit = FalseFK('units.models.Unit')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
@@ -1025,11 +1031,6 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
             return True
 
-    def rights_can_LIST(self, user):
-        return super(_ExpenseClaim, self).rights_can("SHOW", user) or super(_ExpenseClaim, self).rights_can("EDIT", user)
-
-        return super(_ExpenseClaim, self).rights_can_EDIT(user)
-
     def genericFormExtraClean(self, data, form):
         if not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
@@ -1082,8 +1083,10 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
 
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
     name = models.CharField(_(u'Titre du journal de caisse'), max_length=255)
-    unit = FalseFK('units.models.Unit')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
