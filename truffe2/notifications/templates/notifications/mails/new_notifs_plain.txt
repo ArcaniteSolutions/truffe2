@@ -1,0 +1,23 @@
+{% load i18n %}
+{% trans "Bonjour," %}
+
+{% blocktrans with notification=notification %}
+Vous avez plusieures nouvelles notifications sur Truffe !
+{% endblocktrans %}
+
+{% for notification in notifications %}
+{% trans "Notification du " %} {{notification.creation_date|date:"d.m.Y"}} {% trans "à" %} {{notification.creation_date|time:"H:i:s"}}:
+
+{% include notification.get_email_template %}
+
+{% trans "Détails :" %} https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={% if notification.get_metadata.notification_force_url %}{{notification.get_metadata.notification_force_url}}{% else %}{{notification.linked_object.display_url}}{% endif %}
+
+{% if not forloop.last %}
+------
+{% endif %}
+
+{% endfor %}
+
+{% trans "Bonne journée," %}
+
+{% trans "Le système de notifications de Truffe" %}

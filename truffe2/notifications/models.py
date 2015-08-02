@@ -52,3 +52,10 @@ class NotificationRestriction(models.Model):
 
     no_email = models.BooleanField(default=False)
     autoread = models.BooleanField(default=False)
+
+
+class NotificationEmail(models.Model):
+
+    date = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    notification = models.ForeignKey(Notification)
