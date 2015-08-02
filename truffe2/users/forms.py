@@ -20,6 +20,7 @@ class TruffePasswordResetForm(PasswordResetForm):
         super(TruffePasswordResetForm, self).__init__(*args, **kwargs)
         self.fields['email'].widget = EmailFieldLoginWidget()
 
+
 class TruffeUserForm(ModelForm):
     class Meta:
         model = TruffeUser
@@ -36,6 +37,9 @@ class TruffeUserForm(ModelForm):
         if not current_user.is_superuser:
             del self.fields['is_superuser']
             del self.fields['username']
+            del self.fields['is_betatester']
+            del self.fields['first_name']
+            del self.fields['last_name']
 
     def save(self, commit=True):
         instance = super(TruffeUserForm, self).save(commit=False)
@@ -46,6 +50,7 @@ class TruffeUserForm(ModelForm):
         if commit:
             instance.save()
         return instance
+
 
 class TruffeCreateUserForm(ModelForm):
     class Meta:
