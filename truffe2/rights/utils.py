@@ -78,6 +78,8 @@ class ModelWithRight(object):
 
         if hasattr(self, 'unit') and self.unit and self.unit.pk:
             unit_pk = self.unit.pk
+        elif hasattr(self, 'costcenter') and self.costcenter and self.costcenter.unit and self.costcenter.unit.pk:
+            unit_pk = self.costcenter.unit.pk
         else:
             unit_pk = 'NOUPK'
 
