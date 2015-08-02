@@ -1,0 +1,46 @@
+{% extends "generic/generic/mail/base_html.html" %}
+{% load i18n %}
+
+{% block content %}
+    <p>{% trans "Vous avez plusieurs nouvelles notifications sur Truffe !" %}</p>
+
+    {% for notification in notifications %}
+
+            </td>
+        </tr>
+
+        <tr style="text-align: left;">
+            <td class="free-text" style="text-align: left;">
+
+                {% if not forloop.first %}
+                    <hr />
+                {% endif %}
+
+                <p>{% trans "Notification du " %} {{notification.creation_date|date:"d.m.Y"}} {% trans "à" %} {{notification.creation_date|time:"H:i:s"}}:</p>
+
+                <p>{% filter linebreaks %}{% include notification.get_email_template %}{% endfilter %}</p>
+
+            </td>
+        </tr>
+
+        <tr style="text-align: center;">
+            <td class="button" style="text-align: center;">
+                <center>
+                    <div><!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={% if notification.get_metadata.notification_force_url %}{{notification.get_metadata.notification_force_url}}{% else %}{{notification.linked_object.display_url}}{% endif %}" style="height:45px;v-text-anchor:middle;width:155px;" arcsize="15%" strokecolor="#ffffff" fillcolor="#ff6f6f">
+                        <w:anchorlock/>
+                        <center style="color:#ffffff;font-family:Helvetica, Arial, sans-serif;font-size:14px;font-weight:regular;">{% trans "Détails" %}</center>
+                        </v:roundrect>
+                        <![endif]--><a href="https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}" style="background-color:#ff6f6f;border-radius:5px;color:#ffffff;display:inline-block;font-family:'Cabin', Helvetica, Arial, sans-serif;font-size:14px;font-weight:regular;line-height:45px;text-align:center;text-decoration:none;width:155px;-webkit-text-size-adjust:none;mso-hide:all;">{% trans "Détails" %}</a>
+                    </div>
+                </center>
+    {% endfor %}
+
+{% endblock %}
+
+{% block signature %}
+    <p>
+        {% trans "Bonne journée," %}<br/> <br/>
+        {% trans "Le système de notifications de Truffe" %}
+    </p>
+{% endblock %}
