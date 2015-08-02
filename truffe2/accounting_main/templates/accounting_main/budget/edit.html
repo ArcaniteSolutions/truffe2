@@ -43,7 +43,9 @@
 
             $('.no-border td').css('border', '').css('padding-top', '30px');
 
-            get_initial_budget_infos();
+            {% if form.instance.pk %}
+                get_initial_budget_infos();
+            {% endif %}
 
             // Ask before quitting to avoid loosing unsaved stuff.
             $(window).bind('beforeunload', function(){

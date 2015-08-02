@@ -192,7 +192,7 @@ def accounts_by_year(request, ypk):
     from accounting_core.models import Account
 
     retour = Account.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('account_number')
-    retour = filter(lambda account: account.user_can_see(request.user), retour)
+    retour = filter(lambda account: account.rights_can_SHOW(request.user), retour)
 
     if request.GET.get('outcomes'):
         retour = filter(lambda ac: ac.category.get_root_parent().name == "Charge", retour)
@@ -248,7 +248,7 @@ def account_available_list(request):
         accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
         accounts = accounts.filter(accounting_year=accounting_year)
 
-    accounts = filter(lambda acc: acc.user_can_see(request.user), list(accounts))
+    accounts = filter(lambda acc: acc.rights_can_SHOW(request.user), list(accounts))
 
     retour = {'data': [{'pk': account.pk, 'name': account.__unicode__()} for account in accounts]}
 

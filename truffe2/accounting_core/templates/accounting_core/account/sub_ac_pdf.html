@@ -20,7 +20,7 @@
             <td>{% trans "Description" %}</td>
         </tr>
         {% for account in cat.get_accounts %}
-            {% if account|args:user|call:"user_can_see" %}
+            {% if account|args:user|call:"rights_can_SHOW" %}
                 <tr>
                     <td width="14%">{{account.account_number}}</td>
                     <td style="font-size:14px;">{{account.name}}</td>

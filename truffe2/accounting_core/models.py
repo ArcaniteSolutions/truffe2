@@ -359,9 +359,9 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         if data['category'].accounting_year != get_current_year(form.truffe_request):
             raise forms.ValidationError(_(u'La catégorie choisie n\'appartient pas à la bonne année comptable.'))
 
-    def user_can_see(self, user):
+    def rights_can_SHOW(self, user):
         if self.visibility == 'none':
-            return False
+            return user.is_superuser
         elif self.visibility == 'root':
             return self.rights_in_root_unit(user, 'TRESORERIE')
         elif self.visibility == 'cdd':
