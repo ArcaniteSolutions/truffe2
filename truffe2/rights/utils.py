@@ -32,8 +32,12 @@ class ModelWithRight(object):
         dummy = cls()
 
         if unit_to_link and hasattr(dummy.MetaRights, 'linked_unit_property') and dummy.MetaRights.linked_unit_property:
-            if hasattr(dummy, 'MetaData') and hasattr(dummy.MetaData, 'costcenterlinked') and dummy.MetaData.costcenterlinked and unit_to_link.costcenter_set.first():
-                setattr(dummy, 'costcenter', unit_to_link.costcenter_set.first())
+            if hasattr(dummy, 'MetaData') and hasattr(dummy.MetaData, 'costcenterlinked') and dummy.MetaData.costcenterlinked:
+                if unit_to_link.costcenter_set.first():
+                    setattr(dummy, 'costcenter', unit_to_link.costcenter_set.first())
+                else:  # No costcenter, set a dummy one
+                    from accounting_core.models import CostCenter
+                    setattr(dummy, 'costcenter', CostCenter())
             set_property(dummy, dummy.MetaRights.linked_unit_property, unit_to_link)
 
         if unit_to_link and hasattr(dummy, 'generic_set_dummy_unit'):
