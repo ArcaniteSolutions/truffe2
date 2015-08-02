@@ -219,20 +219,20 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         if dest_status == '2_error':
 
             if request.POST.get('error'):
-                ae = AccountingError(initial_remark=request.POST.get('error'), unit=self.unit, linked_line=self, accounting_year=self.accounting_year, costcenter=self.costcenter)
+                ae = AccountingError(initial_remark=request.POST.get('error'), unit=self.costcenter.unit, linked_line=self, accounting_year=self.accounting_year, costcenter=self.costcenter)
                 ae.save()
                 AccountingErrorLogging(who=request.user, what='created', object=ae).save()
 
-                notify_people(request, u'AccountingError.{}.created'.format(self.unit), 'accounting_error_created', ae, ae.build_group_members_for_compta_everyone_with_messages())
+                notify_people(request, u'AccountingError.{}.created'.format(self.costcenter.unit), 'accounting_error_created', ae, ae.build_group_members_for_compta_everyone_with_messages())
 
-            unotify_people(u'AccountingLine.{}.fixed'.format(self.unit), self)
-            notify_people(request, u'AccountingLine.{}.error'.format(self.unit), 'accounting_line_error', self, self.build_group_members_for_compta_everyone())
+            unotify_people(u'AccountingLine.{}.fixed'.format(self.costcenter.unit), self)
+            notify_people(request, u'AccountingLine.{}.error'.format(self.costcenter.unit), 'accounting_line_error', self, self.build_group_members_for_compta_everyone())
 
         if dest_status == '1_validated':
 
             if old_status == '2_error':
-                unotify_people(u'AccountingLine.{}.error'.format(self.unit), self)
-                notify_people(request, u'AccountingLine.{}.fixed'.format(self.unit), 'accounting_line_fixed', self, self.build_group_members_for_compta_everyone())
+                unotify_people(u'AccountingLine.{}.error'.format(self.costcenter.unit), self)
+                notify_people(request, u'AccountingLine.{}.fixed'.format(self.costcenter.unit), 'accounting_line_fixed', self, self.build_group_members_for_compta_everyone())
 
             if request.POST.get('fix_errors'):
 
@@ -243,8 +243,8 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
                     AccountingErrorLogging(who=request.user, what='state_changed', object=error, extra_data=json.dumps({'old': unicode(error.MetaState.states.get(old_status)), 'new': unicode(error.MetaState.states.get('2_fixed'))})).save()
 
-                    unotify_people(u'AccountingError.{}.created'.format(self.unit), error)
-                    notify_people(request, u'AccountingError.{}.fixed'.format(self.unit), 'accounting_error_fixed', error, error.build_group_members_for_compta_everyone_with_messages())
+                    unotify_people(u'AccountingError.{}.created'.format(self.costcenter.unit), error)
+                    notify_people(request, u'AccountingError.{}.fixed'.format(self.costcenter.unit), 'accounting_error_fixed', error, error.build_group_members_for_compta_everyone_with_messages())
 
     def get_errors(self):
         return self.accountingerror_set.filter(deleted=False).order_by('status')
