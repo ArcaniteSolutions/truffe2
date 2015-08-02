@@ -1,0 +1,39 @@
+{% extends "generic/generic/show.html" %}
+{% load i18n generic_extras %}
+
+{% block bonus_box %}
+    <div class="col-sm-12 col-md-12 col-lg-6">
+        {% with w_title="Détails" %}{% include "widget/header.html" %}{% endwith %}
+
+        <div class="row">
+            <div class="col-sm12 col-md-6 col-lg-6">
+                <table width="100%">
+                    <tr><td colspan="2" style="text-align: center; font-weight: bold;">{% trans "Dépenses" %}</td>
+                    {% for line in obj.budgetline_set|args:"account__account_number"|call:"order_by" %}
+                        {% if line.amount < 0 %}
+                            <tr><td style="font-weight: bold;" width="80%">{{line.description}} ({{line.account.account_number}})</td>
+                            <td width="20%">{{line.amount|floatformat:"2"|slice:"1:"}}</td></tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="col-sm12 col-md-6 col-lg-6">
+                <table width="100%">
+                    <tr><td colspan="2" style="text-align: center; font-weight: bold;">{% trans "Recettes" %}</td>
+                    {% for line in obj.budgetline_set|args:"account__account_number"|call:"order_by" %}
+                        {% if line.amount > 0 %}
+                            <tr><td style="font-weight: bold;" width="80%">{{line.description}} ({{line.account.account_number}})</td>
+                            <td width="20%">{{line.amount|floatformat:"2"}}</td></tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        {% include "widget/footer.html" %}
+    </div>
+{% endblock %}
+
+{% block bonus_buttons %}
+    <a href="{% url 'accounting_main.views.budget_pdf' obj.pk %}{% trans "Budget" %} {{obj.name}}.pdf" style="margin-left: 3px;" class="btn btn-primary"><i class="fa fa-download"></i>{% trans "Voir le PDF" %}</a>
+{% endblock %}
