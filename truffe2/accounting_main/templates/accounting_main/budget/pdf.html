@@ -1,0 +1,113 @@
+{% extends "base_pdf.html" %}
+{% load i18n humanize %}
+
+{% block bonus_css_pdf %}
+    .outcomes, .incomes {
+        font-size: 11px;
+        padding-top: 10px;
+
+    }
+
+    td.account {
+        text-align: left;
+        padding-left: 3px;
+        font-weight: bold;
+        font-size: 11px;
+    }
+
+    td.description {
+        text-align: left;
+        font-size: 10px;
+        padding-left: 10px;
+        padding-top: 3px;
+    }
+
+    td.amount {
+        text-align: right;
+        padding-right: 10px;
+        font-size: 8px;
+        padding-top: 3px;
+    }
+
+    .main th {
+        border: 2px black solid;
+        text-align: center;
+        font-size: 18px;
+        padding-top: 5px;
+    }
+
+    .main > tfoot > tr > td, .main > tbody > tr > td {
+        padding-right: 10px;
+        text-align: right;
+        border: 2px black solid;
+        vertical-align: top;
+        font-size: 15px;
+        padding-top: 5px;
+    }
+
+{% endblock %}
+
+{% block content %}
+    <h1 style="text-align: center; font-size: 30px; padding-bottom: 30px;">{% trans "Budget" %} {{object.costcenter}}</h1>
+
+    <table class="main">
+    <thead>
+        <tr>
+            <th width="50%">{% trans "Dépenses" %}</th>
+            <th width="50%">{% trans "Recettes" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <table class="outcomes">
+                    {% for bloc in outcomes %}
+                        {% if bloc %}
+                            <tr>
+                                <td width="80%" class="account">{{bloc.account}}</td>
+                                <td width="20%">{{bloc.total|floatformat:"2"|intcomma}}</td>
+                            </tr>
+                            {% for entry in bloc.entries %}
+                                <tr>
+                                    <td class="description">{{entry.description}}</td>
+                                    <td class="amount">{{entry.amount|floatformat:"2"|intcomma}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td> <!-- End of outcomes -->
+            <td>
+                <table class="incomes">
+                    {% for bloc in incomes %}
+                        {% if bloc %}
+                            <tr>
+                                <td width="80%" class="account">{{bloc.account}}</td>
+                                <td width="20%">{{bloc.total|floatformat:"2"|intcomma}}</td>
+                            </tr>
+                            {% for entry in bloc.entries %}
+                                <tr>
+                                    <td class="description">{{entry.description}}</td>
+                                    <td class="amount">{{entry.amount|floatformat:"2"|intcomma}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td> <!-- End of incomes -->
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr style="text-align: right;">
+            <td>CHF {{object.get_total_outcomes|floatformat:"2"|intcomma}}</td>
+            <td>CHF {{object.get_total_incomes|floatformat:"2"|intcomma}}</td>
+        </tr>
+
+        <tr style="text-align: right;">
+        {% with total=object.get_total %}
+            <td colspan="2" {% if total < 0 %}style="color:red;"{% endif %}>CHF {{object.get_total|floatformat:"2"|intcomma}}</td>
+        {% endwith %}
+        </tr>
+    </tfoot>
+    </table>
+{% endblock %}

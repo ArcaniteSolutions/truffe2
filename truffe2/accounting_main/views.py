@@ -22,13 +22,14 @@ from django.utils.html import strip_tags
 
 
 import uuid
-import datetime
+import json
 import time
 import collections
 import decimal
 import json
 
 
+from app.utils import generate_pdf
 from notifications.utils import notify_people
 
 
@@ -71,6 +72,67 @@ def errors_send_message(request, pk):
 
 
 @login_required
+def copy_budget(request, pk):
+    from accounting_main.models import Budget
+
+    budgets = [get_object_or_404(Budget, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
+
+    for bud in budgets:
+        if not bud.rights_can('EDIT', request.user):
+            raise Http404
+
+        old_lines = bud.budgetline_set.all()
+        bud.name = 'Copy of {}'.format(bud.name)
+        bud.id = None
+        bud.save()
+
+        for line in old_lines:
+            line.budget = bud
+            line.id = None
+            line.save()
+
+    messages.success(request, _(u'Copie terminée avec succès'))
+
+    if len(budgets) == 1:
+        return redirect('accounting_main.views.budget_edit', budgets[0].pk)
+    else:
+        return redirect('accounting_main.views.budget_list')
+
+
+@login_required
+def budget_getinfos(request, pk):
+    from accounting_main.models import Budget
+
+    budget = get_object_or_404(Budget, pk=pk)
+    if not budget.rights_can('EDIT', request.user):
+        raise Http404
+
+    lines = map(lambda line: {'table_id': 'incomes' if line.amount > 0 else 'outcomes', 'account_id': line.account.pk,
+                              'description': line.description, 'amount': abs(float(line.amount))}, list(budget.budgetline_set.all()))
+    accounts = sorted(list(set(map(lambda line: line['account_id'], lines))))
+    retour = [[line for line in lines if line['account_id'] == acc] for acc in accounts]
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')
+
+
+@login_required
+def budget_pdf(request, pk):
+    from accounting_main.models import Budget
+
+    budget = get_object_or_404(Budget, pk=pk, deleted=False)
+
+    if not budget.rights_can('SHOW', request.user):
+        raise Http404
+
+    lines = map(lambda line: {'table_id': 'incomes' if line.amount > 0 else 'outcomes', 'account': line.account,
+                              'description': line.description, 'amount': abs(float(line.amount))}, list(budget.budgetline_set.all()))
+    accounts = sorted(list(set(map(lambda line: line['account'], lines))), key=lambda acc: acc.account_number)
+    retour = [[[line for line in lines if line['account'] == acc and line['table_id'] == tab] for acc in accounts] for tab in ['incomes', 'outcomes']]
+    retour = map(lambda kind: map(lambda block: {'account': block[0]['account'], 'total': sum(map(lambda elem: elem['amount'], block)), 'entries': block} if block else {}, kind), retour)
+
+    return generate_pdf("accounting_main/budget/pdf.html", request, {'object': budget, 'incomes': retour[0], 'outcomes': retour[1]})
+
+
 def accounting_import_step0(request):
     """Phase 0 de l'import: Crée une nouvelle session d'import"""
 

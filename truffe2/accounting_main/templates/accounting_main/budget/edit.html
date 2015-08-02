@@ -1,0 +1,207 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        // To identify selects
+        var nb_select = 0;
+
+        $(function() {
+            // Remove style constraint on form max width
+            $('.row').children().css('max-width', '');
+
+            $('form').append('<h3 style="margin-top: 0px;">{% trans "Détails" %}</h3>');
+
+            $('form').append('<table width="100%" id="budget"><thead><tr><td width="50%">{% trans "Dépenses" %}</td><td>{% trans "Recettes" %}</td></tr></thead>' +
+            '<tr><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'outcomes\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une dépense" %}</a></td><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'incomes\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une recette" %}</a></td></tr>' +
+            '<tr class="total"><td><span id="sub-out">CHF 0.00</span></td><td><span id="sub-in">CHF 0.00</span></td></tr>' +
+            '<tr class="total no-border"><td colspan="2">{% trans "Total" %} <span id="total">CHF 0.00</span></td></tr></table>');
+
+            $('form a').each(function(index, element) {
+                if (index == 1)
+                    $(element).before('<table id="outcomes"><tr><td width="75%"></td><td width="20%"></td><td width="5%"></td></tr></table><br/>');
+                else if(index == 2)
+                    $(element).before('<table id="incomes"><tr><td width="75%"></td><td width="20%"></td><td width="5%"></td></tr></table><br/>');
+            });
+
+            $('td').css('border', '1px black solid')
+                .css('height', '30px');
+
+            $('#incomes tr:first td').css('border', '').css('height', '2px');
+            $('#outcomes tr:first td').css('border', '').css('height', '2px');
+
+            $('thead td').css('font-weight', 'bold')
+                .css('text-align', 'center')
+                .css('height', '50px')
+                .css('font-size', '18px');
+
+            $('.total td').css('text-align', 'right')
+                .css('font-size', '18px')
+                .css('padding-right', '30px');
+
+            $('.no-border td').css('border', '').css('padding-top', '30px');
+
+            get_initial_budget_infos();
+
+            // Ask before quitting to avoid loosing unsaved stuff.
+            $(window).bind('beforeunload', function(){
+                return '{% trans "Es-tu sûr de vouloir quitter cette page ?" %}';
+            });
+
+            $('form').submit(function() {
+                // Remove security message on submit
+                $(window).unbind('beforeunload');
+            });
+
+        });
+
+        function find_next_matching(from, match) {
+            if ($(from).next(match).length)
+                return $(from).next(match);
+            return $(from).nextUntil(match).next(match);
+        }
+
+        function find_prev_matching(from, match) {
+            if ($(from).prev(match).length)
+                return $(from).prev(match);
+            return $(from).prevUntil(match).prev(match);
+        }
+
+        function add_line(table_id, default_value) {
+            $("#" + table_id).append("<tr class='account'><td><select width='100%' name='account-" + table_id + "-" + (nb_select++) + "'></select></td><td colspan='2' style='text-align: right; padding-right: 10px;'>CHF 0.00</td></tr>");
+
+            var new_select = $('#' + table_id + ' select:last');
+
+            $.ajax(('{% url 'accounting_core.views.accounts_by_year' 99942999 %}?' + table_id + '=true').replace(99942999, $('#input_ypk').val())).done(function (data) {
+
+                new_select.find('option').remove();
+
+                for (var i = 0; i < data.length; i++) {
+                    new_select.append(
+                        $('<option></option>').val(data[i].value).html(data[i].text)
+                    );
+                }
+
+                new_select.css('width', '100%').select2();
+
+                if (typeof default_value !== 'undefined')
+                    new_select.select2('val', default_value).trigger("change");
+            });
+
+            row_id = add_subline($("#" + table_id + " tr:last"));
+            $("#" + table_id).append('<tr style="vertical-align: top; height: 40px;"><td colspan="3"><a href="#" onclick="add_subline(\'#' + row_id  + '\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Plus" %}</a></td></tr>');
+
+            return row_id;
+        }
+
+        function add_subline(row) {
+            var row_id = new Date().getTime();
+            var select_id = null;
+            if ($(row).hasClass('account'))
+                select_id = $(row).find('select').attr('name').substr('account-'.length);
+            else
+                select_id = find_prev_matching(row, '.account').find('select').attr('name').substr('account-'.length);
+
+            $(row).after("<tr id ='" + row_id + "'><td><input class='form-control' maxlength='250' name='description-" + select_id + "-" + row_id + "' placeholder='Description' required='required' title=' type='text'></td><td><input class='form-control' name='amount-" + select_id + "-" + row_id + "' placeholder='Montant' required='required' step='0.01' title='' type='number' min='0'></td><td style='padding-left: 5px;'><a data-original-title='Supprimer' href='#' class='btn btn-xs btn-danger' rel='tooltip' onclick='remove_line(this)'><i class='fa fa-times'></i></a></td></tr>");
+            $("#" + row_id + " td").css('padding-top', '5px');
+
+            $("#" + row_id + " input:last").change(function(e) {
+                update_account_subtot(e);
+            });
+
+            $(row).next().next().find('a').attr('onclick', "add_subline('#" + row_id + "')");
+
+
+            return row_id;
+        }
+
+        function remove_line(element) {
+            var row_id = $(element).parents('tr').prop('id');
+            var this_row = $('#' + row_id);
+            var select_row = find_prev_matching(this_row, '.account');
+
+            // Update "Plus" button if removed last line
+            if (this_row.next().find('td').length == 1 && !this_row.prev().hasClass('account'))
+                this_row.next().find('a').attr('onclick', "add_subline('#" + this_row.prev().prop('id') + "')");
+
+            this_row.remove();
+
+            var next_account = find_next_matching(select_row, '.account');
+
+            // Remove account if no more lines
+            if ((next_account.length == 0 && select_row.next().next().length == 0) || (next_account.length == 1 && next_account[0] == select_row.next().next()[0])) {
+                select_row.next().remove();
+                select_row.remove();
+            }
+        }
+
+        function update_account_subtot(e) {
+            // Update total of account category
+            var account_name = e.target.name.split('-').slice(0, 3).join('-');
+            var select_tr = find_prev_matching($(e.target).parents('tr'), '.account');
+            var cat_values = $("input[name^='" + account_name + "']");
+
+            var sum = 0.00;
+            cat_values.each(function(index, element) {
+                if ($(element).val() != '')
+                    sum += parseFloat($(element).val());
+            });
+            select_tr.find('td:last').text('CHF ' + sum.toFixed(2));
+            update_total();
+        }
+
+        function update_total() {
+            // Update sub totals and total
+            var total = sub_out = sub_in = 0.0;
+
+            $('#outcomes input[type=number]').each(function(index, element) {
+                if ($(element).val() != '')
+                    sub_out += parseFloat($(element).val());
+            });
+
+            $('#sub-out').text("CHF " + sub_out.toFixed(2));
+            total -= sub_out;
+
+            $('#incomes input[type=number]').each(function(index, element) {
+                if ($(element).val() != '')
+                    sub_in += parseFloat($(element).val());
+            });
+
+            $('#sub-in').text("CHF " + sub_in.toFixed(2));
+            total += sub_in;
+
+            $('#total').text("CHF " + total.toFixed(2));
+
+            if(total < 0)
+                $('#total').css('color', 'red');
+            else
+                $('#total').css('color', '');
+        }
+
+        function get_initial_budget_infos() {
+            {% if form.instance.pk %}
+                $.ajax('{% url 'accounting_main.views.budget_getinfos' form.instance.pk %}').done(function (data) {
+
+                    $.each(data, function (index, block) {
+                        new_row_id = add_line(block[0].table_id, block[0].account_id);
+                        new_row = $('#' + new_row_id);
+                        new_row.find('input').first().val(block[0].description);
+                        new_row.find('input').last().val(block[0].amount);
+
+                        $.each(block, function (index, entry) {
+                            if (index > 0) {
+                                new_row_id = add_subline(new_row);
+                                new_row = $('#' + new_row_id);
+                                new_row.find('input').first().val(entry.description);
+                                new_row.find('input').last().val(entry.amount);
+                                new_row.find('input').last().change();
+                            }
+                        });
+                    });
+                });
+            {% endif %}
+        }
+    </script>
+{% endblock %}

@@ -270,6 +270,13 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         """Return the categories whose parent is self."""
         return self.accountcategory_set.order_by('order', 'name')
 
+    def get_root_parent(self):
+        """Return the category at the root level"""
+        if self.parent_hierarchique:
+            return self.parent_hierarchique.get_root_parent()
+        else:
+            return self
+
     def get_accounts(self):
         """Return the list of accounts whose category is self ordered by account number."""
         return self.account_set.order_by('account_number')
@@ -348,9 +355,9 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         if data['category'].accounting_year != get_current_year(form.truffe_request):
             raise forms.ValidationError(_(u'La catégorie choisie n\'appartient pas à la bonne année comptable.'))
 
-    def user_can_see(self, user):
+    def rights_can_SHOW(self, user):
         if self.visibility == 'none':
-            return False
+            return user.is_superuser
         elif self.visibility == 'root':
             return self.rights_in_root_unit(user, 'TRESORERIE')
         elif self.visibility == 'cdd':
