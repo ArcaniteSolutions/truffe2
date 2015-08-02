@@ -183,7 +183,7 @@ def generate_list_json(module, base_name, model_class, tag_class):
                     filter_ = lambda x: x.filter(unit=None, unit_blank_user=request.user)
             else:
                 if hasattr(model_class.MetaData, 'costcenterlinked') and model_class.MetaData.costcenterlinked:
-                    filter_ = lambda x: x.filter(Q(costcenter__unit=current_unit) | (Q(costcenter__unit__parent_hierarchique=current_unit) & Q(costcenter__unit__is_commission=False)))
+                    filter_ = lambda x: x.filter(Q(costcenter__deleted=False) & (Q(costcenter__unit=current_unit) | (Q(costcenter__unit__parent_hierarchique=current_unit) & Q(costcenter__unit__is_commission=False))))
                 else:
                     filter_ = lambda x: x.filter(unit=current_unit)
         else:
@@ -426,8 +426,13 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
             if form.is_valid() and all_forms_valids:  # If the form is valid
 
-                obj = form.save()
+                right = 'EDIT' if obj.pk else 'CREATE'
+                obj = form.save(commit=False)
+                if not obj.rights_can(right, request.user):
+                    messages.error(_(u'Tu n\'as pas le droit de créer/modifier cet objet.'))
+                    return redirect('{}.views.{}_edit'.format(module.__name__, base_name), pk='~' if right == 'CREATE' else obj.pk)
 
+                obj.save()
                 lines_adds = {}
                 lines_updates = {}
                 lines_deletes = {}
