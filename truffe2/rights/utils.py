@@ -256,8 +256,8 @@ class UnitEditableModel(BasicRightModel):
                     if self.rights_can_SHOW(user):
                         return True
                 except:
-                    return hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro
-            return False
+                    pass
+            return hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro
 
         return (hasattr(self.MetaRightsUnit, 'world_ro') and self.MetaRightsUnit.world_ro) or (self.MetaRightsUnit.unit_ro_access and self.rights_in_linked_unit(user)) or self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
 
