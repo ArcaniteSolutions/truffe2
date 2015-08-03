@@ -53,7 +53,7 @@ class Command(BaseCommand):
                         print "user is root_user", e
                         user = root_user
 
-                    ndf, created = ExpenseClaim.objects.get_or_create(unit=costcenter.unit, costcenter=costcenter, accounting_year=ay, user=user, status=status_mapping[ndf_data['status']],
+                    ndf, created = ExpenseClaim.objects.get_or_create(costcenter=costcenter, accounting_year=ay, user=user, status=status_mapping[ndf_data['status']],
                                                                       comment=ndf_data['commentaire'], name=ndf_data['name'], nb_proofs=ndf_data['nb_just'])
 
                     if created:

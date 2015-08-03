@@ -60,7 +60,7 @@ class Command(BaseCommand):
                         print "user is root_user", e
                         user = root_user
 
-                    jdc, created = CashBook.objects.get_or_create(unit=costcenter.unit, costcenter=costcenter, accounting_year=ay, user=user, status=status_mapping[jdc_data['status']],
+                    jdc, created = CashBook.objects.get_or_create(costcenter=costcenter, accounting_year=ay, user=user, status=status_mapping[jdc_data['status']],
                                                                   comment=jdc_data['commentaire'], name=jdc_data['name'], nb_proofs=jdc_data['nb_just'])
 
                     if created:

@@ -56,7 +56,7 @@ class Command(BaseCommand):
                     if rcash_data['withdrawn_date'] == "None":
                         rcash_data['withdrawn_date'] = rcash_data['desired_date']  # Histoire de fixer le problème salement
 
-                    rcash, created = Withdrawal.objects.get_or_create(unit=costcenter.unit, user=user, costcenter=costcenter, accounting_year=ay, status=status_mapping[rcash_data['status']],
+                    rcash, created = Withdrawal.objects.get_or_create(user=user, costcenter=costcenter, accounting_year=ay, status=status_mapping[rcash_data['status']],
                                                                       amount=rcash_data['amount'], name=rcash_data['name'], description=rcash_data['description'],
                                                                       desired_date=rcash_data['desired_date'], withdrawn_date=rcash_data['withdrawn_date'])
 
