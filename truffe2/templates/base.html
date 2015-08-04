@@ -208,6 +208,36 @@
                     <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> <span class="menu-item-parent">{% trans "Logistique" %}</span></a>
                         <ul>
+
+                            {% if user.is_superuser or user.is_impersonate or user.is_betatester %}
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Véhicules" %}</a>
+
+                                    <ul class="subsub-menu">
+
+                                        {% ifhasright 'vehicles.models.Provider' user 'LIST' %}
+                                            <li id="menu-vehicles-provider">
+                                                <a href="{% url 'vehicles.views.provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'vehicles.models.VehicleType' user 'LIST' %}
+                                            <li id="menu-vehicles-type">
+                                                <a href="{% url 'vehicles.views.vehicletype_list' %}"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Types de véhicules" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'vehicles.models.Card' user 'LIST' %}
+                                            <li id="menu-vehicles-cards">
+                                                <a href="{% url 'vehicles.views.card_list' %}"><i class="fa fa-lg fa-fw fa-credit-card"></i> {% trans "Cartes" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'vehicles.models.Location' user 'LIST' %}
+                                            <li id="menu-vehicles-location">
+                                                <a href="{% url 'vehicles.views.location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                    </ul>
+                                </li>
+                            {% endif %}
                             {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
                                 <li>
                                     <a href="#"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Salles" %}</a>

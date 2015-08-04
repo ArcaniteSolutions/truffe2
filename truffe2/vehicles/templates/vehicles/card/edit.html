@@ -1,0 +1,16 @@
+
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block bonus_year_updated %}
+    update_categories(pk);
+{% endblock %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        $(function() {
+            $('#id_provider').removeClass('form-control').width('72%').select2();
+        });
+    </script>
+{% endblock %}
