@@ -210,7 +210,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
 
     def get_conflits(self):
 
-        liste = self.room.roomreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date)
+        liste = self.room.roomreservation_set.exclude(pk=self.pk).filter(status__in=['1_asking', '2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date).exclude(deleted=True)
 
         if not liste:
             return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))

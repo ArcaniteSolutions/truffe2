@@ -3,6 +3,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django import forms
+from django.shortcuts import get_object_or_404
 
 
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel, GenericGroupsModel, GenericStateRootValidable, GenericGroupsModerableModel, GenericContactableModel
@@ -209,7 +210,7 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
             ('remark', _('Remarques')),
             ('remark_agepoly', _('Remarques AGEPoly')),
             ('card', _('Carte')),
-            ('location', _('Lieu')),
+            ('get_location', _('Lieu')),
         ]
 
         filter_fields = ('title', 'status')
@@ -224,6 +225,7 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
         menu_id = 'menu-vehicles-booking'
 
         datetime_fields = ['start_date', 'end_date']
+        safe_fields = ['get_location']
 
         has_unit = True
 
@@ -239,11 +241,67 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
 
+    class MetaState(GenericStateRootValidable.MetaState):
+
+        states_texts = {
+            '0_draft': _(u'La réservation est en cours de création et n\'est pas publique.'),
+            '1_asking': _(u'La réservation est en cours de modération. Elle n\'est pas éditable. Sélectionner ce statut pour demander une modération !'),
+            '2_online': _(u'La résevation est validée. Elle n\'est pas éditable.'),
+            '3_archive': _(u'La réservation est archivée. Elle n\'est plus modifiable.'),
+            '4_deny': _(u'La modération a été refusée. Le véhicule n\'était probablement pas disponible.'),
+        }
+
+        def build_form_validation(request, obj):
+            from vehicles.models import Location
+
+            class FormValidation(forms.Form):
+                remark_agepoly = forms.CharField(label=_('Remarque'), widget=forms.Textarea, required=False)
+                card = forms.ModelChoiceField(label=_(u'Carte'), queryset=obj.provider.get_cards(), required=False)
+                location = forms.ModelChoiceField(label=_(u'Lieu'), queryset=Location.objects.filter(deleted=False).order_by('name'), required=False)
+
+            return FormValidation
+
+        states_bonus_form = {
+            '2_online': build_form_validation
+        }
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        from vehicles.models import Location, Card
+
+        s = super(_Booking, self)
+
+        if dest_status == '2_online':
+
+            if request.POST.get('remark_agepoly'):
+                if self.remark_agepoly:
+                    self.remark_agepoly += '\n' + request.POST.get('remark_agepoly')
+                else:
+                    self.remark_agepoly = request.POST.get('remark_agepoly')
+                self.save()
+
+            if request.POST.get('card'):
+                self.card = get_object_or_404(Card, pk=request.POST.get('card'), provider=self.provider, deleted=False)
+                self.save()
+
+            if request.POST.get('location'):
+                self.location = get_object_or_404(Location, pk=request.POST.get('location'), deleted=False)
+                self.save()
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
     class Meta:
         abstract = True
 
     def __unicode__(self):
         return self.title
+
+    def get_location(self):
+        if self.location:
+            return u'<a href="{}">{}</a>'.format(self.location.url_location, self.location)
+        else:
+            return ''
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         """Remove fields that should be edited by SECRETARIAT CDD only."""
@@ -264,3 +322,6 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
             if 'vehiculetype' in data and data['vehiculetype']:
                 if data['vehiculetype'].provider != data['provider']:
                     raise forms.ValidationError(_(u'Le type de véhicule n\'est pas liée au fournisseur sélectionné'))
+
+    def conflicting_reservation(self):
+        return self.__class__.objects.exclude(pk=self.pk).filter(status__in=['2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date).exclude(deleted=True)

@@ -1,0 +1,28 @@
+{% extends "generic/generic/switch_status.html" %}
+{% load i18n %}
+
+{% block bonus_js %}
+
+    $('#id_card, #id_location').removeClass('form-control').width('96%').select2();
+
+    $('#id_card').parent().after('<div class="alert alert-danger" style="display: none;" id="switch_status_conflict">{% trans "Cette carte est déjà utilisée pour la réservation" %} <span></span> !</div>');
+
+    $('#id_card').on('change', function () {
+
+        var new_val = $('#id_card').val();
+
+        $('#switch_status_conflict').hide();
+        {% for obj in objs %}
+            {% for creservation in obj.conflicting_reservation %}
+                {% if creservation.card %}
+                    if (new_val == '{{creservation.card.pk}}') {
+                        $('#switch_status_conflict').show();
+                        $('#switch_status_conflict span').html('{{creservation.title|escapejs}} ({{creservation.unit|escapejs}}) {% trans "du" %} {{creservation.start_date|date:"d.m.Y"}} {{creservation.start_date|time:"H:i:s"}} {% trans "au" %} {{creservation.end_date|date:"d.m.Y"}} {{creservation.end_date|time:"H:i:s"}}');
+                    }
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+    });
+
+{% endblock %}
