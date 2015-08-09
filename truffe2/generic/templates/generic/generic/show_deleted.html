@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n generic_extras rights_extras thumbnail %}
+
+{% block title %}{{block.super}} :: {{Model.MetaData.base_title}} :: {% trans "Objet supprimé" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}"><i class="{{Model.MetaData.base_icon}}"></i> {{Model.MetaData.base_title}}</a></li>
+    <li><i class="{{Model.MetaData.elem_icon}}"></i> <strike>{{obj}}</strike></li>
+{% endblock %}
+
+{% block content %}
+    <h1><strike>{{obj}}</strike></h1>
+
+    <div class="alert alert-danger">
+        {% trans "Désolé, mais cet objet a été supprimé et tu ne peux plus l'afficher." %}
+    </div>
+
+
+    <div class="alert alert-info">
+      <i class="fa fa-info"></i> {% trans "L'objet a été supprimé par " %} {{obj.last_log.who}} {% trans "le" %} {{obj.last_log.when|date:"d.m.Y"}} {% trans "à" %} {{obj.last_log.when|time:"H:i:s"}}
+    </div>
+
+    <div style="float: right;">
+
+        {% block bonus_buttons %}{% endblock %}
+
+        {% ifhasright obj user 'LIST' %}
+        <a href="{% if related_mode %}{% url list_related_view %}{% else %}{% url list_view %}{% endif %}" class="btn btn-info">
+          <i class="fa fa-list"></i>
+          {% trans "Retourner sur la liste" %}
+        </a>
+        {% endifhasright %}
+
+    </div>
+
+    <hr style="clear: both;"></hr>
+
+{% endblock %}
+
+{% block menuid %}{% if related_mode %}{{Model.MetaData.menu_id_related}}{% else %}{{Model.MetaData.menu_id}}{% endif %}{% endblock %}

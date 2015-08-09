@@ -287,6 +287,9 @@ class GenericModel(models.Model):
     class Meta:
         abstract = True
 
+    def get_full_class_name(self):
+        return '{}.{}'.format(self.__class__.__module__, self.__class__.__name__)
+
 
 class GenericModelWithFiles(object):
     """Un modèle généric auquel on peut uploader des fichiers"""
@@ -560,6 +563,23 @@ class GenericStateValidableOrModerable(object):
                 notify_people(request, '%s.online' % (self.__class__.__name__,), 'online', self, self.build_group_members_for_editors())
             else:
                 notify_people(request, '%s.validated' % (self.__class__.__name__,), 'validated', self, self.build_group_members_for_editors())
+
+        if old_status == '2_online' and dest_status == '0_draft':
+            notify_people(request, '%s.drafted' % (self.__class__.__name__,), 'drafted', self, self.build_group_members_for_validators())
+
+    def delete_signal(self, request):
+
+        if hasattr(super(GenericStateValidableOrModerable, self), 'delete_signal'):
+            super(GenericStateValidableOrModerable, self).delete_signal(request)
+
+        if self.status == '2_online':
+            people = self.build_group_members_for_validators()
+
+            for user in self.build_group_members_for_editors():
+                if user not in people:
+                    people.append(user)
+
+            notify_people(request, '%s.deleted' % (self.__class__.__name__,), 'deleted', self, people)
 
 
 class GenericStateModerable(GenericStateValidableOrModerable):

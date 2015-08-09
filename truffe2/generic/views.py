@@ -630,7 +630,13 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
-        obj = get_object_or_404(model_class, pk=pk, deleted=False)
+        obj = get_object_or_404(model_class, pk=pk)
+
+        if obj.deleted:
+            return render(request, ['%s/%s/show_deleted.html' % (module.__name__, base_name), 'generic/generic/show_deleted.html'], {
+                'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
+                'obj': obj,
+            })
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
@@ -742,7 +748,7 @@ def generate_delete(module, base_name, model_class, log_class):
             for obj in objs:
                 obj.deleted = True
                 if hasattr(obj, 'delete_signal'):
-                    obj.delete_signal()
+                    obj.delete_signal(request)
                 obj.save()
 
                 log_class(who=request.user, what='deleted', object=obj).save()

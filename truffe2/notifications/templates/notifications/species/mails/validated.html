@@ -1,2 +1,8 @@
 {% load i18n %}
 {% trans "L'élément" %} {{notification.linked_object}} ({{notification.linked_object.MetaData.base_title}}) {% trans "est maintenant validé !" %}
+
+{% if notification.linked_object.get_full_class_name == "vehicles.models.Booking" %}
+{% if notification.linked_object.card %}{% trans "La carte qui t'as été attribuée est: " %}{{notification.linked_object.card}}{% endif %}
+{% if notification.linked_object.location %}{% trans "Le lieu de récupération du véhicule est: " %}{{notification.linked_object.location}} ({{notification.linked_object.location.url_location}}){% endif %}
+{% if notification.linked_object.remark_agepoly %}{% trans "Remarques: " %}{{notification.linked_object.remark_agepoly}}{% endif %}
+{% endif %}
