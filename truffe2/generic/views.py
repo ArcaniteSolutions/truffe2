@@ -130,7 +130,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         else:
             moderables = False
 
-        if object_filter:
+        if object_filter and hasattr(model_class, 'get_linked_object_class'):
             objects = model_class.get_linked_object_class().objects.filter(unit=current_unit)
         else:
             objects = []
@@ -1030,7 +1030,10 @@ def generate_calendar_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (Géré par %s)' % (l.get_linked_object(), l.get_linked_object().unit)
+            if hasattr(l, 'get_linked_object'):
+                titre = u'{} (Géré par {})'.format(l.get_linked_object(), l.get_linked_object().unit)
+            else:
+                titre = u'{}'.format(l)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
@@ -1053,7 +1056,7 @@ def generate_calendar_related_json(module, base_name, model_class):
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
-        if unit_mode:
+        if unit_mode and model_class.MetaState.unit_field != '!root':
             filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
@@ -1100,7 +1103,10 @@ def generate_calendar_related_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (Réservé par %s)' % (l.get_linked_object(), par)
+            if hasattr(l, 'get_linked_object'):
+                titre = u'{} (Réservé par {})'.format(l.get_linked_object(), par)
+            else:
+                titre = u'{} (Réservé par {})'.format(l, par)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 

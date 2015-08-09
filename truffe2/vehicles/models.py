@@ -223,6 +223,8 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
         default_sort = "[3, 'desc']"  # end_date
 
         menu_id = 'menu-vehicles-booking'
+        menu_id_calendar = 'menu-vehicles-booking-calendar'
+        menu_id_calendar_related = 'menu-vehicles-booking-calendar-related'
 
         datetime_fields = ['start_date', 'end_date']
         safe_fields = ['get_location']
@@ -232,6 +234,8 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
         help_list = _(u"""Les réservations de véhicules te permettent de demander la location d'un véhicule pour ton unité.
 
 Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours faire les réservations le plus tôt possible !""")
+
+        help_list_related = _(u"""La liste de toutes les réservations de véhicules.""")
 
         @staticmethod
         def extra_args_for_edit(request, current_unit, current_year):
