@@ -356,7 +356,10 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
             raise forms.ValidationError(_(u'La catégorie choisie n\'appartient pas à la bonne année comptable.'))
 
     def rights_can_SHOW(self, user):
-        if self.visibility == 'none':
+
+        if not self.pk:
+            return super(_Account, self).rights_can_SHOW(user)
+        elif self.visibility == 'none':
             return user.is_superuser
         elif self.visibility == 'root':
             return self.rights_in_root_unit(user, 'TRESORERIE')
