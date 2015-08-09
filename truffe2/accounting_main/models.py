@@ -70,7 +70,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
         }
 
         default_sort = "[0, 'desc']"  # order
-        filter_fields = ('date', 'text', 'tva', 'output', 'input', 'current_sum', 'account__name', 'account__account_number')
+        filter_fields = ('text', 'tva', 'output', 'input', 'current_sum', 'account__name', 'account__account_number')
 
         details_display = list_display + [
             ('costcenter', _(u'Centre de coûts')),
