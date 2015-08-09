@@ -215,6 +215,11 @@
 
                                     <ul class="subsub-menu">
 
+                                        {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
+                                            <li id="menu-vehicles-booking">
+                                                <a href="{% url 'vehicles.views.booking_list' %}"><i class="fa fa-lg fa-fw fa-ambulance"></i> {% trans "Réservations" %}</a>
+                                            </li>
+                                        {% endifhasright %}
                                         {% ifhasright 'vehicles.models.Provider' user 'LIST' %}
                                             <li id="menu-vehicles-provider">
                                                 <a href="{% url 'vehicles.views.provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>

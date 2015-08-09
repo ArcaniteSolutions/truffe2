@@ -616,7 +616,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         }
 
         states_quick_switch = {
-            '0_draft': [('1_asking', _(u'Demander à modérer')), ],
+            '0_draft': [('1_asking', _(u'Demander à valider')), ],
             '1_asking': [('2_online', _(u'Valider')), ],
             '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
@@ -804,6 +804,11 @@ class GenericAccountingStateModel(object):
 
 
 class GenericStateRootModerable(GenericStateModerable):
+    """Un système de status générique pour de la modération par l'unité racine"""
+    pass
+
+
+class GenericStateRootValidable(GenericStateValidable):
     """Un système de status générique pour de la modération par l'unité racine"""
     pass
 

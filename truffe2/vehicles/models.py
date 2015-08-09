@@ -2,10 +2,12 @@
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django import forms
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel
-from rights.utils import AgepolyEditableModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel, GenericGroupsModel, GenericStateRootValidable, GenericGroupsModerableModel, GenericContactableModel
+from rights.utils import AgepolyEditableModel, UnitEditableModel
+from users.models import TruffeUser
 
 
 class _Provider(GenericModel, AgepolyEditableModel):
@@ -44,6 +46,12 @@ class _Provider(GenericModel, AgepolyEditableModel):
     def __unicode__(self):
         return self.name
 
+    def get_types(self):
+        return self.vehicletype_set.filter(deleted=False).order_by('name')
+
+    def get_cards(self):
+        return self.card_set.filter(deleted=False).order_by('name')
+
 
 class _VehicleType(GenericModel, AgepolyEditableModel):
 
@@ -57,14 +65,14 @@ class _VehicleType(GenericModel, AgepolyEditableModel):
 
     class MetaData:
         list_display = [
-            ('provider', _(u'Fournisseur')),
             ('name', _(u'Nom')),
+            ('provider', _(u'Fournisseur')),
         ]
         details_display = list_display + [
             ('description', _(u'Description')),
         ]
 
-        default_sort = "[2, 'asc']"  # name
+        default_sort = "[1, 'asc']"  # name
 
         filter_fields = ('name', 'description', 'provider__name')
 
@@ -97,15 +105,15 @@ class _Card(GenericModel, AgepolyEditableModel):
 
     class MetaData:
         list_display = [
-            ('provider', _(u'Fournisseur')),
             ('name', _(u'Nom')),
+            ('provider', _(u'Fournisseur')),
             ('number', _(u'Numéro')),
         ]
         details_display = list_display + [
             ('description', _(u'Description')),
         ]
 
-        default_sort = "[2, 'asc']"  # name
+        default_sort = "[1, 'asc']"  # name
 
         filter_fields = ('name', 'number', 'description', 'provider__name')
 
@@ -162,3 +170,97 @@ class _Location(GenericModel, AgepolyEditableModel):
 
     def __unicode__(self):
         return self.name
+
+
+class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootValidable, GenericStateModel, UnitEditableModel):
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = 'LOGISTIQUE'
+        moderation_access = 'SECRETARIAT'
+
+    unit = FalseFK('units.models.Unit')
+
+    title = models.CharField(_(u'Titre'), max_length=255)
+    responsible = models.ForeignKey(TruffeUser, verbose_name=_(u'Responsable'))
+    reason = models.TextField(_(u'Motif'))
+    remark = models.TextField(_(u'Remarques'), blank=True, null=True)
+    remark_agepoly = models.TextField(_(u'Remarques AGEPoly'), blank=True, null=True)
+
+    provider = FalseFK('vehicles.models.Provider', verbose_name=_(u'Fournisseur'))
+    vehicletype = FalseFK('vehicles.models.VehicleType', verbose_name=_(u'Type de véhicule'))
+    card = FalseFK('vehicles.models.Card', verbose_name=_(u'Carte'), blank=True, null=True)
+    location = FalseFK('vehicles.models.Location', verbose_name=_(u'Lieu'), blank=True, null=True)
+
+    start_date = models.DateTimeField(_(u'Début de la réservation'))
+    end_date = models.DateTimeField(_(u'Fin de la résrvation'))
+
+    class MetaData:
+        list_display = [
+            ('title', _('Titre')),
+            ('start_date', _(u'Date début')),
+            ('end_date', _('Date fin')),
+            ('provider', _('Fournisseur')),
+            ('vehicletype', _(u'Type de véhicule')),
+            ('status', _('Statut')),
+        ]
+        details_display = list_display + [
+            ('responsible', _('Responsable')),
+            ('reason', _('Responsable')),
+            ('remark', _('Remarques')),
+            ('remark_agepoly', _('Remarques AGEPoly')),
+            ('card', _('Carte')),
+            ('location', _('Lieu')),
+        ]
+
+        filter_fields = ('title', 'status')
+
+        base_title = _(u'Réservation de véhicule')
+        list_title = _(u'Liste de toutes les réservations de véhicules')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-ambulance'
+
+        default_sort = "[3, 'desc']"  # end_date
+
+        menu_id = 'menu-vehicles-booking'
+
+        datetime_fields = ['start_date', 'end_date']
+
+        has_unit = True
+
+        help_list = _(u"""Les réservations de véhicules te permettent de demander la location d'un véhicule pour ton unité.
+
+Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours faire les réservations le plus tôt possible !""")
+
+        @staticmethod
+        def extra_args_for_edit(request, current_unit, current_year):
+            from vehicles.models import Provider
+            return {'providers': Provider.objects.filter(deleted=False).order_by('name')}
+
+    class MetaEdit:
+        datetime_fields = ('start_date', 'end_date')
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return self.title
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        """Remove fields that should be edited by SECRETARIAT CDD only."""
+
+        if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
+            del form.fields['card']
+            del form.fields['location']
+            del form.fields['remark_agepoly']
+
+        form.fields['responsible'].queryset = TruffeUser.objects.order_by('first_name', 'last_name')
+
+    def genericFormExtraClean(self, data, form):
+
+        if 'provider' in data:
+            if 'card' in data and data['card']:
+                if data['card'].provider != data['provider']:
+                    raise forms.ValidationError(_(u'La carte n\'est pas liée au fournisseur sélectionné'))
+            if 'vehiculetype' in data and data['vehiculetype']:
+                if data['vehiculetype'].provider != data['provider']:
+                    raise forms.ValidationError(_(u'Le type de véhicule n\'est pas liée au fournisseur sélectionné'))

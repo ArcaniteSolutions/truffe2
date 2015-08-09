@@ -1,0 +1,64 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        //Move date fields up
+        $('#id_reason').parents('.form-group').after($('#id_start_date').parents('.form-group').remove());
+        $('#id_start_date').parents('.form-group').after($('#id_end_date').parents('.form-group').remove());
+        $('#id_reason').parents('.form-group').after("<h3>{% trans "Information temporelles" %}");
+        //Move type fields
+        $('#id_end_date').parents('.form-group').after($('#id_location').parents('.form-group').remove());
+        $('#id_end_date').parents('.form-group').after($('#id_card').parents('.form-group').remove());
+        $('#id_end_date').parents('.form-group').after($('#id_vehicletype').parents('.form-group').remove());
+        $('#id_end_date').parents('.form-group').after($('#id_provider').parents('.form-group').remove());
+        $('#id_end_date').parents('.form-group').after("<h3>{% trans "Type de réservation" %}");
+
+        $('#id_location').parents('.form-group').after("<h3>{% trans "Remarques" %}");
+
+        //Update type and card based on current provider
+        function build_type_and_card() {
+            $('#id_card, #id_vehicletype').select2('destroy');
+
+            var card_val = $('#id_card').val();
+            var vehicletype_val = $('#id_vehicletype').val();
+
+            $('#id_vehicletype').html('');
+            $('#id_card').html('<option value="">---------</option>');
+
+            var pid = $('#id_provider').val();
+
+            {% for provider in providers %}
+                if (pid == '{{provider.pk}}') {
+
+                    {% for card in provider.get_cards %}
+                        $('#id_card').html($('#id_card').html() + '<option value="{{card.pk}}">{{card.name|escapejs}}</option>');
+                    {% endfor %}
+
+                    {% for vehicletype in provider.get_types %}
+                        $('#id_vehicletype').html($('#id_vehicletype').html() + '<option value="{{vehicletype.pk}}">{{vehicletype.name|escapejs}}</option>');
+                    {% endfor %}
+
+                }
+            {% endfor %}
+
+            $('#id_card').val(card_val);
+            $('#id_vehicletype').val(vehicletype_val);
+
+            $('#id_card, #id_vehicletype').select2();
+        }
+
+        $(function() {
+            //Auto select ourself
+            if ($('#id_responsible').val() == '') {
+                $('#id_responsible').val('{{user.pk}}');
+            }
+            $('#id_responsible, #id_card, #id_provider, #id_vehicletype, #id_location').removeClass('form-control').css('width', '100%').select2();
+
+            $('#id_provider').on('change', build_type_and_card);
+
+            build_type_and_card();
+        });
+    </script>
+{% endblock %}
