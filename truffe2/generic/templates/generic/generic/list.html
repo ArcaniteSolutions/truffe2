@@ -222,7 +222,7 @@
     {% endif %}
 
     {% block datatables %}
-        {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id with_upk=unit_mode with_ypk=year_mode with_ctag=tag_mode force_last_width=Model.MetaData.list_display|length|add:"1" force_width=Model.MetaData.forced_widths force_first_width=True draw_callback="update_multi_do" default_sort=Model.MetaData.default_sort with_extradata=Model.MetaData.extradata %}{% include "datatables.html" %}{% endwith %}
+        {% with id="main_list_table" json_url=json_view status_filter=Model.MetaState.states_default_filter states=Model.MetaState.states status_col_id=Model.MetaState.status_col_id status_nosort=Model.MetaState.dont_sort_list with_upk=unit_mode with_ypk=year_mode with_ctag=tag_mode force_last_width=Model.MetaData.list_display|length|add:"1" force_width=Model.MetaData.forced_widths force_first_width=True draw_callback="update_multi_do" default_sort=Model.MetaData.default_sort with_extradata=Model.MetaData.extradata %}{% include "datatables.html" %}{% endwith %}
     {% endblock %}
 
 
