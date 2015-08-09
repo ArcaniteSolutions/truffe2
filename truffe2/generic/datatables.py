@@ -59,10 +59,10 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
     def do_filtering(qs):
         sSearch = request.REQUEST.get('sSearch', None)
         if sSearch:
-            base = Q(**{filter_fields[0] + '__istartswith': sSearch})
+            base = Q(**{filter_fields[0] + '__icontains': sSearch})
 
             for col in filter_fields[1:]:
-                base = base | Q(**{col + '__istartswith': sSearch})
+                base = base | Q(**{col + '__icontains': sSearch})
 
             qs = qs.filter(base)
 

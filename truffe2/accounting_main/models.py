@@ -70,7 +70,7 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
         }
 
         default_sort = "[0, 'desc']"  # order
-        filter_fields = ('date', 'text', 'tva', 'output', 'input', 'current_sum')
+        filter_fields = ('text', 'tva', 'output', 'input', 'current_sum', 'account__name', 'account__account_number')
 
         details_display = list_display + [
             ('costcenter', _(u'Centre de coûts')),
@@ -149,6 +149,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         states_default_filter = '0_imported,1_validated,2_error'
         states_default_filter_related = '0_imported,1_validated,2_error'
         status_col_id = 9
+        dont_sort_list = True
 
         class FormError(Form):
             error = CharField(label=_('Description de l\'erreur'), help_text=_(u'Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide si tu ne veux pas créer une erreur (mais ceci est fortement déconseillé)'), required=False, widget=Textarea)
