@@ -77,7 +77,7 @@ class _VehicleType(GenericModel, AgepolyEditableModel):
 
         filter_fields = ('name', 'description', 'provider__name')
 
-        base_title = _(u'Type de véhicule')
+        base_title = _(u'Types de véhicule')
         list_title = _(u'Liste des types de véhicules')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-truck'
@@ -118,7 +118,7 @@ class _Card(GenericModel, AgepolyEditableModel):
 
         filter_fields = ('name', 'number', 'description', 'provider__name')
 
-        base_title = _(u'Carte')
+        base_title = _(u'Cartes')
         list_title = _(u'Liste des cartes')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-credit-card'
@@ -131,7 +131,7 @@ class _Card(GenericModel, AgepolyEditableModel):
         abstract = True
 
     def __unicode__(self):
-        return '{} ({})'.format(self.name, self.number)
+        return u'{} ({})'.format(self.name, self.number)
 
 
 class _Location(GenericModel, AgepolyEditableModel):
@@ -215,7 +215,7 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
 
         filter_fields = ('title', 'status')
 
-        base_title = _(u'Réservation de véhicule')
+        base_title = _(u'Réservations de véhicule')
         list_title = _(u'Liste de toutes les réservations de véhicules')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-ambulance'
@@ -273,8 +273,6 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
 
         from vehicles.models import Location, Card
 
-        s = super(_Booking, self)
-
         if dest_status == '2_online':
 
             if request.POST.get('remark_agepoly'):
@@ -291,6 +289,8 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
             if request.POST.get('location'):
                 self.location = get_object_or_404(Location, pk=request.POST.get('location'), deleted=False)
                 self.save()
+
+        s = super(_Booking, self)
 
         if hasattr(s, 'switch_status_signal'):
             s.switch_status_signal(request, old_status, dest_status)
@@ -322,10 +322,10 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
         if 'provider' in data:
             if 'card' in data and data['card']:
                 if data['card'].provider != data['provider']:
-                    raise forms.ValidationError(_(u'La carte n\'est pas liée au fournisseur sélectionné'))
+                    raise forms.ValidationError(_(u'La carte n\'est pas lié au fournisseur sélectionné'))
             if 'vehiculetype' in data and data['vehiculetype']:
                 if data['vehiculetype'].provider != data['provider']:
-                    raise forms.ValidationError(_(u'Le type de véhicule n\'est pas liée au fournisseur sélectionné'))
+                    raise forms.ValidationError(_(u'Le type de véhicule n\'est pas lié au fournisseur sélectionné'))
 
     def conflicting_reservation(self):
-        return self.__class__.objects.exclude(pk=self.pk).filter(status__in=['2_online']).filter(end_date__gt=self.start_date, start_date__lt=self.end_date).exclude(deleted=True)
+        return self.__class__.objects.exclude(pk=self.pk, deleted=True).filter(status__in=['2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)

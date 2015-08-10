@@ -7,15 +7,15 @@
         //Move date fields up
         $('#id_reason').parents('.form-group').after($('#id_start_date').parents('.form-group').remove());
         $('#id_start_date').parents('.form-group').after($('#id_end_date').parents('.form-group').remove());
-        $('#id_reason').parents('.form-group').after("<h3>{% trans "Information temporelles" %}");
+        $('#id_reason').parents('.form-group').after("<h3>{% trans "Informations temporelles" %}</h3>");
         //Move type fields
         $('#id_end_date').parents('.form-group').after($('#id_location').parents('.form-group').remove());
         $('#id_end_date').parents('.form-group').after($('#id_card').parents('.form-group').remove());
         $('#id_end_date').parents('.form-group').after($('#id_vehicletype').parents('.form-group').remove());
         $('#id_end_date').parents('.form-group').after($('#id_provider').parents('.form-group').remove());
-        $('#id_end_date').parents('.form-group').after("<h3>{% trans "Type de réservation" %}");
+        $('#id_end_date').parents('.form-group').after("<h3>{% trans "Type de réservation" %}</h3>");
 
-        $('#id_location').parents('.form-group').after("<h3>{% trans "Remarques" %}");
+        $('#id_location').parents('.form-group').after("<h3>{% trans "Remarques" %}</h3>");
 
         //Update type and card based on current provider
         function build_type_and_card() {
