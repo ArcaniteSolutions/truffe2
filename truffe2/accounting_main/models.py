@@ -325,9 +325,9 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         default = '0_drafting'
 
         states_texts = {
-            '0_drafting': _(u'L\'erreur à été signalée, les détails sont en cours d\'élaboration.'),
-            '1_fixing': _(u'L\'erreur à été déterminée et une correction est en attente.'),
-            '2_fixed': _(u'L\'erreur à été corrigée.'),
+            '0_drafting': _(u'L\'erreur a été signalée, les détails sont en cours d\'élaboration.'),
+            '1_fixing': _(u'L\'erreur a été déterminée et une correction est en attente.'),
+            '2_fixed': _(u'L\'erreur a été corrigée.'),
         }
 
         states_links = {

@@ -130,7 +130,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         else:
             moderables = False
 
-        if object_filter:
+        if object_filter and hasattr(model_class, 'get_linked_object_class'):
             objects = model_class.get_linked_object_class().objects.filter(unit=current_unit)
         else:
             objects = []
@@ -630,7 +630,7 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
-        obj = get_object_or_404(model_class, pk=pk, deleted=False)
+        obj = get_object_or_404(model_class, pk=pk)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
@@ -646,6 +646,12 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
 
         if isinstance(obj, BasicRightModel) and not obj.rights_can('SHOW', request.user):
             raise Http404
+
+        if obj.deleted:
+            return render(request, ['%s/%s/show_deleted.html' % (module.__name__, base_name), 'generic/generic/show_deleted.html'], {
+                'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
+                'obj': obj,
+            })
 
         rights = []
 
@@ -742,7 +748,7 @@ def generate_delete(module, base_name, model_class, log_class):
             for obj in objs:
                 obj.deleted = True
                 if hasattr(obj, 'delete_signal'):
-                    obj.delete_signal()
+                    obj.delete_signal(request)
                 obj.save()
 
                 log_class(who=request.user, what='deleted', object=obj).save()
@@ -867,6 +873,9 @@ def generate_switch_status(module, base_name, model_class, log_class):
 
         if hasattr(model_class.MetaState, 'states_bonus_form'):
             bonus_form = model_class.MetaState.states_bonus_form.get((obj.status, dest_status), model_class.MetaState.states_bonus_form.get(dest_status, None))
+
+            if bonus_form and hasattr(bonus_form, '__call__'):
+                bonus_form = bonus_form(request, obj)
 
         if can_switch and request.method == 'POST' and request.POST.get('do') == 'it':
 
@@ -1021,7 +1030,10 @@ def generate_calendar_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (Géré par %s)' % (l.get_linked_object(), l.get_linked_object().unit)
+            if hasattr(l, 'get_linked_object'):
+                titre = u'{} (Géré par {})'.format(l.get_linked_object(), l.get_linked_object().unit)
+            else:
+                titre = u'{}'.format(l)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 
@@ -1044,7 +1056,7 @@ def generate_calendar_related_json(module, base_name, model_class):
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
-        if unit_mode:
+        if unit_mode and model_class.MetaState.unit_field != '!root':
             filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
@@ -1091,7 +1103,10 @@ def generate_calendar_related_json(module, base_name, model_class):
             else:
                 url = ''
 
-            titre = u'%s (Réservé par %s)' % (l.get_linked_object(), par)
+            if hasattr(l, 'get_linked_object'):
+                titre = u'{} (Réservé par {})'.format(l.get_linked_object(), par)
+            else:
+                titre = u'{} (Réservé par {})'.format(l, par)
 
             retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
 

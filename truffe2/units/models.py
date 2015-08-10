@@ -507,7 +507,7 @@ Il est aussi possible de restreindre une délégation â un utilisateur ou à un
     def __unicode__(self):
         return _(u'Accês supplémentaire n°%s' % (self.pk,))
 
-    def delete_signal(self):
+    def delete_signal(self, request):
         self.save_signal()
 
     def save_signal(self):

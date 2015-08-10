@@ -360,13 +360,16 @@
 <script type="text/javascript">
 
 
-    {% for field in Model.MetaEdit.datetime_fields %}
-        $("#id_{{field}}").datetimepicker({format: 'yyyy-mm-dd hh:ii', weekStart: 1, autoclose: true, todayBtn: true});
-    {% endfor %}
+    $(function () {
+        {% for field in Model.MetaEdit.datetime_fields %}
+            $("#id_{{field}}").datetimepicker({format: 'yyyy-mm-dd hh:ii', weekStart: 1, autoclose: true, todayBtn: true});
+        {% endfor %}
 
-    {% for field in Model.MetaEdit.date_fields %}
-        $("#id_{{field}}").datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
-    {% endfor %}
+        {% for field in Model.MetaEdit.date_fields %}
+            $("#id_{{field}}").datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
+        {% endfor %}
+
+    });
 
     {% for field in Model.MetaEdit.html_fields %}
         $("#id_{{field}}").summernote({

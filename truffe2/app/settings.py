@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     'accounting_tools',
     'accounting_main',
     'members',
+    'vehicles',
 
     'generic',
 

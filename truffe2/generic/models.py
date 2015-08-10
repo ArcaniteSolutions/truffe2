@@ -198,13 +198,27 @@ class GenericModel(models.Model):
                     url(r'^%s/(?P<pk>[0-9,]+)/switch_status$' % (base_views_name,), '%s_switch_status' % (base_views_name,)),
                 )
 
+            if hasattr(model_class.MetaData, 'menu_id_calendar'):
+                setattr(views_module, '%s_calendar' % (base_views_name,), views.generate_calendar(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_json' % (base_views_name,), views.generate_calendar_json(module, base_views_name, real_model_class))
+
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^%s/calendar/$' % (base_views_name,), '%s_calendar' % (base_views_name,)),
+                    url(r'^%s/calendar/json$' % (base_views_name,), '%s_calendar_json' % (base_views_name,)),
+                )
+
+            if hasattr(model_class.MetaData, 'menu_id_calendar_related'):
+                setattr(views_module, '%s_calendar_related' % (base_views_name,), views.generate_calendar_related(module, base_views_name, real_model_class))
+                setattr(views_module, '%s_calendar_related_json' % (base_views_name,), views.generate_calendar_related_json(module, base_views_name, real_model_class))
+
+                urls_module.urlpatterns += patterns(views_module.__name__,
+                    url(r'^%s/related/calendar/$' % (base_views_name,), '%s_calendar_related' % (base_views_name,)),
+                    url(r'^%s/related/calendar/json$' % (base_views_name,), '%s_calendar_related_json' % (base_views_name,)),
+                )
+
             if issubclass(model_class, GenericStateUnitValidable):
                 setattr(views_module, '%s_list_related' % (base_views_name,), views.generate_list_related(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_list_related_json' % (base_views_name,), views.generate_list_related_json(module, base_views_name, real_model_class))
-                setattr(views_module, '%s_calendar' % (base_views_name,), views.generate_calendar(module, base_views_name, real_model_class))
-                setattr(views_module, '%s_calendar_json' % (base_views_name,), views.generate_calendar_json(module, base_views_name, real_model_class))
-                setattr(views_module, '%s_calendar_related' % (base_views_name,), views.generate_calendar_related(module, base_views_name, real_model_class))
-                setattr(views_module, '%s_calendar_related_json' % (base_views_name,), views.generate_calendar_related_json(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_calendar_specific' % (base_views_name,), views.generate_calendar_specific(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_calendar_specific_json' % (base_views_name,), views.generate_calendar_specific_json(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_directory' % (base_views_name,), views.generate_directory(module, base_views_name, real_model_class))
@@ -213,10 +227,6 @@ class GenericModel(models.Model):
                     url(r'^%s/related/$' % (base_views_name,), '%s_list_related' % (base_views_name,)),
                     url(r'^%s/related/json$' % (base_views_name,), '%s_list_related_json' % (base_views_name,)),
 
-                    url(r'^%s/calendar/$' % (base_views_name,), '%s_calendar' % (base_views_name,)),
-                    url(r'^%s/calendar/json$' % (base_views_name,), '%s_calendar_json' % (base_views_name,)),
-                    url(r'^%s/related/calendar/$' % (base_views_name,), '%s_calendar_related' % (base_views_name,)),
-                    url(r'^%s/related/calendar/json$' % (base_views_name,), '%s_calendar_related_json' % (base_views_name,)),
                     url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/$' % (base_views_name,), '%s_calendar_specific' % (base_views_name,)),
                     url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/json$' % (base_views_name,), '%s_calendar_specific_json' % (base_views_name,)),
                     url(r'^%s/directory/$' % (base_views_name,), '%s_directory' % (base_views_name,)),
@@ -286,6 +296,9 @@ class GenericModel(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_full_class_name(self):
+        return '{}.{}'.format(self.__class__.__module__, self.__class__.__name__)
 
 
 class GenericModelWithFiles(object):
@@ -561,6 +574,23 @@ class GenericStateValidableOrModerable(object):
             else:
                 notify_people(request, '%s.validated' % (self.__class__.__name__,), 'validated', self, self.build_group_members_for_editors())
 
+        if old_status == '2_online' and dest_status == '0_draft':
+            notify_people(request, '%s.drafted' % (self.__class__.__name__,), 'drafted', self, self.build_group_members_for_validators())
+
+    def delete_signal(self, request):
+
+        if hasattr(super(GenericStateValidableOrModerable, self), 'delete_signal'):
+            super(GenericStateValidableOrModerable, self).delete_signal(request)
+
+        if self.status == '2_online':
+            people = self.build_group_members_for_validators()
+
+            for user in self.build_group_members_for_editors():
+                if user not in people:
+                    people.append(user)
+
+            notify_people(request, '%s.deleted' % (self.__class__.__name__,), 'deleted', self, people)
+
 
 class GenericStateModerable(GenericStateValidableOrModerable):
 
@@ -616,7 +646,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         }
 
         states_quick_switch = {
-            '0_draft': [('1_asking', _(u'Demander à modérer')), ],
+            '0_draft': [('1_asking', _(u'Demander à valider')), ],
             '1_asking': [('2_online', _(u'Valider')), ],
             '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
         }
@@ -804,6 +834,11 @@ class GenericAccountingStateModel(object):
 
 
 class GenericStateRootModerable(GenericStateModerable):
+    """Un système de status générique pour de la modération par l'unité racine"""
+    pass
+
+
+class GenericStateRootValidable(GenericStateValidable):
     """Un système de status générique pour de la modération par l'unité racine"""
     pass
 

@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^communication/', include('communication.urls')),
     url(r'^notifications/', include('notifications.urls')),
     url(r'^logistics/', include('logistics.urls')),
+    url(r'^vehicles/', include('vehicles.urls')),
     url(r'^generic/', include('generic.urls')),
 
     url(r'^impersonate/', include('impersonate.urls')),
