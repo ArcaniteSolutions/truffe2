@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel
+from generic.models import GenericModel, GenericStateModel, FalseFK
 from django.utils.translation import ugettext_lazy as _
 
-from rights.utils import AgepolyEditableModel
+from rights.utils import AgepolyEditableModel, UnitEditableModel
 
 
 class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
@@ -105,3 +105,86 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     def __unicode__(self):
         return self.title
+
+
+class _Link(GenericModel, UnitEditableModel):
+
+    class MetaRightsUniyt(UnitEditableModel.MetaRightsUnit):
+        access = ['PRESIDENCE', 'INFORMATIQUE', 'COMMUNICATION']
+        world_ro_access = False
+
+    title = models.CharField(_(u'Titre'), max_length=255)
+    description = models.TextField(_(u'Description'), blank=True, null=True)
+    url = models.URLField()
+
+    unit = FalseFK('units.models.Unit')
+
+    LEFTMENU_CHOICES = (
+        ('/main/top', _(u'Principal / En haut')),
+        ('/main/bottom', _(u'Principal / En bas')),
+        ('/admin/', _(u'Admin')),
+        ('/communication/', _(u'Communication')),
+        ('/logitics/', _(u'Logistique')),
+        ('/logitics/vehicles', _(u'Logistique / Véhicules')),
+        ('/logitics/rooms', _(u'Logistique / Salles')),
+        ('/logitics/supply', _(u'Logistique / Matériel')),
+        ('/units/', _(u'Unités et Accreds')),
+        ('/accounting/', _(u'Compta')),
+        ('/accounting/accounting', _(u'Compta / Compta')),
+        ('/accounting/gestion', _(u'Compta / Gestion')),
+        ('/accounting/tools', _(u'Compta / Outils')),
+        ('/accounting/prrofs', _(u'Compta / Justifications')),
+    )
+
+    leftmenu = models.CharField(_(u'Position dans le menu de gauche'), max_length=128, choices=LEFTMENU_CHOICES, blank=True, null=True, help_text=_(u'Laisser blanc pour faire un lien normal. Réservé au comité de l\'AGEPoly'))
+    icon = models.CharField(_(u'Icone FontAwesome'), max_length=128, default='fa-external-link-square')
+
+    class MetaData:
+        list_display = [
+            ('title', _('Titre')),
+            ('get_url', _(u'URL')),
+        ]
+        details_display = list_display + [
+            ('description', _('Description')),
+            ('get_leftmenu_display', _('Menu de gauche')),
+            ('icon', _('Icone')),
+        ]
+        filter_fields = ('title', 'url', 'description')
+        safe_fields = ['get_url']
+
+        default_sort = "[1, 'asc']"  # title
+
+        base_title = _('Liens')
+        list_title = _(u'Liste de toutes les liens')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-link'
+
+        menu_id = 'menu-misc-links'
+
+        has_unit = True
+
+        help_list = _(u"""Les liens sont affiché dans la banque de liens pour les différentes unités. Tu peux par exemple lister les différents services interne à ta commision.
+
+Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
+
+        extra_right_display = {
+            'leftmenu': lambda (obj, user): obj.leftmenu,
+            'icon': lambda (obj, user): obj.leftmenu,
+        }
+
+    class MetaEdit:
+
+        only_if = {
+            'get_leftmenu_display': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
+            'icon': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
+        }
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return u'{} ({})'.format(self.title, self.url)
+
+    def get_url(self):
+        if self.url:
+            return u'<a href="{}" target="_blank">{}</a>'.format(self.url, self.url)

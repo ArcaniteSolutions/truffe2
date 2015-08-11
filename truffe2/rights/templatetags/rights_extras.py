@@ -109,17 +109,17 @@ class IfCanDisplayNode(Node):
     def render(self, context):
         for (obj, user, field), nodelist in self.conditions_nodelists:
 
-            if field is not None and hasattr(obj, 'MetaData') and hasattr(obj.MetaData, 'extra_right_display') and field in obj.MetaData.extra_right_display:  # if / elif clause
-                obj = template.Variable(obj).resolve(context)
-                user = template.Variable(user).resolve(context)
-                field = template.Variable(field).resolve(context)
+            obj = template.Variable(obj).resolve(context)
+            user = template.Variable(user).resolve(context)
+            field = template.Variable(field).resolve(context)
 
+            if field is not None and hasattr(obj, 'MetaData') and hasattr(obj.MetaData, 'extra_right_display') and field in obj.MetaData.extra_right_display:  # if / elif clause
                 if isinstance(obj, basestring):
                     new_obj = importlib.import_module('.'.join(obj.split('.')[:-1]))
                     obj = getattr(new_obj, obj.split('.')[-1])
 
                 if isinstance(obj, ModelWithRight):
-                    match = obj.MetaData.extra_right_display[field](obj, user)
+                    match = obj.MetaData.extra_right_display[field]((obj, user))
                 else:
                     raise Exception("?", obj, " cannot be used for rights")
 
