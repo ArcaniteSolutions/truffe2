@@ -8,4 +8,6 @@ urlpatterns = patterns(
 
     url(r'^$', 'home'),
     url(r'^get_to_moderate$', 'get_to_moderate'),
+
+    url(r'^link/base$', 'link_base'),
 )

@@ -523,6 +523,12 @@
                     <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-square-o"></i> <span class="menu-item-parent">{% trans "Divers" %}</span></a>
                         <ul>
+                            {% ifhasright 'main.models.Link' user '!SHOW_BASE' %}
+                                <li id="menu-misc-link-base">
+                                    <a href="{% url 'main.views.link_base' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Liens" %}</a>
+                                </li>
+                            {% endifhasright %}
+
                             {% ifhasright 'main.models.Link' user 'LIST' %}
                                 <li id="menu-misc-links">
                                     <a href="{% url 'main.views.link_list' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Gestion des liens" %}</a>

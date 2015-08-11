@@ -190,3 +190,14 @@ Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
     def get_url(self):
         if self.url:
             return u'<a href="{}" target="_blank">{}</a>'.format(self.url, self.url)
+
+    def __init__(self, *args, **kwargs):
+        super(_Link, self).__init__(*args, **kwargs)
+
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
+        self.MetaRights.rights_update({
+            'SHOW_BASE': _(u'Peut afficher la base de liens'),
+        })
+
+    def rights_can_SHOW_BASE(self, user):
+        return self.rights_in_linked_unit(user)
