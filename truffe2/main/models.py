@@ -123,20 +123,22 @@ class _Link(GenericModel, UnitEditableModel):
         ('/main/top', _(u'Principal / En haut')),
         ('/main/bottom', _(u'Principal / En bas')),
         ('/admin/', _(u'Admin')),
+        ('/gens/', _(u'Gens')),
         ('/communication/', _(u'Communication')),
-        ('/logitics/', _(u'Logistique')),
-        ('/logitics/vehicles', _(u'Logistique / Véhicules')),
-        ('/logitics/rooms', _(u'Logistique / Salles')),
-        ('/logitics/supply', _(u'Logistique / Matériel')),
+        ('/logistics/', _(u'Logistique')),
+        ('/logistics/vehicles', _(u'Logistique / Véhicules')),
+        ('/logistics/rooms', _(u'Logistique / Salles')),
+        ('/logistics/supply', _(u'Logistique / Matériel')),
         ('/units/', _(u'Unités et Accreds')),
         ('/accounting/', _(u'Compta')),
         ('/accounting/accounting', _(u'Compta / Compta')),
         ('/accounting/gestion', _(u'Compta / Gestion')),
         ('/accounting/tools', _(u'Compta / Outils')),
-        ('/accounting/prrofs', _(u'Compta / Justifications')),
+        ('/accounting/proofs', _(u'Compta / Justifications')),
+        ('/misc/', _(u'Divers')),
     )
 
-    leftmenu = models.CharField(_(u'Position dans le menu de gauche'), max_length=128, choices=LEFTMENU_CHOICES, blank=True, null=True, help_text=_(u'Laisser blanc pour faire un lien normal. Réservé au comité de l\'AGEPoly'))
+    leftmenu = models.CharField(_(u'Position dans le menu de gauche'), max_length=128, choices=LEFTMENU_CHOICES, blank=True, null=True, help_text=_(u'Laisser blanc pour faire un lien normal. Réservé au comité de l\'AGEPoly. Attention, cache de 15 minutes !'))
     icon = models.CharField(_(u'Icone FontAwesome'), max_length=128, default='fa-external-link-square')
 
     class MetaData:
@@ -168,14 +170,14 @@ class _Link(GenericModel, UnitEditableModel):
 Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
 
         extra_right_display = {
-            'leftmenu': lambda (obj, user): obj.leftmenu,
+            'get_leftmenu_display': lambda (obj, user): obj.leftmenu,
             'icon': lambda (obj, user): obj.leftmenu,
         }
 
     class MetaEdit:
 
         only_if = {
-            'get_leftmenu_display': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
+            'leftmenu': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
             'icon': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
         }
 
