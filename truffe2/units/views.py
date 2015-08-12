@@ -183,10 +183,12 @@ def accreds_edit(request, pk):
 
                 if accred.role.pk != base_role.pk:
                     # On termine l'accrédiation
-                    accred.end_date = now()
-                    accred.save()
 
-                    AccreditationLog(accreditation=accred, who=request.user, type='deleted').save()
+                    old_accred = get_object_or_404(Accreditation, pk=pk)
+                    old_accred.end_date = now()
+                    old_accred.save()
+
+                    AccreditationLog(accreditation=old_accred, who=request.user, type='deleted').save()
 
                     # Et on clone la nouvelle
                     accred.pk = None
@@ -194,6 +196,8 @@ def accreds_edit(request, pk):
 
                     accred.save()
                     accred.check_if_validation_needed(request)
+
+                    accred.user.clear_rights_cache()
 
                     AccreditationLog(accreditation=accred, who=request.user, type='created').save()
 
