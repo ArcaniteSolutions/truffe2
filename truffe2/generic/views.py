@@ -307,10 +307,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             obj = model_class.objects.get(pk=pk, deleted=False)
 
             if unit_mode:
-                if not hasattr(obj, 'unit') and hasattr(obj, 'costcenter'):
-                    obj_unit = obj.costcenter.unit if obj.costcenter.pk else None
-                else:
-                    obj_unit = obj.unit
+
+                obj_unit = obj.costcenter.unit if isinstance(obj, CostCenterLinked) else obj.unit
 
                 update_current_unit(request, obj_unit.pk if obj_unit else -1)
                 current_unit = obj_unit
