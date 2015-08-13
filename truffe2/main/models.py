@@ -165,8 +165,8 @@ class _Link(GenericModel, UnitEditableModel):
 
         has_unit = True
 
-        help_list = _(u"""Les liens sont affiché dans la banque de liens pour les différentes unités. Tu peux par exemple lister les différents services interne à ta commision.
-
+        help_list = _(u"""Les liens sont affichés dans la banque de liens pour les différentes unités. Tu peux par exemple lister les différents services interne à ta commission.
+"
 Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
 
         extra_right_display = {
