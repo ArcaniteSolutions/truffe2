@@ -107,3 +107,28 @@ def get_to_moderate(request):
             liste[model_class.MetaData.base_title] = moderable
 
     return render(request, 'main/to_moderate.html', {'liste': liste})
+
+
+@login_required
+def link_base(request):
+
+    from main.models import Link
+    from generic.views import get_unit_data
+
+    unit_mode, current_unit, unit_blank = get_unit_data(Link, request)
+
+    from units.models import Unit
+
+    main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
+
+    main_unit.set_rights_can_select(lambda unit: Link.static_rights_can('SHOW_BASE', request.user, unit, None))
+    main_unit.set_rights_can_edit(lambda unit: Link.static_rights_can('SHOW_BASE', request.user, unit, None))
+    main_unit.check_if_can_use_hidden(request.user)
+
+    if Link.static_rights_can('SHOW_BASE', request.user, current_unit, None):
+        links = Link.objects.filter(deleted=False, unit=current_unit, leftmenu=None).order_by('title')
+    else:
+        links = []
+
+    return render(request, 'main/link/base.html', {'unit_mode': unit_mode, 'main_unit': main_unit, 'links': links})
+

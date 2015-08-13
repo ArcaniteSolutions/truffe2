@@ -1,4 +1,4 @@
-{% load i18n rights_extras %}
+{% load i18n rights_extras main_extras cache %}
 <!DOCTYPE html>
 <html lang="en-us">
     <head>
@@ -144,6 +144,10 @@
                         <a href="{% url 'main.views.home' %}" title="{% trans "Accueil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Accueil" %}</span></a>
                     </li>
 
+                    {% cache 900 "leftmenu-links-main-top" %}
+                        {% display_links_for_menu "/main/top" %}
+                    {% endcache %}
+
                     <li>
                         <a href="https://truffe.polylan.ch" title="{% trans "Retourner sur Truffe 1" %}"><i class="fa fa-lg fa-fw fa-backward"></i> <span class="menu-item-parent">{% trans "Retourner sur Truffe 1" %}</span></a>
                     </li>
@@ -158,6 +162,10 @@
                                         <a href="{% url 'impersonate-stop' %}"><i class="fa fa-lg fa-fw fa-male fa-spin"></i> {% trans "Stop Impersonate" %}</a>
                                     {% endif %}
                                 </li>
+
+                                {% cache 900 "leftmenu-links-admin" %}
+                                    {% display_links_for_menu "/admin/" %}
+                                {% endcache %}
                             </ul>
                         </li>
                     {% endif %}
@@ -175,6 +183,10 @@
                                     <a href="{% url 'users.views.users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profil" %}</a>
                                 </li>
                             {% endif %}
+
+                            {% cache 900 "leftmenu-links-gens" %}
+                                {% display_links_for_menu "/gens/" %}
+                            {% endcache %}
                         </ul>
                     </li>
                     <li>
@@ -203,6 +215,10 @@
                                     <a href="{% url 'communication.views.logo_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Gestion des logos" %}</a>
                                 </li>
                             {% endifhasright %}
+
+                            {% cache 900 "leftmenu-links-communication" %}
+                                {% display_links_for_menu "/communication/" %}
+                            {% endcache %}
                         </ul>
                     </li>
                     <li>
@@ -250,6 +266,10 @@
                                                 <a href="{% url 'vehicles.views.location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
                                             </li>
                                         {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-logistics-vehicles" %}
+                                            {% display_links_for_menu "/logistics/vehicles/" %}
+                                        {% endcache %}
                                     </ul>
                                 </li>
                             {% endif %}
@@ -287,6 +307,10 @@
                                                 <a href="{% url 'logistics.views.roomreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
                                             </li>
                                         {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-logistics-rooms" %}
+                                            {% display_links_for_menu "/logistics/rooms/" %}
+                                        {% endcache %}
                                     </ul>
                                 </li>
                             {% endifhasright %}
@@ -326,9 +350,17 @@
                                                 <a href="{% url 'logistics.views.supplyreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mon matériel" %}</a>
                                             </li>
                                         {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-logistics-supply" %}
+                                            {% display_links_for_menu "/logistics/supply/" %}
+                                        {% endcache %}
                                     </ul>
                                 </li>
                             {% endifhasright %}
+
+                            {% cache 900 "leftmenu-links-logistics" %}
+                                {% display_links_for_menu "/logistics/" %}
+                            {% endcache %}
 
                         </ul>
                     </li>
@@ -360,6 +392,10 @@
                                     <a href="{% url 'members.views.memberset_list' %}"><i class="fa fa-lg fa-fw fa-male"></i> {% trans "Membres de l'unité" %}</a>
                                 </li>
                             {% endifhasright %}
+
+                            {% cache 900 "leftmenu-links-units" %}
+                                {% display_links_for_menu "/units/" %}
+                            {% endcache %}
                         </ul>
                     </li>
                     {% if user.is_superuser or user.is_impersonate or user.is_betatester %}
@@ -388,6 +424,10 @@
                                             <li id="menu-compta-budget">
                                                 <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
                                         {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-accounting-accounting" %}
+                                            {% display_links_for_menu "/accounting/accounting" %}
+                                        {% endcache %}
                                     </ul>
                                 </li>
                                 <li>
@@ -418,6 +458,10 @@
                                                 <a href="{% url 'accounting_core.views.tva_list' %}"><i class="fa fa-lg fa-fw fa-filter"></i> {% trans "TVAs" %}</a>
                                             </li>
                                         {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-accounting-gestion" %}
+                                            {% display_links_for_menu "/accounting/gestion" %}
+                                        {% endcache %}
                                     </ul>
                                 </li>
                                 <li>
@@ -443,6 +487,10 @@
                                                 <a href="{% url 'accounting_tools.views.invoice_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Factures" %}</a>
                                             </li>
                                         {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-accounting-tools" %}
+                                            {% display_links_for_menu "/accounting/tools" %}
+                                        {% endcache %}
                                     </ul>
                                 </li>
                                 <li>
@@ -458,17 +506,50 @@
                                                 <a href="{% url 'accounting_tools.views.cashbook_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Journaux de caisse" %}</a>
                                             </li>
                                         {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-accounting-proofs" %}
+                                            {% display_links_for_menu "/accounting/proofs" %}
+                                        {% endcache %}
                                     </ul>
                                 </li>
+
+                                {% cache 900 "leftmenu-links-accounting" %}
+                                    {% display_links_for_menu "/accounting/" %}
+                                {% endcache %}
                             </ul>
                         </li>
                     {% endif %}
+
+                    <li>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-square-o"></i> <span class="menu-item-parent">{% trans "Divers" %}</span></a>
+                        <ul>
+                            {% ifhasright 'main.models.Link' user '!SHOW_BASE' %}
+                                <li id="menu-misc-link-base">
+                                    <a href="{% url 'main.views.link_base' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Liens" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% ifhasright 'main.models.Link' user 'LIST' %}
+                                <li id="menu-misc-links">
+                                    <a href="{% url 'main.views.link_list' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Gestion des liens" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% cache 900 "leftmenu-links-misc" %}
+                                {% display_links_for_menu "/misc/" %}
+                            {% endcache %}
+                        </ul>
+                    </li>
                     <li id="menu-notifications">
                         <a href="{% url 'notifications.views.notification_center' %}">
                             <i class="fa fa-lg fa-fw fa-bell"></i>
                             <span class="menu-item-parent">{% trans "Centre de notifications" %}</span>
                         </a>
                     </li>
+
+                    {% cache 900 "leftmenu-links-main-bottom" %}
+                        {% display_links_for_menu "/main/bottom" %}
+                    {% endcache %}
                 </ul>
             </nav>
             <span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span>

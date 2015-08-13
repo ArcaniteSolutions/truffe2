@@ -18,7 +18,7 @@ $('.minifyme, #hide-menu >:first-child > a').click(function(e) {
 $(document).ready(function() {
 
     $('nav > ul li ul').each(function(__, elem) {
-        if ($(elem).children().length === 0) {
+        if ($(elem).children('[class!="ignore-menu"]').length === 0) {
             $(elem).parent().hide();
         }
 

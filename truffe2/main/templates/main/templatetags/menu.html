@@ -1,0 +1,8 @@
+{% for menu in menus %}
+    <li class="ignore-menu">
+        <a href="{{menu.url}}" target="_blank" title="{{menu.title}}">
+            <i class="fa fa-lg fa-fw {{menu.icon}}"></i>
+            <span class="menu-item-parent">{{menu.title}}</span>
+        </a>
+    </li>
+{% endfor %}

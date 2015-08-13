@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load i18n rights_extras %}
+
+{% block title %}{{block.super}} :: {% trans "Base de lien" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><i class="fa fa-link"></i> {% trans "Base de liens" %}</li>
+  {% endblock %}
+
+{% block content %}
+    <h1>{% trans "Base de liens" %}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+          <div class="col-sm-12 col-md-10 col-lg-10">
+                {% with w_title="Base de liens" w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+                    {% for link in links %}
+                        {% ifhasright link user 'EDIT' %}
+                            <a href="{% url 'main.views.link_edit' link.pk %}" class="btn btn-default btn-xs pull-right"><i class="fa fa-pencil"></i> {% trans "Editer" %}</a>
+                        {% endifhasright %}
+
+                        <a href="{{link.url}}" target="_blank">{{link.title}} - {{link.url}}</a><br/>
+
+                        <small>{{link.description|linebreaksbr}}</small>
+
+                        <hr />
+
+                    {% endfor %}
+
+                {% include "widget/footer.html" %}
+
+            </div>
+
+            {% if unit_mode %}
+                <div class="col-sm-12 col-md-2 col-lg-2">
+
+                    {% if unit_mode %}
+                      {% with function_to_call="unit_updated" %}
+                          {% include "units/selector/unit_selector.html" %}
+                      {% endwith %}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+
+    {% if unit_mode %}
+        <script type="text/javascript">
+
+          function unit_updated(pk, name, can_edit) {
+              window.location = '{% url 'main.views.link_base' %}?upk=' + pk;
+          }
+
+        </script>
+    {% endif %}
+
+{% endblock %}
+
+{% block menuid %}menu-misc-link-base{% endblock %}
