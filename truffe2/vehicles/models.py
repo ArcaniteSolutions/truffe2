@@ -142,7 +142,7 @@ class _Location(GenericModel, AgepolyEditableModel):
 
     name = models.CharField(_('Nom'), max_length=255)
     description = models.TextField(_('Description'))
-    url_location = models.URLField(_('URL carte lieu'))
+    url_location = models.URLField(_('URL carte lieu'), blank=True, null=True)
 
     class MetaData:
         list_display = [
@@ -303,7 +303,10 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
 
     def get_location(self):
         if self.location:
-            return u'<a href="{}">{}</a>'.format(self.location.url_location, self.location)
+            if self.location.url_location:
+                return u'<a href="{}">{}</a>'.format(self.location.url_location, self.location)
+            else:
+                return self.location.__unicode__()
         else:
             return ''
 
