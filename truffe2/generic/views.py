@@ -31,6 +31,7 @@ import os
 from sendfile import sendfile
 import importlib
 import copy
+import inspect
 
 
 from accounting_core.utils import CostCenterLinked
@@ -874,7 +875,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
         if hasattr(model_class.MetaState, 'states_bonus_form'):
             bonus_form = model_class.MetaState.states_bonus_form.get((obj.status, dest_status), model_class.MetaState.states_bonus_form.get(dest_status, None))
 
-            if bonus_form and hasattr(bonus_form, '__call__'):
+            if bonus_form and hasattr(bonus_form, '__call__') and not inspect.isclass(bonus_form):
                 bonus_form = bonus_form(request, obj)
 
         if can_switch and request.method == 'POST' and request.POST.get('do') == 'it':

@@ -68,6 +68,11 @@ def switchable(context, obj, user, id):
     return 'true' if obj.may_switch_to(user, id) else 'false'
 
 
+@register.assignment_tag(takes_context=True)
+def get_list_quick_switch(context, obj):
+    return filter(lambda (status, __, ___): obj.may_switch_to(context['user'], status), obj.MetaState.list_quick_switch.get(obj.status, []))
+
+
 @register.tag
 def nocrlf(parser, token):
     nodelist = parser.parse(('endnocrlf',))

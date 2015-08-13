@@ -163,7 +163,6 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         }
 
     def may_switch_to(self, user, dest_state):
-
         return super(_AccountingLine, self).rights_can_EDIT(user) and super(_AccountingLine, self).may_switch_to(user, dest_state)
 
     def can_switch_to(self, user, dest_state):
