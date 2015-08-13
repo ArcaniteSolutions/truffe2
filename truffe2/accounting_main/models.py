@@ -203,7 +203,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         if self.current_sum < 0:
             return '<span class="txt-color-green">{}</span>'.format(-self.current_sum)
         elif self.current_sum > 0:
-            return '<span class="txt-color-red">-{}</span>'.format(-self.current_sum)
+            return '<span class="txt-color-red">{}</span>'.format(-self.current_sum)
         else:
             return '0.00'
 

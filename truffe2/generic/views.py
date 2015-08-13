@@ -307,8 +307,13 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
             obj = model_class.objects.get(pk=pk, deleted=False)
 
             if unit_mode:
-                update_current_unit(request, obj.unit.pk if obj.unit else -1)
-                current_unit = obj.unit
+                if not hasattr(obj, 'unit') and hasattr(obj, 'costcenter'):
+                    obj_unit = obj.costcenter.unit if obj.costcenter.pk else None
+                else:
+                    obj_unit = obj.unit
+
+                update_current_unit(request, obj_unit.pk if obj_unit else -1)
+                current_unit = obj_unit
 
             if year_mode:
                 update_current_year(request, obj.accounting_year.pk)
@@ -429,7 +434,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 right = 'EDIT' if obj.pk else 'CREATE'
                 obj = form.save(commit=False)
                 if not obj.rights_can(right, request.user):
-                    messages.error(_(u'Tu n\'as pas le droit de créer/modifier cet objet.'))
+                    messages.error(request, _(u'Tu n\'as pas le droit de créer/modifier cet objet.'))
                     return redirect('{}.views.{}_edit'.format(module.__name__, base_name), pk='~' if right == 'CREATE' else obj.pk)
 
                 obj.save()
