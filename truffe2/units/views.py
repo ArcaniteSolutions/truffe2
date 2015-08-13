@@ -186,6 +186,7 @@ def accreds_edit(request, pk):
 
                     old_accred = get_object_or_404(Accreditation, pk=pk)
                     old_accred.end_date = now()
+                    old_accred.need_validation = False
                     old_accred.save()
 
                     AccreditationLog(accreditation=old_accred, who=request.user, type='deleted').save()
@@ -193,7 +194,7 @@ def accreds_edit(request, pk):
                     # Et on clone la nouvelle
                     accred.pk = None
                     accred.end_date = None
-
+                    accred.need_validation = False
                     accred.save()
                     accred.check_if_validation_needed(request)
 
