@@ -140,18 +140,18 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
         retour = []
 
-        retour += list(cls.objects.filter(status='1_active').order_by('-end_date'))
-        retour += list(cls.objects.filter(status='2_closing').order_by('-end_date'))
+        retour += list(cls.objects.filter(status='1_active', deleted=False).order_by('-end_date'))
+        retour += list(cls.objects.filter(status='2_closing', deleted=False).order_by('-end_date'))
 
         # On peut sélectionner les années en préparation que si on est
         # trésorie du comité agepoly ou super_user
         if user.is_superuser or cls().rights_in_root_unit(user, 'TRESORERIE'):
-            retour += list(cls.objects.filter(status='0_preparing').order_by('-end_date'))
+            retour += list(cls.objects.filter(status='0_preparing', deleted=False).order_by('-end_date'))
 
         # On peut sélectionner les années archivée qu'en list (sauf si on est
         # super_user)
         if mode == 'LIST' or user.is_superuser:
-            retour += list(cls.objects.filter(status='3_archived').order_by('-end_date'))
+            retour += list(cls.objects.filter(status='3_archived', deleted=False).order_by('-end_date'))
 
         return retour
 
