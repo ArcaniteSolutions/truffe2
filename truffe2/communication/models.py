@@ -13,13 +13,13 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
         access = 'COMMUNICATION'
         moderation_access = 'COMMUNICATION'
 
-    title = models.CharField(max_length=255)
-    content = models.TextField()
+    title = models.CharField(_(u'Titre'), max_length=255)
+    content = models.TextField(_(u'Contenu'))
     url = models.URLField(max_length=255)
     unit = FalseFK('units.models.Unit')
 
-    start_date = models.DateTimeField(blank=True, null=True)
-    end_date = models.DateTimeField(blank=True, null=True)
+    start_date = models.DateTimeField(_(u'Date début'), blank=True, null=True)
+    end_date = models.DateTimeField(_(u'Date fin'), blank=True, null=True)
 
     class MetaData:
         list_display = [
@@ -64,12 +64,12 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
         access = 'COMMUNICATION'
         moderation_access = 'COMMUNICATION'
 
-    title = models.CharField(max_length=255)
-    picture = models.ImageField(upload_to='uploads/slides/')
+    title = models.CharField(_(u'Titre'), max_length=255)
+    picture = models.ImageField(_(u'Image'), help_text=_(u'Pour des raisons de qualités, il est fortement recommandé d\'envoyer une image en HD (1920x1050)'), upload_to='uploads/slides/')
     unit = FalseFK('units.models.Unit')
 
-    start_date = models.DateTimeField(blank=True, null=True)
-    end_date = models.DateTimeField(blank=True, null=True)
+    start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
+    end_date = models.DateTimeField(_(u'Date de fin'), blank=True, null=True)
 
     class MetaData:
         list_display = [
@@ -78,7 +78,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
             ('end_date', _('Date fin')),
             ('status', _('Statut')),
         ]
-        details_display = list_display + [('picture', _('Image'))]
+        details_display = list_display + [('picture', _('Image')), ('get_image_warning', '')]
         filter_fields = ('title', 'status')
 
         base_title = _(u'Slide à l\'AGEPoly')
@@ -92,6 +92,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
 
         datetime_fields = ['start_date', 'end_date']
         images_fields = ['picture', ]
+        safe_fields = ['get_image_warning', ]
 
         has_unit = True
 
@@ -107,6 +108,10 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
 
     def __unicode__(self):
         return self.title
+
+    def get_image_warning(self):
+        if self.picture.height < 1050 or self.picture.width < 1920:
+            return _(u'<span class="text-warning"><i class="fa fa-warning"></i> Les dimentions de l\'image sont trop petites ! ({}x{} contre 1920x1050 recommandé)'.format(self.picture.width, self.picture.height))
 
 
 class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditableModel):
