@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
+from django.template.defaultfilters import date as _date
+from django.utils import translation
 
 
 import datetime
@@ -294,7 +296,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         @staticmethod
         def set_extra_defaults(obj, request):
             obj.sign = '{} {}'.format(request.user.first_name, request.user.last_name)
-            obj.date_and_place = 'Lausanne, le {}'.format(datetime.datetime.now().strftime('%d %B %Y'))
+
+            with translation.override('fr'):
+                obj.date_and_place = u'Lausanne, le {}'.format(_date(datetime.datetime.now(), u'd F Y'))
 
     class MetaLines:
         lines_objects = [
