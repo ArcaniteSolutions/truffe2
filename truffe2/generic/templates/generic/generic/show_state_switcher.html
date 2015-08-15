@@ -12,19 +12,18 @@
         {% endfor %}
     </ul>
 
-    {% with infos=obj.MetaState.states_quick_switch|get_attr:obj.status %}
-        {% if infos %}
-            {% for info in infos %}
-            <button id="quick_switch_button_{{info.0}}" style="margin-left: 5px;" class="btn btn-{{obj.MetaState.states_colors|get_attr:info.0}} btn-xs " onclick="disp_switch('{{info.0}}');">
-                    {{info.1}}
-                </button>
-                <script type="text/javascript">
-                    if ('{% switchable obj user info.0 %}' == 'false')
-                        $('#quick_switch_button_{{info.0}}').remove();
-                </script>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    {% get_states_quick_switch obj as infos %}
+    {% if infos %}
+        {% for info in infos %}
+        <button id="quick_switch_button_{{info.0}}" style="margin-left: 5px;" class="btn btn-{{obj.MetaState.states_colors|get_attr:info.0}} btn-xs " onclick="disp_switch('{{info.0}}');">
+                {{info.1}}
+            </button>
+            <script type="text/javascript">
+                if ('{% switchable obj user info.0 %}' == 'false')
+                    $('#quick_switch_button_{{info.0}}').remove();
+            </script>
+        {% endfor %}
+    {% endif %}
 </div>
 
 <script type="text/javascript">

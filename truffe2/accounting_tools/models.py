@@ -695,7 +695,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         if dest_state == '3_canceled' and self.rights_can('EDIT', user):
             return True
 
-        return super(_InternalTransfer, self).may_switch_to(user, dest_state)
+        return super(_InternalTransfer, self).may_switch_to(user, dest_state) and self.rights_can('EDIT', user)
 
     def can_switch_to(self, user, dest_state):
 
@@ -877,7 +877,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         if self.status[0] == '4' and not user.is_superuser:
             return False
 
-        return super(_Withdrawal, self).may_switch_to(user, dest_state)
+        return super(_Withdrawal, self).may_switch_to(user, dest_state) and self.rights_can('EDIT', user)
 
     def can_switch_to(self, user, dest_state):
         if user.is_superuser:
