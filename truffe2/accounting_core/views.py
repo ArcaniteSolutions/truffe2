@@ -223,7 +223,7 @@ def users_available_list_by_unit(request, upk):
 
     unit = get_object_or_404(Unit, pk=upk)
     users = [request.user]
-    if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']):
+    if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
         unit_users = unit.users_with_access(no_parent=True)
         unit_users_pk = map(lambda user: user.pk, unit_users)
         unit_users = filter(lambda user: user != request.user, unit_users)

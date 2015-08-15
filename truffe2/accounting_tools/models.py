@@ -989,7 +989,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
         @staticmethod
         def extra_filter_for_list(request, current_unit, current_year, filtering):
-            if current_unit.is_user_in_groupe(request.user, access=['TRESORERIE', 'SECRETARIAT']):
+            if current_unit.is_user_in_groupe(request.user, access=['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
                 return lambda x: filtering(x)
             else:
                 return lambda x: filtering(x).filter(user=request.user)
@@ -1050,7 +1050,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
 
-        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
+        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.is_superuser:
             form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
             # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
 
@@ -1200,7 +1200,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
 
-        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access):
+        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.is_superuser:
             form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
             # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
 
