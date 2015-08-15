@@ -400,7 +400,7 @@
                     </li>
                     {% if user.is_superuser or user.is_impersonate or user.is_betatester %}
                         <li>
-                            <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> <span class="menu-item-parent">{% trans "Comptabilité" %}</span></a>
+                            <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> <span class="menu-item-parent">{% trans "Finances" %}</span></a>
                             <ul>
                                <li>
                                     <a href="#"><i class="fa fa-lg fa-fw fa-dollar"></i> {% trans "Comptabilité" %}</span></a>
@@ -427,40 +427,6 @@
 
                                         {% cache 900 "leftmenu-links-accounting-accounting" %}
                                             {% display_links_for_menu "/accounting/accounting" %}
-                                        {% endcache %}
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="#"><i class="fa fa-lg fa-fw fa-gear"></i> {% trans "Gestion" %}</span></a>
-                                    <ul>
-                                        {% ifhasright 'accounting_core.models.AccountingYear' user 'LIST' %}
-                                            <li id="menu-compta-anneecomptable">
-                                                <a href="{% url 'accounting_core.views.accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'accounting_core.models.CostCenter' user 'LIST' %}
-                                            <li id="menu-compta-centrecouts">
-                                                <a href="{% url 'accounting_core.views.costcenter_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Centres de coût" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'accounting_core.models.Account' user 'LIST' %}
-                                            <li id="menu-compta-comptesCG">
-                                                <a href="{% url 'accounting_core.views.account_list' %}"><i class="fa fa-lg fa-fw fa-money"></i> {% trans "Comptes de CG" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'accounting_core.models.AccountCategory' user 'LIST' %}
-                                            <li id="menu-compta-categoriescompteCG">
-                                                <a href="{% url 'accounting_core.views.accountcategory_list' %}"><i class="fa fa-lg fa-fw fa-folder-open"></i> {% trans "Catégories des comptes" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'accounting_core.models.TVA' user 'LIST' %}
-                                            <li id="menu-compta-tva">
-                                                <a href="{% url 'accounting_core.views.tva_list' %}"><i class="fa fa-lg fa-fw fa-filter"></i> {% trans "TVAs" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% cache 900 "leftmenu-links-accounting-gestion" %}
-                                            {% display_links_for_menu "/accounting/gestion" %}
                                         {% endcache %}
                                     </ul>
                                 </li>
@@ -509,6 +475,40 @@
 
                                         {% cache 900 "leftmenu-links-accounting-proofs" %}
                                             {% display_links_for_menu "/accounting/proofs" %}
+                                        {% endcache %}
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-gear"></i> {% trans "Gestion" %}</span></a>
+                                    <ul>
+                                        {% ifhasright 'accounting_core.models.AccountingYear' user 'LIST' %}
+                                            <li id="menu-compta-anneecomptable">
+                                                <a href="{% url 'accounting_core.views.accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.CostCenter' user 'LIST' %}
+                                            <li id="menu-compta-centrecouts">
+                                                <a href="{% url 'accounting_core.views.costcenter_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Centres de coût" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.Account' user 'LIST' %}
+                                            <li id="menu-compta-comptesCG">
+                                                <a href="{% url 'accounting_core.views.account_list' %}"><i class="fa fa-lg fa-fw fa-money"></i> {% trans "Comptes de CG" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.AccountCategory' user 'LIST' %}
+                                            <li id="menu-compta-categoriescompteCG">
+                                                <a href="{% url 'accounting_core.views.accountcategory_list' %}"><i class="fa fa-lg fa-fw fa-folder-open"></i> {% trans "Catégories des comptes" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'accounting_core.models.TVA' user 'LIST' %}
+                                            <li id="menu-compta-tva">
+                                                <a href="{% url 'accounting_core.views.tva_list' %}"><i class="fa fa-lg fa-fw fa-filter"></i> {% trans "TVAs" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-accounting-gestion" %}
+                                            {% display_links_for_menu "/accounting/gestion" %}
                                         {% endcache %}
                                     </ul>
                                 </li>
