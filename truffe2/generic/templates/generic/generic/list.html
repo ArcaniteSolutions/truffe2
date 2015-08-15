@@ -161,7 +161,13 @@
                                                 return escape_html(t.text);
                                         },
                                     }).on('change', function() {
-                                        refresh_list();
+                                        {% if unit_mode %}
+                                            refresh_list();
+                                        {% else %}
+                                            {% if year_mode %}
+                                                refresh_list_year();
+                                            {% endif %}
+                                        {% endif %}
                                     });
 
                                 });
@@ -182,6 +188,27 @@
         </div>
     </section>
 
+    <script type="text/javascript">
+
+        function update_mayi() {
+
+            $.ajax('{% url mayi_view %}?upk=' + $('.cgroupe').attr('pk'){% if year_mode %} + '&ypk=' + $('.cyear').attr('pk'){% endif %}).success(function (data) {
+                if (data['RESTORE']) {
+                    $('#btn-deleted').show();
+                } else {
+                    $('#btn-deleted').hide();
+                }
+
+                if (data['CREATE']) {
+                    $('#btn-add').show();
+                } else {
+                    $('#btn-add').hide();
+                }
+            });
+        }
+
+        update_mayi();
+    </script>
 
     {% if unit_mode %}
         <script type="text/javascript">
@@ -195,27 +222,8 @@
               refresh_list();
               {% block bonus_unit_updated %}
               {% endblock %}
-              update_myi();
+              update_mayi();
           }
-
-          function update_myi() {
-
-              $.ajax('{% url myi_view %}?upk=' + $('.cgroupe').attr('pk'){% if year_mode %} + '&ypk=' + $('.cyear').attr('pk'){% endif %}).success(function (data) {
-                  if (data['RESTORE']) {
-                      $('#btn-deleted').show();
-                  } else {
-                      $('#btn-deleted').hide();
-                  }
-
-                  if (data['CREATE']) {
-                      $('#btn-add').show();
-                  } else {
-                      $('#btn-add').hide();
-                  }
-              });
-          }
-
-          update_myi();
 
         </script>
     {% endif %}
@@ -229,10 +237,10 @@
 
           function year_updated(pk, name) {
               {% if tag_mode %}$('#ctag').val('').change();{% endif %}
+              update_mayi();
               refresh_list_year();
               {% block bonus_year_updated %}
               {% endblock %}
-              update_myi();
           }
 
         </script>

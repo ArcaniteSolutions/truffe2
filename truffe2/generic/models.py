@@ -177,12 +177,12 @@ class GenericModel(models.Model):
                 setattr(views_module, '%s_show' % (base_views_name,), views.generate_show(module, base_views_name, real_model_class, logging_class, tag_class))
                 setattr(views_module, '%s_delete' % (base_views_name,), views.generate_delete(module, base_views_name, real_model_class, logging_class))
                 setattr(views_module, '%s_deleted' % (base_views_name,), views.generate_deleted(module, base_views_name, real_model_class, logging_class))
-                setattr(views_module, '%s_myi' % (base_views_name,), views.generate_myi(module, base_views_name, real_model_class, logging_class))
+                setattr(views_module, '%s_mayi' % (base_views_name,), views.generate_mayi(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
                 urls_module.urlpatterns += patterns(views_module.__name__,
                     url(r'^%s/$' % (base_views_name,), '%s_list' % (base_views_name,)),
-                    url(r'^%s/myi$' % (base_views_name,), '%s_myi' % (base_views_name,)),
+                    url(r'^%s/mayi$' % (base_views_name,), '%s_mayi' % (base_views_name,)),
                     url(r'^%s/json$' % (base_views_name,), '%s_list_json' % (base_views_name,)),
                     url(r'^%s/deleted$' % (base_views_name,), '%s_deleted' % (base_views_name,)),
                     url(r'^%s/logs$' % (base_views_name,), '%s_logs' % (base_views_name,)),
