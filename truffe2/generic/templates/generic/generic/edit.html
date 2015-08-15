@@ -39,7 +39,7 @@
             <input type="hidden" name="file_key" value="{{file_key}}">
 
             {% if unit_mode %}
-                <input type="hidden" id="input_upk" name="upk" value="{{form.instance.unit.pk}}">
+                <input type="hidden" id="input_upk" name="upk" value="{% if form.instance.costcenter and not form.instance.unit %}{{form.instance.costcenter.unit.pk}}{% elif form.instance.unit %}{{form.instance.unit.pk}}{% else %}{{current_unit.pk}}{% endif %}">
             {% endif %}
             {% if year_mode %}
                 <input type="hidden" id="input_ypk" name="ypk" value="{{form.instance.accounting_year.pk}}">
@@ -77,10 +77,10 @@
                         </tr>
 
                         {% for line_form in line_data.forms %}
-                            <tr class="line_field_line_{{line_data.related_name}}">
+                            <tr class="line_field_line_{{line_data.related_name}} {% if line_form.errors %}has-error{% endif %}">
 
                                 {% for field in line_form.form %}
-                                    <td class="line_field_{{line_data.related_name}}_{{field.name}}">{% simple_bootstrap_field field %}</td>
+                                    <td class="line_field_{{line_data.related_name}}_{{field.name}} {% if field.errors %}has-error{% endif %}">{% simple_bootstrap_field field %}</td>
                                 {% endfor %}
 
                                 <td style="min-width: 58px;">
@@ -274,7 +274,7 @@
         {% if file_mode %}
             <h3>{{Model.MetaEdit.files_title}}</h3>
 
-            <p>{{Model.MetaEdit.files_help}}<br />{% trans "Tu peux 'drag & dropper' des fichiers sur toute la page pour les envoyer." %}</p>
+            <p>{{Model.MetaEdit.files_help|safe}}<br />{% trans "Tu peux 'drag & dropper' des fichiers sur toute la page pour les envoyer." %}</p>
 
             {% jfu 'generic/generic/file_upload.html' file_upload_view %}
 

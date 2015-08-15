@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
+from django.template.defaultfilters import date as _date
+from django.utils import translation
 
 
 import datetime
@@ -49,7 +51,14 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
 
     class MetaEdit:
         files_title = _(u'Fichiers')
-        files_help = _(u'Envoie les fichiers nécessaires pour ta demande de subvention.')
+        files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
+Vous devez inclure dans votre demande au moins :
+<ul>
+                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="http://truffe.polylan.ch/media/uploads/modeles/Budget.xltx" target="_blank">ce modèle</a> pour les externes à l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
+    <li>Bilans et comptes des d'activité des années précédentes</li>
+    <li>Documents officiels (pour les Association hors AGEPoly) : statuts, liste des membres du comité, PV de la dernière AG</li>
+</ul>
+Ces différents documents sont demandés au format PDF dans la mesure du possible, afin d'éviter les problèmes d'ouvertures et de mise en page.""")
 
     class MetaData:
         list_display = [
@@ -248,7 +257,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     display_bvr = models.BooleanField(_(u'Afficher paiement via BVR'), help_text=_(u'Affiche un BVR et le texte corespondant dans le PDF. Attention, le BVR généré n\'est pas utilisable à la poste ! (Il est possible d\'obtenir un \'vrai\' BVR via Marianne.)'), default=True)
     display_account = models.BooleanField(_(u'Afficher paiement via compte'), help_text=_(u'Affiche le texte pour le paiement via le compte de l\'AGEPoly.'), default=True)
     greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
-    sign = models.CharField(_(u'Signature'), max_length=512, help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
+    sign = models.TextField(_(u'Signature'), help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
 
     class MetaData:
@@ -284,7 +293,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Factures.""")
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outils (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'ils contiennent TOUTES LES INFORMATIONS NÉCESSAIRES).
+
+Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
         not_sortable_colums = ['get_reference', 'get_bvr_number']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex']
@@ -294,7 +305,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         @staticmethod
         def set_extra_defaults(obj, request):
             obj.sign = '{} {}'.format(request.user.first_name, request.user.last_name)
-            obj.date_and_place = 'Lausanne, le {}'.format(datetime.datetime.now().strftime('%d %B %Y'))
+
+            with translation.override('fr'):
+                obj.date_and_place = u'Lausanne, le {}'.format(_date(datetime.datetime.now(), u'd F Y'))
 
     class MetaLines:
         lines_objects = [
@@ -682,7 +695,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         if dest_state == '3_canceled' and self.rights_can('EDIT', user):
             return True
 
-        return super(_InternalTransfer, self).may_switch_to(user, dest_state)
+        return super(_InternalTransfer, self).may_switch_to(user, dest_state) and self.rights_can('EDIT', user)
 
     def can_switch_to(self, user, dest_state):
 
@@ -864,7 +877,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         if self.status[0] == '4' and not user.is_superuser:
             return False
 
-        return super(_Withdrawal, self).may_switch_to(user, dest_state)
+        return super(_Withdrawal, self).may_switch_to(user, dest_state) and self.rights_can('EDIT', user)
 
     def can_switch_to(self, user, dest_state):
         if user.is_superuser:

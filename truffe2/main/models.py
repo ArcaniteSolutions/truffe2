@@ -130,11 +130,11 @@ class _Link(GenericModel, UnitEditableModel):
         ('/logistics/rooms', _(u'Logistique / Salles')),
         ('/logistics/supply', _(u'Logistique / Matériel')),
         ('/units/', _(u'Unités et Accreds')),
-        ('/accounting/', _(u'Compta')),
-        ('/accounting/accounting', _(u'Compta / Compta')),
-        ('/accounting/gestion', _(u'Compta / Gestion')),
-        ('/accounting/tools', _(u'Compta / Outils')),
-        ('/accounting/proofs', _(u'Compta / Justifications')),
+        ('/accounting/', _(u'Finances')),
+        ('/accounting/accounting', _(u'Finances / Compta')),
+        ('/accounting/tools', _(u'Finances / Outils')),
+        ('/accounting/proofs', _(u'Finances / Justifications')),
+        ('/accounting/gestion', _(u'Finances / Gestion')),
         ('/misc/', _(u'Divers')),
     )
 

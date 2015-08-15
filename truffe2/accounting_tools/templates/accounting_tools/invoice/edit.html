@@ -1,1 +1,13 @@
 {% extends "accounting_tools/generic_tva_edit.html" %}
+
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        //Move costcenter up
+        var costcenterblock = $('#id_costcenter').parent().parent().remove();
+        $('#id_title').parent().parent().after(costcenterblock);
+
+    </script>
+
+{% endblock %}

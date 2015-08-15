@@ -1,0 +1,33 @@
+
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        function check_interhide() {
+
+            if ($('#id_user').val() != '') {
+                $('#id_role').parent().parent().hide();
+                $('#id_role').val('');
+            } else {
+                $('#id_role').parent().parent().show();
+            }
+
+            if ($('#id_role').val() != '') {
+                $('#id_user').parent().parent().hide();
+                $('#id_user').val('');
+            } else {
+                $('#id_user').parent().parent().show();
+            }
+        }
+
+        $(function() {
+
+            $('#id_user, #id_role').removeClass('form-control').css('width', '100%').on('change', check_interhide).select2();
+
+            check_interhide();
+        });
+
+    </script>
+{% endblock %}

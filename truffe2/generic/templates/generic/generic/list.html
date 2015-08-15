@@ -73,18 +73,14 @@
                                 {% trans "Logs globaux" %}
                             </a>
                         {% endif %}
-                        {% ifhasright Model user '!RESTORE' %}
-                            <a href="{% url deleted_view %}" class="btn btn-info">
+                            <a href="{% url deleted_view %}" class="btn btn-info" id="btn-deleted">
                                 <i class="fa fa-list"></i>
                                 {% trans "Élements supprimés" %}
                             </a>
-                        {% endifhasright %}
-                        {% ifhasright Model user '!CREATE' %}
-                            <a href="{% url edit_view '~' %}" class="btn btn-primary">
+                            <a href="{% url edit_view '~' %}" class="btn btn-primary" id="btn-add">
                                 <i class="fa fa-plus"></i>
                                 {% trans "Ajouter" %}
                             </a>
-                        {% endifhasright %}
                         {% block extrabuttons %}{% endblock %}
                     </div>
                 {% endblock %}
@@ -165,7 +161,11 @@
                                                 return escape_html(t.text);
                                         },
                                     }).on('change', function() {
-                                        refresh_list();
+                                        {% if unit_mode %}
+                                            refresh_list();
+                                        {% elif year_mode %}
+                                                refresh_list_year();
+                                        {% endif %}
                                     });
 
                                 });
@@ -186,6 +186,27 @@
         </div>
     </section>
 
+    <script type="text/javascript">
+
+        function update_mayi() {
+
+            $.ajax('{% url mayi_view %}?upk=' + $('.cgroupe').attr('pk'){% if year_mode %} + '&ypk=' + $('.cyear').attr('pk'){% endif %}).success(function (data) {
+                if (data['RESTORE']) {
+                    $('#btn-deleted').show();
+                } else {
+                    $('#btn-deleted').hide();
+                }
+
+                if (data['CREATE']) {
+                    $('#btn-add').show();
+                } else {
+                    $('#btn-add').hide();
+                }
+            });
+        }
+
+        update_mayi();
+    </script>
 
     {% if unit_mode %}
         <script type="text/javascript">
@@ -199,6 +220,7 @@
               refresh_list();
               {% block bonus_unit_updated %}
               {% endblock %}
+              update_mayi();
           }
 
         </script>
@@ -213,6 +235,7 @@
 
           function year_updated(pk, name) {
               {% if tag_mode %}$('#ctag').val('').change();{% endif %}
+              update_mayi();
               refresh_list_year();
               {% block bonus_year_updated %}
               {% endblock %}

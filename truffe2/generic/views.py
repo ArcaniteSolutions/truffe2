@@ -101,6 +101,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
         logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
         tag_search_view = '%s.views.%s_tag_search' % (module.__name__, base_name)
+        mayi_view = '%s.views.%s_mayi' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
@@ -142,7 +143,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
             extra_data = {}
 
         data = {
-            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view, 'logs_view': logs_view, 'tag_search_view': tag_search_view,
+            'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view, 'logs_view': logs_view, 'tag_search_view': tag_search_view, 'mayi_view': mayi_view,
             'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'year_mode': year_mode, 'years_available': AccountingYear.build_year_menu('LIST', request.user),
             'moderables': moderables, 'object_filter': objects, 'tag_mode': tag_class is not None, 'tag': request.GET.get('tag', ''),
@@ -1424,7 +1425,10 @@ def generate_tag_search(module, base_name, model_class, log_class, tag_class):
             tags = tags.filter(tag__istartswith=q)
 
         if unit:
-            tags = tags.filter(object__unit=unit)
+            if isinstance(model_class(), CostCenterLinked):
+                tags = tags.filter(object__costcenter__unit=unit)
+            else:
+                tags = tags.filter(object__unit=unit)
 
         if year:
             tags = tags.filter(object__accounting_year=year)
@@ -1440,3 +1444,21 @@ def generate_tag_search(module, base_name, model_class, log_class, tag_class):
         return HttpResponse(json.dumps(retour), content_type='text/json')
 
     return _generic_tag_search
+
+
+def generate_mayi(module, base_name, model_class, logging_class):
+
+    @login_required
+    @csrf_exempt
+    def _generic_mayi(request):
+        year_mode, current_year, AccountingYear = get_year_data(model_class, request)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+
+        retour = {}
+
+        for r in ['RESTORE', 'CREATE']:
+            retour[r] = model_class.static_rights_can(r, request.user, current_unit, current_year)
+
+        return HttpResponse(json.dumps(retour), content_type='text/json')
+
+    return _generic_mayi
