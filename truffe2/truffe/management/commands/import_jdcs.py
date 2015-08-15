@@ -109,7 +109,7 @@ class Command(BaseCommand):
 
                     for file_data in jdc_data['uploads']:
 
-                        if not os.path.isfile(os.path.join('uploads', '_generic', 'CashBook', file_data.split('/')[-1])):
+                        if not os.path.isfile(os.path.join('media', 'uploads', '_generic', 'CashBook', file_data.split('/')[-1])):
                             print "   (!) Missing file {}".format(file_data)
                         else:
                             __, created = CashBookFile.objects.get_or_create(uploader=user, object=jdc, file=os.path.join('uploads', '_generic', 'CashBook', file_data.split('/')[-1]), defaults={'upload_date': now()})

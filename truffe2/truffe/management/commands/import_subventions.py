@@ -78,7 +78,7 @@ class Command(BaseCommand):
                             order += 1
 
                     for file_data in subvention_data['uploads']:
-                        if not os.path.isfile(os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1])):
+                        if not os.path.isfile(os.path.join('media', 'uploads', '_generic', 'Subvention', file_data.split('/')[-1])):
                             print "   (!) Missing file {}".format(file_data)
                         else:
                             __, created = SubventionFile.objects.get_or_create(uploader=user, object=subv, file=os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1]), defaults={'upload_date': now()})
