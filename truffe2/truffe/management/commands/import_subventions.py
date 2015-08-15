@@ -75,9 +75,12 @@ class Command(BaseCommand):
                             subvline, created = SubventionLine.objects.get_or_create(subvention=subv, name=line_data['name'], start_date=start_date, end_date=start_date, nb_spec=0, order=order)
                             if created:
                                 print "  + {!r}".format(subvline.name)
-                                order += 1
+                            order += 1
 
                     for file_data in subvention_data['uploads']:
-                        __, created = SubventionFile.objects.get_or_create(uploader=user, object=subv, file=os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1]), defaults={'upload_date': now()})
-                        if created:
-                            print "  (L)", file_data
+                        if not os.path.isfile(os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1])):
+                            print "   (!) Missing file {}".format(file_data)
+                        else:
+                            __, created = SubventionFile.objects.get_or_create(uploader=user, object=subv, file=os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1]), defaults={'upload_date': now()})
+                            if created:
+                                print "  (L)", file_data

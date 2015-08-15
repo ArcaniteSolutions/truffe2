@@ -73,7 +73,9 @@ class Command(BaseCommand):
                             print "  (+) {!r}".format(line_data['name'])
 
                     for file_data in ndf_data['uploads']:
-                        print file_data
-                        __, created = ExpenseClaimFile.objects.get_or_create(uploader=user, object=ndf, file=os.path.join('uploads', '_generic', 'ExpenseClaim', file_data.split('/')[-1]), defaults={'upload_date': now()})
-                        if created:
-                            print "  (L) {!r}".format(file_data)
+                        if not os.path.isfile(os.path.join('uploads', '_generic', 'ExpenseClaim', file_data.split('/')[-1])):
+                            print "   (!) Missing file {}".format(file_data)
+                        else:
+                            __, created = ExpenseClaimFile.objects.get_or_create(uploader=user, object=ndf, file=os.path.join('uploads', '_generic', 'ExpenseClaim', file_data.split('/')[-1]), defaults={'upload_date': now()})
+                            if created:
+                                print "  (L) {!r}".format(file_data)

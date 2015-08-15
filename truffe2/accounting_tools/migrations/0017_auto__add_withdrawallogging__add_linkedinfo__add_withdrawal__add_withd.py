@@ -8,16 +8,16 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'WithdrawalLogging'
-        db.create_table(u'accounting_tools_withdrawallogging', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('when', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('extra_data', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('who', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
-            ('what', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='logs', to=orm['accounting_tools.Withdrawal'])),
-        ))
-        db.send_create_signal(u'accounting_tools', ['WithdrawalLogging'])
+        # # Adding model 'WithdrawalLogging'
+        # db.create_table(u'accounting_tools_withdrawallogging', (
+        #     (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        #     ('when', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+        #     ('extra_data', self.gf('django.db.models.fields.TextField')(blank=True)),
+        #     ('who', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
+        #     ('what', self.gf('django.db.models.fields.CharField')(max_length=64)),
+        #     ('object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='logs', to=orm['accounting_tools.Withdrawal'])),
+        # ))
+        # db.send_create_signal(u'accounting_tools', ['WithdrawalLogging'])
 
         # Adding model 'LinkedInfo'
         db.create_table(u'accounting_tools_linkedinfo', (
@@ -33,39 +33,39 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'accounting_tools', ['LinkedInfo'])
 
-        # Adding model 'Withdrawal'
-        db.create_table(u'accounting_tools_withdrawal', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('amount', self.gf('django.db.models.fields.DecimalField')(max_digits=20, decimal_places=2)),
-            ('desired_date', self.gf('django.db.models.fields.DateField')()),
-            ('withdrawn_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='0_draft', max_length=255)),
-            ('accounting_year', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.AccountingYear'])),
-            ('costcenter', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.CostCenter'])),
-            ('unit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['units.Unit'])),
-        ))
-        db.send_create_signal(u'accounting_tools', ['Withdrawal'])
-
-        # Adding model 'WithdrawalTag'
-        db.create_table(u'accounting_tools_withdrawaltag', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tag', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='tags', to=orm['accounting_tools.Withdrawal'])),
-        ))
-        db.send_create_signal(u'accounting_tools', ['WithdrawalTag'])
-
-        # Adding model 'WithdrawalFile'
-        db.create_table(u'accounting_tools_withdrawalfile', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('upload_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('uploader', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='files', null=True, to=orm['accounting_tools.Withdrawal'])),
-            ('file', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-        ))
-        db.send_create_signal(u'accounting_tools', ['WithdrawalFile'])
+        # # Adding model 'Withdrawal'
+        # db.create_table(u'accounting_tools_withdrawal', (
+        #     (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        #     ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+        #     ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
+        #     ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+        #     ('amount', self.gf('django.db.models.fields.DecimalField')(max_digits=20, decimal_places=2)),
+        #     ('desired_date', self.gf('django.db.models.fields.DateField')()),
+        #     ('withdrawn_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+        #     ('status', self.gf('django.db.models.fields.CharField')(default='0_draft', max_length=255)),
+        #     ('accounting_year', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.AccountingYear'])),
+        #     ('costcenter', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.CostCenter'])),
+        #     ('unit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['units.Unit'])),
+        # ))
+        # db.send_create_signal(u'accounting_tools', ['Withdrawal'])
+        #
+        # # Adding model 'WithdrawalTag'
+        # db.create_table(u'accounting_tools_withdrawaltag', (
+        #     (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        #     ('tag', self.gf('django.db.models.fields.CharField')(max_length=255)),
+        #     ('object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='tags', to=orm['accounting_tools.Withdrawal'])),
+        # ))
+        # db.send_create_signal(u'accounting_tools', ['WithdrawalTag'])
+        #
+        # # Adding model 'WithdrawalFile'
+        # db.create_table(u'accounting_tools_withdrawalfile', (
+        #     (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        #     ('upload_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+        #     ('uploader', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
+        #     ('object', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='files', null=True, to=orm['accounting_tools.Withdrawal'])),
+        #     ('file', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
+        # ))
+        # db.send_create_signal(u'accounting_tools', ['WithdrawalFile'])
 
 
     def backwards(self, orm):

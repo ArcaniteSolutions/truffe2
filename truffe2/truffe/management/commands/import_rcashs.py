@@ -70,6 +70,9 @@ class Command(BaseCommand):
                             print "  (I) {!r} {!r}".format(linked.first_name, linked.last_name)
 
                     for file_data in rcash_data['uploads']:
+                        if not os.path.isfile(os.path.join('uploads', '_generic', 'Withdrawal', file_data.split('/')[-1])):
+                            print "   (!) Missing file {}".format(file_data)
+                        else:
                             __, created = WithdrawalFile.objects.get_or_create(uploader=user, object=rcash, file=os.path.join('uploads', '_generic', 'Withdrawal', file_data.split('/')[-1]), defaults={'upload_date': now()})
                             if created:
                                 print "  (L) {!r}".format(file_data)

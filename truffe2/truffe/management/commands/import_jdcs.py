@@ -79,9 +79,10 @@ class Command(BaseCommand):
                     if jdc_data['rcash']:
                         try:
                             withdrawal = Withdrawal.objects.get(**jdc_data['rcash'])
-                            jdc.proving_object = withdrawal
-                            jdc.save()
-                            print "  (R) {!r}".format(withdrawal.name)
+                            if jdc.proving_object != Withdrawal:
+                                jdc.proving_object = withdrawal
+                                jdc.save()
+                                print "  (R) {!r}".format(withdrawal.name)
                         except:
                             print u"Rcash not found !! {!r}".format(jdc_data['rcash'])
 
@@ -107,6 +108,10 @@ class Command(BaseCommand):
                             print u"Account not found !! {!r}".format(line_data['account__account_number'])
 
                     for file_data in jdc_data['uploads']:
+
+                        if not os.path.isfile(os.path.join('uploads', '_generic', 'CashBook', file_data.split('/')[-1])):
+                            print "   (!) Missing file {}".format(file_data)
+                        else:
                             __, created = CashBookFile.objects.get_or_create(uploader=user, object=jdc, file=os.path.join('uploads', '_generic', 'CashBook', file_data.split('/')[-1]), defaults={'upload_date': now()})
                             if created:
                                 print "  (L) {!r}".format(file_data)

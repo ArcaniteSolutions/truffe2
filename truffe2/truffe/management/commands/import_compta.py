@@ -54,11 +54,11 @@ class Command(BaseCommand):
                     if account:
 
                         date = paris_tz.localize(datetime.datetime.strptime(line_data['date'], '%Y-%m-%d'))
-                        line, created = AccountingLine.objects.get_or_create(unit=costcenter.unit, costcenter=costcenter, accounting_year=ay, status=status_mapping[line_data['status']], account=account, date=date, tva=0, text=line_data['texte'], output=line_data['debit'], input=line_data['credit'], current_sum=line_data['situation'])
-
-                        print "(+/", created, ")", line
+                        line, created = AccountingLine.objects.get_or_create(costcenter=costcenter, accounting_year=ay, status=status_mapping[line_data['status']], account=account, date=date, tva=0, text=line_data['texte'], output=line_data['debit'], input=line_data['credit'], current_sum=line_data['situation'])
 
                         if created:
+
+                            print "(+/", created, ")", line
                             AccountingLineLogging(object=line, who=root_user, what='created').save()
 
                         line_mapping[line_data['pk']] = line
@@ -86,7 +86,7 @@ class Command(BaseCommand):
                     else:
                         line = None
 
-                    error, created = AccountingError.objects.get_or_create(unit=costcenter.unit, costcenter=costcenter, accounting_year=ay, status='0_drafting', linked_line=line, initial_remark=error_data['texte'])
+                    error, created = AccountingError.objects.get_or_create(costcenter=costcenter, accounting_year=ay, status='0_drafting', linked_line=line, initial_remark=error_data['texte'])
 
                     try:
                         user = TruffeUser.objects.get(username=error_data['creator'])
@@ -94,9 +94,8 @@ class Command(BaseCommand):
                         print "(!) User not found", error_data['creator']
                         user = root_user
 
-                    print "(+/", created, ")", error
-
                     if created:
+                        print "(+/", created, ")", error
                         ael = AccountingErrorLogging(object=error, who=user, when=date, what='created')
                         ael.save()
                         # Hack pour forcer la date
