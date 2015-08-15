@@ -286,7 +286,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Factures.""")
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outils (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'ils contiennent TOUTES LES INFORMATIONS NÉCCEAIRES).
+
+Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALLÉATOIRE OU DE TON CHOIX.""")
 
         not_sortable_colums = ['get_reference', 'get_bvr_number']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex']
