@@ -51,7 +51,14 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
 
     class MetaEdit:
         files_title = _(u'Fichiers')
-        files_help = _(u'Envoie les fichiers nécessaires pour ta demande de subvention.')
+        files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
+Vous devez inclure dans votre demande au moins :
+<ul>
+                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="http://truffe.polylan.ch/media/uploads/modeles/Budget.xltx" target="_blank">ce modèle</a>. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
+    <li>Bilans et comptes des d'activité des années précédentes</li>
+    <li>Documents officiels : (pour les Association hors AGEPoly : statuts, liste des membres du comité, PV de la dernière AG)</li>
+</ul>
+Ces différents documents sont demandés au format PDF dans la mesure du possible, afin d'éviter les problèmes d'ouvertures et de mise en page.""")
 
     class MetaData:
         list_display = [
