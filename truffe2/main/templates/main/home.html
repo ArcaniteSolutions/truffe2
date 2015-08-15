@@ -12,14 +12,12 @@
           {% include "main/box/moderate.html" %}
           {% include "main/box/accreds_to_validate.html" %}
 
-          {% if user.is_betatester or user.is_superuser %}
-            {% include "main/box/invoices.html" %}
-            {% include "main/box/internaltransfers.html" %}
-            {% include "main/box/withdrawals.html" %}
-            {% include "main/box/accounting_lines.html" %}
-            {% include "main/box/accounting_errors.html" %}
-            {% include "main/box/expenseclaims.html" %}
-          {% endif %}
+          {% include "main/box/invoices.html" %}
+          {% include "main/box/internaltransfers.html" %}
+          {% include "main/box/withdrawals.html" %}
+          {% include "main/box/accounting_lines.html" %}
+          {% include "main/box/accounting_errors.html" %}
+          {% include "main/box/expenseclaims.html" %}
         </div>
   </section>
 
