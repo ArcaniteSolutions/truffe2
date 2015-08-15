@@ -109,3 +109,13 @@
 #content {
     min-height: 800px !important;
 }
+
+.menulogo {
+    margin: auto;
+    display: block;
+    margin-top: 10px;
+}
+
+.minified .menulogo {
+    display: none;
+}
