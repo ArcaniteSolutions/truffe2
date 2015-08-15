@@ -52,6 +52,30 @@
 
     function runDataTables_{{id}}() {
         data_table_{{id}} = $('#{{id}}').dataTable({
+
+            "oLanguage": {
+                "sProcessing":     "{% trans "Traitement en cours..." %}",
+                "sLengthMenu":     "_MENU_",
+                "sSearch":         "_INPUT_",
+                "sInfo":           "{% trans "Affichage de l'&eacute;lement _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments" %}",
+                "sInfoEmpty":      "{% trans "Affichage de l'&eacute;lement 0 &agrave; 0 sur 0 &eacute;l&eacute;ments" %}",
+                "sInfoFiltered":   "{% trans "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)" %}",
+                "sInfoPostFix":    "",
+                "sLoadingRecords": "{% trans "Chargement en cours..." %}",
+                "sZeroRecords":    "{% trans "Aucun &eacute;l&eacute;ment &agrave; afficher" %}",
+                "sEmptyTable":     "{% trans "Aucune donnée disponible dans le tableau" %}",
+                "oPaginate": {
+                    "sFirst":      "{% trans "Premier" %}",
+                    "sPrevious":   "{% trans "Pr&eacute;c&eacute;dent" %}",
+                    "sNext":       "{% trans "Suivant" %}",
+                    "sLast":       "{% trans "Dernier" %}"
+                },
+                "oAria": {
+                    "sSortAscending":  "{% trans ": activer pour trier la colonne par ordre croissant" %}",
+                    "sSortDescending": "{% trans ": activer pour trier la colonne par ordre décroissant" %}"
+                },
+            },
+
             {% if not datatable_simple %}
                 "oTableTools" : {
                     {% if not datatable_notools %}
