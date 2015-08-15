@@ -460,7 +460,7 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
 
     class MetaData:
         list_display = [
-            ('id', ''),
+            ('get_display_list', ''),
             ('user', _('Utilisateur')),
             ('role', _(u'Rôle')),
             ('get_access', _(u'Accès'))
@@ -473,9 +473,10 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
             ('valid_for_sub_units', _(u'Valide pour les sous-unités'))
         ]
 
-        default_sort = "[1, 'asc']"  # id
+        default_sort = "[0, 'asc']"  # id
 
         filter_fields = ()
+        not_sortable_colums = ['get_display_list', ]
 
         base_title = _(u'Délégation d\'accès')
         list_title = _(u'Liste de toutes les délégations d\'accès')
@@ -515,3 +516,6 @@ Il est aussi possible de restreindre une délégation â un utilisateur ou à un
 
         for user in self.unit.get_users():
             user.clear_rights_cache()
+
+    def get_display_list(self):
+        return _(u'Délégation #{}'.format(self.pk))
