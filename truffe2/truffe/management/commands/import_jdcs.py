@@ -79,7 +79,7 @@ class Command(BaseCommand):
                     if jdc_data['rcash']:
                         try:
                             withdrawal = Withdrawal.objects.get(**jdc_data['rcash'])
-                            if jdc.proving_object != Withdrawal:
+                            if jdc.proving_object != withdrawal:
                                 jdc.proving_object = withdrawal
                                 jdc.save()
                                 print "  (R) {!r}".format(withdrawal.name)
