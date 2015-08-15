@@ -65,7 +65,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
         moderation_access = 'COMMUNICATION'
 
     title = models.CharField(_(u'Titre'), max_length=255)
-    picture = models.ImageField(_(u'Image'), help_text=_(u'Pour des raisons de qualités, il est fortement recommandé d\'envoyer une image en HD (1920x1050)'), upload_to='uploads/slides/')
+    picture = models.ImageField(_(u'Image'), help_text=_(u'Pour des raisons de qualité, il est fortement recommandé d\'envoyer une image en HD (1920x1080)'), upload_to='uploads/slides/')
     unit = FalseFK('units.models.Unit')
 
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
@@ -110,8 +110,8 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
         return self.title
 
     def get_image_warning(self):
-        if self.picture.height < 1050 or self.picture.width < 1920:
-            return _(u'<span class="text-warning"><i class="fa fa-warning"></i> Les dimentions de l\'image sont trop petites ! ({}x{} contre 1920x1050 recommandé)'.format(self.picture.width, self.picture.height))
+        if self.picture.height < 1080 or self.picture.width < 1920:
+            return _(u'<span class="text-warning"><i class="fa fa-warning"></i> Les dimensions de l\'image sont trop petites ! ({}x{} contre 1920x1080 recommandé)'.format(self.picture.width, self.picture.height))
 
 
 class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditableModel):

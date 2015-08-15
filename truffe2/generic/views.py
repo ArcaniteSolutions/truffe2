@@ -1425,7 +1425,7 @@ def generate_tag_search(module, base_name, model_class, log_class, tag_class):
             tags = tags.filter(tag__istartswith=q)
 
         if unit:
-            if not hasattr(model_class, 'unit') and hasattr(model_class, 'costcenter'):
+            if isinstance(model_class(), CostCenterLinked):
                 tags = tags.filter(object__costcenter__unit=unit)
             else:
                 tags = tags.filter(object__unit=unit)

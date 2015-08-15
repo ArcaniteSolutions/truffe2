@@ -54,9 +54,9 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
 Vous devez inclure dans votre demande au moins :
 <ul>
-                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="http://truffe.polylan.ch/media/uploads/modeles/Budget.xltx" target="_blank">ce modèle</a>. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
+                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="http://truffe.polylan.ch/media/uploads/modeles/Budget.xltx" target="_blank">ce modèle</a> pour les externes à l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
     <li>Bilans et comptes des d'activité des années précédentes</li>
-    <li>Documents officiels : (pour les Association hors AGEPoly : statuts, liste des membres du comité, PV de la dernière AG)</li>
+    <li>Documents officiels (pour les Association hors AGEPoly) : statuts, liste des membres du comité, PV de la dernière AG</li>
 </ul>
 Ces différents documents sont demandés au format PDF dans la mesure du possible, afin d'éviter les problèmes d'ouvertures et de mise en page.""")
 
@@ -293,9 +293,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outils (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'ils contiennent TOUTES LES INFORMATIONS NÉCCEAIRES).
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outils (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'ils contiennent TOUTES LES INFORMATIONS NÉCESSAIRES).
 
-Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALLÉATOIRE OU DE TON CHOIX.""")
+Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
         not_sortable_colums = ['get_reference', 'get_bvr_number']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex']

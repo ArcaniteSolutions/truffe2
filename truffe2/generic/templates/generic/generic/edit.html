@@ -39,7 +39,7 @@
             <input type="hidden" name="file_key" value="{{file_key}}">
 
             {% if unit_mode %}
-                <input type="hidden" id="input_upk" name="upk" value="{% if form.instance.costcenter and not form.instance.unit %}{{form.instance.costcenter.unit.pk}}{% else %}{% if form.instance.unit %}{{form.instance.unit.pk}}{% else %}{{current_unit.pk}}{% endif %}{% endif %}">
+                <input type="hidden" id="input_upk" name="upk" value="{% if form.instance.costcenter and not form.instance.unit %}{{form.instance.costcenter.unit.pk}}{% elif form.instance.unit %}{{form.instance.unit.pk}}{% else %}{{current_unit.pk}}{% endif %}">
             {% endif %}
             {% if year_mode %}
                 <input type="hidden" id="input_ypk" name="ypk" value="{{form.instance.accounting_year.pk}}">

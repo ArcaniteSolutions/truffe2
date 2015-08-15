@@ -163,10 +163,8 @@
                                     }).on('change', function() {
                                         {% if unit_mode %}
                                             refresh_list();
-                                        {% else %}
-                                            {% if year_mode %}
+                                        {% elif year_mode %}
                                                 refresh_list_year();
-                                            {% endif %}
                                         {% endif %}
                                     });
 
