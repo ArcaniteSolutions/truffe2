@@ -250,7 +250,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     display_bvr = models.BooleanField(_(u'Afficher paiement via BVR'), help_text=_(u'Affiche un BVR et le texte corespondant dans le PDF. Attention, le BVR généré n\'est pas utilisable à la poste ! (Il est possible d\'obtenir un \'vrai\' BVR via Marianne.)'), default=True)
     display_account = models.BooleanField(_(u'Afficher paiement via compte'), help_text=_(u'Affiche le texte pour le paiement via le compte de l\'AGEPoly.'), default=True)
     greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
-    sign = models.CharField(_(u'Signature'), max_length=512, help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
+    sign = models.TextField(_(u'Signature'), help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
 
     class MetaData:
