@@ -877,7 +877,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         if self.status[0] == '4' and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé/annulé.'))
 
-        if self.status in ['1_agep_validable', '2_withdrawn', '3_used'] and not self.rights_in_root_unit(user, 'SECREATARIAT'):
+        if self.status in ['1_agep_validable', '2_withdrawn', '3_used'] and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return (False, _(u'Seules les secrétaires de l\'AGEPoly peuvent passer à l\'état suivant.'))
 
         if dest_state == '2_withdrawn' and not self.withdrawn_date:
