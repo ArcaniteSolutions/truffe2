@@ -77,10 +77,10 @@
                         </tr>
 
                         {% for line_form in line_data.forms %}
-                            <tr class="line_field_line_{{line_data.related_name}}">
+                            <tr class="line_field_line_{{line_data.related_name}} {% if line_form.errors %}has-error{% endif %}">
 
                                 {% for field in line_form.form %}
-                                    <td class="line_field_{{line_data.related_name}}_{{field.name}}">{% simple_bootstrap_field field %}</td>
+                                    <td class="line_field_{{line_data.related_name}}_{{field.name}} {% if field.errors %}has-error{% endif %}">{% simple_bootstrap_field field %}</td>
                                 {% endfor %}
 
                                 <td style="min-width: 58px;">
