@@ -25,7 +25,7 @@ RAVEN_CONFIG = {
 
 ACTIVATE_RAVEN = True
 
-ALLOWED_HOSTS = ['truffe2.agepoly.ch', '10.7.0.22']
+ALLOWED_HOSTS = ['truffe2.agepoly.ch', '10.7.0.22', '127.0.0.1']
 
 CACHES = {
     'default': {
