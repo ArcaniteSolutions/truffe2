@@ -177,6 +177,9 @@ def generate_list_json(module, base_name, model_class, tag_class):
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
+            raise Http404
+
         if unit_mode:
             if not current_unit:
                 if request.user.is_superuser:  # Never filter
@@ -196,18 +199,15 @@ def generate_list_json(module, base_name, model_class, tag_class):
         else:
             filter__ = filter_
 
-        tag = request.GET.get('tag')
-
-        if tag_class and tag:
-            filter___ = lambda x: filter__(x).filter(tags__tag=tag).distinct()
+        if hasattr(model_class.MetaData, 'extra_filter_for_list'):
+            filter___ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year, filter__)
         else:
             filter___ = filter__
 
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
-            raise Http404
+        tag = request.GET.get('tag')
 
-        if hasattr(model_class.MetaData, 'extra_filter_for_list'):
-            filter____ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year, filter___)
+        if tag_class and tag:
+            filter____ = lambda x: filter__(x).filter(tags__tag=tag).distinct()
         else:
             filter____ = filter___
 
@@ -222,6 +222,7 @@ def generate_list_json(module, base_name, model_class, tag_class):
             True, model_class.MetaData.filter_fields,
             bonus_filter_function=filter____,
             selector_column=True,
+            bonus_total_filter_function=filter___,
         )
 
     return _generic_list_json
