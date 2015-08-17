@@ -4,3 +4,7 @@
 {% block bonus_buttons %}
     <a href="{% url 'accounting_tools.views.cashbook_pdf' obj.pk %}{% trans "Journal de caisse" %} {{obj.name}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" class="btn btn-primary"><i class="fa fa-download"></i> PDF</a>
 {% endblock %}
+
+{% block post_lines %}
+    <span class="pull-right">{% trans "Total : " %} <b>{{obj.get_total|floatformat:"2"}} CHF</b></span>
+{% endblock %}

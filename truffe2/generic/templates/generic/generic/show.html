@@ -92,6 +92,9 @@
                             </table>
                         {% endif %}
                     {% endfor %}
+
+                    {% block post_lines %}{% endblock %}
+
                     {% if obj.files and obj.MetaData.files_title %}
 
                         <h3>{{obj.MetaData.files_title}}</h3>
