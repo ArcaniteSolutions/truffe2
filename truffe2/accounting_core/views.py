@@ -25,7 +25,7 @@ def copy_accounting_year(request, pk):
     accounting_years = [get_object_or_404(AccountingYear, pk=pk_) for pk_ in filter(lambda x: x, pk.split(','))]
 
     for ay in accounting_years:
-        if not ay.rights_can('EDIT', request.user):
+        if not ay.static_rights_can('CREATE', request.user):
             raise Http404
 
         copiable_objects = {}
@@ -33,6 +33,15 @@ def copy_accounting_year(request, pk):
             copiable_objects[copiable_class] = getattr(ay, '{}_set'.format(copiable_class.__name__.lower())).all()
 
         ay.name = 'Copy of {}'.format(ay.name)
+        base_name = ay.name
+
+        dupli = 1
+        while AccountingYear.objects.filter(name=ay.name).count():
+            ay.name = '{} - {}'.format(base_name, dupli)
+            dupli += 1
+
+        ay.status = '0_preparing'
+
         ay.id = None
         ay.save()
 
