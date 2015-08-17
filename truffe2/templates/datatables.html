@@ -62,7 +62,7 @@
                 "sInfoFiltered":   "{% trans "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)" %}",
                 "sInfoPostFix":    "",
                 "sLoadingRecords": "{% trans "Chargement en cours..." %}",
-                "sZeroRecords":    "{% trans "Aucun &eacute;l&eacute;ment &agrave; afficher" %}",
+                "sZeroRecords":    "{% trans "Aucun &eacute;l&eacute;ment &agrave; afficher" %}<br /><br /><span class='alert alert-warning' id='datatable-warning-search-{{id}}'><i class='fa fa-warning'></i> {% trans "Une recherche est active" %} <a href='#' onclick='data_table_{{id}}.fnFilter(\"\");' class='btn btn-xs btn-default'>{% trans "Effacer" %}</a></span>",
                 "sEmptyTable":     "{% trans "Aucune donnée disponible dans le tableau" %}",
                 "oPaginate": {
                     "sFirst":      "{% trans "Premier" %}",
@@ -119,10 +119,17 @@
                         "success": function(data) {
                         if (typeof post_process_data_{{id}} !== 'undefined')
                             data = post_process_data_{{id}}(data);
-                        fnCallback(data);
+                            fnCallback(data);
+
+                            if (oSettings.oPreviousSearch.sSearch) {
+                                $('#datatable-warning-search-{{id}}').show();
+                            } else {
+                                $('#datatable-warning-search-{{id}}').hide();
+                            }
                         }
                     } );
-                    },
+
+                },
                 "sDom" : "<'dt-top-row'Tlf>r<'dt-wrapper't><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'p>>",
                 {% if status_filter and not status_nosort %}
                     "aaSorting": [[{{status_col_id}}, 'asc'], {% if default_sort %}{{default_sort|safe}} {% endif %}],
