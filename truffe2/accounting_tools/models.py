@@ -689,23 +689,24 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         pass
 
     def may_switch_to(self, user, dest_state):
+
         if self.status[0] == '3' and not user.is_superuser:
             return False
 
-        if dest_state == '3_canceled' and self.rights_can('EDIT', user):
+        if dest_state == '3_canceled' and super(_InternalTransfer, self).rights_can_EDIT(user):
             return True
 
-        return super(_InternalTransfer, self).may_switch_to(user, dest_state) and self.rights_can('EDIT', user)
+        return super(_InternalTransfer, self).may_switch_to(user, dest_state) and super(_InternalTransfer, self).rights_can_EDIT(user)
 
     def can_switch_to(self, user, dest_state):
 
         if self.status[0] == '3' and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé/annulé'))
 
-        if dest_state == '3_canceled' and self.rights_can('EDIT', user):
+        if dest_state == '3_canceled' and super(_InternalTransfer, self).rights_can_EDIT(user):
             return (True, None)
 
-        if not self.rights_can('EDIT', user):
+        if not super(_InternalTransfer, self).rights_can_EDIT(user):
             return (False, _('Pas les droits.'))
 
         return super(_InternalTransfer, self).can_switch_to(user, dest_state)
@@ -723,7 +724,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         return self.rights_can_SHOW(user)
 
     def rights_can_EDIT(self, user):
-        if self.status[0] == '3':
+        if int(self.status[0]) >= 2:
             return False
 
         return super(_InternalTransfer, self).rights_can_EDIT(user)
@@ -757,7 +758,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         form.fields['cost_center_to'].queryset = CostCenter.objects.filter(accounting_year=self.accounting_year).order_by('account_number')
 
     def genericFormExtraClean(self, data, form):
-        if data['cost_center_from'] == data['cost_center_to']:
+        if 'cost_center_from' in data and 'cost_center_to' in data and data['cost_center_from'] == data['cost_center_to']:
             raise forms.ValidationError(_(u'Les deux centres de coûts doivent être différents.'))
 
 
@@ -898,7 +899,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         return super(_Withdrawal, self).can_switch_to(user, dest_state)
 
     def rights_can_EDIT(self, user):
-        if int(self.status[0]) > 2:
+        if int(self.status[0]) > 3:
             return False
 
         # Seules les secrétaires peuvent modifier après le statut Brouillon (pour ajouter les dates de retrait et pièces comptables)
@@ -935,6 +936,12 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
         if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
             del form.fields['withdrawn_date']
+
+
+    def rights_can_DISPLAY_LOG(self, user):
+
+        # Don't disable logs if archived
+        return super(_Withdrawal, self).rights_can_EDIT(user)
 
 
 class LinkedInfo(models.Model):
@@ -1044,6 +1051,8 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def rights_can_EDIT(self, user):
         if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
             return True
+
+        return super(_ExpenseClaim, self).rights_can_EDIT(user)
 
     def genericFormExtraClean(self, data, form):
         if not data['user'].is_profile_ok():

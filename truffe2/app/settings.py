@@ -172,7 +172,7 @@ AUTHENTICATION_BACKENDS = ('app.tequila.Backend',)
 LOGIN_URL = '/users/login'
 
 TEQUILA_SERVER = 'https://tequila.epfl.ch'  # Url of tequila server
-TEQUILA_SERVICE = 'Truffe'  # Title used in tequila
+TEQUILA_SERVICE = 'Truffe2 - L\'intranet de l\'AGEPoly'  # Title used in tequila
 TEQUILA_AUTOCREATE = True  # Auto create users ?
 TEQUILA_FAILURE = '/users/login'  # Where to redirect user if there is a problem
 

@@ -803,6 +803,11 @@ class GenericAccountingStateModel(object):
 
         return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
 
+    def rights_can_DISPLAY_LOG(self, user):
+
+        # Don't disable logs if archived
+        return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
+
     def rights_can_DELETE(self, user):
         if self.status == '4_archived':
             return False
