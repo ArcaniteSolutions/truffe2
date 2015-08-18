@@ -13,6 +13,29 @@
 
     }
 
+    function fix_width_{{id}}() {
+        var max_w = dtf_{{id}}.parent().width() - 280;
+        dtf_{{id}}.css('width', max_w + 'px');
+        fix_height_{{id}}();
+
+        var headers = $('[aria-describedby="{{id}}_info"]');
+        var header_clone = null;
+        var header_base = null;
+
+        if (!$(headers[0]).parent().hasClass('FixedHeader_Cloned')) {
+            header_base = headers[0];
+            header_clone = headers[1];
+        } else {
+            header_base = headers[1];
+            header_clone = headers[0];
+        }
+
+        $(header_clone).width($(header_base).width());
+        $(header_clone).parent().width($(header_base).width());
+
+
+    }
+
     var dtf_{{id}} = undefined;
 
 
@@ -146,9 +169,9 @@
 
             dtf_{{id}} = $('#{{id}}').parent().parent().find('.dataTables_filter');
 
-            var max_w = dtf_{{id}}.parent().width() - 280;
+            fix_width_{{id}}();
 
-            dtf_{{id}}.css('width', max_w + 'px').append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px; min-width: 200px; z-index: 300;">/select>');
+            dtf_{{id}}.append('<select multiple class="select2 status_filter" type="text" placeholder="Status filter" style="position: absolute; top: 0px; left: 185px; min-width: 200px; z-index: 300;">/select>');
 
             var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
 
@@ -167,6 +190,8 @@
             });
 
             select2_filter();
+
+            $(window).resize(fix_width_{{id}});
 
             fix_height_{{id}}();
         {% endif %}
