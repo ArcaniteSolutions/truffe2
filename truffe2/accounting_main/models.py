@@ -152,6 +152,12 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         status_col_id = 9
         dont_sort_list = True
 
+        forced_pos = {
+            '0_imported': (0.1, 0.25),
+            '1_validated': (0.9, 0.25),
+            '2_error': (0.5, 0.75),
+        }
+
         class FormError(Form):
             error = CharField(label=_('Description de l\'erreur'), help_text=_(u'Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide si tu ne veux pas créer une erreur (mais ceci est fortement déconseillé)'), required=False, widget=Textarea)
 
@@ -353,6 +359,12 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
         states_default_filter = '0_drafting,1_fixing'
         status_col_id = 4
+
+        forced_pos = {
+            '0_drafting': (0.1, 0.25),
+            '1_fixing': (0.5, 0.75),
+            '2_fixed': (0.9, 0.25),
+        }
 
         class FormFixed(Form):
             fix_errors = BooleanField(label=_(u'Mettre la ligne liée comme valide'), help_text=_(u'Met automatiquement la ligne liée comme valide. Attention, la ligne n\'est plus forcément liée !'), required=False, initial=True)
@@ -603,6 +615,14 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
         states_default_filter = '0_draft,0_correct'
         status_col_id = 3
+
+        forced_pos = {
+            '0_draft': (0.2, 0.25),
+            '0_correct': (0.5, 0.75),
+            '1_submited': (0.5, 0.25),
+            '1_private': (0.2, 0.75),
+            '2_treated': (0.8, 0.25),
+        }
 
     def may_switch_to(self, user, dest_state):
         return super(_Budget, self).rights_can_EDIT(user) and super(_Budget, self).may_switch_to(user, dest_state)

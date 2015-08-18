@@ -93,6 +93,12 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
             '2_archived': [],
         }
 
+        forced_pos = {
+            '0_preparing': (0.1, 0.5),
+            '1_active': (0.5, 0.5),
+            '2_archived': (0.9, 0.5),
+        }
+
         states_default_filter = '0_preparing,1_active'
         states_default_filter_related = '1_active,2_archived'
         status_col_id = 3

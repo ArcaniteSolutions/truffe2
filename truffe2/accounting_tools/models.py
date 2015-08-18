@@ -160,6 +160,13 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             '2_treated': [],
         }
 
+        forced_pos = {
+            '0_draft': (0.2, 0.15),
+            '0_correct': (0.5, 0.85),
+            '1_submited': (0.5, 0.15),
+            '2_treated': (0.8, 0.15),
+        }
+
         states_default_filter = '0_draft,0_correct'
         status_col_id = 3
 
@@ -378,6 +385,14 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states_default_filter = '0_preparing,1_need_bvr,2_sent'
         states_default_filter_related = '0_preparing,1_need_bvr,2_sent'
         status_col_id = 1
+
+        forced_pos = {
+            '0_preparing': (0.2, 0.15),
+            '1_need_bvr': (0.2, 0.85),
+            '2_sent': (0.5, 0.15),
+            '3_archived': (0.8, 0.15),
+            '4_canceled': (0.8, 0.85),
+        }
 
         class FormBVR(Form):
             bvr = CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
@@ -685,6 +700,14 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         states_default_filter = '0_draft,1_agep_validable'
         status_col_id = 6
 
+        forced_pos = {
+            '0_draft': (0.1, 0.15),
+            '1_agep_validable': (0.36, 0.15),
+            '2_accountable': (0.62, 0.15),
+            '3_archived': (0.9, 0.15),
+            '3_canceled': (0.9, 0.85),
+        }
+
     class MetaEdit:
         pass
 
@@ -869,6 +892,15 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             '3_used': '',
             '4_archived': '',
             '4_canceled': '',
+        }
+
+        forced_pos = {
+            '0_draft': (0.1, 0.15),
+            '1_agep_validable': (0.3, 0.15),
+            '2_withdrawn': (0.5, 0.15),
+            '3_used': (0.7, 0.15),
+            '4_archived': (0.9, 0.15),
+            '4_canceled': (0.9, 0.85),
         }
 
         states_default_filter = '0_draft,2_withdrawn,3_used'
