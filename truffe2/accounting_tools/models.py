@@ -683,7 +683,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         }
 
         states_default_filter = '0_draft,1_agep_validable'
-        status_col_id = 4
+        status_col_id = 6
 
     class MetaEdit:
         pass
