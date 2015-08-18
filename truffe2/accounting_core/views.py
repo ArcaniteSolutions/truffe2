@@ -36,7 +36,7 @@ def copy_accounting_year(request, pk):
         base_name = ay.name
 
         dupli = 1
-        while AccountingYear.objects.filter(name=ay.name).count():
+        while AccountingYear.objects.filter(name=ay.name).exists():
             ay.name = '{} - {}'.format(base_name, dupli)
             dupli += 1
 
