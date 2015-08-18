@@ -29,6 +29,8 @@ from rights.utils import AutoVisibilityLevel
 moderable_things = []
 copiable_things = []
 
+GENERICS_MODELS = {}  # Dict of id -> (Model, ModelLogging)
+
 
 class FalseFK():
 
@@ -119,6 +121,9 @@ class GenericModel(models.Model):
             # Add the logging model
             logging_class = type('%sLogging' % (real_model_class.__name__,), (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
+
+            unikey = '{}.{}'.format(models_module.__name__, real_model_class.__name__)
+            GENERICS_MODELS[unikey] = (real_model_class, logging_class)
 
             # Add the file model (if needed)
             if issubclass(model_class, GenericModelWithFiles):

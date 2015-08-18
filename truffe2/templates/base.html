@@ -163,6 +163,10 @@
                                     {% endif %}
                                 </li>
 
+                                <li id="menu-admin-logging">
+                                    <a href="{% url 'main.views.last_100_logging_entries' %}"><i class="fa fa-lg fa-fw fa-list"></i> {% trans "Logging général" %}</a>
+                                </li>
+
                                 {% cache 900 "leftmenu-links-admin" %}
                                     {% display_links_for_menu "/admin/" %}
                                 {% endcache %}
