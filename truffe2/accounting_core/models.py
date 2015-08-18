@@ -442,6 +442,7 @@ class AccountingGroupModels(object):
 
         super(AccountingGroupModels, self).__init__(*args, **kwargs)
 
+        self.MetaGroups = type("MetaGroups", (self.MetaGroups,), {})
         self.MetaGroups.groups_update({
             'agep_compta': _(u'L\'administrateur de l\'AGEPoly'),
             'agep_secretaire': _(u'Les secrétaires de l\'AGEPoly'),

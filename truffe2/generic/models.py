@@ -870,7 +870,7 @@ class GenericStateUnitValidable(GenericStateValidable):
 
 class GenericGroupsModel():
 
-    class MetaGroups:
+    class MetaGroups(object):
         groups = {
             'creator': _(u'Créateur de cet élément'),
             'editors': _(u'Personnes ayant modifié cet élément (y compris le statut)'),
