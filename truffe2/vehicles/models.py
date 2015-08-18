@@ -206,7 +206,7 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
         ]
         details_display = list_display + [
             ('responsible', _('Responsable')),
-            ('reason', _('Responsable')),
+            ('reason', _('Motif')),
             ('remark', _('Remarques')),
             ('remark_agepoly', _('Remarques AGEPoly')),
             ('card', _('Carte')),
