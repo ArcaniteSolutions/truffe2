@@ -1,5 +1,5 @@
 {% extends "generic/generic/show.html" %}
-{% load i18n %}
+{% load i18n humanize %}
 
 {% block bonus_buttons %}
     <a href="{% url 'accounting_tools.views.expenseclaim_pdf' obj.pk %}{% trans "Note de frais" %} {{obj.name}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" class="btn btn-primary"><i class="fa fa-download"></i> PDF</a>
