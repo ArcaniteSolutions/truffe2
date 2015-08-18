@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.forms import CharField, Form, Textarea, BooleanField
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 
 import collections
@@ -181,29 +182,29 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
     def __unicode__(self):
         if self.output and self.input:
-            return u'{}: {} (-{}/+{})'.format(self.date, self.text, self.output, self.input)
+            return u'{}: {} (-{}/+{})'.format(self.date, self.text, intcomma(self.output), intcomma(self.input))
         elif self.output:
-            return u'{}: {} (-{})'.format(self.date, self.text, self.output)
+            return u'{}: {} (-{})'.format(self.date, self.text, intcomma(self.output))
         else:
-            return u'{}: {} (+{})'.format(self.date, self.text, self.input)
+            return u'{}: {} (+{})'.format(self.date, self.text, intcomma(self.input))
 
     def get_output_display(self):
         if self.output:
-            return '<span class="txt-color-red">-{}</span>'.format(self.output)
+            return '<span class="txt-color-red">-{}</span>'.format(intcomma(self.output))
         else:
             return ''
 
     def get_input_display(self):
         if self.input:
-            return '<span class="txt-color-green">{}</span>'.format(self.input)
+            return '<span class="txt-color-green">{}</span>'.format(intcomma(self.input))
         else:
             return ''
 
     def get_current_sum_display(self):
         if self.current_sum < 0:
-            return '<span class="txt-color-green">{}</span>'.format(-self.current_sum)
+            return '<span class="txt-color-green">{}</span>'.format(intcomma(-self.current_sum))
         elif self.current_sum > 0:
-            return '<span class="txt-color-red">{}</span>'.format(-self.current_sum)
+            return '<span class="txt-color-red">{}</span>'.format(intcomma(-self.current_sum))
         else:
             return '0.00'
 

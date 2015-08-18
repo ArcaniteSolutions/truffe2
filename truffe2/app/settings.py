@@ -230,6 +230,8 @@ THUMBNAIL_PROCESSORS = (
 NOTIFS_MAXIMUM_WAIT = 15  # En minutes, le temps maximal avant d'envoyer une notification
 NOTIFS_MINIMUM_BLANK = 5  # En minutes, le temps minimal sans notification avant d'envoyer une notification
 
+FORMAT_MODULE_PATH = 'app.formats'
+
 try:
     from settingsLocal import *
 except ImportError:
