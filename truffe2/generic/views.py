@@ -32,6 +32,7 @@ from sendfile import sendfile
 import importlib
 import copy
 import inspect
+import urllib
 
 
 from accounting_core.utils import CostCenterLinked
@@ -104,11 +105,17 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         mayi_view = '%s.views.%s_mayi' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
-
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank)
         main_unit = None
 
         if unit_mode:
+
+            # Remove upk in urls (unit has been changed)
+            if 'upk' in request.GET:
+                get_params = dict(request.GET.iterlists())
+                del get_params['upk']
+                return HttpResponseRedirect('{}?{}'.format(request.path, urllib.urlencode(get_params)))
+
             from units.models import Unit
 
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
