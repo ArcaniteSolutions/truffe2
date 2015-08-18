@@ -110,10 +110,10 @@ class Command(BaseCommand):
                     unit = None
 
                 if rdata['forWho']:
-                    title = u'Réservation truffe 1 #%s pour %s' % (rdata['pk'], rdata['forWho'])
+                    title = u'{} (T1#%s) pour %s' % (rdata['motif'].split('\n')[0], rdata['pk'], rdata['forWho'])
                     unit = root_unit
                 else:
-                    title = u'Réservation truffe 1 #%s' % (rdata['pk'],)
+                    title = u'{} (T1#%s)' % (rdata['motif'].split('\n')[0], rdata['pk'],)
 
                 booking, created = Booking.objects.get_or_create(title=title, defaults={'start_date': start_date, 'end_date': end_date, 'card': card, 'responsible': creator, 'reason': rdata['motif'], 'remark': rdata['remark'], 'remark_agepoly': rdata['remark_agepoly'], 'status': mapping.get(rdata['status']), 'provider': provider, 'vehicletype': type_, 'location': place, 'unit': unit})
                 booking.save()
