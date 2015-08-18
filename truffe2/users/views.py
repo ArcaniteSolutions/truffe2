@@ -109,7 +109,7 @@ def users_edit(request, pk):
         raise Http404
 
     if request.method == 'POST':  # If the form has been submitted...
-        form = TruffeUserForm(request.user, request.POST, instance=user)
+        form = TruffeUserForm(request.user, request.POST, request.FILES, instance=user)
 
         privacy_values = {}
 
@@ -175,13 +175,16 @@ def users_profile_picture(request, pk):
 
     user = get_object_or_404(TruffeUser, pk=pk)
 
-    file_cache = os.path.join(settings.MEDIA_ROOT, 'cache', 'users', str(user.pk) + '.png')
+    if user.avatar:
+        return HttpResponseRedirect('{}{}'.format(settings.MEDIA_URL, user.avatar))
+
+    file_cache = os.path.join(settings.MEDIA_ROOT, 'cache', 'users', '{}.png'.format(user.pk))
 
     if not os.path.exists(file_cache) or (os.path.getmtime(file_cache) + 60.0 * 24.0) < time.time():
         if os.path.exists(file_cache):
             os.unlink(file_cache)
 
-        r = requests.get('http://people.epfl.ch/cgi-bin/people/getPhoto?id=' + user.username, stream=True)
+        r = requests.get('http://people.epfl.ch/cgi-bin/people/getPhoto?id={}'.format(user.username), stream=True)
 
         if r.status_code == requests.codes.ok and 'text/html' not in r.headers['content-type']:
             with open(file_cache, 'wb') as fd:
@@ -190,7 +193,7 @@ def users_profile_picture(request, pk):
         else:
             shutil.copy(os.path.join(settings.MEDIA_ROOT, 'img', 'default_avatar.png'), file_cache)
 
-    return HttpResponseRedirect(settings.MEDIA_URL + '/cache/users/' + str(user.pk) + '.png')
+    return HttpResponseRedirect('{}/cache/users/{}.png'.format(settings.MEDIA_URL, user.pk))
 
 
 @login_required

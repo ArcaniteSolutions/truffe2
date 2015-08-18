@@ -3,7 +3,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 
 
-def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_colums=[], selector_column=False, columns_mapping=None):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_colums=[], selector_column=False, columns_mapping=None, bonus_total_filter_function=None):
     """Generic function for json list"""
 
     if not filter_fields:
@@ -93,9 +93,9 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
     qs = model.objects.all()
 
     if check_deleted:
-        qs = qs.filter(deleted=False).all()
+        qs = qs.filter(deleted=False)
 
-    total_records = qs.count()
+    total_records = qs.count() if not bonus_total_filter_function else bonus_total_filter_function(qs).count()
 
     qs = do_filtering(qs)
 

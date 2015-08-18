@@ -99,7 +99,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
 
     def may_switch_to(self, user, dest_state):
 
-        return self.rights_can('EDIT', user)
+        return super(_AccountingYear, self).rights_can_EDIT(user)
 
     def can_switch_to(self, user, dest_state):
 
@@ -109,7 +109,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         if int(dest_state[0]) - int(self.status[0]) != 1 and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sauter des étapes ou revenir en arrière.'))
 
-        if not self.rights_can('EDIT', user):
+        if not super(_AccountingYear, self).rights_can_EDIT(user):
             return (False, _('Pas les droits.'))
 
         return super(_AccountingYear, self).can_switch_to(user, dest_state)
