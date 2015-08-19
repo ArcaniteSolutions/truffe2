@@ -48,7 +48,7 @@
     links = [
         {% for links in obj.states_links_with_ids %}
             {% for link in links %}
-{source: nodes[{{forloop.parentloop.counter0}}], target: nodes[{{link}}], left: false, right: true }{% if not forloop.last or not forloop.parentloop.last %},{% endif %}
+                {source: nodes[{{forloop.parentloop.counter0}}], target: nodes[{{link}}], left: false, right: true }{% if not forloop.last or not forloop.parentloop.last %},{% endif %}
             {% endfor %}
         {% endfor %}
     ];
