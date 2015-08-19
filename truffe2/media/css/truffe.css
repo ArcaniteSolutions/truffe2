@@ -123,3 +123,9 @@
 .dataTable td {
     border-right: 1px #eee solid;
 }
+
+
+.label-crlf {
+    white-space: pre-wrap;
+    display: inline-block;
+}

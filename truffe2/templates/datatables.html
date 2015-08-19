@@ -102,11 +102,19 @@
             {% if not datatable_simple %}
                 "oTableTools" : {
                     {% if not datatable_notools %}
-                        "aButtons" : ["copy", "print", {
-                            "sExtends" : "collection",
-                            "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
-                            "aButtons" : ["csv", "xls", "pdf"]
-                        }],
+                        "aButtons" : [
+                            {
+                                "sExtends": "copy",
+                            },
+                            {
+                                "sExtends": "print",
+                            },
+                            {
+                                "sExtends" : "collection",
+                                "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
+                                "aButtons" : ["csv", "xls", "pdf"],
+                            }
+                        ],
                         "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
                     {% else %}
                         "aButtons" : []
@@ -218,7 +226,7 @@
             obj_select2_filter();
         {% endif %}
 
-        new $.fn.dataTable.FixedHeader(data_table_{{id}}, {
+        data_table_fh_{{id}} = new $.fn.dataTable.FixedHeader(data_table_{{id}}, {
             "offsetTop": 90
         });
     }

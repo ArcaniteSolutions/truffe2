@@ -10,6 +10,9 @@
       {% for field, __ in list_display %}
       "{% nocrlf %}
         {% if forloop.first %}
+            {% if all_units_mode %}
+                <span class=\"label label-info label-crlf\">{% if elem.unit %}{{elem.unit|escapejs}}{% elif elem.costcenter %}{{elem.costcenter.unit|escapejs}}{% endif %}</span><br />
+            {% endif %}
             {% ifhasright elem user 'SHOW' %}
             <a href=\"{% url show_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\">
             {% endifhasright %}

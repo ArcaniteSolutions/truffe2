@@ -26,6 +26,13 @@
 
             {% endif %}
 
+            {% if allow_all_units %}
+
+                <li role="presentation">
+                    <a role="menuitem" tabindex="-1" href="#" id="unit-selector--2" onclick="select_unit(-2, '{% trans "Toutes les unités" %}', true);" class="unit-displayed"><b>{% trans "Toutes les unités" %}</b></a>
+                </li>
+
+            {% endif %}
         </ul>
         </div>
     </span>

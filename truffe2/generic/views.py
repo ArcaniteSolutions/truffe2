@@ -42,7 +42,7 @@ from app.utils import update_current_unit, get_current_unit, update_current_year
 from rights.utils import BasicRightModel
 
 
-def get_unit_data(model_class, request, allow_blank=True):
+def get_unit_data(model_class, request, allow_blank=True, allow_all_units=False):
 
     from generic.models import GenericExternalUnitAllowed
 
@@ -58,7 +58,7 @@ def get_unit_data(model_class, request, allow_blank=True):
 
         if request.POST.get('upk'):
             update_current_unit(request, request.POST.get('upk'))
-        current_unit = get_current_unit(request, unit_blank)
+        current_unit = get_current_unit(request, unit_blank, allow_all_units)
 
     if current_unit and current_unit.is_hidden:
         # Enpeche d'éventuel petit malins de trichers en mettant les IDs à la
@@ -90,7 +90,7 @@ def get_year_data(model_class, request):
     return year_mode, current_year, AccountingYear
 
 
-def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False, bonus_args_transformator=None, tag_class=None):
+def generate_generic_list(module, base_name, model_class, json_view_suffix, right_to_check, right_to_check_edit, template_to_use, allow_blank, object_filter=False, bonus_args_transformator=None, tag_class=None, allow_all_units=False):
 
     @login_required
     def _generic_generic_list(request, **bonus_args):
@@ -105,8 +105,11 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         mayi_view = '%s.views.%s_mayi' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
-        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank)
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank, allow_all_units=allow_all_units)
         main_unit = None
+
+
+        allow_all_units_ = allow_all_units  # Need a local copy
 
         if unit_mode:
 
@@ -123,6 +126,8 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
             main_unit.set_rights_can_select(lambda unit: model_class.static_rights_can(right_to_check, request.user, unit, current_year))
             main_unit.set_rights_can_edit(lambda unit: model_class.static_rights_can(right_to_check_edit, request.user, unit, current_year))
             main_unit.check_if_can_use_hidden(request.user)
+
+            allow_all_units_ = allow_all_units and model_class.static_rights_can(right_to_check, request.user, main_unit, current_year)
         else:
             # The LIST right is not verified here if we're in unit mode. We
             # need to test (in the view) in another unit is available for LIST
@@ -151,7 +156,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
         data = {
             'Model': model_class, 'json_view': json_view, 'edit_view': edit_view, 'deleted_view': deleted_view, 'show_view': show_view, 'status_view': status_view, 'logs_view': logs_view, 'tag_search_view': tag_search_view, 'mayi_view': mayi_view,
-            'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank,
+            'unit_mode': unit_mode, 'main_unit': main_unit, 'unit_blank': unit_blank, 'allow_all_units': allow_all_units_,
             'year_mode': year_mode, 'years_available': AccountingYear.build_year_menu('LIST', request.user),
             'moderables': moderables, 'object_filter': objects, 'tag_mode': tag_class is not None, 'tag': request.GET.get('tag', ''),
         }
@@ -168,7 +173,7 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
 
 def generate_list(module, base_name, model_class, tag_class):
 
-    return generate_generic_list(module, base_name, model_class, '_list_json', 'LIST', 'CREATE', 'list', True, tag_class=tag_class)
+    return generate_generic_list(module, base_name, model_class, '_list_json', 'LIST', 'CREATE', 'list', True, tag_class=tag_class, allow_all_units=True)
 
 
 def generate_list_json(module, base_name, model_class, tag_class):
@@ -182,14 +187,26 @@ def generate_list_json(module, base_name, model_class, tag_class):
         logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
-        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
-
-        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, current_unit, current_year):
-            raise Http404
+        unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_all_units=True)
 
         if unit_mode:
+            from units.models import Unit
+            main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
+
+        all_units_mode = unit_mode and current_unit.pk == -2
+
+        if all_units_mode:
+            unit_to_check = main_unit
+        else:
+            unit_to_check = current_unit
+
+        if hasattr(model_class, 'static_rights_can') and not model_class.static_rights_can('LIST', request.user, unit_to_check, current_year):
+            raise Http404
+
+        if unit_mode and not all_units_mode:
+
             if not current_unit:
-                if request.user.is_superuser:  # Never filter
+                if request.user.is_superuser or model_class.static_rights_can('LIST', request.user, main_unit, current_year):  # Never filter
                     filter_ = lambda x: x.filter(unit=None)
                 else:
                     filter_ = lambda x: x.filter(unit=None, unit_blank_user=request.user)
@@ -225,6 +242,7 @@ def generate_list_json(module, base_name, model_class, tag_class):
              'delete_view': delete_view,
              'logs_view': logs_view,
              'list_display': model_class.MetaData.list_display,
+             'all_units_mode': all_units_mode,
             },
             True, model_class.MetaData.filter_fields,
             bonus_filter_function=filter____,
