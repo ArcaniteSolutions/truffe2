@@ -786,7 +786,7 @@ class GenericAccountingStateModel(object):
         }
 
         states_default_filter = '0_draft,0_correct,1_unit_validable,2_agep_validable'
-        status_col_id = 3
+        status_col_id = 4
 
         forced_pos = {
             '0_draft': (0.1, 0.15),
