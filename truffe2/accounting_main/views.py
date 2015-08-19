@@ -486,3 +486,26 @@ def accounting_import_step2(request, key):
         return redirect('accounting_main.views.accounting_import_step0')
 
     return render(request, "accounting_main/import/step2.html", {'key': key, 'diff': diff})
+
+
+@login_required
+def budget_available_list(request):
+    """Return the list of available budgets for a given unit and year plus its children (except commissions)"""
+    from units.models import Unit
+    from accounting_core.models import AccountingYear
+    from accounting_main.models import Budget
+
+    budgets = Budget.objects.filter(deleted=False).order_by('costcenter__account_number')
+
+    if request.GET.get('upk'):
+        unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
+        unit_and_sub_pks = [unit.pk] + map(lambda un: un.pk, unit.sub_eqi() + unit.sub_grp())
+        budgets = budgets.filter(unit__pk__in=unit_and_sub_pks)
+
+    if request.GET.get('ypk'):
+        accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
+        budgets = budgets.filter(accounting_year=accounting_year)
+
+    retour = {'data': [{'pk': budget.pk, 'name': budget.__unicode__()} for budget in budgets]}
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')

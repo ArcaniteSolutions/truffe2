@@ -44,12 +44,17 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
     description = models.TextField(_('Description'), blank=True, null=True)
     comment_root = models.TextField(_('Commentaire AGEPoly'), blank=True, null=True)
     kind = models.CharField(_(u'Type de soutien'), max_length=15, choices=SUBVENTION_TYPE, blank=True, null=True)
+    linked_budget = FalseFK('accounting_main.models.Budget', verbose_name=_(u'Budget annuel lié'), blank=True, null=True)
 
     class Meta:
         abstract = True
         unique_together = (("unit", "unit_blank_name", "accounting_year"),)
 
     class MetaEdit:
+        only_if = {
+            'linked_budget': lambda (obj, user): obj.unit,
+        }
+
         files_title = _(u'Fichiers')
         files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
 Vous devez inclure dans votre demande au moins :
