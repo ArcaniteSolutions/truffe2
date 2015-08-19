@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Logging" %}{% endblock %}
+
+{% block content %}
+  <h1>{% trans "Liste des 100 dernières entrées dans les logs" %}</h1>
+
+   <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+
+                {% with w_title="Liste" w_nopadding=True w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+
+                    <table class="table table-condensed table-hower table-striped">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Type" %}</th>
+                                <th style="width: 50%;">{% trans "Objet" %}</th>
+                                <th>{% trans "Qui" %}</th>
+                                <th>{% trans "Quoi" %}</th>
+                                <th>{% trans "Quand" %}</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for info in data %}
+                                <tr>
+                                    <td><i class="fa fa-{{info.object.MetaData.elem_icon}}"></i> {{info.object.MetaData.base_title}}</td>
+                                    <td>
+                                        <a href="{{info.object.display_url}}">
+                                            {{info.object}} 
+                                            {% if info.object.unit %}
+                                                <span class="label label-info">{{info.object.unit}}</span>
+                                            {% elif info.object.costcenter %}
+                                                <span class="label label-info">{{info.object.costcenter.unit}}</span>
+                                                <span class="label label-primary" style="margin-left: 3px;">{{info.object.costcenter}}</span>
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>{{info.who}}</td>
+                                    <td>{{info.get_what_display}}</td>
+                                    <td>{{info.when}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+  </section>
+
+
+{% endblock %}
+
+{% block menuid %}menu-admin-logging{% endblock %}

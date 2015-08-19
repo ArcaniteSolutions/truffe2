@@ -17,6 +17,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
+from django.db import connection
 
 
 @login_required
@@ -132,3 +133,30 @@ def link_base(request):
 
     return render(request, 'main/link/base.html', {'unit_mode': unit_mode, 'main_unit': main_unit, 'links': links})
 
+
+@login_required
+def last_100_logging_entries(request):
+    if not request.user.is_superuser:
+        raise Http404
+
+    cursor = connection.cursor()
+
+    from generic.models import GENERICS_MODELS
+
+    query = """
+        SELECT * FROM (
+            {}
+        ) as _ ORDER BY `when` DESC limit 100""".format(
+            ' UNION ALL '.join(
+                ["""( SELECT *, '{}' as model_id from {} order by `when` desc limit 100)""".format(key, GENERICS_MODELS[key][1]._meta.db_table) for key in GENERICS_MODELS]
+            )
+        )
+    cursor.execute(query)
+
+    data = []
+
+    for row in cursor.fetchall():
+        log_pk, when, extra_data, who_pk, what, obj_pk, key = row
+        data.append(GENERICS_MODELS[key][1].objects.get(pk=log_pk))
+
+    return render(request, 'main/last_100_logging_entries.html', {'data': data})

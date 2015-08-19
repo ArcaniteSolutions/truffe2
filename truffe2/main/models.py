@@ -100,6 +100,12 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         states_default_filter = '0_draft,1_online'
         status_col_id = 4
 
+        forced_pos = {
+            '0_draft': (0.1, 0.5),
+            '1_online': (0.5, 0.5),
+            '2_archive': (0.9, 0.5),
+        }
+
     class Meta:
         abstract = True
 

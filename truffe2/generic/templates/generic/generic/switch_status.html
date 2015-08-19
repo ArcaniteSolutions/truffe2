@@ -49,8 +49,12 @@
         $('#switch-status-form').ajaxForm({replaceTarget: true, target: '#switch-status-form'});
             {% if done %}
                 {% if from_list %}
-                    refresh_list();
-                    $('#modal-switch-cancel').click();
+                    if (typeof refresh_list !== 'undefined') {
+                        refresh_list();
+                        $('#modal-switch-cancel').click();
+                    } else {
+                        window.location.reload();
+                    }
 
                 {% else %}
                     {% if no_more_access %}

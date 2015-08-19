@@ -97,6 +97,13 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         states_default_filter_related = '1_active,2_closing,3_archived'
         status_col_id = 3
 
+        forced_pos = {
+            '0_preparing': (0.1, 0.5),
+            '1_active': (0.36, 0.5),
+            '2_closing': (0.62, 0.5),
+            '3_archived': (0.9, 0.5),
+        }
+
     def may_switch_to(self, user, dest_state):
 
         return super(_AccountingYear, self).rights_can_EDIT(user)
@@ -442,6 +449,7 @@ class AccountingGroupModels(object):
 
         super(AccountingGroupModels, self).__init__(*args, **kwargs)
 
+        self.MetaGroups = type("MetaGroups", (self.MetaGroups,), {})
         self.MetaGroups.groups_update({
             'agep_compta': _(u'L\'administrateur de l\'AGEPoly'),
             'agep_secretaire': _(u'Les secrétaires de l\'AGEPoly'),

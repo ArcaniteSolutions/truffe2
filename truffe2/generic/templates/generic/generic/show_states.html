@@ -42,7 +42,7 @@
     //  - links are always source < target; edge directions are set by 'left' and 'right'.
     var nodes = [
         {% for id, text in obj.MetaState.states.iteritems %}
-{id: '{{id|escapejs}}', active: {% if id == obj.status %}true{% else %}false{% endif %}, text: '{{text|escapejs}}', x: {{forloop.counter0|node_x}}, y: {{forloop.counter0|node_y}}, switchable: {% switchable obj user id %}}{% if not forloop.last %},{% endif %}
+{id: '{{id|escapejs}}', active: {% if id == obj.status %}true{% else %}false{% endif %}, text: '{{text|escapejs}}', {% if obj.MetaState.forced_pos|get_attr:id %}x: {{obj.states_forced_pos_x|get_attr:id}} * width, y: {{obj.states_forced_pos_y|get_attr:id}} * height, fixed: true, {% else %}x: {{forloop.counter0|node_x}}, y: {{forloop.counter0|node_y}}, {% endif %} switchable: {% switchable obj user id %}}{% if not forloop.last %},{% endif %}
         {% endfor %}
     ],
     links = [
@@ -75,15 +75,15 @@
         .attr('fill', '#999');
 
     svg.append('svg:defs').append('svg:marker')
-        .attr('id', 'start-arrow')
+        .attr('id', 'end-arrow-a')
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 4)
+        .attr('refX', 6)
         .attr('markerWidth', 3)
         .attr('markerHeight', 3)
         .attr('orient', 'auto')
     .append('svg:path')
-        .attr('d', 'M10,-5L0,0L10,5')
-        .attr('fill', '#999');
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#430023');
 
     // handles to link and node element groups
     var path = svg.append('svg:g').selectAll('path'),
@@ -125,18 +125,11 @@
         // path (link) group
         path = path.data(links);
 
-        // update existing links
-        path.style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-            .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-
-
         // add new links
         path.enter().append('svg:path')
             .attr('class', 'link')
-            .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-            .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
-            .on('mousedown', function(d) {
-                    });
+            .style('stroke', function(d) { return d.source.active ? '#430023' : '#999'; })
+            .style('marker-end', function(d) { return d.right ? (d.source.active ? 'url(#end-arrow-a)': 'url(#end-arrow)') : ''; });
 
         // remove old links
         path.exit().remove();

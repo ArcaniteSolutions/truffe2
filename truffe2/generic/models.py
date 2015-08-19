@@ -29,6 +29,8 @@ from rights.utils import AutoVisibilityLevel
 moderable_things = []
 copiable_things = []
 
+GENERICS_MODELS = {}  # Dict of id -> (Model, ModelLogging)
+
 
 class FalseFK():
 
@@ -119,6 +121,9 @@ class GenericModel(models.Model):
             # Add the logging model
             logging_class = type('%sLogging' % (real_model_class.__name__,), (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
+
+            unikey = '{}.{}'.format(models_module.__name__, real_model_class.__name__)
+            GENERICS_MODELS[unikey] = (real_model_class, logging_class)
 
             # Add the file model (if needed)
             if issubclass(model_class, GenericModelWithFiles):
@@ -382,6 +387,28 @@ class GenericStateModel(object):
 
         return retour_links
 
+    @property
+    def states_forced_pos_x(self):
+        """Helper for simple template language"""
+
+        retour = {}
+
+        for k, (x, _) in self.MetaState.forced_pos.iteritems():
+            retour[k] = x
+
+        return retour
+
+    @property
+    def states_forced_pos_y(self):
+        """Helper for simple template language"""
+
+        retour = {}
+
+        for k, (_, y) in self.MetaState.forced_pos.iteritems():
+            retour[k] = y
+
+        return retour
+
 
 class GenericLogEntry(models.Model):
 
@@ -462,6 +489,14 @@ class GenericStateValidableOrModerable(object):
             '2_online': [('3_archive', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ],
             '3_archive': [],
             '4_deny': [],
+        }
+
+        forced_pos = {
+            '0_draft': (0.1, 0.15),
+            '1_asking': (0.5, 0.15),
+            '2_online': (0.9, 0.85),
+            '3_archive': (0.9, 0.5),
+            '4_deny': (0.9, 0.15),
         }
 
         states_default_filter = '0_draft,1_asking,2_online'
@@ -753,6 +788,16 @@ class GenericAccountingStateModel(object):
         states_default_filter = '0_draft,0_correct,1_unit_validable,2_agep_validable'
         status_col_id = 3
 
+        forced_pos = {
+            '0_draft': (0.1, 0.15),
+            '0_correct': (0.4, 0.85),
+            '1_unit_validable': (0.3, 0.15),
+            '2_agep_validable': (0.5, 0.15),
+            '3_accountable': (0.7, 0.15),
+            '4_archived': (0.9, 0.15),
+            '4_canceled': (0.9, 0.85),
+        }
+
     def may_switch_to(self, user, dest_state):
         if self.status[0] == '4' and not user.is_superuser:
             return False
@@ -870,7 +915,7 @@ class GenericStateUnitValidable(GenericStateValidable):
 
 class GenericGroupsModel():
 
-    class MetaGroups:
+    class MetaGroups(object):
         groups = {
             'creator': _(u'Créateur de cet élément'),
             'editors': _(u'Personnes ayant modifié cet élément (y compris le statut)'),
