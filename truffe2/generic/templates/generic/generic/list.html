@@ -90,15 +90,15 @@
                 <div class="col-sm-12 col-md-2 col-lg-2">
 
                     {% if unit_mode %}
-                      {% with function_to_call="unit_updated" %}
-                          {% include "units/selector/unit_selector.html" %}
-                      {% endwith %}
+                        {% with function_to_call="unit_updated" %}
+                            {% include "units/selector/unit_selector.html" %}
+                        {% endwith %}
                     {% endif %}
 
                     {% if year_mode %}
-                      {% with function_to_call="year_updated" %}
-                          {% include "accounting_core/selector/year_selector.html" %}
-                      {% endwith %}
+                        {% with function_to_call="year_updated" %}
+                            {% include "accounting_core/selector/year_selector.html" %}
+                        {% endwith %}
                     {% endif %}
 
                     {% block lateral_selector_block %}

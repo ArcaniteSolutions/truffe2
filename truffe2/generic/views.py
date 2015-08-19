@@ -839,7 +839,7 @@ def generate_deleted(module, base_name, model_class, log_class):
 
         return render(request, ['%s/%s/deleted.html' % (module.__name__, base_name), 'generic/generic/deleted.html'], {
             'Model': model_class, 'list_view': list_view, 'liste': liste,
-            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit,
+            'unit_mode': unit_mode, 'current_unit': current_unit, 'main_unit': main_unit, 'unit_blank': unit_blank,
             'year_mode': year_mode, 'current_year': current_year, 'years_available': AccountingYear.build_year_menu('RESTORE', request.user),
         })
 
