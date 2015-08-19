@@ -183,14 +183,38 @@
 
             var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
 
+            var cookie_key = 'truffe_datatable_states_{{id}}';
+
+            var use_cookies = Cookies.get(cookie_key) !== undefined;
+
             {% for id_, text in states.iteritems %}
-                select_{{id}}.append('<option value="{{id_}}" {% if id_ in status_filter %}selected{% endif %}>{{text|escapejs}}</option>"');
+
+                var selected = '{% if id_ in status_filter %}selected{% endif %}';
+
+                if (use_cookies) {
+                    if (Cookies.get(cookie_key + '{{id_}}') !== undefined) {
+                        selected = 'selected';
+                    } else {
+                        selected = '';
+                    }
+                }
+                select_{{id}}.append('<option value="{{id_}}" ' + selected + '>{{text|escapejs}}</option>"');
             {% endfor %}
 
             select_{{id}}.select2().on('change', fix_height_{{id}}); //.css('width', '300px')
 
             function select2_filter() {
                 data_table_{{id}}.fnFilter(select_{{id}}.val(), {{status_col_id}});
+
+                Cookies.set(cookie_key, 'true', { expires: 360, path: '' });
+
+                {% for id_, __ in states.iteritems %}
+                    if (select_{{id}}.val().indexOf('{{id_}}') != -1) {
+                        Cookies.set(cookie_key + '{{id_}}', 'true', { expires: 360, path: '' });
+                    } else {
+                        Cookies.remove(cookie_key + '{{id_}}', { path: '' });
+                    }
+                {% endfor %}
             }
 
             select_{{id}}.on('change', function() {
