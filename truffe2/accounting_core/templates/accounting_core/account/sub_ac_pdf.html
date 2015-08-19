@@ -1,13 +1,15 @@
 {% load i18n generic_extras %}
-    
-{% if level == 1 %}
-    <h3 style="font-size: 25px;">{{cat.name}}</h3>
-{% elif level == 2 %}
-    <u style="font-size: 20px;">{{cat.name}}</u><br/><br/>
-{% elif level == 3 %}
-    <b style="font-size: 18px;">{{cat.name}}</b><br/>
-{% else %}
-    <a class="btn btn-danger">{{cat.name}}</a> {# Should never happen #}
+
+{% if not cat.deleted %}
+    {% if level == 1 %}
+        <h3 style="font-size: 25px;">{{cat.name}}</h3>
+    {% elif level == 2 %}
+        <u style="font-size: 20px;">{{cat.name}}</u><br/><br/>
+    {% elif level == 3 %}
+        <b style="font-size: 18px;">{{cat.name}}</b><br/>
+    {% else %}
+        <a class="btn btn-danger">{{cat.name}}</a> {# Should never happen #}
+    {% endif %}
 {% endif %}
 
 {% for sub_cat in cat.get_children_categories %}
