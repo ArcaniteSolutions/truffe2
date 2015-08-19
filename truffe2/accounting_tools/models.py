@@ -210,7 +210,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         return super(_Subvention, self).can_switch_to(user, dest_state)
 
     def __unicode__(self):
-        return u"{} {}".format(self.unit, self.accounting_year)
+        return u"{} {}".format(self.get_real_unit_name(), self.accounting_year)
 
     def genericFormExtraClean(self, data, form):
         """Check that unique_together is fulfiled"""
