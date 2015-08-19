@@ -74,6 +74,10 @@
     }
 
     function runDataTables_{{id}}() {
+        {% with ''|center:exclude_first_and_last as range %}
+            var datatables_colums_filter_{{id}} = [{% for _ in range %}{{forloop.counter}}, {% endfor %}];
+        {% endwith %}
+
         data_table_{{id}} = $('#{{id}}').dataTable({
 
             "oLanguage": {
@@ -105,14 +109,32 @@
                         "aButtons" : [
                             {
                                 "sExtends": "copy",
+                                "sButtonText": "{% trans "Copier" %}",
+                                {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
                             },
                             {
                                 "sExtends": "print",
+                                "sButtonText": "<i class='fa fa-print'></i> {% trans "Imprimer" %}",
+                                "sInfo": "{% trans "Appuiez sur <Esc> quand vous avez terminé !" %}",
+                                {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
                             },
                             {
                                 "sExtends" : "collection",
                                 "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
-                                "aButtons" : ["csv", "xls", "pdf"],
+                                "aButtons" : [
+                                    {
+                                        'sExtends': "csv",
+                                        {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                                    },
+                                    {
+                                        'sExtends': "xls",
+                                        {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                                    },
+                                    {
+                                        'sExtends': "pdf",
+                                        {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                                    }
+                                ],
                             }
                         ],
                         "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
@@ -124,6 +146,7 @@
                     {% if force_last_width %}{ "sWidth": "150px", "aTargets": [{{force_last_width}}] }, {% endif %}
                     {% if force_first_width %}{ "sWidth": "10px", "aTargets": [0] }, {% endif %}
                     {% if force_width %}{% for pos, width in force_width.iteritems %}{ "sWidth": "{{width}}", "aTargets": [{{pos}}] }, {% endfor %} {% endif %}
+                    {% if exclude_first_and_last %}{ "sClass": "hideprint", "aTargets": [ 0, {{exclude_first_and_last|add:"1"}} ] }, {% endif %}
                 ],
                 "bAutoWidth": false,
                 "bDeferRender": true,

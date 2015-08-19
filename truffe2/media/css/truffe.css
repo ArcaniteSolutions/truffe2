@@ -129,3 +129,7 @@
     white-space: pre-wrap;
     display: inline-block;
 }
+
+.DTTT_Print .hideprint {
+    display: none !important;
+}
