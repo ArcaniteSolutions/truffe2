@@ -104,7 +104,7 @@ def pdf_list_cost_centers(request, pk):
     if not ay.rights_can('EDIT', request.user):
         raise Http404
 
-    cc = CostCenter.objects.filter(accounting_year=ay).order_by('account_number')
+    cc = CostCenter.objects.filter(accounting_year=ay, deleted=False).order_by('account_number')
 
     return generate_pdf("accounting_core/costcenter/liste_pdf.html", request, {'cost_centers': cc, 'ay': ay})
 
