@@ -70,7 +70,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             ('name', _(u'Projet')),
             ('get_unit_name', _(u'Association / Commission')),
             ('amount_asked', _(u'Montant demandé')),
-            ('mobility_asked', _(u'Montant mobilité demandé')),
+            ('mobility_asked', _(u'Mobilité demandé')),
             ('status', _(u'Statut')),
         ]
 
@@ -93,6 +93,11 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         safe_fields = ['get_unit_name']
 
         has_unit = True
+
+        forced_widths = {
+            '3': '150px',
+            '4': '150px',
+        }
 
         help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou association auprès de l'AGEPoly.""")
 
@@ -173,7 +178,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         }
 
         states_default_filter = '0_draft,0_correct'
-        status_col_id = 3
+        status_col_id = 5
 
     def __init__(self, *args, **kwargs):
         super(_Subvention, self).__init__(*args, **kwargs)
