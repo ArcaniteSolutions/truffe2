@@ -1,6 +1,14 @@
 {% extends "generic/generic/edit.html" %}
 {% load i18n %}
 
+{% block bonus_unit_updated %}
+    update_budget();
+{% endblock %}
+
+{% block bonus_year_updated %}
+    update_budget();
+{% endblock %}
+
 {% block edit_bonus %}
     <script type="text/javascript">
 
@@ -23,6 +31,12 @@
                 $('#id_kind').width('72%').select2();
             }
 
+            // Transform id_linked_budget in select2
+            if($('#id_linked_budget').attr('type') !== 'hidden') {
+                $('#id_linked_budget').removeClass('form-control');
+                $('#id_linked_budget').width('72%').select2();
+            }
+
             // Hide mobility asked for external entities
             if ($('.cgroupe').attr('pk') == -1) {
                 $('#id_mobility_asked').val('');
@@ -31,6 +45,8 @@
             } else {
                 $('#id_kind').val('subvention');
             }
+
+            update_budget();
         });
 
         // Hide mobility asked for external entities
@@ -44,5 +60,20 @@
                 $('#id_kind').val('subvention');
             }
         });
+
+        function update_budget() {
+            $.ajax('{% url 'accounting_main.views.budget_available_list' %}?ypk=' + $('#input_ypk').val() + '&upk=' + $('#input_upk').val()).done(function (data) {
+                $('#id_linked_budget option').remove();
+                $('#id_linked_budget').append(
+                    $('<option></option>').val('').html('---------')
+                );
+                var data = data.data;
+                for (var i = 0; i < data.length; i++) {
+                    $('#id_linked_budget').append(
+                        $('<option></option>').val(data[i].pk).html(data[i].name)
+                    );
+                }
+            });
+        }
     </script>
 {% endblock %}

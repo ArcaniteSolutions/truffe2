@@ -3,7 +3,7 @@
 from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.forms import CharField, Form
+from django.forms import CharField, Form, IntegerField
 from django.contrib import messages
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -44,12 +44,17 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
     description = models.TextField(_('Description'), blank=True, null=True)
     comment_root = models.TextField(_('Commentaire AGEPoly'), blank=True, null=True)
     kind = models.CharField(_(u'Type de soutien'), max_length=15, choices=SUBVENTION_TYPE, blank=True, null=True)
+    linked_budget = FalseFK('accounting_main.models.Budget', verbose_name=_(u'Budget annuel lié'), blank=True, null=True)
 
     class Meta:
         abstract = True
         unique_together = (("unit", "unit_blank_name", "accounting_year"),)
 
     class MetaEdit:
+        only_if = {
+            'linked_budget': lambda (obj, user): obj.unit,
+        }
+
         files_title = _(u'Fichiers')
         files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
 Vous devez inclure dans votre demande au moins :
@@ -65,7 +70,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             ('name', _(u'Projet')),
             ('get_unit_name', _(u'Association / Commission')),
             ('amount_asked', _(u'Montant demandé')),
-            ('mobility_asked', _(u'Montant mobilité demandé')),
+            ('mobility_asked', _(u'Mobilité demandé')),
             ('status', _(u'Statut')),
         ]
 
@@ -88,6 +93,11 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         safe_fields = ['get_unit_name']
 
         has_unit = True
+
+        forced_widths = {
+            '3': '150px',
+            '4': '150px',
+        }
 
         help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou association auprès de l'AGEPoly.""")
 
@@ -168,7 +178,15 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         }
 
         states_default_filter = '0_draft,0_correct'
-        status_col_id = 3
+        status_col_id = 5
+
+        class SubventionValidationForm(Form):
+            amount_given = IntegerField(label=_(u'Montant accordé'))
+            mobility_given = IntegerField(label=_(u'Montant mobilité accordé'))
+
+        states_bonus_form = {
+            '2_treated': SubventionValidationForm
+        }
 
     def __init__(self, *args, **kwargs):
         super(_Subvention, self).__init__(*args, **kwargs)
@@ -177,6 +195,18 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         self.MetaRights.rights_update({
             'EXPORT': _(u'Peut exporter les éléments'),
         })
+
+    def switch_status_signal(self, request, old_status, dest_status):
+
+        s = super(_Subvention, self)
+
+        if hasattr(s, 'switch_status_signal'):
+            s.switch_status_signal(request, old_status, dest_status)
+
+        if dest_status == '2_treated':
+            self.amount_given = request.POST.get('amount_given', self.amount_given)
+            self.mobility_given = request.POST.get('mobility_given', self.mobility_given)
+            self.save()
 
     def may_switch_to(self, user, dest_state):
 
@@ -200,7 +230,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         return super(_Subvention, self).can_switch_to(user, dest_state)
 
     def __unicode__(self):
-        return u"{} {}".format(self.unit, self.accounting_year)
+        return u"{} {}".format(self.get_real_unit_name(), self.accounting_year)
 
     def genericFormExtraClean(self, data, form):
         """Check that unique_together is fulfiled"""

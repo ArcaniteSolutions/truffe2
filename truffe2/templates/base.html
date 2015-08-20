@@ -437,11 +437,6 @@
                             <li>
                                 <a href="#"><i class="fa fa-lg fa-fw fa-wrench"></i> {% trans "Outils" %}</span></a>
                                 <ul>
-                                    {% ifhasright 'accounting_tools.models.Subvention' user 'LIST' %}
-                                        <li id="menu-compta-subventions">
-                                            <a href="{% url 'accounting_tools.views.subvention_list' %}"><i class="fa fa-lg fa-fw fa-gift"></i> {% trans "Demandes de subvention" %}</a>
-                                        </li>
-                                    {% endifhasright %}
                                     {% ifhasright 'accounting_tools.models.InternalTransfer' user 'LIST' %}
                                         <li id="menu-compta-transfert">
                                             <a href="{% url 'accounting_tools.views.internaltransfer_list' %}"><i class="fa fa-lg fa-fw fa-exchange"></i> {% trans "Transferts internes" %}</a>
@@ -482,6 +477,11 @@
                                     {% endcache %}
                                 </ul>
                             </li>
+                            {% ifhasright 'accounting_tools.models.Subvention' user 'LIST' %}
+                                <li id="menu-compta-subventions">
+                                    <a href="{% url 'accounting_tools.views.subvention_list' %}"><i class="fa fa-lg fa-fw fa-gift"></i> {% trans "Demandes de subvention" %}</a>
+                                </li>
+                            {% endifhasright %}
                             <li>
                                 <a href="#"><i class="fa fa-lg fa-fw fa-gear"></i> {% trans "Gestion" %}</span></a>
                                 <ul>

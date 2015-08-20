@@ -34,7 +34,7 @@ def get_attr(value, arg):
         v = v()
     elif isinstance(value, dict):
         v = value.get(arg)
-    if not v:
+    if v is None:
         return ''
     return v
 

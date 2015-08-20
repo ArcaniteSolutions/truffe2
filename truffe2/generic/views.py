@@ -755,7 +755,10 @@ def generate_delete(module, base_name, model_class, log_class):
             unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
             year_mode, current_year, AccountingYear = get_year_data(model_class, request)
             if unit_mode:
-                update_current_unit(request, obj.unit.pk if obj.unit else -1)
+                if isinstance(obj, CostCenterLinked):
+                    update_current_unit(request, obj.costcenter.unit.pk if obj.costcenter.unit else -1)
+                else:
+                    update_current_unit(request, obj.unit.pk if obj.unit else -1)
 
             if year_mode:
                 update_current_year(request, obj.accounting_year.pk)
@@ -955,7 +958,10 @@ def generate_contact(module, base_name, model_class, log_class):
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode:
-            update_current_unit(request, obj.unit.pk if obj.unit else -1)
+            if isinstance(obj, CostCenterLinked):
+                update_current_unit(request, obj.costcenter.unit.pk if obj.costcenter.unit else -1)
+            else:
+                update_current_unit(request, obj.unit.pk if obj.unit else -1)
 
         if year_mode:
             update_current_year(request, obj.accounting_year.pk)

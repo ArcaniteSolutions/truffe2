@@ -106,7 +106,7 @@
             
             <table style="margin-top:-150px;">
                 {% block unit_def %}
-                    <tr class="tr-info"><td class="td-title">{% trans "Pour" %} {% if object.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.unit.is_commission %}{% trans "la commission" %}{% endif %}{% trans " : " %}</td><td class="td-large">{{object.unit}}</td></tr>
+                    <tr class="tr-info"><td class="td-title">{% trans "Pour" %} {% if object.costcenter.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.costcenter.unit.is_commission %}{% trans "la commission" %}{% endif %}{% trans " : " %}</td><td class="td-large">{{object.costcenter.unit}}</td></tr>
                     <tr class="tr-info"><td class="td-title">{% trans "Numéro comptable de l'unité : " %}</td><td class="td-large">{{object.costcenter}}</td></tr>
                 {% endblock %}
 

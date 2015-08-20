@@ -46,7 +46,8 @@ class GenericForm(ModelForm):
 
         if isinstance(self.instance, UnitExternalEditableModel):
             if not self.instance.unit and not cleaned_data['unit_blank_name']:
-                raise ValidationError(_(u'Le nom de l\'entité externe est obligatoire !'))
+                self._errors["unit_blank_name"] = self.error_class([_(u"Le nom de l'entité externe est obligatoire !")])  # Until Django 1.6
+                # self.add_error("unit_blank_name", _(u"Le nom de l'entité externe est obligatoire !"))  # From Django 1.7
 
         from accounting_core.utils import CostCenterLinked
 
