@@ -11,6 +11,10 @@
             <li>CHF {{notification.linked_object.amount|intcomma}} : {{notification.linked_object.cost_center_from}} &#10140; {{notification.linked_object.cost_center_to}} ({{notification.linked_object.account}})</li>
         {% elif notification.linked_object|get_class == 'Withdrawal' %}
             <li>{% trans "Retrait" %} CHF {{notification.linked_object.amount|intcomma}} ({{notification.linked_object.costcenter}})</li>
+        {% elif notification.linked_object|get_class == 'ExpenseClaim' %}
+            <li>{% trans "Note de frais" %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})</li>
+        {% elif notification.linked_object|get_class == 'CashBook' %}
+            <li>{% trans "Journal de Caisse" %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})</li>
         {% else %}
             <li>{% blocktrans with class=notification.linked_object|get_class %}Objet non reconnu ({{class}}), contacter l'administrateur.{% endblocktrans %}</li>
         {% endif %}
