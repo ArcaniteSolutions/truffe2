@@ -188,7 +188,7 @@ def withdrawal_available_list(request):
 
     if request.GET.get('upk'):
         unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
-        withdrawals = withdrawals.filter(unit=unit)
+        withdrawals = withdrawals.filter(costcenter__unit=unit)
 
     if request.GET.get('ypk'):
         accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
