@@ -204,8 +204,8 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             s.switch_status_signal(request, old_status, dest_status)
 
         if dest_status == '2_treated':
-            self.amount_given = request.POST.get('amount_given')
-            self.mobility_given = request.POST.get('mobility_given')
+            self.amount_given = request.POST.get('amount_given', self.amount_given)
+            self.mobility_given = request.POST.get('mobility_given', self.mobility_given)
             self.save()
 
     def may_switch_to(self, user, dest_state):
