@@ -229,7 +229,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
 
     def get_conflits_list(self):
 
-        liste = self.room.roomreservation_set.exclude(pk=self.pk, deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
+        liste = self.room.roomreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
         if not liste:
             return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
@@ -462,7 +462,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
     def get_conflits_list(self):
 
-        liste = self.supply.supplyreservation_set.exclude(pk=self.pk, deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
+        liste = self.supply.supplyreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
         if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
             return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'

@@ -99,7 +99,12 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         @staticmethod
         def extra_args_for_list(request, current_unit, current_year):
             from accounting_core.models import CostCenter
-            return {'costcenters': CostCenter.objects.filter(accounting_year=current_year, deleted=False).filter(Q(unit=current_unit) | (Q(unit__parent_hierarchique=current_unit) & Q(unit__is_commission=False))).order_by('account_number')}
+
+            base = CostCenter.objects.filter(accounting_year=current_year, deleted=False)
+
+            if current_unit and current_unit.pk > 0:
+                base = base.filter(Q(unit=current_unit) | (Q(unit__parent_hierarchique=current_unit) & Q(unit__is_commission=False)))
+            return {'costcenters': base.order_by('account_number')}
 
         @staticmethod
         def extra_filter_for_list(request, current_unit, current_year, filtering):

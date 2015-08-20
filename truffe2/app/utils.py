@@ -19,7 +19,7 @@ import cStringIO as StringIO
 def add_current_unit(request):
     """Template context processor to add current unit"""
 
-    current_unit = get_current_unit(request, True)
+    current_unit = get_current_unit(request, True, True)
 
     current_unit_pk = current_unit.pk if current_unit else -1
     current_unit_name = current_unit.name if current_unit else _(u'Unités externes')
@@ -27,7 +27,7 @@ def add_current_unit(request):
     return {'CURRENT_UNIT': current_unit, 'CURRENT_UNIT_NAME': current_unit_name, 'CURRENT_UNIT_PK': current_unit_pk}
 
 
-def get_current_unit(request, unit_blank=True):
+def get_current_unit(request, unit_blank=True, allow_all_units=False):
     """Return the current unit"""
 
     from units.models import Unit
@@ -37,6 +37,12 @@ def get_current_unit(request, unit_blank=True):
     try:
         if int(current_unit_pk) == -1 and unit_blank:
             return None
+    except:
+        pass
+
+    try:
+        if int(current_unit_pk) == -2 and allow_all_units:
+            return Unit(name=_(u'Toutes les unités'), pk=-2)
     except:
         pass
 

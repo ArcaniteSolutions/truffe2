@@ -74,6 +74,11 @@
     }
 
     function runDataTables_{{id}}() {
+        {# generate a string 'range' of length exclude_first_and_last (since '' is centered with exclude_first_and_last charaters #}
+        {% with ''|center:exclude_first_and_last as range %}
+            var datatables_colums_filter_{{id}} = [{% for _ in range %}{{forloop.counter}}, {% endfor %}];
+        {% endwith %}
+
         data_table_{{id}} = $('#{{id}}').dataTable({
 
             "oLanguage": {
@@ -102,11 +107,37 @@
             {% if not datatable_simple %}
                 "oTableTools" : {
                     {% if not datatable_notools %}
-                        "aButtons" : ["copy", "print", {
-                            "sExtends" : "collection",
-                            "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
-                            "aButtons" : ["csv", "xls", "pdf"]
-                        }],
+                        "aButtons" : [
+                            {
+                                "sExtends": "copy",
+                                "sButtonText": "{% trans "Copier" %}",
+                                {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                            },
+                            {
+                                "sExtends": "print",
+                                "sButtonText": "<i class='fa fa-print'></i> {% trans "Imprimer" %}",
+                                "sInfo": "{% trans "Appuiez sur <Esc> quand vous avez terminé !" %}",
+                                {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                            },
+                            {
+                                "sExtends" : "collection",
+                                "sButtonText" : '{% trans "Exporter" %} <span class="caret" />',
+                                "aButtons" : [
+                                    {
+                                        'sExtends': "csv",
+                                        {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                                    },
+                                    {
+                                        'sExtends': "xls",
+                                        {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                                    },
+                                    {
+                                        'sExtends': "pdf",
+                                        {% if exclude_first_and_last %}"mColumns": datatables_colums_filter_{{id}}, {% endif %}
+                                    }
+                                ],
+                            }
+                        ],
                         "sSwfPath" : "{{MEDIA_URL}}js/plugin/datatables/media/swf/copy_csv_xls_pdf.swf"
                     {% else %}
                         "aButtons" : []
@@ -116,6 +147,7 @@
                     {% if force_last_width %}{ "sWidth": "150px", "aTargets": [{{force_last_width}}] }, {% endif %}
                     {% if force_first_width %}{ "sWidth": "10px", "aTargets": [0] }, {% endif %}
                     {% if force_width %}{% for pos, width in force_width.iteritems %}{ "sWidth": "{{width}}", "aTargets": [{{pos}}] }, {% endfor %} {% endif %}
+                    {% if exclude_first_and_last %}{ "sClass": "hideprint", "aTargets": [ 0, {{exclude_first_and_last|add:"1"}} ] }, {% endif %}
                 ],
                 "bAutoWidth": false,
                 "bDeferRender": true,
@@ -175,14 +207,38 @@
 
             var select_{{id}} = $('#{{id}}').parent().parent().find('.status_filter');
 
+            var cookie_key = 'truffe_datatable_states_{{id}}';
+
+            var use_cookies = Cookies.get(cookie_key) !== undefined;
+
             {% for id_, text in states.iteritems %}
-                select_{{id}}.append('<option value="{{id_}}" {% if id_ in status_filter %}selected{% endif %}>{{text|escapejs}}</option>"');
+
+                var selected = '{% if id_ in status_filter %}selected{% endif %}';
+
+                if (use_cookies) {
+                    if (Cookies.get(cookie_key + '{{id_}}') !== undefined) {
+                        selected = 'selected';
+                    } else {
+                        selected = '';
+                    }
+                }
+                select_{{id}}.append('<option value="{{id_}}" ' + selected + '>{{text|escapejs}}</option>"');
             {% endfor %}
 
             select_{{id}}.select2().on('change', fix_height_{{id}}); //.css('width', '300px')
 
             function select2_filter() {
                 data_table_{{id}}.fnFilter(select_{{id}}.val(), {{status_col_id}});
+
+                Cookies.set(cookie_key, 'true', { expires: 360, path: '' });
+
+                {% for id_, __ in states.iteritems %}
+                    if (select_{{id}}.val().indexOf('{{id_}}') != -1) {
+                        Cookies.set(cookie_key + '{{id_}}', 'true', { expires: 360, path: '' });
+                    } else {
+                        Cookies.remove(cookie_key + '{{id_}}', { path: '' });
+                    }
+                {% endfor %}
             }
 
             select_{{id}}.on('change', function() {
@@ -218,7 +274,7 @@
             obj_select2_filter();
         {% endif %}
 
-        new $.fn.dataTable.FixedHeader(data_table_{{id}}, {
+        data_table_fh_{{id}} = new $.fn.dataTable.FixedHeader(data_table_{{id}}, {
             "offsetTop": 90
         });
     }

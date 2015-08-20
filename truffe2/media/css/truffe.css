@@ -119,3 +119,17 @@
 .minified .menulogo {
     display: none;
 }
+
+.dataTable td {
+    border-right: 1px #eee solid;
+}
+
+
+.label-crlf {
+    white-space: pre-wrap;
+    display: inline-block;
+}
+
+.DTTT_Print .hideprint {
+    display: none !important;
+}
