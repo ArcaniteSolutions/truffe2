@@ -1,36 +1,6 @@
-{% load i18n humanize generic_extras %}
-<em class="badge padding-5 no-border-radius bg-color-redLight pull-left margin-right-5">
-    <i class="fa fa-question fa-fw fa-2x"></i>
-</em>
+{% extends "notifications/species/accounting_base.html"}
+{% load i18n %}
 
-<span>
+{% block message}
     {% trans 'La pièce comptable "' %}<span class="text-primary">{{notification.linked_object}}</span>{% trans '" a été validée.' %}
-
-    <ul>
-        {% if notification.linked_object|get_class == 'InternalTransfer' %}
-            <li>CHF {{notification.linked_object.amount|intcomma}} : {{notification.linked_object.cost_center_from}} &#10140; {{notification.linked_object.cost_center_to}} ({{notification.linked_object.account}})</li>
-        {% elif notification.linked_object|get_class == 'Withdrawal' %}
-            <li>{% trans "Retrait" %} CHF {{notification.linked_object.amount|intcomma}} ({{notification.linked_object.costcenter}})</li>
-        {% elif notification.linked_object|get_class == 'ExpenseClaim' %}
-            <li>{% trans "Note de frais" %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})</li>
-        {% elif notification.linked_object|get_class == 'CashBook' %}
-            <li>{% trans "Journal de Caisse" %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})</li>
-        {% else %}
-            <li>{% blocktrans with class=notification.linked_object|get_class %}Objet non reconnu ({{class}}), contacter l'administrateur.{% endblocktrans %}</li>
-        {% endif %}
-    </ul>
-
-    <br />
-    <span class="pull-right">
-        <button onclick="notification_ignore({{notification.pk}});" class="btn btn-xs btn-warning margin-top-5">
-            <i class="fa fa-times"></i> {% trans "Ignorer" %}
-        </button>
-        <button onclick="window.location = '{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}';" class="btn btn-xs btn-primary margin-top-5">
-            <i class="fa fa-eye"></i> {% trans "Détails" %}
-        </button>
-    </span>
-
-    <br>
-    <br>
-    <span class="pull-right font-xs text-muted"><i>{{notification.creation_date|timesince}}</i></span>
-</span>
+{% endblock %}
