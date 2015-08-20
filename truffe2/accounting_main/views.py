@@ -506,6 +506,7 @@ def budget_available_list(request):
         accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
         budgets = budgets.filter(accounting_year=accounting_year)
 
+    budgets = filter(lambda bud: bud.rights_can('SHOW', request.user), list(budgets))
     retour = {'data': [{'pk': budget.pk, 'name': budget.__unicode__()} for budget in budgets]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
