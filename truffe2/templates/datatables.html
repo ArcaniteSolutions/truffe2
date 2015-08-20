@@ -74,6 +74,7 @@
     }
 
     function runDataTables_{{id}}() {
+        {# generate a string 'range' of length exclude_first_and_last (since '' is centered with exclude_first_and_last charaters #}
         {% with ''|center:exclude_first_and_last as range %}
             var datatables_colums_filter_{{id}} = [{% for _ in range %}{{forloop.counter}}, {% endfor %}];
         {% endwith %}

@@ -193,7 +193,7 @@ def generate_list_json(module, base_name, model_class, tag_class):
             from units.models import Unit
             main_unit = Unit.objects.get(pk=settings.ROOT_UNIT_PK)
 
-        all_units_mode = unit_mode and current_unit.pk == -2
+        all_units_mode = unit_mode and current_unit and current_unit.pk == -2
 
         if all_units_mode:
             unit_to_check = main_unit

@@ -102,7 +102,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
 
             base = CostCenter.objects.filter(accounting_year=current_year, deleted=False)
 
-            if current_unit.pk > 0:
+            if current_unit and current_unit.pk > 0:
                 base = base.filter(Q(unit=current_unit) | (Q(unit__parent_hierarchique=current_unit) & Q(unit__is_commission=False)))
             return {'costcenters': base.order_by('account_number')}
 
