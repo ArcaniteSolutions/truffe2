@@ -75,9 +75,13 @@
 
     function runDataTables_{{id}}() {
         {# generate a string 'range' of length exclude_first_and_last (since '' is centered with exclude_first_and_last charaters #}
-        {% with ''|center:exclude_first_and_last as range %}
-            var datatables_colums_filter_{{id}} = [{% for _ in range %}{{forloop.counter}}, {% endfor %}];
-        {% endwith %}
+        {% if exclude_first_and_last %}
+            {% with ''|center:exclude_first_and_last as range %}
+                var datatables_colums_filter_{{id}} = [{% for _ in range %}{{forloop.counter}}, {% endfor %}];
+            {% endwith %}
+        {% else %}
+            var datatables_colums_filter_{{id}} = [];
+        {% endif %}
 
         data_table_{{id}} = $('#{{id}}').dataTable({
 
