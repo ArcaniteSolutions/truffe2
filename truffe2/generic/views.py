@@ -851,7 +851,10 @@ def generate_deleted(module, base_name, model_class, log_class):
         liste = model_class.objects.filter(deleted=True).annotate(Max('logs__when')).order_by('-logs__when__max')
 
         if unit_mode:
-            liste = liste.filter(unit=current_unit)
+            if isinstance(model_class(), CostCenterLinked):
+                liste = liste.filter(costcenter__unit=current_unit)
+            else:
+                liste = liste.filter(unit=current_unit)
 
         if year_mode:
             liste = liste.filter(accounting_year=current_year)
