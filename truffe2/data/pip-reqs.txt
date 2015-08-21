@@ -15,3 +15,5 @@ reportlab<3
 html5lib
 django-jfu
 django-sendfile
+django-haystack
+whoosh

@@ -160,3 +160,25 @@ def last_100_logging_entries(request):
         data.append(GENERICS_MODELS[key][1].objects.get(pk=log_pk))
 
     return render(request, 'main/last_100_logging_entries.html', {'data': data})
+
+
+from haystack.views import SearchView
+
+class MySearchView(SearchView):
+    """My custom search view."""
+
+    def get_results(self):
+        results = super(MySearchView, self).get_results().order_by('-last_edit_date')
+
+        results = filter(lambda sr: sr.object.rights_can('SHOW', self.request.user), results)
+
+        return results
+    # def get_queryset(self):
+    #     queryset = super(MySearchView, self).get_queryset()
+    #     print queryset
+    #     return queryset
+    #
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super(MySearchView, self).get_context_data(*args, **kwargs)
+    #     # do something
+    #     return context

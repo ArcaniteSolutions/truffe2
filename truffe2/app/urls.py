@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 
+from main.views import MySearchView
 
 urlpatterns = patterns('',
     url(r'', include('main.urls')),
@@ -17,6 +18,8 @@ urlpatterns = patterns('',
     url(r'^generic/', include('generic.urls')),
 
     url(r'^impersonate/', include('impersonate.urls')),
+    # url(r'^search/', include('haystack.urls')),
+    url(r'^search/?$', MySearchView(), name='search_view'),
 
     (r'^' + settings.MEDIA_URL[1:] + '(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),  # In prod, use apache !
     (r'^' + settings.STATIC_URL[1:] + '(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),  # In prod, use apache !

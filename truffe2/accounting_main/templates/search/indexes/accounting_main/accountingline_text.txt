@@ -1,0 +1,8 @@
+Ligne comptabilité compta
+{{object.account}}
+{{object.text}}
+{{object.costcenter}}
+{{object.costcenter.unit}}
+{{object.document_id}}
+{{object.date}}
+{{object.accounting_year}}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Recherche" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Recherche" %}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+
+                {% with w_title="Recherche" w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+
+                    <div class="alert alert-info">
+                        {% trans "La fonctionnalité de recherche est obligée de vérifier les permissions de toutes les objets qui correspondes à ta recherche avant de te les proposer à l'affichage." %}<br />
+                        <b>{% trans "N'utilise pas des termes trop génériques, ou l'affichage des résultats prendra du temps." %}</b><br />
+                        {% trans "Seuls les 100 premiers résultats sont affichés." %}<br />
+                    </div>
+
+                    <form method="get" action="{% url 'search_view' %}">
+                        <div class="input-group input-group-lg hidden-mobile">
+                            <input class="form-control input-lg" id="form-search-q" name="q" type="text" placeholder="{% trans "Rechercher" %}" value="{{query}}">
+                            <div class="input-group-btn">
+                                <button type="submit" class="btn btn-default">
+                                    &nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-search fa-lg"></i>&nbsp;&nbsp;&nbsp;
+                                </button>
+                            </div>
+                        </div>
+
+                        {% if query %}
+                            <h3>{% trans "Résultats de la recherche" %}</h3>
+
+                            {% if page.object_list %}
+
+                                <table class="table table-condensed table-hower table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{% trans "Type" %}</th>
+                                            <th>{% trans "Année comptable/Unité" %}</th>
+                                            <th>{% trans "Création" %}</th>
+                                            <th>{% trans "Dernière modification" %}</th>
+                                            <th style="width: 40%;">{% trans "Objet" %}</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for result in page.object_list %}
+                                            <tr>
+                                                <td><i class="fa fa-{{result.object.MetaData.elem_icon}}"></i> {{result.object.MetaData.base_title}}</td>
+                                                <td>
+                                                    {% if result.object.accounting_year %}
+                                                        <span class="label label-warning">{{result.object.accounting_year}}</span>
+                                                    {% endif %}
+                                                    {% if result.object.unit %}
+                                                        <span class="label label-info">{{result.object.unit}}</span>
+                                                    {% elif result.object.costcenter %}
+                                                        <span class="label label-info">{{result.object.costcenter.unit}}</span>
+                                                        <span class="label label-primary" style="margin-left: 3px;">{{result.object.costcenter}}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {{result.object.get_creation_date|date:"d.m.Y"}}
+                                                    {{result.object.get_creation_date|time:"H:i:s"}}
+                                                </td>
+                                                <td>
+                                                    {{result.object.last_log.when|date:"d.m.Y"}}
+                                                    {{result.object.last_log.when|time:"H:i:s"}}
+                                                </td>
+                                                <td>
+                                                    <a href="{{result.object.display_url}}">{{result.object}}</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+
+                            {% else %}
+
+                            {% endif %}
+
+                            {% if page.has_previous or page.has_next %}
+                                <div>
+                                    {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+                                    |
+                                    {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            {# Show some example queries to run, maybe query syntax, something else? #}
+                        {% endif %}
+                    </form>
+
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript">
+        $('#form-search-q').focus(function() {
+            $(this).select();
+        }).focus();
+    </script>
+
+{% endblock %}
