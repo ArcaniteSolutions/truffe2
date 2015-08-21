@@ -229,55 +229,52 @@
                     <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> <span class="menu-item-parent">{% trans "Logistique" %}</span></a>
                         <ul>
+                            <li>
+                                <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Véhicules" %}</a>
 
-                            {% if user.is_superuser or user.is_impersonate or user.is_betatester %}
-                                <li>
-                                    <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Véhicules" %}</a>
+                                <ul class="subsub-menu">
 
-                                    <ul class="subsub-menu">
+                                    {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
+                                        <li id="menu-vehicles-booking">
+                                            <a href="{% url 'vehicles.views.booking_list' %}"><i class="fa fa-lg fa-fw fa-ambulance"></i> {% trans "Réservations" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
+                                        <li id="menu-vehicles-booking-calendar">
+                                            <a href="{% url 'vehicles.views.booking_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Booking' user 'VALIDATE' %}
+                                        <li id="menu-vehicles-booking-calendar-related">
+                                            <a href="{% url 'vehicles.views.booking_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier de toutes les réservations" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Provider' user 'LIST' %}
+                                        <li id="menu-vehicles-provider">
+                                            <a href="{% url 'vehicles.views.provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.VehicleType' user 'LIST' %}
+                                        <li id="menu-vehicles-type">
+                                            <a href="{% url 'vehicles.views.vehicletype_list' %}"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Types de véhicules" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Card' user 'LIST' %}
+                                        <li id="menu-vehicles-cards">
+                                            <a href="{% url 'vehicles.views.card_list' %}"><i class="fa fa-lg fa-fw fa-credit-card"></i> {% trans "Cartes" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Location' user 'LIST' %}
+                                        <li id="menu-vehicles-location">
+                                            <a href="{% url 'vehicles.views.location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
+                                        </li>
+                                    {% endifhasright %}
 
-                                        {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
-                                            <li id="menu-vehicles-booking">
-                                                <a href="{% url 'vehicles.views.booking_list' %}"><i class="fa fa-lg fa-fw fa-ambulance"></i> {% trans "Réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
-                                            <li id="menu-vehicles-booking-calendar">
-                                                <a href="{% url 'vehicles.views.booking_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Booking' user 'VALIDATE' %}
-                                            <li id="menu-vehicles-booking-calendar-related">
-                                                <a href="{% url 'vehicles.views.booking_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier de toutes les réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Provider' user 'LIST' %}
-                                            <li id="menu-vehicles-provider">
-                                                <a href="{% url 'vehicles.views.provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.VehicleType' user 'LIST' %}
-                                            <li id="menu-vehicles-type">
-                                                <a href="{% url 'vehicles.views.vehicletype_list' %}"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Types de véhicules" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Card' user 'LIST' %}
-                                            <li id="menu-vehicles-cards">
-                                                <a href="{% url 'vehicles.views.card_list' %}"><i class="fa fa-lg fa-fw fa-credit-card"></i> {% trans "Cartes" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Location' user 'LIST' %}
-                                            <li id="menu-vehicles-location">
-                                                <a href="{% url 'vehicles.views.location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% cache 900 "leftmenu-links-logistics-vehicles" %}
-                                            {% display_links_for_menu "/logistics/vehicles/" %}
-                                        {% endcache %}
-                                    </ul>
-                                </li>
-                            {% endif %}
+                                    {% cache 900 "leftmenu-links-logistics-vehicles" %}
+                                        {% display_links_for_menu "/logistics/vehicles/" %}
+                                    {% endcache %}
+                                </ul>
+                            </li>
                             {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
                                 <li>
                                     <a href="#"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Salles" %}</a>
