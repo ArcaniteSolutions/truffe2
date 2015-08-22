@@ -1126,6 +1126,8 @@ def index_generator(model_class):
             try:
                 return obj.last_log().when
             except:
+                if hasattr(obj.MetaSearch, 'last_edit_date_field'):
+                    return get_property(obj, obj.MetaSearch.last_edit_date_field)
                 return now()
 
         def prepare_text(self, obj):

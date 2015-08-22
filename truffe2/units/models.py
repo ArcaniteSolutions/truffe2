@@ -450,6 +450,8 @@ class Accreditation(models.Model, UnitEditableModel, SearchableModel):
 
         extra_text = u'accred'
 
+        last_edit_date_field = 'renewal_date'
+
         fields = [
             'user',
             'role',
