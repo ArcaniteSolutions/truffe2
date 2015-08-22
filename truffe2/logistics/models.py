@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, GenericDelayValidable, GenericDelayValidableInfo
+from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, GenericDelayValidable, GenericDelayValidableInfo, SearchableModel
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.conf import settings
@@ -14,7 +14,7 @@ from rights.utils import UnitEditableModel, UnitExternalEditableModel
 from generic.templatetags.generic_extras import html_check_and_safe
 
 
-class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo):
+class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
@@ -73,6 +73,16 @@ N'importe quelle unité peut mettre à disposition des salles et est responsable
     class MetaEdit:
         html_fields = ('description', 'conditions', 'conditions_externals')
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"room"
+
+        fields = [
+            'title',
+            'description',
+            'conditions',
+        ]
+
     class Meta:
         abstract = True
 
@@ -80,7 +90,7 @@ N'importe quelle unité peut mettre à disposition des salles et est responsable
         return self.title
 
 
-class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel):
+class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
@@ -178,6 +188,17 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
             'room': lambda (obj, user): obj.status == '0_draft',
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'room',
+            'title',
+            'raison',
+            'remarks',
+        ]
+
     class Meta:
         abstract = True
 
@@ -210,7 +231,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
 
     def get_conflits(self):
 
-        liste = self.room.roomreservation_set.exclude(pk=self.pk, deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
+        liste = self.room.roomreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
         if not liste:
             return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))
@@ -243,7 +264,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
             return '<span class="txt-color-red" title="%s"><i class="fa fa-warning"></i></span><ul>' % (retour[:-2], )
 
 
-class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo):
+class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
@@ -305,6 +326,16 @@ N'importe quelle unité peut mettre à disposition du matériel et est responsab
     class MetaEdit:
         html_fields = ('description', 'conditions', 'conditions_externals')
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'title',
+            'description',
+            'conditions',
+        ]
+
     class Meta:
         abstract = True
 
@@ -312,7 +343,7 @@ N'importe quelle unité peut mettre à disposition du matériel et est responsab
         return self.title
 
 
-class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel):
+class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
@@ -410,6 +441,17 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
             'supply': lambda (obj, user): obj.status == '0_draft',
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'supply',
+            'title',
+            'raison',
+            'remarks',
+        ]
+
     class Meta:
         abstract = True
 
@@ -445,7 +487,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
     def get_conflits(self):
 
-        liste = self.supply.supplyreservation_set.exclude(pk=self.pk, deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
+        liste = self.supply.supplyreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
         if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
             return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))
