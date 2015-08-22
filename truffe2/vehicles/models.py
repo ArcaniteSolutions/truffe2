@@ -6,12 +6,12 @@ from django import forms
 from django.shortcuts import get_object_or_404
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel, GenericGroupsModel, GenericStateRootValidable, GenericGroupsModerableModel, GenericContactableModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel, GenericGroupsModel, GenericStateRootValidable, GenericGroupsModerableModel, GenericContactableModel, SearchableModel
 from rights.utils import AgepolyEditableModel, UnitEditableModel
 from users.models import TruffeUser
 
 
-class _Provider(GenericModel, AgepolyEditableModel):
+class _Provider(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['LOGISTIQUE', 'SECRETARIAT']
@@ -41,6 +41,15 @@ class _Provider(GenericModel, AgepolyEditableModel):
 
         help_list = _(u"""Les entreprises fournissant des services de locations de véhicules.""")
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'mobility véhicule'
+
+        fields = [
+            'name',
+            'description',
+        ]
+
     class Meta:
         abstract = True
 
@@ -54,7 +63,7 @@ class _Provider(GenericModel, AgepolyEditableModel):
         return self.card_set.filter(deleted=False).order_by('name')
 
 
-class _VehicleType(GenericModel, AgepolyEditableModel):
+class _VehicleType(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['LOGISTIQUE', 'SECRETARIAT']
@@ -86,6 +95,16 @@ class _VehicleType(GenericModel, AgepolyEditableModel):
 
         help_list = _(u"""Les différents types de véhicules, par fournisseur""")
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'mobility véhicule'
+
+        fields = [
+            'name',
+            'description',
+            'provider',
+        ]
+
     class Meta:
         abstract = True
 
@@ -93,7 +112,7 @@ class _VehicleType(GenericModel, AgepolyEditableModel):
         return self.name
 
 
-class _Card(GenericModel, AgepolyEditableModel):
+class _Card(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['LOGISTIQUE', 'SECRETARIAT']
@@ -127,6 +146,17 @@ class _Card(GenericModel, AgepolyEditableModel):
 
         help_list = _(u"""Les différentes cartes utilisées pour les réservations""")
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'mobility véhicule'
+
+        fields = [
+            'name',
+            'description',
+            'provider',
+            'number',
+        ]
+
     class Meta:
         abstract = True
 
@@ -134,7 +164,7 @@ class _Card(GenericModel, AgepolyEditableModel):
         return u'{} ({})'.format(self.name, self.number)
 
 
-class _Location(GenericModel, AgepolyEditableModel):
+class _Location(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['LOGISTIQUE', 'SECRETARIAT']
@@ -166,6 +196,15 @@ class _Location(GenericModel, AgepolyEditableModel):
 
         help_list = _(u"""Les lieux de récupération des locations""")
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'mobility véhicule'
+
+        fields = [
+            'name',
+            'description',
+        ]
+
     class Meta:
         abstract = True
 
@@ -173,7 +212,7 @@ class _Location(GenericModel, AgepolyEditableModel):
         return self.name
 
 
-class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootValidable, GenericStateModel, UnitEditableModel):
+class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootValidable, GenericStateModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
@@ -244,6 +283,22 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'mobility véhicule réservation'
+
+        fields = [
+            'title',
+            'card',
+            'provider',
+            'location',
+            'vehicletype',
+            'responsible',
+            'remark',
+            'reason',
+            'remark_agepoly',
+        ]
 
     class MetaState(GenericStateRootValidable.MetaState):
 
