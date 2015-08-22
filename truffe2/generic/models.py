@@ -22,6 +22,7 @@ from haystack import indexes
 from users.models import TruffeUser
 from generic import views
 from generic.forms import GenericForm
+from generic.search import SearchableModel
 from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
 from rights.utils import AutoVisibilityLevel
@@ -1161,12 +1162,3 @@ def index_generator(model_class):
 
     index_class = type('{}Index'.format(model_class.__name__), (_Index,), {})
     return index_class
-
-
-class SearchableModel(object):
-
-    class MetaSearch(object):
-
-        extra_text = ''
-        extra_text_generator = None
-        fields = []

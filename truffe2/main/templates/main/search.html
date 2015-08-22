@@ -39,10 +39,10 @@
                                     <thead>
                                         <tr>
                                             <th>{% trans "Type" %}</th>
+                                            <th style="width: 40%;">{% trans "Objet" %}</th>
                                             <th>{% trans "Année comptable/Unité" %}</th>
                                             <th>{% trans "Création" %}</th>
                                             <th>{% trans "Dernière modification" %}</th>
-                                            <th style="width: 40%;">{% trans "Objet" %}</th>
                                         </tr>
                                     </thead>
 
@@ -51,6 +51,9 @@
                                             {% ifhasright result.object user 'SHOW' %}
                                                 <tr>
                                                     <td><i class="fa fa-{{result.object.MetaData.elem_icon}}"></i> {{result.object.MetaData.base_title}}</td>
+                                                    <td>
+                                                        <a href="{{result.object.display_url}}">{{result.object}}</a>
+                                                    </td>
                                                     <td>
                                                         {% if result.object.accounting_year %}
                                                             <span class="label label-warning">{{result.object.accounting_year}}</span>
@@ -69,9 +72,6 @@
                                                     <td>
                                                         {{result.object.last_log.when|date:"d.m.Y"}}
                                                         {{result.object.last_log.when|time:"H:i:s"}}
-                                                    </td>
-                                                    <td>
-                                                        <a href="{{result.object.display_url}}">{{result.object}}</a>
                                                     </td>
                                                 </tr>
                                             {% endifhasright %}

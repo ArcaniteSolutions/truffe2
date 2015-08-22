@@ -8,6 +8,7 @@ from django.contrib.auth.models import BaseUserManager
 from django.core.cache import cache
 
 from rights.utils import ModelWithRight
+from generic.search import SearchableModel
 
 import re
 import time
@@ -32,7 +33,7 @@ class TruffeUserManager(BaseUserManager):
         return self._create_user(username, password, True, **extra_fields)
 
 
-class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight):
+class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight, SearchableModel):
     username = models.CharField(_('Sciper ou username'), max_length=255, unique=True)
     first_name = models.CharField(_(u'Prénom'), max_length=100, blank=True)
     last_name = models.CharField(_('Nom de famille'), max_length=100, blank=True)
@@ -69,8 +70,12 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight):
         self.MetaRights.rights_update({
             'CREATE': _(u'Peut créer un nouvel utilisateur'),
             'EDIT': _(u'Peut editer un utilisateur'),
+            'SHOW': _(u'Peut afficher un utilisateur'),
             'FULL_SEARCH': _(u'Peut utiliser la recherche sans filtrage préliminaire'),
         })
+
+    def rights_can_SHOW(self, user):
+        return True
 
     def rights_can_CREATE(self, user):
         return self.rights_in_root_unit(user, access='INFORMATIQUE')
@@ -132,6 +137,23 @@ EMAIL;INTERNET:%s
 
     def is_profile_ok(self):
         return self.iban_ou_ccp and self.mobile and self.nom_banque and self.adresse and self.first_name and self.last_name
+
+    class MetaData:
+        base_title = _(u'Utilisateur')
+        elem_icon = 'fa fa-user'
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'user personne gens'
+
+        last_edit_date_field = 'date_joined'
+
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+        ]
 
 
 class UserPrivacy(models.Model):
