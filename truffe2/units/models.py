@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 
-from generic.models import GenericModel, FalseFK
+from generic.models import GenericModel, FalseFK, SearchableModel
 from rights.utils import AgepolyEditableModel, UnitEditableModel
 from users.models import TruffeUser
 
@@ -14,7 +14,7 @@ import datetime
 from multiselectfield import MultiSelectField
 
 
-class _Unit(GenericModel, AgepolyEditableModel):
+class _Unit(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'INFORMATIQUE'
@@ -69,6 +69,14 @@ class _Unit(GenericModel, AgepolyEditableModel):
         help_list = _(u"""Les unités sont les différents groupes de l'AGEPoly (Comité de l'AGEPoly, commissions, équipes, etc.)
 
 Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPoly au sommet.""")
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'unité'
+
+        fields = [
+            'name',
+        ]
 
     class Meta:
         abstract = True
