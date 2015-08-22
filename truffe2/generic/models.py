@@ -1172,6 +1172,18 @@ def index_generator(model_class):
 
                     text += u"{} {}\n".format(f.file.name.split('/')[-1], txt)
 
+            if obj.MetaSearch.linked_lines:
+                for key, fields in obj.MetaSearch.linked_lines.iteritems():
+                    for line_elem in getattr(obj, key).all():
+
+                        for field in fields:
+                            attr = get_property(line_elem, field)
+
+                            if attr:
+                                if hasattr(attr, '__call__'):
+                                    attr = attr()
+                                text += u"{}\n".format(attr)
+
             return text
 
     index_class = type('{}Index'.format(model_class.__name__), (_Index,), {})
