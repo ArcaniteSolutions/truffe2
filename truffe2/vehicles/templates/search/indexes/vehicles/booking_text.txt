@@ -1,9 +1,0 @@
-Réservation véhicule mobility
-{{object.title}}
-{{object.responsible}}
-{{object.reason}}
-{{object.provider}}
-{{object.vehiculetype}}
-{{object.card}}
-{{object.location}}
-{{object.unit}}
