@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n rights_extras %}
 
 {% block title %}{{block.super}} :: {% trans "Recherche" %}{% endblock %}
 
@@ -12,11 +12,13 @@
 
                 {% with w_title="Recherche" w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
 
-                    <div class="alert alert-info">
-                        {% trans "La fonctionnalité de recherche est obligée de vérifier les permissions de toutes les objets qui correspondes à ta recherche avant de te les proposer à l'affichage." %}<br />
-                        <b>{% trans "N'utilise pas des termes trop génériques, ou l'affichage des résultats prendra du temps." %}</b><br />
-                        {% trans "Seuls les 100 premiers résultats sont affichés." %}<br />
-                    </div>
+                    {% if simple_search %}
+                        <div class="alert alert-info">
+                            {% trans "La fonctionnalité de recherche est obligée de vérifier les permissions de toutes les objets qui correspondent à ta recherche avant de te les proposer à l'affichage." %}<br />
+                            <b>{% trans "N'utilise pas des termes trop génériques, ou l'affichage des résultats prendra du temps." %}</b><br />
+                            {% trans "Seuls les 100 premiers résultats sont affichés." %}<br />
+                        </div>
+                    {% endif %}
 
                     <form method="get" action="{% url 'search_view' %}">
                         <div class="input-group input-group-lg hidden-mobile">
@@ -46,31 +48,33 @@
 
                                     <tbody>
                                         {% for result in page.object_list %}
-                                            <tr>
-                                                <td><i class="fa fa-{{result.object.MetaData.elem_icon}}"></i> {{result.object.MetaData.base_title}}</td>
-                                                <td>
-                                                    {% if result.object.accounting_year %}
-                                                        <span class="label label-warning">{{result.object.accounting_year}}</span>
-                                                    {% endif %}
-                                                    {% if result.object.unit %}
-                                                        <span class="label label-info">{{result.object.unit}}</span>
-                                                    {% elif result.object.costcenter %}
-                                                        <span class="label label-info">{{result.object.costcenter.unit}}</span>
-                                                        <span class="label label-primary" style="margin-left: 3px;">{{result.object.costcenter}}</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {{result.object.get_creation_date|date:"d.m.Y"}}
-                                                    {{result.object.get_creation_date|time:"H:i:s"}}
-                                                </td>
-                                                <td>
-                                                    {{result.object.last_log.when|date:"d.m.Y"}}
-                                                    {{result.object.last_log.when|time:"H:i:s"}}
-                                                </td>
-                                                <td>
-                                                    <a href="{{result.object.display_url}}">{{result.object}}</a>
-                                                </td>
-                                            </tr>
+                                            {% ifhasright result.object user 'SHOW' %}
+                                                <tr>
+                                                    <td><i class="fa fa-{{result.object.MetaData.elem_icon}}"></i> {{result.object.MetaData.base_title}}</td>
+                                                    <td>
+                                                        {% if result.object.accounting_year %}
+                                                            <span class="label label-warning">{{result.object.accounting_year}}</span>
+                                                        {% endif %}
+                                                        {% if result.object.unit %}
+                                                            <span class="label label-info">{{result.object.unit}}</span>
+                                                        {% elif result.object.costcenter %}
+                                                            <span class="label label-info">{{result.object.costcenter.unit}}</span>
+                                                            <span class="label label-primary" style="margin-left: 3px;">{{result.object.costcenter}}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {{result.object.get_creation_date|date:"d.m.Y"}}
+                                                        {{result.object.get_creation_date|time:"H:i:s"}}
+                                                    </td>
+                                                    <td>
+                                                        {{result.object.last_log.when|date:"d.m.Y"}}
+                                                        {{result.object.last_log.when|time:"H:i:s"}}
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{result.object.display_url}}">{{result.object}}</a>
+                                                    </td>
+                                                </tr>
+                                            {% endifhasright %}
                                         {% endfor %}
                                     </tbody>
                                 </table>

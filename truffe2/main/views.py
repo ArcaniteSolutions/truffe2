@@ -167,18 +167,50 @@ from haystack.views import SearchView
 class MySearchView(SearchView):
     """My custom search view."""
 
+    template = 'search/search.html'
+
     def get_results(self):
         results = super(MySearchView, self).get_results().order_by('-last_edit_date')
-
-        results = filter(lambda sr: sr.object.rights_can('SHOW', self.request.user), results)
-
         return results
-    # def get_queryset(self):
-    #     queryset = super(MySearchView, self).get_queryset()
-    #     print queryset
-    #     return queryset
-    #
-    # def get_context_data(self, *args, **kwargs):
-    #     context = super(MySearchView, self).get_context_data(*args, **kwargs)
-    #     # do something
-    #     return context
+
+    def build_page(self):
+        try:
+            page_no = int(self.request.GET.get('page', 1))
+        except (TypeError, ValueError):
+            raise Http404("Not a valid number for page.")
+
+        if page_no < 1:
+            raise Http404("Pages should be 1 or greater.")
+
+        start_offset = (page_no - 1) * self.results_per_page
+
+        # If the user is admin or head of agepoly, he can see almost all result
+        # (filterted in template). If not, we filter here results to avoid
+        # strange pagination
+        if not self.request.user.rights_can('FULL_SEARCH', self.request.user):
+            new_results = []
+
+            for result in self.results:
+                if len(new_results) > min(start_offset + self.results_per_page, settings.HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS):
+                    break
+
+                if result.object.rights_can('SHOW', self.request.user):
+                    new_results.append(result)
+
+            new_results = new_results[:settings.HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS]
+
+            self.results = new_results
+
+        self.results[start_offset:start_offset + self.results_per_page]
+
+        paginator = Paginator(self.results, self.results_per_page)
+
+        try:
+            page = paginator.page(page_no)
+        except InvalidPage:
+            raise Http404("No such page!")
+
+        return (paginator, page)
+
+    def extra_context(self):
+        return {'simple_search': not self.request.user.rights_can('FULL_SEARCH', self.request.user)}
