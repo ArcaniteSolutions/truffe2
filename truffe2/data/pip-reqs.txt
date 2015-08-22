@@ -17,3 +17,5 @@ django-jfu
 django-sendfile
 django-haystack
 whoosh
+pdfminer
+textract

@@ -106,6 +106,7 @@ def configure_mysql():
 def install_python():
     """Install python and python deps"""
     sudo('apt-get install -y python-crypto python-mysqldb python-imaging python-pip python python-dev python-ldap python-memcache')
+    sudo('apt-get install python-dev libxml2-dev libxslt1-dev antiword unrtf poppler-utils pstotext tesseract-ocr flac ffmpeg lame libmad0 libsox-fmt-mp3 sox')
 
 
 @task
