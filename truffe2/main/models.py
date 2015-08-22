@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, FalseFK
+from generic.models import GenericModel, GenericStateModel, FalseFK, SearchableModel
 from django.utils.translation import ugettext_lazy as _
 
 from rights.utils import AgepolyEditableModel, UnitEditableModel
 
 
-class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
+class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'COMMUNICATION'
@@ -106,6 +106,13 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
             '2_archive': (0.9, 0.5),
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        fields = [
+            'title',
+            'content',
+        ]
+
     class Meta:
         abstract = True
 
@@ -113,7 +120,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         return self.title
 
 
-class _Link(GenericModel, UnitEditableModel):
+class _Link(GenericModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUniyt(UnitEditableModel.MetaRightsUnit):
         access = ['PRESIDENCE', 'INFORMATIQUE', 'COMMUNICATION']
@@ -186,6 +193,14 @@ Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
             'leftmenu': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
             'icon': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
         }
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        fields = [
+            'title',
+            'description',
+            'url',
+        ]
 
     class Meta:
         abstract = True

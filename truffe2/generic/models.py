@@ -277,7 +277,7 @@ class GenericModel(models.Model):
 
             if issubclass(model_class, SearchableModel):
                 if not search_indexes_module:
-                    raise("{} has no search_indexes.py, please create it in {}".format(model_class.__name__, module.__name__))
+                    raise(Exception("{} need a search_indexes.py, please create it in {}/".format(model_class.__name__, module.__name__)))
 
                 index = index_generator(real_model_class)
                 setattr(search_indexes_module, index.__name__, index)
