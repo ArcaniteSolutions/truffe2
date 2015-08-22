@@ -5,13 +5,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel, SearchableModel
 from rights.utils import AgepolyEditableModel
 from accounting_core.utils import AccountingYearLinked
 from app.utils import get_current_year
 
 
-class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
+class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -104,6 +104,14 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
             '3_archived': (0.9, 0.5),
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'name',
+        ]
+
     def may_switch_to(self, user, dest_state):
 
         return super(_AccountingYear, self).rights_can_EDIT(user)
@@ -163,7 +171,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel):
         return retour
 
 
-class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
+class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -201,6 +209,16 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
     class MetaAccounting:
         copiable = True
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"centre cout"
+
+        fields = [
+            'name',
+            'account_number',
+            'description',
+        ]
+
     def __unicode__(self):
         return u"{} - {}".format(self.account_number, self.name)
 
@@ -215,7 +233,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel):
             raise forms.ValidationError(_(u'Un centre de coûts avec ce numéro de compte existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
 
-class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel):
+class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -255,6 +273,15 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         copiable = True
         foreign = (('parent_hierarchique', 'AccountCategory'),)
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'name',
+            'description',
+        ]
+
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
 
@@ -289,7 +316,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel)
         return self.account_set.order_by('account_number')
 
 
-class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel):
+class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -337,6 +364,17 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
         copiable = True
         foreign = (('category', 'AccountCategory'),)
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'name',
+            'description',
+            'account_number',
+            'category',
+        ]
+
     def __unicode__(self):
         return u"{} - {}".format(self.account_number, self.name)
 
@@ -376,7 +414,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
             return not user.is_external()
 
 
-class _TVA(GenericModel, AgepolyEditableModel):
+class _TVA(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -412,6 +450,15 @@ class _TVA(GenericModel, AgepolyEditableModel):
         help_list = _(u"""Les TVA sélectionnables dans les champs de TVA. Il est possible de restrainre l'usage de certaines TVA au CDD.
 
 Les TVA ne sont pas liées aux autres objets comptables, il est possible de les modifier à tout moment sans risques.""")
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'name',
+            'value',
+        ]
 
     def __init__(self, *args, **kwargs):
         super(_TVA, self).__init__(*args, **kwargs)
