@@ -18,6 +18,7 @@ from pytz import timezone
 from datetime import timedelta
 import mimetypes
 from haystack import indexes
+import textract
 
 from users.models import TruffeUser
 from generic import views
@@ -1157,6 +1158,19 @@ def index_generator(model_class):
 
             if obj.MetaSearch.extra_text_generator:
                 text += u"{}\n".format(obj.MetaSearch.extra_text_generator(obj))
+
+            if obj.MetaSearch.index_files:
+                for f in obj.files.all():
+
+                    try:
+                        txt = textract.process(
+                            os.path.join(settings.MEDIA_ROOT, f.file.name),
+                            language='fra',
+                        ).decode('utf-8')
+                    except Exception as e:
+                        txt = u''
+
+                    text += u"{} {}\n".format(f.file.name.split('/')[-1], txt)
 
             return text
 
