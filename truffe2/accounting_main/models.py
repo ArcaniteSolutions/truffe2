@@ -14,13 +14,13 @@ import json
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from accounting_core.models import AccountingGroupModels
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, SearchableModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 from users.models import TruffeUser
 
 
-class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
+class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -174,6 +174,20 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             ('2_error', '1_validated'): FormValid
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"compta"
+
+        fields = [
+            'account',
+            'date',
+            'document_id',
+            'input',
+            'output',
+            'text',
+            'tva',
+        ]
+
     def may_switch_to(self, user, dest_state):
         return super(_AccountingLine, self).rights_can_EDIT(user) and super(_AccountingLine, self).may_switch_to(user, dest_state)
 
@@ -273,7 +287,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         return self.rights_in_root_unit(user, ['TRESORERIE', 'SECRETARIAT'])
 
 
-class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
+class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -378,6 +392,14 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
             '2_fixed': FormFixed
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'initial_remark',
+            'get_line_title',
+        ]
     def may_switch_to(self, user, dest_state):
 
         return super(_AccountingError, self).rights_can_EDIT(user) and super(_AccountingError, self).may_switch_to(user, dest_state)
@@ -491,7 +513,7 @@ class AccountingErrorMessage(models.Model):
     error = models.ForeignKey('AccountingError')
 
 
-class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericContactableModel, GenericTaggableObject, AccountingGroupModels):
+class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericContactableModel, GenericTaggableObject, AccountingGroupModels, SearchableModel):
     """Modèle pour les budgets"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -628,6 +650,18 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
             '1_private': (0.2, 0.75),
             '2_treated': (0.8, 0.25),
         }
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        @staticmethod
+        def extra_text_generator(obj):
+            return u"\n".join([l.description for l in obj.budgetline_set.all()])
+
+        fields = [
+            'name',
+        ]
 
     def may_switch_to(self, user, dest_state):
         return super(_Budget, self).rights_can_EDIT(user) and super(_Budget, self).may_switch_to(user, dest_state)
