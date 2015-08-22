@@ -268,7 +268,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         return super(_Unit, self).rights_can_SHOW(user)
 
 
-class _Role(GenericModel, AgepolyEditableModel):
+class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
     """Un role, pour une accred"""
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
@@ -337,6 +337,15 @@ class _Role(GenericModel, AgepolyEditableModel):
 Certains rôles donnent des accès particuliers.
 Par exemple, le rôle 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont gérés en fonction des accès !""")
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'rôle role roles'
+
+        fields = [
+            'name',
+            'description',
+        ]
+
     class Meta:
         abstract = True
 
@@ -348,7 +357,7 @@ Par exemple, le rôle 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont g
         return (True, None)
 
 
-class Accreditation(models.Model, UnitEditableModel):
+class Accreditation(models.Model, UnitEditableModel, SearchableModel):
     unit = models.ForeignKey('Unit')
     user = models.ForeignKey(TruffeUser)
     role = models.ForeignKey('Role')
@@ -432,6 +441,20 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def display_url(self):
         return '%s?upk=%s' % (reverse('units.views.accreds_list'), self.unit.pk,)
+
+    class MetaData:
+        base_title = _(u'Accréditation')
+        elem_icon = 'fa fa-key'
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'accred'
+
+        fields = [
+            'user',
+            'role',
+            'display_name',
+        ]
 
 
 class AccreditationLog(models.Model):

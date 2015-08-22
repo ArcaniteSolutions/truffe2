@@ -1117,7 +1117,10 @@ def index_generator(model_class):
             return model_class
 
         def index_queryset(self, using=None):
-            return self.get_model().objects.filter(deleted=False)
+            if hasattr(self.get_model(), 'deleted'):
+                return self.get_model().objects.filter(deleted=False)
+            else:
+                return self.get_model().objects
 
         def prepare_last_edit_date(self, obj):
             try:
