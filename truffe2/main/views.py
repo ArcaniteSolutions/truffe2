@@ -18,6 +18,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db import connection
+from haystack.views import SearchView
 
 
 @login_required
@@ -162,15 +163,13 @@ def last_100_logging_entries(request):
     return render(request, 'main/last_100_logging_entries.html', {'data': data})
 
 
-from haystack.views import SearchView
+class HaystackSearchView(SearchView):
+    """Custom search view for haystack search"""
 
-class MySearchView(SearchView):
-    """My custom search view."""
-
-    template = 'search/search.html'
+    template = 'main/search.html'
 
     def get_results(self):
-        results = super(MySearchView, self).get_results().order_by('-last_edit_date')
+        results = super(HaystackSearchView, self).get_results().order_by('-last_edit_date')
         return results
 
     def build_page(self):

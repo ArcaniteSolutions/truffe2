@@ -80,15 +80,21 @@
                                 </table>
 
                             {% else %}
-
+                                <div class="alert alert-warning">
+                                    <i class="fa fa-warning"></i> {% trans "Aucun résultat trouvé !" %}
+                                </div>
                             {% endif %}
 
                             {% if page.has_previous or page.has_next %}
-                                <div>
-                                    {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-                                    |
-                                    {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-                                </div>
+                                <center>
+                                    <a href="{% if page.has_previous %}?q={{query}}&amp;page={{page.previous_page_number}}{% else %}#{% endif %}" class="btn {{page.has_previous|yesno:"btn-primary,btn-default disabled"}} btn-xs">
+                                        &laquo; {% trans "Précédent" %}
+                                    </a>
+                                    {% trans "Page" %} {{page.number}} / {{page.paginator.num_pages}}
+                                    <a href="{% if page.has_next %}?q={{query}}&amp;page={{page.next_page_number}}{% else %}#{% endif %}" class="btn {{page.has_next|yesno:"btn-primary,btn-default disabled"}} btn-xs">
+                                        {% trans "Suivant" %} &raquo;
+                                    </a>
+                                </center>
                             {% endif %}
                         {% else %}
                             {# Show some example queries to run, maybe query syntax, something else? #}

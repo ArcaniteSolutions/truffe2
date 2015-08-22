@@ -288,7 +288,7 @@ class GenericModel(models.Model):
 
     def last_log(self):
         """Return the last log entry"""
-        return self.logs.order_by('-when')[0]
+        return self.logs.order_by('-when').first()
 
     def get_creator(self):
         """Return the creator (based on logs)"""
