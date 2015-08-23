@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 
 from rights.utils import ModelWithRight
 from generic.search import SearchableModel
@@ -137,6 +138,9 @@ EMAIL;INTERNET:%s
 
     def is_profile_ok(self):
         return self.iban_ou_ccp and self.mobile and self.nom_banque and self.adresse and self.first_name and self.last_name
+
+    def display_url(self):
+        return reverse('users.views.users_profile', args=(self.pk,))
 
     class MetaData:
         base_title = _(u'Utilisateur')
