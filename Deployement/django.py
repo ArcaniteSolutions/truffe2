@@ -203,6 +203,10 @@ def configure_truffe():
         'raven_dsn': config.RAVEN_DSN,
     })
 
+    upload_template('files/celeryconfig.py', '/var/www/git-repo/truffe2/truffe2/celeryconfig.py', {
+        'rabbitmq_password': config.RABBITMQ_PASSWORD,
+    })
+
 
 @task
 def update_code():
