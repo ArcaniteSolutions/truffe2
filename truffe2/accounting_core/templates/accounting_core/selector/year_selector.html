@@ -16,7 +16,7 @@
 
             {% for year in years_available %}
                 <li>
-                    <a href="#" onclick="select_year({{year.pk}}, '{{year|escapejs}}');"><span class="label label-{{year.MetaState.states_colors|get_attr:year.status}}">{{year}}</span> ({{year.get_status_display}})</a>
+                    <a href="#" onclick="select_year({{year.pk}}, '{{year|escapejs}}');"><span class="label label-{{year.status_color}}">{{year}}</span> ({{year.get_status_display}})</a>
                 </li>
             {% endfor %}
 

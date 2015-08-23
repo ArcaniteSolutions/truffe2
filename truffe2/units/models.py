@@ -72,10 +72,10 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
 
     class MetaSearch(SearchableModel.MetaSearch):
 
-        extra_text = u'unité'
+        extra_text = u'unité équipe'
 
         fields = [
-            'name équipe equipe',
+            'name',
         ]
 
     class Meta:
