@@ -105,7 +105,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
 
     class MetaSearch(SearchableModel.MetaSearch):
 
-        extra_text = u'set'
+        extra_text = u'set staff anciens'
 
         fields = [
             'name',

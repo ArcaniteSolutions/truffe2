@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n rights_extras %}
+{% load i18n rights_extras generic_extras %}
 
 {% block title %}{{block.super}} :: {% trans "Recherche" %}{% endblock %}
 
@@ -14,7 +14,7 @@
 
                     {% if simple_search %}
                         <div class="alert alert-info">
-                            {% trans "La fonctionnalité de recherche est obligée de vérifier les permissions de toutes les objets qui correspondent à ta recherche avant de te les proposer à l'affichage." %}<br />
+                            {% trans "La fonctionnalité de recherche est obligée de vérifier les permissions de tous les objets qui correspondent à ta recherche avant de te les proposer à l'affichage." %}<br />
                             <b>{% trans "N'utilise pas des termes trop génériques, ou l'affichage des résultats prendra du temps." %}</b><br />
                             {% trans "Seuls les 100 premiers résultats sont affichés." %}<br />
                         </div>
@@ -35,12 +35,12 @@
 
                             {% if page.object_list %}
 
-                                <table class="table table-condensed table-hower table-striped">
+                                <table class="table table-condensed table-hover table-striped">
                                     <thead>
                                         <tr>
                                             <th>{% trans "Type" %}</th>
                                             <th style="width: 40%;">{% trans "Objet" %}</th>
-                                            <th>{% trans "Année comptable/Unité" %}</th>
+                                            <th>{% trans "Contexte" %}</th>
                                             <th>{% trans "Création" %}</th>
                                             <th>{% trans "Dernière modification" %}</th>
                                         </tr>
@@ -53,10 +53,13 @@
                                                     <td><i class="fa fa-{{result.object.MetaData.elem_icon}}"></i> {{result.object.MetaData.base_title}}</td>
                                                     <td>
                                                         <a href="{{result.object.display_url}}">{{result.object}}</a>
+                                                        {% if result.object.status %}
+                                                            <span class='label label-{{result.object.status_color}}'><i class='{{result.object.status_icon}}'></i> {{result.object.get_status_display}}</span>
+                                                        {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if result.object.accounting_year %}
-                                                            <span class="label label-warning">{{result.object.accounting_year}}</span>
+                                                            <span class="label label-{{result.object.accounting_year.MetaState.states_colors|get_attr:result.object.accounting_year.status}}">{{result.object.accounting_year}}</span>
                                                         {% endif %}
                                                         {% if result.object.unit %}
                                                             <span class="label label-info">{{result.object.unit}}</span>
@@ -96,8 +99,6 @@
                                     </a>
                                 </center>
                             {% endif %}
-                        {% else %}
-                            {# Show some example queries to run, maybe query syntax, something else? #}
                         {% endif %}
                     </form>
 

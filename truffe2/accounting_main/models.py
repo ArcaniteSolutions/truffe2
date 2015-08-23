@@ -185,7 +185,6 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             'input',
             'output',
             'text',
-            'tva',
         ]
 
     def may_switch_to(self, user, dest_state):
@@ -394,12 +393,13 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
     class MetaSearch(SearchableModel.MetaSearch):
 
-        extra_text = u""
+        extra_text = u"compta"
 
         fields = [
             'initial_remark',
             'get_line_title',
         ]
+
     def may_switch_to(self, user, dest_state):
 
         return super(_AccountingError, self).rights_can_EDIT(user) and super(_AccountingError, self).may_switch_to(user, dest_state)
@@ -655,13 +655,13 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
         extra_text = u""
 
-        @staticmethod
-        def extra_text_generator(obj):
-            return u"\n".join([l.description for l in obj.budgetline_set.all()])
-
         fields = [
             'name',
         ]
+
+        linked_lines = {
+            'budgetline_set': ['description']
+        }
 
     def may_switch_to(self, user, dest_state):
         return super(_Budget, self).rights_can_EDIT(user) and super(_Budget, self).may_switch_to(user, dest_state)

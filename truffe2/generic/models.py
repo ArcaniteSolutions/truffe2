@@ -1184,6 +1184,9 @@ def index_generator(model_class):
                                     attr = attr()
                                 text += u"{}\n".format(attr)
 
+            if hasattr(obj, 'get_status_display'):
+                text += u"{}\n".format(obj.get_property)
+
             return text
 
     index_class = type('{}Index'.format(model_class.__name__), (_Index,), {})

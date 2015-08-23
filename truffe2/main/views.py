@@ -176,10 +176,10 @@ class HaystackSearchView(SearchView):
         try:
             page_no = int(self.request.GET.get('page', 1))
         except (TypeError, ValueError):
-            raise Http404("Not a valid number for page.")
+            page_no = 1
 
         if page_no < 1:
-            raise Http404("Pages should be 1 or greater.")
+            page_no = 1
 
         start_offset = (page_no - 1) * self.results_per_page
 
@@ -207,7 +207,7 @@ class HaystackSearchView(SearchView):
         try:
             page = paginator.page(page_no)
         except InvalidPage:
-            raise Http404("No such page!")
+            page = paginator.page(1)
 
         return (paginator, page)
 

@@ -197,6 +197,11 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         fields = [
             'name',
             'description',
+            'comment_root',
+            'amount_asked',
+            'amount_given',
+            'mobility_asked',
+            'mobility_given',
         ]
 
         linked_lines = {
@@ -396,7 +401,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         ]
 
         linked_lines = {
-            'lines': ['label']
+            'lines': ['label', 'value_ttc', 'total']
         }
 
     class MetaState:
@@ -1173,6 +1178,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             'name',
             'user',
             'comment',
+            'get_total',
         ]
 
         linked_lines = {
@@ -1331,10 +1337,11 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             'name',
             'user',
             'comment',
+            'get_total',
         ]
 
         linked_lines = {
-            'lines': ['label', 'proof']
+            'lines': ['label', 'proof', 'amount']
         }
 
     def __unicode__(self):

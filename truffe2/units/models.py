@@ -75,7 +75,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         extra_text = u'unité'
 
         fields = [
-            'name',
+            'name équipe equipe',
         ]
 
     class Meta:
@@ -344,6 +344,7 @@ Par exemple, le rôle 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont g
         fields = [
             'name',
             'description',
+            'get_access',
         ]
 
     class Meta:
