@@ -59,7 +59,7 @@
                                                     </td>
                                                     <td>
                                                         {% if result.object.accounting_year %}
-                                                            <span class="label label-{{result.object.accounting_year.MetaState.states_colors|get_attr:result.object.accounting_year.status}}">{{result.object.accounting_year}}</span>
+                                                            <span class="label label-{{result.object.accounting_year.status_color}}">{{result.object.accounting_year}}</span>
                                                         {% endif %}
                                                         {% if result.object.unit %}
                                                             <span class="label label-info">{{result.object.unit}}</span>
