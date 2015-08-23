@@ -921,7 +921,6 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
     class MetaGroups(GenericGroupsModel.MetaGroups):
         pass
 
-
     class MetaState:
         states = {
             '0_draft': _('Brouillon'),
@@ -991,6 +990,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
     class MetaSearch(SearchableModel.MetaSearch):
 
         extra_text = u"rcash"
+        index_files = True
 
         fields = [
             'amount',
@@ -1173,6 +1173,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     class MetaSearch(SearchableModel.MetaSearch):
 
         extra_text = u"NDF"
+        index_files = True
 
         fields = [
             'name',
@@ -1332,6 +1333,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     class MetaSearch(SearchableModel.MetaSearch):
 
         extra_text = u"JDC"
+        index_files = True
 
         fields = [
             'name',

@@ -208,7 +208,7 @@ def configure_truffe():
 def update_code():
     """Update code"""
 
-    # execute(stop_celery)
+    execute(stop_celery)
     execute(pull_repos)
     execute(install_pip_dep)
     execute(collect_statics)
@@ -216,7 +216,7 @@ def update_code():
     execute(configure_truffe)
     execute(sync_databases)
     execute(restart_apache)
-    # execute(start_celery)
+    execute(start_celery)
 
 
 @task

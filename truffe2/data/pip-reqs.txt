@@ -19,3 +19,5 @@ django-haystack
 whoosh
 pdfminer
 textract
+celery-haystack
+celery

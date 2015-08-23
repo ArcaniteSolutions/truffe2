@@ -19,6 +19,7 @@ from datetime import timedelta
 import mimetypes
 from haystack import indexes
 import textract
+from celery_haystack.indexes import CelerySearchIndex
 
 from users.models import TruffeUser
 from generic import views
@@ -1111,7 +1112,7 @@ class LinkedInfoModel(object):
 
 def index_generator(model_class):
 
-    class _Index(indexes.SearchIndex, indexes.Indexable):
+    class _Index(CelerySearchIndex, indexes.Indexable):
         text = indexes.CharField(document=True)
         last_edit_date = indexes.DateTimeField()
 
@@ -1185,7 +1186,7 @@ def index_generator(model_class):
                                 text += u"{}\n".format(attr)
 
             if hasattr(obj, 'get_status_display'):
-                text += u"{}\n".format(obj.get_property)
+                text += u"{}\n".format(obj.get_status_display())
 
             return text
 

@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'jfu',
     'haystack',
+    'celery_haystack',
 
     'truffe',
 
@@ -242,7 +243,7 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 25
 HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS = 100
 
