@@ -12,7 +12,7 @@ startup()
 
 from django.conf import settings
 
-app = Celery('truffe2', broker=settings.BROKER_URL)
+app = Celery('app', broker=settings.BROKER_URL)
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
