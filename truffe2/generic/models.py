@@ -17,10 +17,14 @@ import os
 from pytz import timezone
 from datetime import timedelta
 import mimetypes
+from haystack import indexes
+import textract
+from celery_haystack.indexes import CelerySearchIndex
 
 from users.models import TruffeUser
 from generic import views
 from generic.forms import GenericForm
+from generic.search import SearchableModel
 from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
 from rights.utils import AutoVisibilityLevel
@@ -55,6 +59,11 @@ def build_models_list_of(Class):
             if str(e) not in ["No module named urls", "No module named views", "No module named forms", "No module named models"]:
                 raise
 
+        try:
+            search_indexes_module = importlib.import_module('.search_indexes', app)
+        except:
+            search_indexes_module = None
+
         clsmembers = inspect.getmembers(models_module, inspect.isclass)
 
         # sorted by line numbers instead of names when possible
@@ -69,7 +78,7 @@ def build_models_list_of(Class):
         for model_name, model_class in clsmembers:
             if issubclass(model_class, Class) and model_class != Class and model_class not in already_returned:
 
-                data = (module, (views_module, urls_module, models_module, forms_module), model_class)
+                data = (module, (views_module, urls_module, models_module, forms_module, search_indexes_module), model_class)
 
                 # Special case for unit, who must be loaded first
                 if model_name in ['_Unit', '_Role', '_AccountingYear']:
@@ -97,7 +106,7 @@ class GenericModel(models.Model):
 
         cache = {}
 
-        for module, (views_module, urls_module, models_module, forms_module), model_class in classes:
+        for module, (views_module, urls_module, models_module, forms_module, search_indexes_module), model_class in classes:
 
             if model_class.__name__[0] != '_':
                 continue
@@ -269,6 +278,13 @@ class GenericModel(models.Model):
                     url(r'^%stags/search$' % (base_views_name,), '%s_tag_search' % (base_views_name,)),
                 )
 
+            if issubclass(model_class, SearchableModel):
+                if not search_indexes_module:
+                    raise(Exception("{} need a search_indexes.py, please create it in {}/".format(model_class.__name__, module.__name__)))
+
+                index = index_generator(real_model_class)
+                setattr(search_indexes_module, index.__name__, index)
+
     def build_state(self):
         """Return the current state of the object. Used for diffs."""
         retour = {}
@@ -288,7 +304,7 @@ class GenericModel(models.Model):
 
     def last_log(self):
         """Return the last log entry"""
-        return self.logs.order_by('-when')[0]
+        return self.logs.order_by('-when').first()
 
     def get_creator(self):
         """Return the creator (based on logs)"""
@@ -1092,3 +1108,87 @@ class LinkedInfoModel(object):
     def get_fullname(self):
         infos = self.linked_info()
         return u"{} {}".format(infos.first_name, infos.last_name)
+
+
+def index_generator(model_class):
+
+    class _Index(CelerySearchIndex, indexes.Indexable):
+        text = indexes.CharField(document=True)
+        last_edit_date = indexes.DateTimeField()
+
+        def get_model(self):
+            return model_class
+
+        def index_queryset(self, using=None):
+            if hasattr(self.get_model(), 'deleted'):
+                return self.get_model().objects.filter(deleted=False)
+            else:
+                return self.get_model().objects
+
+        def prepare_last_edit_date(self, obj):
+            try:
+                return obj.last_log().when
+            except:
+                if hasattr(obj.MetaSearch, 'last_edit_date_field'):
+                    return get_property(obj, obj.MetaSearch.last_edit_date_field)
+                return now()
+
+        def prepare_text(self, obj):
+
+            text = u""
+
+            text += u"{}\n".format(obj.MetaData.base_title)
+
+            if hasattr(obj, 'unit') and obj.unit:
+                text += u"{}\n".format(obj.unit)
+
+            if hasattr(obj, 'costcenter') and obj.costcenter:
+                text += u"{} {}\n".format(obj.costcenter, obj.costcenter.unit)
+
+            for field in obj.MetaSearch.fields:
+                attr = get_property(obj, field)
+                if attr:
+
+                    if hasattr(attr, '__call__'):
+                        attr = attr()
+
+                    text += u"{}\n".format(attr)
+
+            if obj.MetaSearch.extra_text:
+                text += u"{}\n".format(obj.MetaSearch.extra_text)
+
+            if obj.MetaSearch.extra_text_generator:
+                text += u"{}\n".format(obj.MetaSearch.extra_text_generator(obj))
+
+            if obj.MetaSearch.index_files:
+                for f in obj.files.all():
+
+                    try:
+                        txt = textract.process(
+                            os.path.join(settings.MEDIA_ROOT, f.file.name),
+                            language='fra',
+                        ).decode('utf-8')
+                    except Exception as e:
+                        txt = u''
+
+                    text += u"{} {}\n".format(f.file.name.split('/')[-1], txt)
+
+            if obj.MetaSearch.linked_lines:
+                for key, fields in obj.MetaSearch.linked_lines.iteritems():
+                    for line_elem in getattr(obj, key).all():
+
+                        for field in fields:
+                            attr = get_property(line_elem, field)
+
+                            if attr:
+                                if hasattr(attr, '__call__'):
+                                    attr = attr()
+                                text += u"{}\n".format(attr)
+
+            if hasattr(obj, 'get_status_display'):
+                text += u"{}\n".format(obj.get_status_display())
+
+            return text
+
+    index_class = type('{}Index'.format(model_class.__name__), (_Index,), {})
+    return index_class

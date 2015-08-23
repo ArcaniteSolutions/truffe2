@@ -18,6 +18,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db import connection
+from haystack.views import SearchView
 
 
 @login_required
@@ -160,3 +161,55 @@ def last_100_logging_entries(request):
         data.append(GENERICS_MODELS[key][1].objects.get(pk=log_pk))
 
     return render(request, 'main/last_100_logging_entries.html', {'data': data})
+
+
+class HaystackSearchView(SearchView):
+    """Custom search view for haystack search"""
+
+    template = 'main/search.html'
+
+    def get_results(self):
+        results = super(HaystackSearchView, self).get_results().order_by('-last_edit_date')
+        return results
+
+    def build_page(self):
+        try:
+            page_no = int(self.request.GET.get('page', 1))
+        except (TypeError, ValueError):
+            page_no = 1
+
+        if page_no < 1:
+            page_no = 1
+
+        start_offset = (page_no - 1) * self.results_per_page
+
+        # If the user is admin or head of agepoly, he can see almost all result
+        # (filterted in template). If not, we filter here results to avoid
+        # strange pagination
+        if not self.request.user.rights_can('FULL_SEARCH', self.request.user):
+            new_results = []
+
+            for result in self.results:
+                if len(new_results) > min(start_offset + self.results_per_page, settings.HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS):
+                    break
+
+                if result.object.rights_can('SHOW', self.request.user):
+                    new_results.append(result)
+
+            new_results = new_results[:settings.HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS]
+
+            self.results = new_results
+
+        self.results[start_offset:start_offset + self.results_per_page]
+
+        paginator = Paginator(self.results, self.results_per_page)
+
+        try:
+            page = paginator.page(page_no)
+        except InvalidPage:
+            page = paginator.page(1)
+
+        return (paginator, page)
+
+    def extra_context(self):
+        return {'simple_search': not self.request.user.rights_can('FULL_SEARCH', self.request.user)}

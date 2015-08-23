@@ -106,6 +106,7 @@ def configure_mysql():
 def install_python():
     """Install python and python deps"""
     sudo('apt-get install -y python-crypto python-mysqldb python-imaging python-pip python python-dev python-ldap python-memcache')
+    sudo('apt-get install -y python-dev libxml2-dev libxslt1-dev antiword unrtf poppler-utils pstotext tesseract-ocr flac ffmpeg lame libmad0 libsox-fmt-mp3 sox')
 
 
 @task
@@ -207,7 +208,7 @@ def configure_truffe():
 def update_code():
     """Update code"""
 
-    # execute(stop_celery)
+    execute(stop_celery)
     execute(pull_repos)
     execute(install_pip_dep)
     execute(collect_statics)
@@ -215,7 +216,7 @@ def update_code():
     execute(configure_truffe)
     execute(sync_databases)
     execute(restart_apache)
-    # execute(start_celery)
+    execute(start_celery)
 
 
 @task

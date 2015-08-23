@@ -100,21 +100,21 @@
                 </div>
                 <!-- end logout button -->
 
-<!--                 <!&#45;&#45; search mobile button (this is hidden till mobile view port) &#45;&#45;> -->
-<!--                 <div id="search&#45;mobile" class="btn&#45;header transparent pull&#45;right"> -->
-<!--                     <span> <a href="javascript:void(0)" title="Search"><i class="fa fa&#45;search"></i></a> </span> -->
-<!--                 </div> -->
-<!--                 <!&#45;&#45; end search mobile button &#45;&#45;> -->
-<!--  -->
-<!--                 <!&#45;&#45; input: search field &#45;&#45;> -->
-<!--                 <form action="#search.html" class="header&#45;search pull&#45;right"> -->
-<!--                     <input type="text" placeholder="Find reports and more" id="search&#45;fld"> -->
-<!--                     <button type="submit"> -->
-<!--                         <i class="fa fa&#45;search"></i> -->
-<!--                     </button> -->
-<!--                     <a href="javascript:void(0);" id="cancel&#45;search&#45;js" title="Cancel Search"><i class="fa fa&#45;times"></i></a> -->
-<!--                 </form> -->
-<!--                 <!&#45;&#45; end input: search field &#45;&#45;> -->
+                <!-- search mobile button (this is hidden till mobile view port) -->
+                <div id="search-mobile" class="btn-header transparent pull-right">
+                    <span> <a href="javascript:void(0)" title="Search"><i class="fa fa-search"></i></a> </span>
+                </div>
+                <!-- end search mobile button -->
+
+                <!-- input: search field -->
+                <form action="{% url 'search_view' %}" class="header-search pull-right">
+                    <input type="text" name="q" placeholder="{% trans "Rechercher dans truffe 2" %}" id="search-fld">
+                    <button type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <a href="javascript:void(0);" id="cancel-search-js" title="{% trans "Annuler" %}"><i class="fa fa-times"></i></a>
+                </form>
+                <!-- end input: search field -->
 
             </div>
             <!-- end pulled right: nav area -->
