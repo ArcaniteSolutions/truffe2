@@ -286,7 +286,7 @@ class SubventionLine(ModelUsedAsLine):
     start_date = models.DateField(_(u'Début de l\'évènement'))
     end_date = models.DateField(_(u'Fin de l\'évènement'))
     place = models.CharField(_(u'Lieu de l\'évènement'), max_length=100)
-    nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
+    nb_spec = models.PositiveIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
 
@@ -1096,7 +1096,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
     name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    nb_proofs = models.PositiveIntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
 
     class MetaData:
@@ -1252,7 +1252,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
 
     name = models.CharField(_(u'Titre du journal de caisse'), max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    nb_proofs = models.PositiveIntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
 
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
