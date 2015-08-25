@@ -3,11 +3,14 @@
     <div class="col-sm-12 col-md-12 col-lg-6">
         {% with w_title="Erreurs ouvertes dans la compta" %}{% include "widget/header.html" %}{% endwith %}
 
-            <ul>
+            <table class="table table-condensed table-hover table-striped">
                 {% for error in open_errors %}
-                <li><a href="{{error.display_url}}">{{error.get_line_title}}</a> <span class="label label-{{error.status_color}} pull-right"><i class="{{elem.status_icon}}"></i> {{error.get_status_display}}</span></li>
+                    <tr>
+                        <td><a href="{{error.display_url}}">{{error.get_line_title}}</a></td>
+                        <td><span class="label label-{{error.status_color}}"><i class="{{elem.status_icon}}"></i> {{error.get_status_display}}</td>
+                    </tr>
                 {% endfor %}
-            </ul>
+            </table>
         {% include "widget/footer.html" %}
     </div>
 {% endif %}

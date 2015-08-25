@@ -1,13 +1,12 @@
 {% if accreds_to_validate %}
     <div class="col-sm-12 col-md-12 col-lg-6">
         {% with w_title="Accréditations à valider" %}{% include "widget/header.html" %}{% endwith %}
-
-            <ul>
+            <table class="table table-condensed table-hover table-striped">
                 {% for accred in accreds_to_validate %}
-                    <li><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.user}} ({{accred.get_role_or_display_name}}, {{accred.unit}})</a></li>
+                    <tr><td><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.user}}</a></td><td>({{accred.get_role_or_display_name}}</td><td>{{accred.unit}})</td></tr>
 
                 {% endfor %}
-            </ul>
+            </table>
         {% include "widget/footer.html" %}
     </div>
 {% endif %}

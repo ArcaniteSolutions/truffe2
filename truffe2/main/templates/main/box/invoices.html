@@ -3,14 +3,20 @@
     <div class="col-sm-12 col-md-12 col-lg-6">
         {% with w_title="Factures en attentes" %}{% include "widget/header.html" %}{% endwith %}
 
-            <ul>
+            <table class="table table-condensed table-hover table-striped">
                 {% for invoice in invoices_need_bvr %}
-                    <li><a href="{{invoice.display_url}}">{{invoice}} <span class="label label-danger pull-right">{% trans "Besoin d'un BVR !" %}</span></a></li>
+                    <tr>
+                        <td><a href="{{invoice.display_url}}">{{invoice}}</a></td>
+                        <td><span class="label label-danger">{% trans "Besoin d'un BVR !" %}</span></tr>
+                    </tr>
                 {% endfor %}
                 {% for invoice in invoices_waiting %}
-                    <li><a href="{{invoice.display_url}}">{{invoice}} <span class="label label-primary pull-right">{{invoice.get_bvr_number}}</span></a></li>
+                    <tr>
+                        <td><a href="{{invoice.display_url}}">{{invoice}}</a></td>
+                        <td><span class="label label-primary">{{invoice.get_bvr_number}}</span></td>
+                    </tr>
                 {% endfor %}
-            </ul>
+            </table>
         {% include "widget/footer.html" %}
     </div>
 {% endif %}
