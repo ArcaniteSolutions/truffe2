@@ -345,6 +345,7 @@ class GenericModelWithFiles(object):
 
         return retour
 
+
 class GenericFile(models.Model):
     """Un fichier uploadé pour un GenericModelWithFiles"""
 
