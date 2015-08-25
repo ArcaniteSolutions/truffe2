@@ -124,7 +124,9 @@
 
     <h3 style="text-align: center; font-size: 20px;">{% trans "Facture" %}<br />{% trans "N°" %} <b>{{invoice.get_reference}}</b></h3>
 
-    {{invoice.preface|linebreaksbr}}
+    <div style="text-align: left;">
+        {{invoice.preface|linebreaksbr}}
+    </div>
 
     <table class="liste-c maintable">
         <tr class="tr-a noright">
