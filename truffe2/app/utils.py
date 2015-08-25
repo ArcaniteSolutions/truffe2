@@ -14,6 +14,7 @@ from django.contrib.sites.models import get_current_site
 import cgi
 import ho.pisa as pisa
 import cStringIO as StringIO
+from pyPdf import PdfFileWriter, PdfFileReader
 
 
 def add_current_unit(request):
@@ -152,7 +153,11 @@ def set_property(obj, prop, val):
     setattr(obj, prop.split('.')[-1], val)
 
 
-def generate_pdf(template, request, contexte):
+def append_pdf(input, output):
+    [output.addPage(input.getPage(page_num)) for page_num in range(input.numPages)]
+
+
+def generate_pdf(template, request, contexte, extra_pdf_files=None):
     template = get_template(template)
     contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now(), 'user': request.user})
     context = Context(contexte)
@@ -161,6 +166,18 @@ def generate_pdf(template, request, contexte):
 
     result = StringIO.StringIO()
     pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
+
+    if extra_pdf_files:
+
+        output = PdfFileWriter()
+        append_pdf(PdfFileReader(result), output)
+
+        result = StringIO.StringIO()
+
+        for pdf_file in extra_pdf_files:
+            append_pdf(PdfFileReader(pdf_file), output)
+
+        output.write(result)
 
     if not pdf.err:
         return http.HttpResponse(result.getvalue(), mimetype='application/pdf')

@@ -326,8 +326,24 @@ class GenericModel(models.Model):
 
 class GenericModelWithFiles(object):
     """Un modèle généric auquel on peut uploader des fichiers"""
-    pass
 
+    def get_images_files(self):
+        retour = []
+
+        for file in self.files.all():
+            if file.is_picture():
+                retour.append(file)
+
+        return retour
+
+    def get_pdf_files(self):
+        retour = []
+
+        for file in self.files.all():
+            if file.is_pdf():
+                retour.append(file)
+
+        return retour
 
 class GenericFile(models.Model):
     """Un fichier uploadé pour un GenericModelWithFiles"""

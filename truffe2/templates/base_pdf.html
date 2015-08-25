@@ -24,6 +24,7 @@
                     top: 0.4cm;
                     right: 1.2cm;
                     width: 25%;
+                    height: 120px;
                 }
 
                 @frame footer {
@@ -33,6 +34,11 @@
                     margin-right: 1cm;
                     height: 1cm;
                 }
+            }
+
+            @page images {
+                size: a4 portrait;
+                margin: 1cm;
             }
 
             body {
@@ -101,9 +107,9 @@
                     <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;">
                 </div>
             {% endblock %}
-            
+
             {% block title %}<h1 style="text-align: center; font-size: 30px; margin-top:-150px;">{% trans "Note de frais" %}</h1>{% endblock %}
-            
+
             <table style="margin-top:-150px;">
                 {% block unit_def %}
                     <tr class="tr-info"><td class="td-title">{% trans "Pour" %} {% if object.costcenter.unit.is_equipe %}{% trans "l'équipe" %}{% elif object.costcenter.unit.is_commission %}{% trans "la commission" %}{% endif %}{% trans " : " %}</td><td class="td-large">{{object.costcenter.unit}}</td></tr>
@@ -119,9 +125,9 @@
                 {% endblock %}
 
                 {% block linkedinfo_advanced %}
-                <tr class="tr-info"><td class="td-label" valign="top">{% trans "Adresse : " %}</td><td class="td-large">{{object.linked_info.address|linebreaksbr}}</td></tr>
-                <tr class="tr-info"><td class="td-label">{% trans "Nom de la banque (Ou poste) : " %}</td><td class="td-large">{{object.linked_info.bank}}</td></tr>
-                <tr class="tr-info"><td class="td-label">{% trans "IBAN / CCP : " %}</td><td class="td-large">{{object.linked_info.iban_ccp}}</td></tr>
+                    <tr class="tr-info"><td class="td-label" valign="top">{% trans "Adresse : " %}</td><td class="td-large">{{object.linked_info.address|linebreaksbr}}</td></tr>
+                    <tr class="tr-info"><td class="td-label">{% trans "Nom de la banque (Ou poste) : " %}</td><td class="td-large">{{object.linked_info.bank}}</td></tr>
+                    <tr class="tr-info"><td class="td-label">{% trans "IBAN / CCP : " %}</td><td class="td-large">{{object.linked_info.iban_ccp}}</td></tr>
                 {% endblock %}
 
                 {% block post_linkedinfo %}{% endblock %}
@@ -132,9 +138,10 @@
             {% block detail_table %}{% endblock %}
 
             {% block upload_files %}
-                {% for u in object.get_uploaded_images %}
+                <pdf:nexttemplate name="images" />
+                {% for u in object.get_images_files %}
                     <pdf:nextpage/>
-                    <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
+                        <img src="{{MEDIA_ROOT}}..{{u.file.url}}" style="vertical-align:middle" align="middle">
                 {% endfor %}
             {% endblock %}
         {% endblock %} <!-- block content -->
