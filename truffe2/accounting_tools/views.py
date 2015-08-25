@@ -86,7 +86,7 @@ def invoice_pdf(request, pk):
 
     invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
 
-    if not invoice.static_rights_can('SHOW', request.user):
+    if not invoice.rights_can('SHOW', request.user):
         raise Http404
 
     img = invoice.generate_bvr()
@@ -103,7 +103,7 @@ def invoice_bvr(request, pk):
 
     invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
 
-    if not invoice.static_rights_can('SHOW', request.user):
+    if not invoice.rights_can('SHOW', request.user):
         raise Http404
 
     img = invoice.generate_bvr()
@@ -120,7 +120,7 @@ def withdrawal_pdf(request, pk):
 
     withdrawal = get_object_or_404(Withdrawal, pk=pk, deleted=False)
 
-    if not withdrawal.static_rights_can('SHOW', request.user):
+    if not withdrawal.rights_can('SHOW', request.user):
         raise Http404
 
     return generate_pdf("accounting_tools/withdrawal/pdf.html", request, {'object': withdrawal}, [f.file for f in withdrawal.get_pdf_files()])
@@ -131,7 +131,7 @@ def internaltransfer_pdf(request, pk):
     from accounting_tools.models import InternalTransfer
 
     transfers = [get_object_or_404(InternalTransfer, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
-    transfers = filter(lambda tr: tr.static_rights_can('SHOW', request.user), transfers)
+    transfers = filter(lambda tr: tr.rights_can('SHOW', request.user), transfers)
 
     if not transfers:
         raise Http404
@@ -152,7 +152,7 @@ def expenseclaim_pdf(request, pk):
 
     expenseclaim = get_object_or_404(ExpenseClaim, pk=pk, deleted=False)
 
-    if not expenseclaim.static_rights_can('SHOW', request.user):
+    if not expenseclaim.rights_can('SHOW', request.user):
         raise Http404
 
     return generate_pdf("accounting_tools/expenseclaim/pdf.html", request, {'object': expenseclaim}, [f.file for f in expenseclaim.get_pdf_files()])
@@ -164,7 +164,7 @@ def cashbook_pdf(request, pk):
 
     cashbook = get_object_or_404(CashBook, pk=pk, deleted=False)
 
-    if not cashbook.static_rights_can('SHOW', request.user):
+    if not cashbook.rights_can('SHOW', request.user):
         raise Http404
 
     return generate_pdf("accounting_tools/cashbook/pdf.html", request, {'object': cashbook}, [f.file for f in cashbook.get_pdf_files()])
@@ -177,7 +177,7 @@ def get_withdrawal_infos(request, pk):
 
     withdrawal = get_object_or_404(Withdrawal, pk=pk, deleted=False)
 
-    if not withdrawal.static_rights_can('SHOW', request.user):
+    if not withdrawal.rights_can('SHOW', request.user):
         raise Http404
 
     return HttpResponse(json.dumps({'user_pk': withdrawal.user.pk, 'costcenter_pk': withdrawal.costcenter.pk}), content_type='application/json')

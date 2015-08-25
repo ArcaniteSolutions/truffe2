@@ -19,7 +19,7 @@ def booking_pdf(request, pk):
 
     booking = get_object_or_404(Booking, pk=pk, deleted=False)
 
-    if not booking.static_rights_can('SHOW', request.user):
+    if not booking.rights_can('SHOW', request.user):
         raise Http404
 
     return generate_pdf("vehicles/booking/pdf.html", request, {'object': booking})

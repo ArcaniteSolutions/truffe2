@@ -1423,19 +1423,19 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
             url = instance.file
         elif instance.is_pdf():
             try:
-                base_url = "{}_truffe2_extracted_image".format(str(instance.file))
+                base_url = "{}_truffe2_extracted_image".format(instance.file.name)
                 cid = 0
 
                 url = "{}_{}.jpg".format(base_url, cid)
 
-                while os.path.isfile("{}/{}".format(settings.MEDIA_ROOT, url)):
+                while os.path.isfile("{}{}".format(settings.MEDIA_ROOT, url)):
                     cid += 1
                     url = "{}_{}.jpg".format(base_url, cid)
 
-                with Image(filename="{}/{}[0]".format(settings.MEDIA_ROOT, instance.file)) as img:
-                    img.save(filename="{}/{}".format(settings.MEDIA_ROOT, url))
+                with Image(filename="{}{}[0]".format(settings.MEDIA_ROOT, instance.file)) as img:
+                    img.save(filename="{}{}".format(settings.MEDIA_ROOT, url))
 
-                    remove_me = "{}/{}".format(settings.MEDIA_ROOT, url)
+                    remove_me = "{}{}".format(settings.MEDIA_ROOT, url)
             except:
                 url = 'img/PDF.png'
         else:

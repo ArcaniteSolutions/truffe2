@@ -13,7 +13,7 @@
 {% block linkedinfo_advanced %}{% endblock %}
 
 {% block post_linkedinfo %}
-    <tr class="tr-info"><td class="td-label">{% trans "Status" %} :</td><td class="td-large">{{object.get_status_display}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Statut" %} :</td><td class="td-large">{{object.get_status_display}}</td></tr>
     <tr class="tr-info"><td class="td-label">{% trans "Date de prise en charge" %} :</td><td class="td-large">{{object.start_date|date:"d.m.Y"}} {{object.start_date|time:"H:i:s"|default_if_none:"&nbsp;"}}
 </td></tr>
     <tr class="tr-info"><td class="td-label">{% trans "Date de retour" %} :</td><td class="td-large">{{object.end_date|date:"d.m.Y"}} {{object.end_date|time:"H:i:s"|default_if_none:"&nbsp;"}}</td></tr>
