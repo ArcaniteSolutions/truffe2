@@ -970,6 +970,12 @@ class GenericGroupsModel():
             if log.who not in retour:
                 retour.append(log.who)
 
+        if hasattr(self, 'responsible') and self.responsible:
+            retour.append(self.responsible)
+
+        if hasattr(self, 'user') and self.user:
+            retour.append(self.user)
+
         return retour
 
     def build_group_members_for_canedit(self):
