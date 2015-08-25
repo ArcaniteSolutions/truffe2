@@ -21,3 +21,5 @@ pdfminer
 textract
 celery-haystack
 celery
+pypdf
+wand

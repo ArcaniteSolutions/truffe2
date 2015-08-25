@@ -3,15 +3,27 @@
     <div class="col-sm-12 col-md-12 col-lg-6">
         {% with w_title="Transferts internes en attente" %}{% include "widget/header.html" %}{% endwith %}
 
-            <ul>
+            <table class="table table-condensed table-hover table-striped">
                 {% for internaltransfer in internaltransfer_to_validate %}
-                    <li><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}} : {{internaltransfer.cost_center_from }} &#10140; {{internaltransfer.cost_center_to}} <span class="label label-primary pull-right">{% trans "A valider" %}</span></a></li>
+                    <tr>
+                        <td><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}}</a></td>
+                        <td>{{internaltransfer.cost_center_from }}</td>
+                        <td>&#10140;</td>
+                        <td>{{internaltransfer.cost_center_to}}</td>
+                        <td><span class="label label-primary">{% trans "A valider" %}</span></td>
+                    </td>
                 {% endfor %}
 
                 {% for internaltransfer in internaltransfer_to_account %}
-                    <li><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}} : {{internaltransfer.cost_center_from }} &#10140; {{internaltransfer.cost_center_to}} <span class="label label-success pull-right">{% trans "A comptabiliser" %}</span></a></li>
+                    <tr>
+                        <td><a href="{{internaltransfer.display_url}}">CHF {{internaltransfer.amount|intcomma}}</a></td>
+                        <td>{{internaltransfer.cost_center_from }}</td>
+                        <td>&#10140;</td>
+                        <td>{{internaltransfer.cost_center_to}}</td>
+                        <td><span class="label label-success">{% trans "A comptabiliser" %}</span></td>
+                    </td>
                 {% endfor %}
-            </ul>
+            </table>
         {% include "widget/footer.html" %}
     </div>
 {% endif %}

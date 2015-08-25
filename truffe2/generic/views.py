@@ -33,6 +33,7 @@ import importlib
 import copy
 import inspect
 import urllib
+from wand.image import Image
 
 
 from accounting_core.utils import CostCenterLinked
@@ -1416,15 +1417,35 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
             if isinstance(instance.object, BasicRightModel) and not instance.object.rights_can('SHOW', request.user):
                 raise Http404
 
+        remove_me = None
+
         if instance.is_picture():
             url = instance.file
         elif instance.is_pdf():
-            url = 'img/PDF.png'
+            try:
+                base_url = "{}_truffe2_extracted_image".format(instance.file.name)
+                cid = 0
+
+                url = "{}_{}.jpg".format(base_url, cid)
+
+                while os.path.isfile("{}{}".format(settings.MEDIA_ROOT, url)):
+                    cid += 1
+                    url = "{}_{}.jpg".format(base_url, cid)
+
+                with Image(filename="{}{}[0]".format(settings.MEDIA_ROOT, instance.file)) as img:
+                    img.save(filename="{}{}".format(settings.MEDIA_ROOT, url))
+
+                    remove_me = "{}{}".format(settings.MEDIA_ROOT, url)
+            except:
+                url = 'img/PDF.png'
         else:
             url = 'img/File.png'
 
         options = {'size': (int(request.GET.get('w', 200)), int(request.GET.get('h', 100))), 'crop': True, 'upscale': True}
         thumb = get_thumbnailer(url).get_thumbnail(options)
+
+        if remove_me:
+            os.unlink(remove_me)
 
         return sendfile(request, '%s%s' % (settings.MEDIA_ROOT, thumb,))
 

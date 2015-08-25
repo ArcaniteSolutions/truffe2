@@ -237,12 +237,14 @@
                 Cookies.set(cookie_key, 'true', { expires: 360, path: '' });
 
                 {% for id_, __ in states.iteritems %}
-                    if (select_{{id}}.val().indexOf('{{id_}}') != -1) {
+                    if (select_{{id}}.val() && select_{{id}}.val().indexOf('{{id_}}') != -1) {
                         Cookies.set(cookie_key + '{{id_}}', 'true', { expires: 360, path: '' });
                     } else {
                         Cookies.remove(cookie_key + '{{id_}}', { path: '' });
                     }
                 {% endfor %}
+
+                console.log("!!");
             }
 
             select_{{id}}.on('change', function() {

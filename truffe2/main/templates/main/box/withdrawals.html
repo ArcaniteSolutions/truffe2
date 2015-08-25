@@ -3,19 +3,34 @@
     <div class="col-sm-12 col-md-12 col-lg-6">
         {% with w_title="Retraits cash en attente" %}{% include "widget/header.html" %}{% endwith %}
 
-            <ul>
+            <table class="table table-condensed table-hover table-striped">
                 {% for rcash in rcash_to_validate %}
-                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-primary pull-right">{% trans "A valider / retirer pour le" %} {{rcash.desired_date|date:"d M Y"}}</span></a></li>
+                    <tr>
+                        <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
+                        <td>CHF {{rcash.amount|intcomma}}</td>
+                        <td>{{rcash.costcenter}}</td>
+                        <td><span class="label label-primary">{% trans "A valider / retirer pour le" %} {{rcash.desired_date|date:"d M Y"}}</span></td>
+                    </tr>
                 {% endfor %}
 
                 {% for rcash in rcash_to_withdraw %}
-                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-success pull-right">{% trans "Prêt à être retiré depuis le" %} {{rcash.withdrawn_date|date:"d M Y"}}</span></a></li>
+                    <tr>
+                        <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
+                        <td>CHF {{rcash.amount|intcomma}}</td>
+                        <td>{{rcash.costcenter}}</td>
+                        <td><span class="label label-success">{% trans "Prêt à être retiré depuis le" %} {{rcash.withdrawn_date|date:"d M Y"}}</span></td>
+                    </tr>
                 {% endfor %}
 
                 {% for rcash in rcash_to_justify %}
-                    <li><a href="{{rcash.display_url}}">CHF {{rcash.amount|intcomma}} : {{rcash}} <span class="label label-warning pull-right">{% trans "A justifier" %}</span></a></li>
+                    <tr>
+                        <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
+                        <td>CHF {{rcash.amount|intcomma}}</td>
+                        <td>{{rcash.costcenter}}</td>
+                        <td><span class="label label-warning">{% trans "A justifier" %}</span></td>
+                    </tr>
                 {% endfor %}
-            </ul>
+            </table>
         {% include "widget/footer.html" %}
     </div>
 {% endif %}

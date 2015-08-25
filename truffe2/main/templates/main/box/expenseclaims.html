@@ -3,15 +3,25 @@
     <div class="col-sm-12 col-md-12 col-lg-6">
         {% with w_title="Notes de frais en attente" %}{% include "widget/header.html" %}{% endwith %}
 
-            <ul>
+            <table class="table table-condensed table-hover table-striped">
                 {% for expenseclaim in expenseclaim_to_validate %}
-                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-primary pull-right">{% trans "A valider" %}{% if object.status == '1_unit_validable' %} {% trans "électroniquement" %}{% endif %}</span></a></li>
+                    <tr>
+                        <td><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}}</a></td>
+                        <td>CHF {{expenseclaim.get_total|intcomma}}</td>
+                        <td>{{expenseclaim.costcenter}}</td>
+                        <td><span class="label label-primary">{% trans "A valider" %}{% if object.status == '1_unit_validable' %} {% trans "électroniquement" %}{% endif %}</td>
+                    </tr>
                 {% endfor %}
 
                 {% for expenseclaim in expenseclaim_to_account %}
-                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-success pull-right">{% trans "A comptabiliser" %}</span></a></li>
+                    <tr>
+                        <td><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}}</a></td>
+                        <td>CHF {{expenseclaim.get_total|intcomma}}</td>
+                        <td>{{expenseclaim.costcenter}}</td>
+                        <td><span class="label label-success">{% trans "A comptabiliser" %}</span></td>
+                    </tr>
                 {% endfor %}
-            </ul>
+            </table>
         {% include "widget/footer.html" %}
     </div>
 {% endif %}
