@@ -44,17 +44,6 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'logistics', ['SupplyViews'])
 
-        # Adding field 'Room.allow_calendar'
-        db.add_column(u'logistics_room', 'allow_calendar',
-                      self.gf('django.db.models.fields.BooleanField')(default=True),
-                      keep_default=False)
-
-        # Adding field 'Supply.allow_calendar'
-        db.add_column(u'logistics_supply', 'allow_calendar',
-                      self.gf('django.db.models.fields.BooleanField')(default=True),
-                      keep_default=False)
-
-
     def backwards(self, orm):
         # Deleting model 'RoomReservationViews'
         db.delete_table(u'logistics_roomreservationviews')
@@ -67,13 +56,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'SupplyViews'
         db.delete_table(u'logistics_supplyviews')
-
-        # Deleting field 'Room.allow_calendar'
-        db.delete_column(u'logistics_room', 'allow_calendar')
-
-        # Deleting field 'Supply.allow_calendar'
-        db.delete_column(u'logistics_supply', 'allow_calendar')
-
 
     models = {
         u'auth.group': {

@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n generic_extras %}
 
 {% if not liste %}
     <div style="margin: 5px;">
@@ -17,7 +17,7 @@
             {% for item in items %}
                 <tr>
                     <td>
-                        <a href="{{item.display_url}}">{{item}}</a>
+                        <a href="{{item.display_url}}">{% if item|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{item}}</a>
                     </td>
                     <td>{% if item.get_unit_name %}{{item.get_unit_name|safe}}{% else %}<span class="label label-success label-crlf">{{item.unit}}</span>{% endif %}</td>
                     <td>{{item.last_log.when|date:"d.m.Y"}} {{item.last_log.when|time:"H:i:s"}}</td>
