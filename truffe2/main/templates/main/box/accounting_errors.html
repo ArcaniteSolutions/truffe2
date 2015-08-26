@@ -1,7 +1,7 @@
 {% load i18n humanize %}
 {% if open_errors %}
     <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Erreurs ouvertes dans la compta" %}{% include "widget/header.html" %}{% endwith %}
+        {% with w_title="Erreurs ouvertes dans la compta" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
             <table class="table table-condensed table-hover table-striped">
                 {% for error in open_errors %}

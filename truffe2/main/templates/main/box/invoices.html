@@ -1,7 +1,7 @@
 {% load i18n %}
 {% if invoices_need_bvr or invoices_waiting %}
     <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Factures en attentes" %}{% include "widget/header.html" %}{% endwith %}
+        {% with w_title="Factures en attentes" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
             <table class="table table-condensed table-hover table-striped">
                 {% for invoice in invoices_need_bvr %}

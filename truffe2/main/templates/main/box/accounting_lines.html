@@ -2,7 +2,7 @@
 
 {% if lines_status_by_unit %}
     <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Lignes de comptabilité à valider" %}{% include "widget/header.html" %}{% endwith %}
+        {% with w_title="Lignes de comptabilité à valider" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
             <table class="table table-condensed table-hover table-striped">
                 {% for unit, data in lines_status_by_unit.iteritems %}

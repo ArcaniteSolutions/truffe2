@@ -1,7 +1,7 @@
 {% load i18n humanize %}
 {% if internaltransfer_to_validate or internaltransfer_to_account %}
     <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Transferts internes en attente" %}{% include "widget/header.html" %}{% endwith %}
+        {% with w_title="Transferts internes en attente" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
             <table class="table table-condensed table-hover table-striped">
                 {% for internaltransfer in internaltransfer_to_validate %}

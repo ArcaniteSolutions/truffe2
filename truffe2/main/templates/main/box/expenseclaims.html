@@ -1,7 +1,7 @@
 {% load i18n humanize %}
 {% if expenseclaim_to_validate or expenseclaim_to_account %}
     <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Notes de frais en attente" %}{% include "widget/header.html" %}{% endwith %}
+        {% with w_title="Notes de frais en attente" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
             <table class="table table-condensed table-hover table-striped">
                 {% for expenseclaim in expenseclaim_to_validate %}
