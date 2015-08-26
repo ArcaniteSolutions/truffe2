@@ -225,14 +225,14 @@ def generate_list_json(module, base_name, model_class, tag_class):
             filter__ = filter_
 
         if hasattr(model_class.MetaData, 'extra_filter_for_list'):
-            filter___ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year, filter__)
+            filter___ = model_class.MetaData.extra_filter_for_list(request, unit_to_check, current_year, filter__)
         else:
             filter___ = filter__
 
         tag = request.GET.get('tag')
 
         if tag_class and tag:
-            filter____ = lambda x: filter__(x).filter(tags__tag=tag).distinct()
+            filter____ = lambda x: filter___(x).filter(tags__tag=tag).distinct()
         else:
             filter____ = filter___
 
