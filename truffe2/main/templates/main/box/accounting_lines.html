@@ -1,34 +1,32 @@
 {% load i18n %}
 
-{% if lines_status_by_unit %}
-    <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Lignes de comptabilité à valider" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+<div class="col-sm-12 col-md-12 col-lg-6">
+    {% with w_title="Lignes de comptabilité à valider" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
-            <table class="table table-condensed table-hover table-striped">
-                {% for unit, data in lines_status_by_unit.iteritems %}
-                    <tr>
+        <table class="table table-condensed table-hover table-striped">
+            {% for unit, data in lines_status_by_unit.iteritems %}
+                <tr>
+                    <td>
+                        <a href="{% url 'accounting_main.views.accountingline_list' %}?upk={{unit.pk}}">{{unit}}</a>
+                    </td>
+
+                    {% if not data.0 and not data.1 %}
+                        <td></td><td><span class="label label-success"><i class="fa fa-check"></i> {% trans "ok !" %}</span></td>
+                    {% else %}
                         <td>
-                            <a href="{% url 'accounting_main.views.accountingline_list' %}?upk={{unit.pk}}">{{unit}}</a>
+                            {% if data.0 %}
+                                <span class="label label-warning"><i class="fa fa-question"></i> {{data.0}} {% trans "ligne(s) à valider" %}</span>
+                            {% endif %}
                         </td>
 
-                        {% if not data.0 and not data.1 %}
-                            <td></td><td><span class="label label-success"><i class="fa fa-check"></i> {% trans "ok !" %}</span></td>
-                        {% else %}
-                            <td>
-                                {% if data.0 %}
-                                    <span class="label label-warning"><i class="fa fa-question"></i> {{data.0}} {% trans "ligne(s) à valider" %}</span>
-                                {% endif %}
-                            </td>
-
-                            <td>
-                                {% if data.1 %}
-                                    <span class="label label-danger"><i class="fa fa-warning"></i> {{data.1}} {% trans "ligne(s) à corriger" %}</span>
-                                {% endif %}
-                            </zd>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </table>
-        {% include "widget/footer.html" %}
-    </div>
-{% endif %}
+                        <td>
+                            {% if data.1 %}
+                                <span class="label label-danger"><i class="fa fa-warning"></i> {{data.1}} {% trans "ligne(s) à corriger" %}</span>
+                            {% endif %}
+                        </zd>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    {% include "widget/footer.html" %}
+</div>

@@ -1,12 +1,15 @@
-{% if accreds_to_validate %}
-    <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Accréditations à valider" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
-            <table class="table table-condensed table-hover table-striped">
-                {% for accred in accreds_to_validate %}
-                    <tr><td><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.user}}</a></td><td>{{accred.get_role_or_display_name}}</td><td>{{accred.unit}}</td></tr>
+{% load i18n %}
+<div class="col-sm-12 col-md-12 col-lg-6">
+    {% with w_title="Accréditations à valider" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+        <table class="table table-condensed table-hover table-striped">
+            {% for accred in accreds_to_validate %}
+                <tr><td><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.user}}</a></td><td>{{accred.get_role_or_display_name}}</td><td>{{accred.unit}}</td></tr>
 
-                {% endfor %}
-            </table>
-        {% include "widget/footer.html" %}
-    </div>
-{% endif %}
+            {% empty %}
+                <tr>
+                    <td colspan="3" class="success"><i class="fa fa-check"></i> {% trans "Aucune accréditation à valider !" %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% include "widget/footer.html" %}
+</div>

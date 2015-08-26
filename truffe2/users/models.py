@@ -121,6 +121,14 @@ EMAIL;INTERNET:%s
 
         return liste.order_by('unit__name', 'role__ordre')
 
+    def rights_in_any_unit(self, access):
+        for accred in self.active_accreds(with_hiddens=True):
+            # Ask the coresponding unit to do the check.
+            if accred.unit.is_user_in_groupe(self, access, no_parent=True):
+                return True
+
+        return False
+
     def is_external(self):
         return not self.active_accreds(with_hiddens=True)
 

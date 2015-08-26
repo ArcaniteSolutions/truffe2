@@ -1,36 +1,40 @@
 {% load i18n humanize %}
-{% if rcash_to_validate or rcash_to_withdraw or rcash_to_justify %}
-    <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Retraits cash en attente" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+<div class="col-sm-12 col-md-12 col-lg-6">
+    {% with w_title="Retraits cash en attente" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
-            <table class="table table-condensed table-hover table-striped">
-                {% for rcash in rcash_to_validate %}
-                    <tr>
-                        <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
-                        <td>CHF {{rcash.amount|intcomma}}</td>
-                        <td>{{rcash.costcenter}}</td>
-                        <td><span class="label label-primary">{% trans "A valider / retirer pour le" %} {{rcash.desired_date|date:"d M Y"}}</span></td>
-                    </tr>
-                {% endfor %}
+        <table class="table table-condensed table-hover table-striped">
+            {% for rcash in rcash_to_validate %}
+                <tr>
+                    <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
+                    <td>CHF {{rcash.amount|intcomma}}</td>
+                    <td>{{rcash.costcenter}}</td>
+                    <td><span class="label label-primary">{% trans "A valider / retirer pour le" %} {{rcash.desired_date|date:"d M Y"}}</span></td>
+                </tr>
+            {% endfor %}
 
-                {% for rcash in rcash_to_withdraw %}
-                    <tr>
-                        <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
-                        <td>CHF {{rcash.amount|intcomma}}</td>
-                        <td>{{rcash.costcenter}}</td>
-                        <td><span class="label label-success">{% trans "Prêt à être retiré depuis le" %} {{rcash.withdrawn_date|date:"d M Y"}}</span></td>
-                    </tr>
-                {% endfor %}
+            {% for rcash in rcash_to_withdraw %}
+                <tr>
+                    <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
+                    <td>CHF {{rcash.amount|intcomma}}</td>
+                    <td>{{rcash.costcenter}}</td>
+                    <td><span class="label label-success">{% trans "Prêt à être retiré depuis le" %} {{rcash.withdrawn_date|date:"d M Y"}}</span></td>
+                </tr>
+            {% endfor %}
 
-                {% for rcash in rcash_to_justify %}
-                    <tr>
-                        <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
-                        <td>CHF {{rcash.amount|intcomma}}</td>
-                        <td>{{rcash.costcenter}}</td>
-                        <td><span class="label label-warning">{% trans "A justifier" %}</span></td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% include "widget/footer.html" %}
-    </div>
-{% endif %}
+            {% for rcash in rcash_to_justify %}
+                <tr>
+                    <td><a href="{{rcash.display_url}}">{{rcash.name}}</a></td>
+                    <td>CHF {{rcash.amount|intcomma}}</td>
+                    <td>{{rcash.costcenter}}</td>
+                    <td><span class="label label-warning">{% trans "A justifier" %}</span></td>
+                </tr>
+            {% endfor %}
+
+            {% if not rcash_to_validate and not rcash_to_withdraw and not rcash_to_justify %}
+                <tr>
+                    <td colspan="4" class="success"><i class="fa fa-check"></i> {% trans "Aucun retrait cash en attente !" %}</td>
+                </tr>
+            {% endif %}
+        </table>
+    {% include "widget/footer.html" %}
+</div>

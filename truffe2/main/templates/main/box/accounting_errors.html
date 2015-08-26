@@ -1,16 +1,18 @@
 {% load i18n humanize %}
-{% if open_errors %}
-    <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Erreurs ouvertes dans la compta" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+<div class="col-sm-12 col-md-12 col-lg-6">
+    {% with w_title="Erreurs ouvertes dans la compta"  w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
-            <table class="table table-condensed table-hover table-striped">
-                {% for error in open_errors %}
-                    <tr>
-                        <td><a href="{{error.display_url}}">{{error.get_line_title}}</a></td>
-                        <td><span class="label label-{{error.status_color}}"><i class="{{elem.status_icon}}"></i> {{error.get_status_display}}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% include "widget/footer.html" %}
-    </div>
-{% endif %}
+        <table class="table table-condensed table-hover table-striped">
+            {% for error in open_errors %}
+                <tr>
+                    <td><a href="{{error.display_url}}">{{error.get_line_title}}</a></td>
+                    <td><span class="label label-{{error.status_color}}"><i class="{{elem.status_icon}}"></i> {{error.get_status_display}}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2" class="success"><i class="fa fa-check"></i> {% trans "Aucune erreur !" %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% include "widget/footer.html" %}
+</div>
