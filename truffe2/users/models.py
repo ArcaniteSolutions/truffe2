@@ -50,6 +50,7 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight, SearchableM
     iban_ou_ccp = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, mets ton CCP. Sinon, mets ton IBAN'))
 
     body = models.CharField(max_length=1, default='.')  # Saved body classes (to save layout options of the user)
+    homepage = models.TextField(blank=True, null=True)  # Saved homepage order (to save layout options of the user)
 
     avatar = models.ImageField(upload_to='uploads/avatars/', help_text=_(u'Si pas renseigné, utilise la photo EPFL. Si pas de photo EPFL publique, utilise un poney.'), blank=True, null=True)
 

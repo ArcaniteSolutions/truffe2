@@ -144,9 +144,9 @@ def home(request):
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_invoices, "invoices.html"),
         (lambda request: request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_internal_transferts, "internaltransfers.html"),
         (lambda request: request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_withdrawals, "withdrawals.html"),
+        (lambda request: request.user.rights_in_any_unit(['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_expenseclaim, "expenseclaims.html"),
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_lines, "accounting_lines.html"),
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_errors, "accounting_errors.html"),
-        (lambda request: request.user.rights_in_any_unit(['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_expenseclaim, "expenseclaims.html"),
     ]
 
     data = {}
@@ -158,7 +158,19 @@ def home(request):
             data.update(get_data(request))
             boxes_to_show.append('main/box/{}'.format(template))
 
-    data.update({'boxes_to_show': boxes_to_show})
+    ordered_boxes_to_show = []
+
+    user_order = ['main/box/{}'.format(x) for x in request.user.homepage.split(',')] if request.user.homepage else []
+
+    for box in user_order:
+        if box in boxes_to_show:
+            ordered_boxes_to_show.append(box)
+
+    for box in boxes_to_show:
+        if box not in user_order:
+            ordered_boxes_to_show.append(box)
+
+    data.update({'boxes_to_show': ordered_boxes_to_show})
 
     return render(request, 'main/home.html', data)
 
@@ -283,3 +295,12 @@ class HaystackSearchView(SearchView):
 
     def extra_context(self):
         return {'simple_search': not self.request.user.rights_can('FULL_SEARCH', self.request.user)}
+
+
+@login_required
+def set_homepage(request):
+
+    request.user.homepage = request.GET.get('data', '')
+    request.user.save()
+
+    return HttpResponse('')

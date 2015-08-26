@@ -4,16 +4,48 @@
 {% block title %}{{block.super}} :: {% trans "Page d'accueil" %}{% endblock %}
 
 {% block content %}
-  <h1>{% trans "Bienvenue !" %}</h1>
+    <h1>{% trans "Bienvenue !" %}</h1>
 
-   <section id="widget-grid" class="">
-        <div class="row">
-          {% for box in boxes_to_show %}
-              {% include box %}
-          {% endfor %}
-        </div>
-  </section>
+    <section id="widget-grid" class="">
+          <div class="row main-row">
+            {% for box in boxes_to_show %}
+                {% include box %}
+            {% endfor %}
+          </div>
+    </section>
 
+
+    <script type="text/javascript">
+        $('.main-row').sortable(
+            {
+                sort: function(event, ui) {
+
+                    var $target = $(event.target);
+                    if (!/html|body/i.test($target.offsetParent()[0].tagName)) {
+                        var top = event.pageY - $target.offsetParent().offset().top - (ui.helper.outerHeight(true) / 2);
+                        ui.helper.css({'top' : top + 'px'});
+                        ui.placeholder.css({'height' : ui.helper.height() + 'px'});
+                    }
+                },
+                placeholder: "ui-state-highlight main-placeholder col-sm-12 col-md-12 col-lg-6",
+                tolerance: 'pointer',
+                revert: 'invalid',
+                forceHelperSize: true,
+                stop: function () {
+
+                    var list = "";
+
+                    $('.main-row > div').each(function (_, e) {
+                        list += $(e).attr("main_id") + ",";
+                    });
+
+
+                    $.ajax('{% url 'main.views.set_homepage' %}?data=' + escape(list));
+
+                },
+            }
+        );
+    </script>
 
 {% endblock %}
 

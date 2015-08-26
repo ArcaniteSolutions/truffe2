@@ -15,4 +15,6 @@ urlpatterns = patterns(
     url(r'^last_100_logging_entries$', 'last_100_logging_entries'),
 
     url(r'^search/?$', login_required(HaystackSearchView()), name='search_view'),
+
+    url(r'^set_homepage$', 'set_homepage'),
 )
