@@ -106,7 +106,7 @@ def get_to_moderate(request):
         moderable = filter(lambda x: x.rights_can('VALIDATE', request.user), moderable)
 
         if moderable:
-            liste[model_class.MetaData.base_title] = moderable
+            liste[model_class] = moderable
 
     return render(request, 'main/to_moderate.html', {'liste': liste})
 
