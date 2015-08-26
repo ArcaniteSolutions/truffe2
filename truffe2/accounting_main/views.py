@@ -19,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db.models import Q
 from django.utils.html import strip_tags
+from django.db.models import Sum
 
 
 import uuid
@@ -510,3 +511,44 @@ def budget_available_list(request):
     retour = {'data': [{'pk': budget.pk, 'name': budget.__unicode__()} for budget in budgets]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
+
+
+@login_required
+def accounting_budget_view(request):
+
+    from accounting_core.models import CostCenter, AccountCategory
+    from accounting_main.models import AccountingLine
+
+    costcenter = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
+
+    if not AccountingLine.static_rights_can('LIST', request.user, costcenter.unit, costcenter.accounting_year):
+        raise Http404
+
+    root_acs = AccountCategory.objects.filter(deleted=False, accounting_year=costcenter.accounting_year, parent_hierarchique=None).order_by('order')
+
+    def _build_recu_list(base_list):
+
+        retour = []
+
+        for elem in base_list:
+
+            if elem.get_children_categories():
+                retour.append((elem, _build_recu_list(elem.get_children_categories()), None))
+            else:
+                accouts_with_total = []
+                for account in elem.get_accounts():
+                    data = costcenter.accountingline_set.filter(deleted=False, account=account).aggregate(pos=Sum('input'), neg=Sum('output'))
+                    if not data['pos']:
+                        data['pos'] = 0
+                    if not data['neg']:
+                        data['neg'] = 0
+                    data['total'] = data['pos'] - data['neg']
+                    accouts_with_total.append((account, data))
+
+                retour.append((elem, None, accouts_with_total))
+
+        return retour
+
+    data = _build_recu_list(root_acs)
+
+    return render(request, 'accounting_main/accountingline/budget_view.html', {'costcenter': costcenter, 'random': str(uuid.uuid4()), 'data': data})

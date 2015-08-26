@@ -1,0 +1,47 @@
+{% load i18n generic_extras humanize %}
+
+<div class="acc-level-{{level}}">
+
+    {% if not account.deleted %}
+        {% if level == 1 %}
+            <h3 style="font-size: 25px;">{{account.name}}</h3>
+        {% elif level == 2 %}
+            <u style="font-size: 16px;">{{account.name}}</u><br/><br/>
+        {% elif level == 3 %}
+            <b style="font-size: 14px;">{{account.name}}</b><br/>
+        {% else %}
+            <a class="btn btn-danger">{{account.name}}</a> {# Should never happen #}
+        {% endif %}
+    {% endif %}
+
+    {% for account_, subcategories_, subaccounts_ in subcategories %}
+        {% with level=level|add:"1" account=account_ subcategories=subcategories_ subaccounts=subaccounts_ template="accounting_main/accountingline/_budget_view_account.html" %}{% include template %}{% endwith %}
+    {% empty %}
+        <table class="table table-condensed">
+            <tr class="tr-header">
+                <td width="75px;">{% trans "Compte n°" %}</td>
+                <td>{% trans "Nom" %}</td>
+                <td width="125px;">{% trans "Montant" %}</td>
+                <td width="125px;" class="budget-td-budget" style="display: none;">{% trans "Budget" %}</td>
+            </tr>
+            {% for account, data in subaccounts %}
+                <tr class="budget-tr-{{account.pk}} budget-tr" {% if not data.pos and not data.neg %}style="display: none;"{% endif %}>
+                    <td>{{account.account_number}}</td>
+                    <td>{{account.name}}</td>
+                    <td>
+                        {% if data.total < 0 %}
+                            <span class="txt-color-red">{{data.total|intcomma}}</span>
+                        {% else %}
+                            <span class="txt-color-green">{{data.total|intcomma}}</span>
+                        {% endif %}
+
+                        {% if data.pos and data.neg %}
+                            <i class="fa fa-info" title="+{{data.pos}} -{{data.neg}}" rel="tooltip"></i>
+                        {% endif %}
+                    </td>
+                    <td class="budget-td-budget budget-td-{{account.pk}}" style="display: none;"></td>
+                </tr>
+            {% endfor %}
+        </table> <br/><br/>
+    {% endfor %}
+</div>
