@@ -131,6 +131,10 @@ class GenericModel(models.Model):
             logging_class = type('%sLogging' % (real_model_class.__name__,), (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
 
+            # Add the view model
+            views_class = type('%sViews' % (real_model_class.__name__,), (GenericObjectView,), {'object': models.ForeignKey(real_model_class, related_name='views'), '__module__': models_module.__name__})
+            setattr(models_module, views_class.__name__, views_class)
+
             unikey = '{}.{}'.format(models_module.__name__, real_model_class.__name__)
             GENERICS_MODELS[unikey] = (real_model_class, logging_class)
 
@@ -464,6 +468,15 @@ class GenericLogEntry(models.Model):
 
     def json_extra_data(self):
         return json.loads(self.extra_data)
+
+    class Meta:
+        abstract = True
+
+
+class GenericObjectView(models.Model):
+
+    when = models.DateTimeField(auto_now_add=True)
+    who = models.ForeignKey(TruffeUser)
 
     class Meta:
         abstract = True
