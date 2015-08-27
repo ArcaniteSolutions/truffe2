@@ -116,6 +116,10 @@
         function add_subline(row) {
             // Add a line for description following the given row
             var row_id = new Date().getTime();
+
+            // Remove on change event listener for previous last
+            $(row).find('input').off("change");
+
             var select_id = null;
             if ($(row).hasClass('account'))
                 select_id = $(row).find('select').attr('name').substr('account-'.length);
@@ -129,6 +133,8 @@
                 update_account_subtot(e);
             });
 
+            // Add on change event listener for last & on clic button
+            $(row).next().find('input').change(function() { add_subline('#' + row_id); });
             $(row).next().next().find('a').attr('onclick', "add_subline('#" + row_id + "')");
 
             return row_id;
@@ -139,9 +145,15 @@
             var this_row = $('#' + row_id);
             var select_row = find_prev_matching(this_row, '.account');
 
-            // Update "Plus" button if removed last line
-            if (this_row.next().find('td').length == 1 && !this_row.prev().hasClass('account'))
+            if (this_row.next().find('td').length == 1 && !this_row.prev().hasClass('account')) {
+                // Update "Plus" button if removed last line
                 this_row.next().find('a').attr('onclick', "add_subline('#" + this_row.prev().prop('id') + "')");
+
+                // Reactivate onchange event on last row
+                if (this_row.prev().find('.select2-input').length == 0){
+                    this_row.prev().find('input').change(function() { add_subline('#' + $(this).parent().parent().attr('id')); });
+                }
+            }
 
             this_row.remove();
 
