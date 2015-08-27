@@ -17,4 +17,7 @@ urlpatterns = patterns(
     url(r'^search/?$', login_required(HaystackSearchView()), name='search_view'),
 
     url(r'^set_homepage$', 'set_homepage'),
+
+    url(r'^file/download_list/$', 'file_download_list'),
+    url(r'^file/download/(?P<pk>[0-9,]+)$', 'file_download'),
 )
