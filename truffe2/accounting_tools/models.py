@@ -99,7 +99,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             '4': '150px',
         }
 
-        help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou association auprès de l'AGEPoly.""")
+        help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou associations auprès de l'AGEPoly.""")
 
     class MetaAccounting:
         copiable = False
@@ -350,7 +350,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outils (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'ils contiennent TOUTES LES INFORMATIONS NÉCESSAIRES).
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il contienne TOUTES LES INFORMATIONS NÉCESSAIRES).
 
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
