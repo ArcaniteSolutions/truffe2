@@ -76,7 +76,7 @@ def _home_withdrawals(request):
     rcash_to_withdraw = Withdrawal.objects.filter(deleted=False, status='2_withdrawn').order_by('-withdrawn_date')
     rcash_to_justify = Withdrawal.objects.filter(deleted=False, status='3_used').order_by('-withdrawn_date')
 
-    if not request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or not request.user.is_superuser:
+    if not request.user.rights_in_root_unit(request.user, 'SECRETARIAT') and not request.user.is_superuser:
         rcash_to_withdraw = filter(lambda rcash: rcash.rights_can_SHOW(request.user), list(rcash_to_withdraw))
         rcash_to_justify = filter(lambda rcash: rcash.rights_can_SHOW(request.user), list(rcash_to_justify))
         rcash_to_validate = None
@@ -143,7 +143,7 @@ def home(request):
         (lambda request: Accreditation.static_rights_can('VALIDATE', request.user), _home_accreds, "accreds_to_validate.html"),
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_invoices, "invoices.html"),
         (lambda request: request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_internal_transferts, "internaltransfers.html"),
-        (lambda request: request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_withdrawals, "withdrawals.html"),
+        (lambda request: request.user.rights_in_any_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_withdrawals, "withdrawals.html"),
         (lambda request: request.user.rights_in_any_unit(['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_expenseclaim, "expenseclaims.html"),
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_lines, "accounting_lines.html"),
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_errors, "accounting_errors.html"),
