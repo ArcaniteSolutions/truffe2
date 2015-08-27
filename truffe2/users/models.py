@@ -50,6 +50,7 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight, SearchableM
     iban_ou_ccp = models.CharField(max_length=128, blank=True, help_text=_('Pour la poste, mets ton CCP. Sinon, mets ton IBAN'))
 
     body = models.CharField(max_length=1, default='.')  # Saved body classes (to save layout options of the user)
+    homepage = models.TextField(blank=True, null=True)  # Saved homepage order (to save layout options of the user)
 
     avatar = models.ImageField(upload_to='uploads/avatars/', help_text=_(u'Si pas renseigné, utilise la photo EPFL. Si pas de photo EPFL publique, utilise un poney.'), blank=True, null=True)
 
@@ -120,6 +121,14 @@ EMAIL;INTERNET:%s
             liste = liste.filter(hidden_in_truffe=False)
 
         return liste.order_by('unit__name', 'role__ordre')
+
+    def rights_in_any_unit(self, access):
+        for accred in self.active_accreds(with_hiddens=True):
+            # Ask the coresponding unit to do the check.
+            if accred.unit.is_user_in_groupe(self, access, no_parent=True):
+                return True
+
+        return False
 
     def is_external(self):
         return not self.active_accreds(with_hiddens=True)

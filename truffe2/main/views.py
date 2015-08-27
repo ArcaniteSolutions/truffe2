@@ -21,23 +21,27 @@ from django.db import connection
 from haystack.views import SearchView
 
 
-@login_required
-def home(request):
-    """Dummy home page"""
+def _home_news(request):
 
     from main.models import HomePageNews
-    from accounting_tools.models import InternalTransfer, Withdrawal, ExpenseClaim, Invoice
 
     news = HomePageNews.objects.filter(status='1_online').order_by('-pk').all()
 
     news = filter(lambda s: (not s.start_date or s.start_date <= now()) and (not s.end_date or s.end_date >= now()), list(news))
 
-    from units.models import Accreditation, Unit
+    return {'news': news}
 
-    if Accreditation.static_rights_can('VALIDATE', request.user):
-        accreds_to_validate = Accreditation.objects.filter(end_date=None, need_validation=True)
-    else:
-        accreds_to_validate = []
+
+def _home_accreds(request):
+
+    from units.models import Accreditation
+
+    return {'accreds_to_validate': Accreditation.objects.filter(end_date=None, need_validation=True)}
+
+
+def _home_invoices(request):
+
+    from accounting_tools.models import Invoice
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
         invoices_need_bvr = Invoice.objects.filter(deleted=False, status='1_need_bvr').order_by('-pk')
@@ -46,22 +50,44 @@ def home(request):
         invoices_need_bvr = None
         invoices_waiting = filter(lambda i: i.rights_can('SHOW', request.user), Invoice.objects.filter(deleted=False, status='2_sent'))
 
+    return {'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting}
+
+
+def _home_internal_transferts(request):
+
+    from accounting_tools.models import InternalTransfer
+
     internaltransfer_to_validate, internaltransfer_to_account = None, None
+
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
         internaltransfer_to_validate = InternalTransfer.objects.filter(deleted=False, status='1_agep_validable').order_by('-pk')
+
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
         internaltransfer_to_account = InternalTransfer.objects.filter(deleted=False, status='2_accountable').order_by('-pk')
+
+    return {'internaltransfer_to_validate': internaltransfer_to_validate, 'internaltransfer_to_account': internaltransfer_to_account}
+
+
+def _home_withdrawals(request):
+
+    from accounting_tools.models import Withdrawal
 
     rcash_to_validate = Withdrawal.objects.filter(deleted=False, status='1_agep_validable').order_by('-desired_date')
     rcash_to_withdraw = Withdrawal.objects.filter(deleted=False, status='2_withdrawn').order_by('-withdrawn_date')
     rcash_to_justify = Withdrawal.objects.filter(deleted=False, status='3_used').order_by('-withdrawn_date')
 
-    if not request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or not request.user.is_superuser:
+    if not request.user.rights_in_root_unit(request.user, 'SECRETARIAT') and not request.user.is_superuser:
         rcash_to_withdraw = filter(lambda rcash: rcash.rights_can_SHOW(request.user), list(rcash_to_withdraw))
         rcash_to_justify = filter(lambda rcash: rcash.rights_can_SHOW(request.user), list(rcash_to_justify))
         rcash_to_validate = None
 
-    from accounting_main.models import AccountingLine, AccountingError
+    return {'rcash_to_validate': rcash_to_validate, 'rcash_to_withdraw': rcash_to_withdraw, 'rcash_to_justify': rcash_to_justify}
+
+
+def _home_accounting_lines(request):
+
+    from units.models import Unit
+    from accounting_main.models import AccountingLine
 
     lines_status_by_unit = {}
 
@@ -71,13 +97,26 @@ def home(request):
         if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
             lines_status_by_unit[unit] = (AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='0_imported').count(), AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='2_error').count())
 
+    return {'lines_status_by_unit': lines_status_by_unit}
+
+
+def _home_accounting_errors(request):
+
+    from accounting_main.models import AccountingError
+
     open_errors = []
 
     for error in AccountingError.objects.filter(deleted=False).exclude(status='2_fixed').order_by('pk'):
         if error.rights_can('SHOW', request.user):
             open_errors.append(error)
 
-    expenseclaim_to_account = None
+    return {'open_errors': open_errors}
+
+
+def _home_expenseclaim(request):
+
+    from accounting_tools.models import ExpenseClaim
+
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
         expenseclaim_to_validate = ExpenseClaim.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable']).order_by('-pk')
     else:
@@ -85,12 +124,55 @@ def home(request):
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
         expenseclaim_to_account = ExpenseClaim.objects.filter(deleted=False, status='3_accountable').order_by('pk')
+    else:
+        expenseclaim_to_account = None
 
-    return render(request, 'main/home.html', {'news': news, 'accreds_to_validate': accreds_to_validate, 'internaltransfer_to_validate': internaltransfer_to_validate,
-                                              'internaltransfer_to_account': internaltransfer_to_account, 'rcash_to_validate': rcash_to_validate, 'rcash_to_withdraw': rcash_to_withdraw,
-                                              'rcash_to_justify': rcash_to_justify, 'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting,
-                                              'lines_status_by_unit': lines_status_by_unit, 'open_errors': open_errors,
-                                              'expenseclaim_to_validate': expenseclaim_to_validate, 'expenseclaim_to_account': expenseclaim_to_account})
+    return {'expenseclaim_to_validate': expenseclaim_to_validate, 'expenseclaim_to_account': expenseclaim_to_account}
+
+
+@login_required
+def home(request):
+    """Home page dashboard"""
+
+    from units.models import Accreditation
+
+    BOXES = [
+        # (lambda request: should_show, Function to call, template)
+        (lambda request: True, _home_news, "news.html"),
+        (lambda request: True, lambda request: {}, "moderate.html"),
+        (lambda request: Accreditation.static_rights_can('VALIDATE', request.user), _home_accreds, "accreds_to_validate.html"),
+        (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_invoices, "invoices.html"),
+        (lambda request: request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_internal_transferts, "internaltransfers.html"),
+        (lambda request: request.user.rights_in_any_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_withdrawals, "withdrawals.html"),
+        (lambda request: request.user.rights_in_any_unit(['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_expenseclaim, "expenseclaims.html"),
+        (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_lines, "accounting_lines.html"),
+        (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_errors, "accounting_errors.html"),
+    ]
+
+    data = {}
+
+    boxes_to_show = []
+
+    for (should_show, get_data, template) in BOXES:
+        if should_show(request):
+            data.update(get_data(request))
+            boxes_to_show.append('main/box/{}'.format(template))
+
+    ordered_boxes_to_show = []
+
+    user_order = ['main/box/{}'.format(x) for x in request.user.homepage.split(',')] if request.user.homepage else []
+
+    for box in user_order:
+        if box in boxes_to_show:
+            ordered_boxes_to_show.append(box)
+
+    for box in boxes_to_show:
+        if box not in user_order:
+            ordered_boxes_to_show.append(box)
+
+    data.update({'boxes_to_show': ordered_boxes_to_show})
+
+    return render(request, 'main/home.html', data)
 
 
 @login_required
@@ -106,7 +188,7 @@ def get_to_moderate(request):
         moderable = filter(lambda x: x.rights_can('VALIDATE', request.user), moderable)
 
         if moderable:
-            liste[model_class.MetaData.base_title] = moderable
+            liste[model_class] = moderable
 
     return render(request, 'main/to_moderate.html', {'liste': liste})
 
@@ -213,3 +295,12 @@ class HaystackSearchView(SearchView):
 
     def extra_context(self):
         return {'simple_search': not self.request.user.rights_can('FULL_SEARCH', self.request.user)}
+
+
+@login_required
+def set_homepage(request):
+
+    request.user.homepage = request.GET.get('data', '')
+    request.user.save()
+
+    return HttpResponse('')

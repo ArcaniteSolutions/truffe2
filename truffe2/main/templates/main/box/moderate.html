@@ -1,8 +1,10 @@
 {% load i18n %}
-<div class="col-sm-12 col-md-12 col-lg-6">
+<div class="col-sm-12 col-md-12 col-lg-6" main_id="moderate.html">
     {% with w_title="Éléments à modérer" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
         <div id="elem-to-moderate">
-            <i>{% trans "Chargement..." %}</i> <i class="fa-spin fa fa-refresh "></i>
+            <div style="margin: 5px;">
+                <i>{% trans "Chargement..." %}</i> <i class="fa-spin fa fa-refresh "></i>
+            </div>
         </div>
     {% include "widget/footer.html" %}
 </div>

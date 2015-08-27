@@ -131,6 +131,11 @@ class GenericModel(models.Model):
             logging_class = type('%sLogging' % (real_model_class.__name__,), (GenericLogEntry,), {'object': models.ForeignKey(real_model_class, related_name='logs'), '__module__': models_module.__name__})
             setattr(models_module, logging_class.__name__, logging_class)
 
+            # Add the view model
+            views_class = type('%sViews' % (real_model_class.__name__,), (GenericObjectView,), {'object': models.ForeignKey(real_model_class, related_name='views'), '__module__': models_module.__name__})
+            setattr(models_module, views_class.__name__, views_class)
+            setattr(real_model_class, "_t2_views_class", views_class)
+
             unikey = '{}.{}'.format(models_module.__name__, real_model_class.__name__)
             GENERICS_MODELS[unikey] = (real_model_class, logging_class)
 
@@ -323,6 +328,21 @@ class GenericModel(models.Model):
     def get_full_class_name(self):
         return '{}.{}'.format(self.__class__.__module__, self.__class__.__name__)
 
+    def is_new(self, user):
+        """Return true is the model has unseen updates for a user"""
+
+        try:
+            view_obj = self.views.get(who=user)
+            return view_obj.when <= self.last_log().when
+        except self._t2_views_class.DoesNotExist:
+            return True
+
+    def user_has_seen_object(self, user):
+
+        view_obj, __ = self._t2_views_class.objects.get_or_create(object=self, who=user)
+        view_obj.when = now()
+        view_obj.save()
+
 
 class GenericModelWithFiles(object):
     """Un modèle généric auquel on peut uploader des fichiers"""
@@ -464,6 +484,15 @@ class GenericLogEntry(models.Model):
 
     def json_extra_data(self):
         return json.loads(self.extra_data)
+
+    class Meta:
+        abstract = True
+
+
+class GenericObjectView(models.Model):
+
+    when = models.DateTimeField(auto_now_add=True)
+    who = models.ForeignKey(TruffeUser)
 
     class Meta:
         abstract = True

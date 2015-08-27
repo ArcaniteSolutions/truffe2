@@ -133,3 +133,7 @@
 .DTTT_Print .hideprint {
     display: none !important;
 }
+
+.main-placeholder {
+    height: 200px;
+}

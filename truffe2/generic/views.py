@@ -225,14 +225,14 @@ def generate_list_json(module, base_name, model_class, tag_class):
             filter__ = filter_
 
         if hasattr(model_class.MetaData, 'extra_filter_for_list'):
-            filter___ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year, filter__)
+            filter___ = model_class.MetaData.extra_filter_for_list(request, unit_to_check, current_year, filter__)
         else:
             filter___ = filter__
 
         tag = request.GET.get('tag')
 
         if tag_class and tag:
-            filter____ = lambda x: filter__(x).filter(tags__tag=tag).distinct()
+            filter____ = lambda x: filter___(x).filter(tags__tag=tag).distinct()
         else:
             filter____ = filter___
 
@@ -589,6 +589,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                     log_class(who=request.user, what='edited', object=obj, extra_data=json.dumps(diff)).save()
 
+                obj.user_has_seen_object(request.user)
+
                 if request.POST.get('post-save-dest'):
                     if request.POST.get('post-save-dest') == 'new':
                         return redirect(module.__name__ + '.views.' + base_name + '_edit', pk='~')
@@ -722,6 +724,8 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
 
         if tag_class:
             tags = [t.tag for t in obj.tags.order_by('tag')]
+
+        obj.user_has_seen_object(request.user)
 
         return render(request, ['%s/%s/show.html' % (module.__name__, base_name), 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
@@ -920,6 +924,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
             for obj in objs:
                 old_status = obj.status
                 obj.status = dest_status
+                obj.user_has_seen_object(request.user)
                 obj.save()
 
                 if isinstance(obj, BasicRightModel):
@@ -1423,19 +1428,13 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
             url = instance.file
         elif instance.is_pdf():
             try:
-                base_url = "{}_truffe2_extracted_image".format(instance.file.name)
-                cid = 0
 
-                url = "{}_{}.jpg".format(base_url, cid)
+                url = os.path.join('cache', 'pdfthumbnail', "{}.jpg".format(instance.file.name.replace('/', '_')))
+                full_url = os.path.join(settings.MEDIA_ROOT, url)
 
-                while os.path.isfile("{}{}".format(settings.MEDIA_ROOT, url)):
-                    cid += 1
-                    url = "{}_{}.jpg".format(base_url, cid)
-
-                with Image(filename="{}{}[0]".format(settings.MEDIA_ROOT, instance.file)) as img:
-                    img.save(filename="{}{}".format(settings.MEDIA_ROOT, url))
-
-                    remove_me = "{}{}".format(settings.MEDIA_ROOT, url)
+                if not os.path.isfile(full_url):
+                    with Image(filename="{}{}[0]".format(settings.MEDIA_ROOT, instance.file)) as img:
+                        img.save(filename=full_url)
             except:
                 url = 'img/PDF.png'
         else:
