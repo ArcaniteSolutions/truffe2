@@ -14,6 +14,7 @@
 
             $('form#generic_main_form').append('<h3eneric_main_form style="margin-top: 0px;">{% trans "Détails" %}</h3>');
 
+            // Create table for budget
             $('form#generic_main_form').append('<table width="100%" id="budget"><thead><tr><td width="50%">{% trans "Dépenses" %}</td><td>{% trans "Recettes" %}</td></tr></thead>' +
             '<tr><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'outcomes\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une dépense" %}</a></td><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'incomes\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une recette" %}</a></td></tr>' +
             '<tr class="total"><td><span id="sub-out">CHF 0.00</span></td><td><span id="sub-in">CHF 0.00</span></td></tr>' +
@@ -43,6 +44,7 @@
 
             $('.no-border td').css('border', '').css('padding-top', '30px');
 
+            // Get infos stored in DB
             get_initial_budget_infos();
 
             // Ask before quitting to avoid loosing unsaved stuff.
@@ -69,13 +71,28 @@
             return $(from).prevUntil(match).prev(match);
         }
 
+        function js_intcomma(num) {
+            // Do the same as intcomma in JS
+            num_str = num.toString();
+            sign = '';
+
+            if (num_str[0] == '-') {
+                num_str = num_str.substr(1);
+                sign = '-';
+            }
+
+            num_arr = num_str.split('.');
+            return sign + num_arr[0].split(/(?=(?:...)*$)/).join("'") + "." + num_arr[1];
+        }
+
         function add_line(table_id, default_value) {
+            // Add a line (a block with a CostCenter and one or several descriptions) in the correct table_id with a default value for the costcenter if given
             $("#" + table_id).append("<tr class='account'><td><select width='100%' name='account-" + table_id + "-" + (nb_select++) + "'></select></td><td colspan='2' style='text-align: right; padding-right: 10px;'>CHF 0.00</td></tr>");
 
             var new_select = $('#' + table_id + ' select:last');
 
+            // Load the list of Costcenters available and put a default value if given
             $.ajax(('{% url 'accounting_core.views.accounts_by_year' 99942999 %}?' + table_id + '=true').replace(99942999, $('#input_ypk').val())).done(function (data) {
-
                 new_select.find('option').remove();
 
                 for (var i = 0; i < data.length; i++) {
@@ -85,11 +102,11 @@
                 }
 
                 new_select.css('width', '100%').select2();
-
                 if (typeof default_value !== 'undefined')
                     new_select.select2('val', default_value).trigger("change");
             });
 
+            // Add an initial subline for a first description
             row_id = add_subline($("#" + table_id + " tr:last"));
             $("#" + table_id).append('<tr style="vertical-align: top; height: 40px;"><td colspan="3"><a href="#" onclick="add_subline(\'#' + row_id  + '\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Plus" %}</a></td></tr>');
 
@@ -97,6 +114,7 @@
         }
 
         function add_subline(row) {
+            // Add a line for description following the given row
             var row_id = new Date().getTime();
             var select_id = null;
             if ($(row).hasClass('account'))
@@ -112,7 +130,6 @@
             });
 
             $(row).next().next().find('a').attr('onclick', "add_subline('#" + row_id + "')");
-
 
             return row_id;
         }
@@ -148,7 +165,7 @@
                 if ($(element).val() != '')
                     sum += parseFloat($(element).val());
             });
-            select_tr.find('td:last').text('CHF ' + sum.toFixed(2));
+            select_tr.find('td:last').text('CHF ' + js_intcomma(sum.toFixed(2)));
             update_total();
         }
 
@@ -161,7 +178,7 @@
                     sub_out += parseFloat($(element).val());
             });
 
-            $('#sub-out').text("CHF " + sub_out.toFixed(2));
+            $('#sub-out').text("CHF " + js_intcomma(sub_out.toFixed(2)));
             total -= sub_out;
 
             $('#incomes input[type=number]').each(function(index, element) {
@@ -169,10 +186,10 @@
                     sub_in += parseFloat($(element).val());
             });
 
-            $('#sub-in').text("CHF " + sub_in.toFixed(2));
+            $('#sub-in').text("CHF " + js_intcomma(sub_in.toFixed(2)));
             total += sub_in;
 
-            $('#total').text("CHF " + total.toFixed(2));
+            $('#total').text("CHF " + js_intcomma(total.toFixed(2)));
 
             if(total < 0)
                 $('#total').css('color', 'red');
