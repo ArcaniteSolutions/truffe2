@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n rights_extras %}
+
+{% block title %}{{block.super}} :: {% trans "Liste de fichiers" %} ({{files.0.get_group_display}}){% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><i class="fa fa-file"></i> {% trans "Liste de fichiers" %} ({{files.0.get_group_display}})</li>
+  {% endblock %}
+
+{% block content %}
+    <h1>{% trans "Liste de fichiers" %}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+          <div class="col-sm-12 col-md-12 col-lg-12">
+                {% with w_title=files.0.get_group_display w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+                    {% for file in files %}
+                        {% ifhasright file user 'EDIT' %}
+                            <a href="{% url 'main.views.file_edit' file.pk %}" class="btn btn-default btn-xs pull-right"><i class="fa fa-pencil"></i> {% trans "Editer" %}</a>
+                        {% endifhasright %}
+
+                        <a href="{% url 'main.views.file_download' file.pk %}">{{file.title}}</a><br/>
+
+                        <small>{{file.description|linebreaksbr}}</small>
+
+                        <hr />
+
+                    {% endfor %}
+
+                {% include "widget/footer.html" %}
+
+            </div>
+
+        </div>
+    </section>
+
+
+{% endblock %}
+
+{% block menuid %}menu-_files-{{group}}{% endblock %}

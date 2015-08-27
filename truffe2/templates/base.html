@@ -514,8 +514,29 @@
                                 </ul>
                             </li>
 
+                            {% ifhasright 'main.models.File' user '!LIST_ACCOUNTING' %}
+                                <li id="menu-_files-accounting">
+                                    <a href="{% url 'main.views.file_download_list' %}?group=accounting"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                </li>
+                            {% endifhasright %}
+
                             {% cache 900 "leftmenu-links-accounting" %}
                                 {% display_links_for_menu "/accounting/" %}
+                            {% endcache %}
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-laptop"></i> <span class="menu-item-parent">{% trans "Informatique" %}</span></a>
+                        <ul>
+                            {% ifhasright 'main.models.File' user '!LIST_CS' %}
+                                <li id="menu-_files-cs">
+                                    <a href="{% url 'main.views.file_download_list' %}?group=cs"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% cache 900 "leftmenu-links-cs" %}
+                                {% display_links_for_menu "/cs/" %}
                             {% endcache %}
                         </ul>
                     </li>
@@ -532,6 +553,18 @@
                             {% ifhasright 'main.models.Link' user 'LIST' %}
                                 <li id="menu-misc-links">
                                     <a href="{% url 'main.views.link_list' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Gestion des liens" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% ifhasright 'main.models.File' user '!LIST_MISC' %}
+                                <li id="menu-_files-misc">
+                                    <a href="{% url 'main.views.file_download_list' %}?group=misc"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% ifhasright 'main.models.File' user 'LIST' %}
+                                <li id="menu-misc-files">
+                                    <a href="{% url 'main.views.file_list' %}"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Gestion des fichiers" %}</a>
                                 </li>
                             {% endifhasright %}
 

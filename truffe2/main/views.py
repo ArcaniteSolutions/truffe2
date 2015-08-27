@@ -18,7 +18,10 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db import connection
+
+
 from haystack.views import SearchView
+from sendfile import sendfile
 
 
 def _home_news(request):
@@ -304,3 +307,36 @@ def set_homepage(request):
     request.user.save()
 
     return HttpResponse('')
+
+
+@login_required
+def file_download(request, pk):
+
+    from main.models import File
+    file = get_object_or_404(File, pk=pk, deleted=False)
+
+    if not file.rights_can('DOWNLOAD', request.user):
+        raise Http404()
+
+    return sendfile(request, file.file.path, True)
+
+
+@login_required
+def file_download_list(request):
+
+    from main.models import File
+
+    group = request.GET.get('group')
+
+    if group not in ('accounting', 'cs', 'misc'):
+        raise Http404
+
+    if not File.static_rights_can('LIST_{}'.format(group.upper()), request.user):
+        raise Http404
+
+    files = File.objects.filter(deleted=False, group=group).order_by('title')
+
+    if request.user.is_external():
+        files = files.filter(access='all')
+
+    return render(request, 'main/file/download.html', {'files': files, 'group': group})
