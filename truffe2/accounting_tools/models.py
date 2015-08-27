@@ -1104,6 +1104,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
+            ('get_total', _(u'Total')),
             ('status', _('Statut')),
         ]
 
@@ -1112,6 +1113,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_colums = ['get_total']
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
@@ -1129,6 +1131,10 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
         has_unit = True
 
         menu_id = 'menu-compta-ndf'
+
+        forced_widths = {
+            '1': '350px',
+        }
 
         help_list = _(u"""Les notes de frais permettent de se faire rembourser des frais avancés pour une unité.
 
@@ -1264,6 +1270,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
+            ('get_total', _(u'Total')),
             ('status', _('Statut')),
         ]
 
@@ -1272,6 +1279,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_colums = ['get_total']
 
         base_title = _(u'Journaux de caisse')
         list_title = _(u'Liste des journaux de caisse')
