@@ -316,7 +316,7 @@ def file_download(request, pk):
     file = get_object_or_404(File, pk=pk, deleted=False)
 
     if not file.rights_can('DOWNLOAD', request.user):
-        raise Http404()
+        raise Http404
 
     return sendfile(request, file.file.path, True)
 

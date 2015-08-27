@@ -273,9 +273,9 @@ class _File(GenericModel, AgepolyEditableModel, SearchableModel):
 
         menu_id = 'menu-misc-files'
 
-        help_list = _(u"""Les différents fichiers publiques disponnibles dans truffe 2.
+        help_list = _(u"""Les différents fichiers publics disponibles dans truffe 2.
 
-Les fichiers sont regroupés en différents groupes accesibles depuis le menu latéral.""")
+Les fichiers sont regroupés en différents groupes accessibles depuis le menu latéral.""")
 
     class MetaSearch(SearchableModel.MetaSearch):
 
@@ -296,9 +296,9 @@ Les fichiers sont regroupés en différents groupes accesibles depuis le menu la
         self.MetaRights = type("MetaRights", (self.MetaRights,), {})
         self.MetaRights.rights_update({
             'DOWNLOAD': _(u'Peut télécharger le fichier'),
-            'LIST_ACCOUNTING': _(u'Peut affichier la liste de fichiers pour les finances'),
-            'LIST_CS': _(u'Peut affichier la liste de fichiers pour l\'informatique'),
-            'LIST_MISC': _(u'Peut affichier la liste de fichiers divers'),
+            'LIST_ACCOUNTING': _(u'Peut affichier la liste des fichiers pour les finances'),
+            'LIST_CS': _(u'Peut affichier la liste des fichiers pour l\'informatique'),
+            'LIST_MISC': _(u'Peut affichier la liste des fichiers divers'),
         })
 
     def rights_can_DOWNLOAD(self, user):
