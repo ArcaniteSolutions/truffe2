@@ -421,10 +421,6 @@
                                             <a href="{% url 'accounting_main.views.accounting_import_step0' %}"><i class="fa-lg fa-fw glyphicon glyphicon-import"></i> {% trans "Importer la compta" %}</a>
                                         </li>
                                     {% endifhasright %}
-                                    {% ifhasright 'accounting_main.models.Budget' user 'LIST' %}
-                                        <li id="menu-compta-budget">
-                                            <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
-                                    {% endifhasright %}
 
                                     {% cache 900 "leftmenu-links-accounting-accounting" %}
                                         {% display_links_for_menu "/accounting/accounting" %}
@@ -448,6 +444,10 @@
                                         <li id="menu-compta-invoice">
                                             <a href="{% url 'accounting_tools.views.invoice_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Factures" %}</a>
                                         </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'accounting_main.models.Budget' user 'LIST' %}
+                                        <li id="menu-compta-budget">
+                                            <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
                                     {% endifhasright %}
 
                                     {% cache 900 "leftmenu-links-accounting-tools" %}
