@@ -12,7 +12,7 @@
             // Remove style constraint on form max width
             $('.row').children().css('max-width', '');
 
-            $('form#generic_main_form').append('<h3eneric_main_form style="margin-top: 0px;">{% trans "Détails" %}</h3>');
+            $('form#generic_main_form').append('<h3 style="margin-top: 0px;">{% trans "Détails" %}</h3>');
 
             // Create table for budget
             $('form#generic_main_form').append('<table width="100%" id="budget"><thead><tr><td width="50%">{% trans "Dépenses" %}</td><td>{% trans "Recettes" %}</td></tr></thead>' +
@@ -20,10 +20,10 @@
             '<tr class="total"><td><span id="sub-out">CHF 0.00</span></td><td><span id="sub-in">CHF 0.00</span></td></tr>' +
             '<tr class="total no-border"><td colspan="2">{% trans "Total" %} <span id="total">CHF 0.00</span></td></tr></table>');
 
-            $('form#generic_main_form a').each(function(index, element) {
-                if (index == 1)
+            $('form#generic_main_form table#budget a').each(function(index, element) {
+                if(index == 0)
                     $(element).before('<table id="outcomes"><tr><td width="75%"></td><td width="20%"></td><td width="5%"></td></tr></table><br/>');
-                else if(index == 2)
+                else if(index == 1)
                     $(element).before('<table id="incomes"><tr><td width="75%"></td><td width="20%"></td><td width="5%"></td></tr></table><br/>');
             });
 
@@ -186,7 +186,7 @@
             var total = sub_out = sub_in = 0.0;
 
             $('#outcomes input[type=number]').each(function(index, element) {
-                if ($(element).val() != '')
+                if ($(element).val() != '' && $(element).attr('id') !== 'tags')
                     sub_out += parseFloat($(element).val());
             });
 
@@ -194,7 +194,7 @@
             total -= sub_out;
 
             $('#incomes input[type=number]').each(function(index, element) {
-                if ($(element).val() != '')
+                if ($(element).val() != '' && $(element).attr('id') !== 'tags')
                     sub_in += parseFloat($(element).val());
             });
 
