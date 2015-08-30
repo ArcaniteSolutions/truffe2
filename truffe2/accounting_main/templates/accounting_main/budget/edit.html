@@ -126,7 +126,7 @@
             else
                 select_id = find_prev_matching(row, '.account').find('select').attr('name').substr('account-'.length);
 
-            $(row).after("<tr id ='" + row_id + "'><td><input class='form-control' maxlength='250' name='description-" + select_id + "-" + row_id + "' placeholder='Description' required='required' title=' type='text'></td><td><input class='form-control' name='amount-" + select_id + "-" + row_id + "' placeholder='Montant' required='required' step='0.01' title='' type='number' min='0'></td><td style='padding-left: 5px;'><a data-original-title='Supprimer' href='#' class='btn btn-xs btn-danger' rel='tooltip' onclick='remove_line(this); return true;'><i class='fa fa-times'></i></a></td></tr>");
+            $(row).after("<tr id ='" + row_id + "'><td><input class='form-control' maxlength='250' name='description-" + select_id + "-" + row_id + "' placeholder='Description' required='required' title=' type='text'></td><td><input class='form-control' name='amount-" + select_id + "-" + row_id + "' placeholder='Montant' required='required' step='0.01' title='' type='number' min='0'></td><td style='padding-left: 5px;'><a data-original-title='Supprimer' href='#' class='btn btn-xs btn-danger' rel='tooltip' onclick='remove_line(this); return false;'><i class='fa fa-times'></i></a></td></tr>");
             $("#" + row_id + " td").css('padding-top', '5px');
 
             $("#" + row_id + " input:last").change(function(e) {
@@ -164,13 +164,10 @@
                 select_row.next().remove();
                 select_row.remove();
             }
-
-            update_account_subtot(e);
         }
 
         function update_account_subtot(e) {
             // Update total of account category
-            console.log(e.target);
             var account_name = e.target.name.split('-').slice(0, 3).join('-');
             var select_tr = find_prev_matching($(e.target).parents('tr'), '.account');
             var cat_values = $("input[name^='" + account_name + "']");
@@ -229,7 +226,6 @@
                             new_row.find('input').eq(1).change();
                         {% else %}
                             new_row = new_row.next();
-                            console.log(new_row);
                             new_row.find('input').first().val("{{entry.description|escapejs}}");
                             new_row.find('input').eq(1).val({{entry.amount}});
                             new_row.find('input').eq(1).change();
@@ -246,7 +242,6 @@
                             new_row.find('input').first().val(block[0].description);
                             new_row.find('input').eq(1).val(block[0].amount);
                             new_row.find('input').eq(1).change();
-
                             $.each(block, function (index, entry) {
                                 if (index > 0) {
                                     new_row = new_row.next();
