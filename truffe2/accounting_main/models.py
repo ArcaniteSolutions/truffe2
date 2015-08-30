@@ -571,14 +571,18 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
                 if field.startswith('description-'):
                     field_arr = field.split('-')
-                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
-                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]]:
+                        lines[field_arr[2]]['entries'] = {}
+                    if field_arr[3] not in lines[field_arr[2]]['entries']:
+                        lines[field_arr[2]]['entries'][field_arr[3]] = {}
                     lines[field_arr[2]]['entries'][field_arr[3]]['description'] = value
 
                 if field.startswith('amount-'):
                     field_arr = field.split('-')
-                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
-                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]]:
+                        lines[field_arr[2]]['entries'] = {}
+                    if field_arr[3] not in lines[field_arr[2]]['entries']:
+                        lines[field_arr[2]]['entries'][field_arr[3]] = {}
                     lines[field_arr[2]]['entries'][field_arr[3]]['amount'] = value
 
             for __, line_object in lines.iteritems():
@@ -591,7 +595,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                         if form_is_valid:
                             BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1]['description'], amount=amount)
 
-            return lines
+            return dict(lines)
 
     class MetaState:
         states = {

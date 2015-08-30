@@ -135,7 +135,7 @@
 
             // Add on change event listener for last & on clic button
             $(row).next().find('input').change(function() { add_subline('#' + row_id); });
-            $(row).next().next().find('a').attr('onclick', "add_subline('#" + row_id + "')");
+            $(row).next().next().find('a').attr('onclick', "add_subline('#" + row_id + "'); return false;");
 
             return row_id;
         }
@@ -147,7 +147,7 @@
 
             if (this_row.next().find('td').length == 1 && !this_row.prev().hasClass('account')) {
                 // Update "Plus" button if removed last line
-                this_row.next().find('a').attr('onclick', "add_subline('#" + this_row.prev().prop('id') + "')");
+                this_row.next().find('a').attr('onclick', "add_subline('#" + this_row.prev().prop('id') + "'); return false;");
 
                 // Reactivate onchange event on last row
                 if (this_row.prev().find('.select2-input').length == 0){
@@ -213,6 +213,7 @@
         }
 
         function get_initial_budget_infos() {
+            console.log("{{extra_args}}");
             {% if request.method == 'POST' %}
                 {% for idx, line in extra_args.iteritems %}
                     {% if line.type == 1 %}

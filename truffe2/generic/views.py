@@ -602,7 +602,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 return HttpResponseRedirect('%s%s' % (reverse(module.__name__ + '.views.' + base_name + '_show', args=(obj.pk,)), '?_upkns=_&_fromrelated=_' if related_mode else ''))
             else:
                 if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
-                    extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, True)
+                    extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, False)
 
         else:
             form = form_class(request.user, instance=obj)
