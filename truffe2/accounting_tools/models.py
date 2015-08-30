@@ -59,7 +59,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
 Vous devez inclure dans votre demande au moins :
 <ul>
-                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="http://truffe.polylan.ch/media/uploads/modeles/Budget.xltx" target="_blank">ce modèle</a> pour les externes à l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
+                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="/file/download_list/?group=accounting" target="_blank">ce modèle</a> pour les externes à l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
     <li>Bilans et comptes des d'activité des années précédentes</li>
     <li>Documents officiels (pour les Association hors AGEPoly) : statuts, liste des membres du comité, PV de la dernière AG</li>
 </ul>
