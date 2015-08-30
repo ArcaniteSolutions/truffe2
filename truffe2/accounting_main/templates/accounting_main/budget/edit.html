@@ -16,7 +16,7 @@
 
             // Create table for budget
             $('form#generic_main_form').append('<table width="100%" id="budget"><thead><tr><td width="50%">{% trans "Dépenses" %}</td><td>{% trans "Recettes" %}</td></tr></thead>' +
-            '<tr><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'outcomes\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une dépense" %}</a></td><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'incomes\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une recette" %}</a></td></tr>' +
+            '<tr><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'outcomes\'); return false;" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une dépense" %}</a></td><td style=\"vertical-align: top;\"><a href="#" onclick="add_line(\'incomes\'); return false;" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Ajouter une recette" %}</a></td></tr>' +
             '<tr class="total"><td><span id="sub-out">CHF 0.00</span></td><td><span id="sub-in">CHF 0.00</span></td></tr>' +
             '<tr class="total no-border"><td colspan="2">{% trans "Total" %} <span id="total">CHF 0.00</span></td></tr></table>');
 
@@ -108,7 +108,7 @@
 
             // Add an initial subline for a first description
             row_id = add_subline($("#" + table_id + " tr:last"));
-            $("#" + table_id).append('<tr style="vertical-align: top; height: 40px;"><td colspan="3"><a href="#" onclick="add_subline(\'#' + row_id  + '\')" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Plus" %}</a></td></tr>');
+            $("#" + table_id).append('<tr style="vertical-align: top; height: 40px;"><td colspan="3"><a href="#" onclick="add_subline(\'#' + row_id  + '\'); return false;" style="padding-left: 10px;"> <i class="fa fa-plus-circle"></i> {% trans "Plus" %}</a></td></tr>');
 
             return row_id;
         }
@@ -164,10 +164,13 @@
                 select_row.next().remove();
                 select_row.remove();
             }
+
+            update_account_subtot(e);
         }
 
         function update_account_subtot(e) {
             // Update total of account category
+            console.log(e.target);
             var account_name = e.target.name.split('-').slice(0, 3).join('-');
             var select_tr = find_prev_matching($(e.target).parents('tr'), '.account');
             var cat_values = $("input[name^='" + account_name + "']");
@@ -210,27 +213,29 @@
         }
 
         function get_initial_budget_infos() {
-            {% for idx, line in extra_args.iteritems %}
-                {% if line.type == 1 %}
-                    new_row_id = add_line('incomes', {{line.account_pk}});
-                {% else %}
-                    new_row_id = add_line('outcomes', {{line.account_pk}});
-                {% endif %}
-
-                {% for idx, entry in line.entries.iteritems %}
-                    {% if forloop.first %}
-                        new_row = $('#' + new_row_id);
-                        new_row.find('input').first().val({{entry.description}});
-                        new_row.find('input').last().val({{entry.amount}});
+            {% if request.method == 'POST' %}
+                {% for idx, line in extra_args.iteritems %}
+                    {% if line.type == 1 %}
+                        new_row_id = add_line('incomes', {{line.account_pk}});
                     {% else %}
-                        new_row_id = add_subline(new_row);
-                        new_row = $('#' + new_row_id);
-                        new_row.find('input').first().val({{entry.description}});
-                        new_row.find('input').last().val({{entry.amount}});
-                        new_row.find('input').last().change();
+                        new_row_id = add_line('outcomes', {{line.account_pk}});
                     {% endif %}
+
+                    {% for idx, entry in line.entries.iteritems %}
+                        {% if forloop.first %}
+                            new_row = $('#' + new_row_id);
+                            new_row.find('input').first().val({{entry.description}});
+                            new_row.find('input').last().val({{entry.amount}});
+                        {% else %}
+                            new_row_id = add_subline(new_row);
+                            new_row = $('#' + new_row_id);
+                            new_row.find('input').first().val({{entry.description}});
+                            new_row.find('input').last().val({{entry.amount}});
+                            new_row.find('input').last().change();
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
-            {% empty %}
+            {% else %}
                 {% if form.instance.pk %}
                     $.ajax('{% url 'accounting_main.views.budget_getinfos' form.instance.pk %}').done(function (data) {
 
@@ -252,7 +257,7 @@
                         });
                     });
                 {% endif %}
-            {% endfor %}
+            {% endif %}
         }
     </script>
 {% endblock %}

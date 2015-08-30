@@ -544,6 +544,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 if hasattr(obj, 'save_signal'):
                     obj.save_signal()
 
+                if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
+                    extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, True)
+
                 messages.success(request, _(u'Élément sauvegardé !'))
 
                 if not before_data:
@@ -590,10 +593,6 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 obj.user_has_seen_object(request.user)
 
-            if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
-                extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, form.is_valid() and all_forms_valids)
-
-            if form.is_valid() and all_forms_valids:  # If the form is valid
                 if request.POST.get('post-save-dest'):
                     if request.POST.get('post-save-dest') == 'new':
                         return redirect(module.__name__ + '.views.' + base_name + '_edit', pk='~')
@@ -601,6 +600,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         return redirect(module.__name__ + '.views.' + base_name + '_edit', pk=obj.pk)
 
                 return HttpResponseRedirect('%s%s' % (reverse(module.__name__ + '.views.' + base_name + '_show', args=(obj.pk,)), '?_upkns=_&_fromrelated=_' if related_mode else ''))
+            else:
+                if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
+                    extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, True)
+
         else:
             form = form_class(request.user, instance=obj)
 
