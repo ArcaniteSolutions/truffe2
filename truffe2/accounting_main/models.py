@@ -553,14 +553,15 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
     class MetaEdit:
         @staticmethod
-        def do_extra_post_actions(obj, post_request):
+        def do_extra_post_actions(obj, post_request, form_is_valid):
             """Edit budget lines on edit"""
             from accounting_core.models import Account
             from accounting_main.models import BudgetLine
 
-            map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
+            if form_is_valid:
+                map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
 
-            lines = collections.defaultdict(dict)
+            lines = collections.defaultdict(dict)  # {id: {type, account_pk, entries: {id1: {description, amount}, id2:{}, ...}}, ...}
             for (field, value) in post_request.iteritems():
 
                 if field.startswith('account-'):
@@ -570,14 +571,18 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
                 if field.startswith('description-'):
                     field_arr = field.split('-')
-                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
-                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]]:
+                        lines[field_arr[2]]['entries'] = {}
+                    if field_arr[3] not in lines[field_arr[2]]['entries']:
+                        lines[field_arr[2]]['entries'][field_arr[3]] = {}
                     lines[field_arr[2]]['entries'][field_arr[3]]['description'] = value
 
                 if field.startswith('amount-'):
                     field_arr = field.split('-')
-                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
-                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]]:
+                        lines[field_arr[2]]['entries'] = {}
+                    if field_arr[3] not in lines[field_arr[2]]['entries']:
+                        lines[field_arr[2]]['entries'][field_arr[3]] = {}
                     lines[field_arr[2]]['entries'][field_arr[3]]['amount'] = value
 
             for __, line_object in lines.iteritems():
@@ -585,9 +590,13 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                 coeff = line_object['type']  # -1 for outcomes, 1 for incomes
                 entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
                 for entry in entries:
-                    if entry[1]['amount']:
+                    if entry[1]['amount'] and entry[1]['description']:
                         amount = coeff * abs(float(entry[1]['amount']))
-                        BudgetLine(budget=obj, account=account, description=entry[1]['description'], amount=amount).save()
+                        if form_is_valid:
+                            BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1]['description'], amount=amount)
+                    else:
+                        del line_object['entries'][entry[0]]
+            return dict(lines)
 
     class MetaState:
         states = {

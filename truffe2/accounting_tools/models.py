@@ -99,7 +99,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             '4': '150px',
         }
 
-        help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou association auprès de l'AGEPoly.""")
+        help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou associations auprès de l'AGEPoly.""")
 
     class MetaAccounting:
         copiable = False
@@ -350,7 +350,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outils (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'ils contiennent TOUTES LES INFORMATIONS NÉCESSAIRES).
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il contienne TOUTES LES INFORMATIONS NÉCESSAIRES).
 
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
@@ -1104,6 +1104,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
+            ('get_total', _(u'Total')),
             ('status', _('Statut')),
         ]
 
@@ -1112,6 +1113,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_colums = ['get_total']
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
@@ -1129,6 +1131,10 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
         has_unit = True
 
         menu_id = 'menu-compta-ndf'
+
+        forced_widths = {
+            '1': '350px',
+        }
 
         help_list = _(u"""Les notes de frais permettent de se faire rembourser des frais avancés pour une unité.
 
@@ -1264,6 +1270,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
+            ('get_total', _(u'Total')),
             ('status', _('Statut')),
         ]
 
@@ -1272,6 +1279,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_colums = ['get_total']
 
         base_title = _(u'Journaux de caisse')
         list_title = _(u'Liste des journaux de caisse')
