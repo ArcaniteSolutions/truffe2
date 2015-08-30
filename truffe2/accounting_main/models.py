@@ -553,14 +553,15 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
     class MetaEdit:
         @staticmethod
-        def do_extra_post_actions(obj, post_request):
+        def do_extra_post_actions(obj, post_request, form_is_valid):
             """Edit budget lines on edit"""
             from accounting_core.models import Account
             from accounting_main.models import BudgetLine
 
-            map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
+            if form_is_valid:
+                map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
 
-            lines = collections.defaultdict(dict)
+            lines = collections.defaultdict(dict)  # {id: {type, account_pk, entries: {id1: {description, amount}, id2:{}, ...}}, ...}
             for (field, value) in post_request.iteritems():
 
                 if field.startswith('account-'):
@@ -587,7 +588,10 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                 for entry in entries:
                     if entry[1]['amount']:
                         amount = coeff * abs(float(entry[1]['amount']))
-                        BudgetLine(budget=obj, account=account, description=entry[1]['description'], amount=amount).save()
+                        if form_is_valid:
+                            BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1]['description'], amount=amount)
+
+            return lines
 
     class MetaState:
         states = {
