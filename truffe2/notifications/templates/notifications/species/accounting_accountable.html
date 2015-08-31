@@ -1,6 +1,6 @@
 {% extends "notifications/species/accounting_base.html"}
 {% load i18n %}
 
-{% block message}
+{% block message %}
     {% trans 'La pièce comptable "' %}<span class="text-primary">{{notification.linked_object}}</span>{% trans '" est prête à être comptabilisée.' %}
 {% endblock %}

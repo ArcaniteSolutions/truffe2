@@ -5,7 +5,7 @@
 </em>
 
 <span>
-    {%block message %}{% trans "Le message qui devrait s'afficher ici n'a pas été implémenté. Merci de contacter l'administrateur." %}{% endblock %}
+    {% block message %}{% trans "Le message qui devrait s'afficher ici n'a pas été implémenté. Merci de contacter l'administrateur." %}{% endblock %}
 
     <ul>
         {% if notification.linked_object|get_class == 'InternalTransfer' %}
