@@ -1,5 +1,5 @@
 {% load i18n humanize generic_extras %}
-{% block message %}{% trans "Message manquant! Contacter l'administrateur" %}{% endblock %}
+{% block message %}{% trans "Message manquant! Contacter l'administrateur." %}{% endblock %}
 
 {% if notification.linked_object|get_class == 'InternalTransfer' %}
 - CHF {{notification.linked_object.amount|intcomma}} : {{notification.linked_object.cost_center_from}} &#10140; {{notification.linked_object.cost_center_to}} ({{notification.linked_object.account}})
