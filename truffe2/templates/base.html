@@ -119,9 +119,6 @@
                         {% display_links_for_menu "/main/top" %}
                     {% endcache %}
 
-                    <li>
-                        <a href="https://truffe.polylan.ch" title="{% trans "Retourner sur Truffe 1" %}"><i class="fa fa-lg fa-fw fa-backward"></i> <span class="menu-item-parent">{% trans "Retourner sur Truffe 1" %}</span></a>
-                    </li>
                     {% if user.is_superuser or user.is_impersonate %}
                         <li>
                             <a href="#"><i class="fa fa-lg fa-fw fa-legal"></i> <span class="menu-item-parent">{% trans "Admin" %}</span></a>
