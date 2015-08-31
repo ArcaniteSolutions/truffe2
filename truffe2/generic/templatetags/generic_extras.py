@@ -63,6 +63,11 @@ def get_class(value):
     return value.__class__.__name__
 
 
+@register.filter
+def is_new_for(obj, user):
+    return obj.is_new(user)
+
+
 @register.simple_tag(takes_context=True)
 def switchable(context, obj, user, id):
     return 'true' if obj.may_switch_to(user, id) else 'false'

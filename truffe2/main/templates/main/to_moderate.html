@@ -1,29 +1,28 @@
-{% load i18n %}
+{% load i18n generic_extras %}
 
 {% if not liste %}
-    <h5 class="todo-group-title"><i class="fa fa-check"></i> {% trans "Rien à faire !" %}</h5>
-    <ul class="todo">
-        <li style="background: none;">
-            <span style="display: none;"></span>
-            <p style="margin-left: 0px;">
-                {% blocktrans %}Tu n'as rien à modérer, soit parce que tu as peu de droits, soit parce que tu as bien fait ton travail :){% endblocktrans %}
-            </p>
-        </li>
-    </ul>
+    <div style="margin: 5px;">
+        <h4 class="text-success"><i class="fa fa-check"></i> {% trans "Rien à faire !" %}</h4>
+        {% blocktrans %}Tu n'as rien à modérer, soit parce que tu as peu de droits, soit parce que tu as bien fait ton travail :){% endblocktrans %}
+    </div>
 {% else %}
 
-    {% for key, items in liste.iteritems %}
-        <h5 class="todo-group-title"><i class="fa fa-exclamation"></i> {{key}} (<small class="num-of-tasks">{{items|length}}</small>)</h5>
+    <table class="table table-condensed table-hover table-striped">
 
-        <ul class="todo">
+        {% for key, items in liste.iteritems %}
+            <tr class="info">
+                <th colspan="3"><i class="fa fa-{{key.MetaData.elem_icon}}"></i> {{key.MetaData.base_title}} ({{items|length}})</th>
+            </tr>
+
             {% for item in items %}
-                <li style="background: none;">
-                    <span style="display: none;"></span>
-                    <p style="margin-left: 0px;">
-                        {{item}}</strong> <a href="{{item.display_url}}" class="font-xs">{% trans "Détails" %}</a> <span class="date">{{item.last_log.when|date}} {{item.last_log.when|time}}</span>
-                    </p>
-                </li>
+                <tr>
+                    <td>
+                        <a href="{{item.display_url}}">{% if item|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{item}}</a>
+                    </td>
+                    <td>{% if item.get_unit_name %}{{item.get_unit_name|safe}}{% else %}<span class="label label-success label-crlf">{{item.unit}}</span>{% endif %}</td>
+                    <td>{{item.last_log.when|date:"d.m.Y"}} {{item.last_log.when|time:"H:i:s"}}</td>
+                </tr>
             {% endfor %}
-        </ul>
-    {% endfor %}
+        {% endfor %}
+    </table>
 {% endif %}

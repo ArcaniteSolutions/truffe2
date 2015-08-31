@@ -14,13 +14,13 @@ import json
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from accounting_core.models import AccountingGroupModels
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, SearchableModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 from users.models import TruffeUser
 
 
-class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
+class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -174,6 +174,19 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
             ('2_error', '1_validated'): FormValid
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"compta"
+
+        fields = [
+            'account',
+            'date',
+            'document_id',
+            'input',
+            'output',
+            'text',
+        ]
+
     def may_switch_to(self, user, dest_state):
         return super(_AccountingLine, self).rights_can_EDIT(user) and super(_AccountingLine, self).may_switch_to(user, dest_state)
 
@@ -273,7 +286,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         return self.rights_in_root_unit(user, ['TRESORERIE', 'SECRETARIAT'])
 
 
-class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel):
+class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, GenericGroupsModel, AccountingGroupModels, GenericContactableModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -377,6 +390,15 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         states_bonus_form = {
             '2_fixed': FormFixed
         }
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"compta"
+
+        fields = [
+            'initial_remark',
+            'get_line_title',
+        ]
 
     def may_switch_to(self, user, dest_state):
 
@@ -491,7 +513,7 @@ class AccountingErrorMessage(models.Model):
     error = models.ForeignKey('AccountingError')
 
 
-class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericContactableModel, GenericTaggableObject, AccountingGroupModels):
+class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericContactableModel, GenericTaggableObject, AccountingGroupModels, SearchableModel):
     """Modèle pour les budgets"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -531,14 +553,15 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
     class MetaEdit:
         @staticmethod
-        def do_extra_post_actions(obj, post_request):
+        def do_extra_post_actions(obj, post_request, form_is_valid):
             """Edit budget lines on edit"""
             from accounting_core.models import Account
             from accounting_main.models import BudgetLine
 
-            map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
+            if form_is_valid:
+                map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
 
-            lines = collections.defaultdict(dict)
+            lines = collections.defaultdict(dict)  # {id: {type, account_pk, entries: {id1: {description, amount}, id2:{}, ...}}, ...}
             for (field, value) in post_request.iteritems():
 
                 if field.startswith('account-'):
@@ -548,14 +571,18 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
                 if field.startswith('description-'):
                     field_arr = field.split('-')
-                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
-                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]]:
+                        lines[field_arr[2]]['entries'] = {}
+                    if field_arr[3] not in lines[field_arr[2]]['entries']:
+                        lines[field_arr[2]]['entries'][field_arr[3]] = {}
                     lines[field_arr[2]]['entries'][field_arr[3]]['description'] = value
 
                 if field.startswith('amount-'):
                     field_arr = field.split('-')
-                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]].keys():
-                        lines[field_arr[2]]['entries'] = collections.defaultdict(dict)
+                    if not lines[field_arr[2]] or 'entries' not in lines[field_arr[2]]:
+                        lines[field_arr[2]]['entries'] = {}
+                    if field_arr[3] not in lines[field_arr[2]]['entries']:
+                        lines[field_arr[2]]['entries'][field_arr[3]] = {}
                     lines[field_arr[2]]['entries'][field_arr[3]]['amount'] = value
 
             for __, line_object in lines.iteritems():
@@ -563,9 +590,13 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                 coeff = line_object['type']  # -1 for outcomes, 1 for incomes
                 entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
                 for entry in entries:
-                    if entry[1]['amount']:
+                    if entry[1]['amount'] and entry[1]['description']:
                         amount = coeff * abs(float(entry[1]['amount']))
-                        BudgetLine(budget=obj, account=account, description=entry[1]['description'], amount=amount).save()
+                        if form_is_valid:
+                            BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1]['description'], amount=amount)
+                    else:
+                        del line_object['entries'][entry[0]]
+            return dict(lines)
 
     class MetaState:
         states = {
@@ -627,6 +658,18 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
             '1_submited': (0.5, 0.25),
             '1_private': (0.2, 0.75),
             '2_treated': (0.8, 0.25),
+        }
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'name',
+        ]
+
+        linked_lines = {
+            'budgetline_set': ['description']
         }
 
     def may_switch_to(self, user, dest_state):

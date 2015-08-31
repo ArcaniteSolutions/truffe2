@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateRootModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericModelWithFiles
+from generic.models import GenericModel, GenericStateModel, GenericStateRootModerable, FalseFK, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericModelWithFiles, SearchableModel
 from django.utils.translation import ugettext_lazy as _
 
 from rights.utils import UnitEditableModel, AutoVisibilityLevel
 
 
-class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootModerable, GenericStateModel, UnitEditableModel):
+class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootModerable, GenericStateModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'
@@ -51,6 +51,16 @@ Elles sont soumises à modération par le responsable communication de l'AGEPoly
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'title',
+            'content',
+            'url',
+        ]
+
     class Meta:
         abstract = True
 
@@ -58,7 +68,7 @@ Elles sont soumises à modération par le responsable communication de l'AGEPoly
         return self.title
 
 
-class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootModerable, GenericStateModel, UnitEditableModel):
+class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, GenericContactableModel, GenericStateRootModerable, GenericStateModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'
@@ -103,6 +113,14 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"écrans"
+
+        fields = [
+            'title',
+        ]
+
     class Meta:
         abstract = True
 
@@ -114,7 +132,7 @@ Ils sont soumis à modération par le responsable communication de l'AGEPoly ava
             return _(u'<span class="text-warning"><i class="fa fa-warning"></i> Les dimensions de l\'image sont trop petites ! ({}x{} contre 1920x1080 recommandé)'.format(self.picture.width, self.picture.height))
 
 
-class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditableModel):
+class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'
@@ -150,6 +168,15 @@ Un logo peut comporter plusieurs fichiers : ceci te permet d'uploader différent
     class MetaEdit:
         files_title = _(u'Fichiers')
         files_help = _(u'Envoie le ou les fichiers de ton logo. Le système te permet d\'envoyer plusieurs fichiers pour te permettre d\'envoyer des formats différents.')
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+        index_files = True
+
+        fields = [
+            'name',
+        ]
 
     class Meta:
         abstract = True

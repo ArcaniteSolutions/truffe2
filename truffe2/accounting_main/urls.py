@@ -17,4 +17,6 @@ urlpatterns = patterns(
     url(r'^budget/(?P<pk>[0-9]+)/copy$', 'copy_budget'),
     url(r'^budget/(?P<pk>[0-9]+)/get_infos$', 'budget_getinfos'),
     url(r'^budget/(?P<pk>[0-9]+)/pdf/', 'budget_pdf'),
+
+    url(r'^accounting/budget_view', 'accounting_budget_view'),
 )

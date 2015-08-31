@@ -3,11 +3,10 @@
 <html lang="en-us">
     <head>
         <meta charset="utf-8">
-        <!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
 
-        <title>{% block title %}Truffe{% endblock %}</title>
-        <meta name="description" content="">
-        <meta name="author" content="">
+        <title>{% block title %}Truffe2{% endblock %}</title>
+        <meta name="description" content="{% trans "L'intranet de l'AGEPoly !" %}">
+        <meta name="author" content="Maximilien Cuony, Lionel Martin">
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
@@ -51,39 +50,10 @@
                 <span id="activity" class="activity-dropdown" url="{% url 'notifications.views.dropdown' %}">
                     <i class="fa fa-bell"></i>
                     <b class="badge bounceIn animated">{{notifications_count}}</b>
-
                 </span>
 
                 <div class="ajax-dropdown"></div>
             </div>
-
-                <div style="font-weight: bold; font-size: 140%; color: #FF2383; padding-top: 10px; margin-left: 40px; text-decoration: underline;">{% trans "ATTENTION - APPLICATION EN COURS DE DEVELOPEMENT" %}</div>
-<!--             <!&#45;&#45; projects dropdown &#45;&#45;> -->
-<!--             <div id="project&#45;context"> -->
-<!--  -->
-<!--                 <span class="label">Projects:</span> -->
-<!--                 <span id="project&#45;selector" class="popover&#45;trigger&#45;element dropdown&#45;toggle" data&#45;toggle="dropdown">Recent projects <i class="fa fa&#45;angle&#45;down"></i></span> -->
-<!--  -->
-<!--                 <!&#45;&#45; Suggestion: populate this list with fetch and push technique &#45;&#45;> -->
-<!--                 <ul class="dropdown&#45;menu"> -->
-<!--                     <li> -->
-<!--                         <a href="javascript:void(0);">Online e&#45;merchant management system &#45; attaching integration with the iOS</a> -->
-<!--                     </li> -->
-<!--                     <li> -->
-<!--                         <a href="javascript:void(0);">Notes on pipeline upgradee</a> -->
-<!--                     </li> -->
-<!--                     <li> -->
-<!--                         <a href="javascript:void(0);">Assesment Report for merchant account</a> -->
-<!--                     </li> -->
-<!--                     <li class="divider"></li> -->
-<!--                     <li> -->
-<!--                         <a href="javascript:void(0);"><i class="fa fa&#45;power&#45;off"></i> Clear</a> -->
-<!--                     </li> -->
-<!--                 </ul> -->
-<!--                 <!&#45;&#45; end dropdown&#45;menu&#45;&#45;> -->
-<!--  -->
-<!--             </div> -->
-<!--             <!&#45;&#45; end projects dropdown &#45;&#45;> -->
 
             <!-- pulled right: nav area -->
             <div class="pull-right">
@@ -100,21 +70,21 @@
                 </div>
                 <!-- end logout button -->
 
-<!--                 <!&#45;&#45; search mobile button (this is hidden till mobile view port) &#45;&#45;> -->
-<!--                 <div id="search&#45;mobile" class="btn&#45;header transparent pull&#45;right"> -->
-<!--                     <span> <a href="javascript:void(0)" title="Search"><i class="fa fa&#45;search"></i></a> </span> -->
-<!--                 </div> -->
-<!--                 <!&#45;&#45; end search mobile button &#45;&#45;> -->
-<!--  -->
-<!--                 <!&#45;&#45; input: search field &#45;&#45;> -->
-<!--                 <form action="#search.html" class="header&#45;search pull&#45;right"> -->
-<!--                     <input type="text" placeholder="Find reports and more" id="search&#45;fld"> -->
-<!--                     <button type="submit"> -->
-<!--                         <i class="fa fa&#45;search"></i> -->
-<!--                     </button> -->
-<!--                     <a href="javascript:void(0);" id="cancel&#45;search&#45;js" title="Cancel Search"><i class="fa fa&#45;times"></i></a> -->
-<!--                 </form> -->
-<!--                 <!&#45;&#45; end input: search field &#45;&#45;> -->
+                <!-- search mobile button (this is hidden till mobile view port) -->
+                <div id="search-mobile" class="btn-header transparent pull-right">
+                    <span> <a href="javascript:void(0)" title="Search"><i class="fa fa-search"></i></a> </span>
+                </div>
+                <!-- end search mobile button -->
+
+                <!-- input: search field -->
+                <form action="{% url 'search_view' %}" class="header-search pull-right">
+                    <input type="text" name="q" placeholder="{% trans "Rechercher dans truffe 2" %}" id="search-fld">
+                    <button type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <a href="javascript:void(0);" id="cancel-search-js" title="{% trans "Annuler" %}"><i class="fa fa-times"></i></a>
+                </form>
+                <!-- end input: search field -->
 
             </div>
             <!-- end pulled right: nav area -->
@@ -229,55 +199,52 @@
                     <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> <span class="menu-item-parent">{% trans "Logistique" %}</span></a>
                         <ul>
+                            <li>
+                                <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Véhicules" %}</a>
 
-                            {% if user.is_superuser or user.is_impersonate or user.is_betatester %}
-                                <li>
-                                    <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Véhicules" %}</a>
+                                <ul class="subsub-menu">
 
-                                    <ul class="subsub-menu">
+                                    {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
+                                        <li id="menu-vehicles-booking">
+                                            <a href="{% url 'vehicles.views.booking_list' %}"><i class="fa fa-lg fa-fw fa-ambulance"></i> {% trans "Réservations" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
+                                        <li id="menu-vehicles-booking-calendar">
+                                            <a href="{% url 'vehicles.views.booking_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Booking' user 'VALIDATE' %}
+                                        <li id="menu-vehicles-booking-calendar-related">
+                                            <a href="{% url 'vehicles.views.booking_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier de toutes les réservations" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Provider' user 'LIST' %}
+                                        <li id="menu-vehicles-provider">
+                                            <a href="{% url 'vehicles.views.provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.VehicleType' user 'LIST' %}
+                                        <li id="menu-vehicles-type">
+                                            <a href="{% url 'vehicles.views.vehicletype_list' %}"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Types de véhicules" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Card' user 'LIST' %}
+                                        <li id="menu-vehicles-cards">
+                                            <a href="{% url 'vehicles.views.card_list' %}"><i class="fa fa-lg fa-fw fa-credit-card"></i> {% trans "Cartes" %}</a>
+                                        </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'vehicles.models.Location' user 'LIST' %}
+                                        <li id="menu-vehicles-location">
+                                            <a href="{% url 'vehicles.views.location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
+                                        </li>
+                                    {% endifhasright %}
 
-                                        {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
-                                            <li id="menu-vehicles-booking">
-                                                <a href="{% url 'vehicles.views.booking_list' %}"><i class="fa fa-lg fa-fw fa-ambulance"></i> {% trans "Réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
-                                            <li id="menu-vehicles-booking-calendar">
-                                                <a href="{% url 'vehicles.views.booking_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Booking' user 'VALIDATE' %}
-                                            <li id="menu-vehicles-booking-calendar-related">
-                                                <a href="{% url 'vehicles.views.booking_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier de toutes les réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Provider' user 'LIST' %}
-                                            <li id="menu-vehicles-provider">
-                                                <a href="{% url 'vehicles.views.provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.VehicleType' user 'LIST' %}
-                                            <li id="menu-vehicles-type">
-                                                <a href="{% url 'vehicles.views.vehicletype_list' %}"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Types de véhicules" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Card' user 'LIST' %}
-                                            <li id="menu-vehicles-cards">
-                                                <a href="{% url 'vehicles.views.card_list' %}"><i class="fa fa-lg fa-fw fa-credit-card"></i> {% trans "Cartes" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'vehicles.models.Location' user 'LIST' %}
-                                            <li id="menu-vehicles-location">
-                                                <a href="{% url 'vehicles.views.location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% cache 900 "leftmenu-links-logistics-vehicles" %}
-                                            {% display_links_for_menu "/logistics/vehicles/" %}
-                                        {% endcache %}
-                                    </ul>
-                                </li>
-                            {% endif %}
+                                    {% cache 900 "leftmenu-links-logistics-vehicles" %}
+                                        {% display_links_for_menu "/logistics/vehicles/" %}
+                                    {% endcache %}
+                                </ul>
+                            </li>
                             {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
                                 <li>
                                     <a href="#"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Salles" %}</a>
@@ -424,10 +391,6 @@
                                             <a href="{% url 'accounting_main.views.accounting_import_step0' %}"><i class="fa-lg fa-fw glyphicon glyphicon-import"></i> {% trans "Importer la compta" %}</a>
                                         </li>
                                     {% endifhasright %}
-                                    {% ifhasright 'accounting_main.models.Budget' user 'LIST' %}
-                                        <li id="menu-compta-budget">
-                                            <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
-                                    {% endifhasright %}
 
                                     {% cache 900 "leftmenu-links-accounting-accounting" %}
                                         {% display_links_for_menu "/accounting/accounting" %}
@@ -451,6 +414,10 @@
                                         <li id="menu-compta-invoice">
                                             <a href="{% url 'accounting_tools.views.invoice_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Factures" %}</a>
                                         </li>
+                                    {% endifhasright %}
+                                    {% ifhasright 'accounting_main.models.Budget' user 'LIST' %}
+                                        <li id="menu-compta-budget">
+                                            <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
                                     {% endifhasright %}
 
                                     {% cache 900 "leftmenu-links-accounting-tools" %}
@@ -517,8 +484,29 @@
                                 </ul>
                             </li>
 
+                            {% ifhasright 'main.models.File' user '!LIST_ACCOUNTING' %}
+                                <li id="menu-_files-accounting">
+                                    <a href="{% url 'main.views.file_download_list' %}?group=accounting"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                </li>
+                            {% endifhasright %}
+
                             {% cache 900 "leftmenu-links-accounting" %}
                                 {% display_links_for_menu "/accounting/" %}
+                            {% endcache %}
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-lg fa-fw fa-laptop"></i> <span class="menu-item-parent">{% trans "Informatique" %}</span></a>
+                        <ul>
+                            {% ifhasright 'main.models.File' user '!LIST_CS' %}
+                                <li id="menu-_files-cs">
+                                    <a href="{% url 'main.views.file_download_list' %}?group=cs"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% cache 900 "leftmenu-links-cs" %}
+                                {% display_links_for_menu "/cs/" %}
                             {% endcache %}
                         </ul>
                     </li>
@@ -535,6 +523,18 @@
                             {% ifhasright 'main.models.Link' user 'LIST' %}
                                 <li id="menu-misc-links">
                                     <a href="{% url 'main.views.link_list' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Gestion des liens" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% ifhasright 'main.models.File' user '!LIST_MISC' %}
+                                <li id="menu-_files-misc">
+                                    <a href="{% url 'main.views.file_download_list' %}?group=misc"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                </li>
+                            {% endifhasright %}
+
+                            {% ifhasright 'main.models.File' user 'LIST' %}
+                                <li id="menu-misc-files">
+                                    <a href="{% url 'main.views.file_list' %}"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Gestion des fichiers" %}</a>
                                 </li>
                             {% endifhasright %}
 
@@ -593,7 +593,6 @@
                 {% block content %}
                 {% endblock %}
 
-
                 <div class="footer">&copy; Copyright 2015: Maximilien Cuony, Lionel Martin et <a href="https://github.com/agepoly/truffe2/graphs/contributors" target="_blank">{% trans "contributeurs" %}</a> - BSD - <a href="https://github.com/agepoly/truffe2">Fork me on github !</a><br />
                     {% trans "Développé pour l'" %}<a href="https://agepoly.ch">AGEPoly</a> {% trans "avec" %} <a href="https://www.djangoproject.com/">Django</a> - {% trans "Soutien technique partiel par" %} <a href="https://polylan.ch">PolyLAN</a>
                     <hr style="clear: both; visibility: hidden;">
@@ -608,8 +607,6 @@
 
         <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
         <script data-pace-options='{ "restartOnRequestAfter": true }' src="{{MEDIA_URL}}js/plugin/pace/pace.min.js"></script>
-        <!-- JS TOUCH : include this plugin for mobile drag / drop touch events
-        <script src="{{MEDIA_URL}}js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script> -->
 
         <!-- BOOTSTRAP JS -->
         <script src="{{MEDIA_URL}}js/bootstrap/bootstrap.min.js"></script>
@@ -622,15 +619,6 @@
 
         <!-- EASY PIE CHARTS -->
         <script src="{{MEDIA_URL}}js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js"></script>
-
-        <!-- SPARKLINES -->
-        <script src="{{MEDIA_URL}}js/plugin/sparkline/jquery.sparkline.min.js"></script>
-
-        <!-- JQUERY VALIDATE -->
-        <script src="{{MEDIA_URL}}js/plugin/jquery-validate/jquery.validate.min.js"></script>
-
-        <!-- JQUERY MASKED INPUT -->
-        <script src="{{MEDIA_URL}}js/plugin/masked-input/jquery.maskedinput.min.js"></script>
 
         <!-- JQUERY SELECT2 INPUT -->
         <script src="{{MEDIA_URL}}js/plugin/select2/select2.min.js"></script>
@@ -647,9 +635,7 @@
         <script src="{{MEDIA_URL}}js/arrive.min.js"></script>
 
         <!--[if IE 7]>
-
         <h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
-
         <![endif]-->
 
         <!-- MAIN APP JS FILE -->
@@ -657,47 +643,44 @@
 
         <script src="{{MEDIA_URL}}js/truffe.js"></script>
 
-
         <script type="text/javascript">
 
-        var CURRENT_MENU = '{% block menuid %}{% endblock %}';
+            var CURRENT_MENU = '{% block menuid %}{% endblock %}';
 
-        if (CURRENT_MENU != '')
-            activate_menu(CURRENT_MENU);
+            if (CURRENT_MENU != '')
+                activate_menu(CURRENT_MENU);
 
-        $(document).ready(function() {
+            $(document).ready(function() {
 
-            pageSetUp();
+                pageSetUp();
 
-            {% if messages %}
-                {% for message in messages %}
-                    $.smallBox({
-                        title : "{{message}}",
-                        content : "",
-                        color : "{% if message.tags == "success" %}#739E73{% endif %}{% if message.tags == "warning" %}#C79121{% endif %}{% if message.tags == "error" %}#C46A69{% endif %}{% if message.tags == "info" %}#3276B1{% endif %}",
-                        iconSmall : "fa fa-{% if message.tags == "success" %}check{% endif %}{% if message.tags == "warning" %}warning{% endif %}{% if message.tags == "error" %}warning{% endif %}{% if message.tags == "info" %}info{% endif %} bounce animated",
-                        timeout : 10000,
-                        sound: false
-                    });
-                {% endfor %}
+                {% if messages %}
+                    {% for message in messages %}
+                        $.smallBox({
+                            title : "{{message}}",
+                            content : "",
+                            color : "{% if message.tags == "success" %}#739E73{% endif %}{% if message.tags == "warning" %}#C79121{% endif %}{% if message.tags == "error" %}#C46A69{% endif %}{% if message.tags == "info" %}#3276B1{% endif %}",
+                            iconSmall : "fa fa-{% if message.tags == "success" %}check{% endif %}{% if message.tags == "warning" %}warning{% endif %}{% if message.tags == "error" %}warning{% endif %}{% if message.tags == "info" %}info{% endif %} bounce animated",
+                            timeout : 10000,
+                            sound: false
+                        });
+                    {% endfor %}
 
-            {% endif %}
-        })
+                {% endif %}
+            })
 
-        function notification_ignore(pk) {
-            $.ajax('{% url 'notifications.views.dropdown' %}?read=' + pk).done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
-        }
+            function notification_ignore(pk) {
+                $.ajax('{% url 'notifications.views.dropdown' %}?read=' + pk).done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
+            }
 
-        function mark_all_as_ok() {
-            $.ajax('{% url 'notifications.views.dropdown' %}?allread=jeu').done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
+            function mark_all_as_ok() {
+                $.ajax('{% url 'notifications.views.dropdown' %}?allread=jeu').done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
 
-        }
-
-
+            }
 
         </script>
 
-       <script>
+        <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -708,6 +691,5 @@
 
         </script>
     </body>
-
 
 </html>

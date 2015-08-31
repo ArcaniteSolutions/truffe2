@@ -1,0 +1,67 @@
+{% load i18n bootstrap3 generic_extras %}
+
+<div class="modal-content">
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">{% trans "Vue en budget de la compta" %} {{costcenter}}</h4>
+
+    </div>
+
+    <div class="modal-body">
+
+        <div class="row">
+
+            {% for account, subcategories, subaccounts in data %}
+                <div class="col-md-3 root-acc">
+                    {% with level=1 subcategories=subcategories childsaccount=childsaccount subaccounts=subaccounts %}{% include "accounting_main/accountingline/_budget_view_account.html" %}{% endwith %}
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="modal-footer">
+        <button type="button" class="btn btn-default" id="modal-graph-cancel" data-dismiss="modal">
+            {% trans "Fermer" %}
+        </button>
+        </div>
+    </div>
+
+</div><!-- /.modal-content -->
+
+<script type="text/javascript">
+    function process_level(root_elem, level) {
+
+        if ($(root_elem).find(".budget-tr[style!='display: none;']").length == 0) {
+            $(root_elem).hide();
+        }
+
+        $(root_elem).find('.acc-level-' + level).each(function (_, elem) {
+            process_level(elem, level+1);
+        });
+    }
+
+    $('.root-acc').each(function (_, elem) {
+        process_level(elem, 1);
+    });
+
+    nb_visible = $('.root-acc[style!="display: none;"]').length;
+
+    $('.root-acc').removeClass('col-md-3');
+    $('.root-acc').removeClass('col-md-4');
+    $('.root-acc').removeClass('col-md-6');
+    $('.root-acc').removeClass('col-md-12');
+
+    nb_cols = 3;
+
+    if (nb_visible == 1)
+        nb_cols = 1;
+    else if (nb_visible == 2)
+        nb_cols = 6;
+    else if (nb_visible == 3)
+        nb_cols = 4;
+
+    $('.root-acc').addClass('col-md-' + nb_cols);
+</script>

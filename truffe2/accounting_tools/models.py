@@ -20,12 +20,12 @@ import os
 from accounting_core.models import AccountingGroupModels
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from app.utils import get_current_year, get_current_unit
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel, LinkedInfoModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel, LinkedInfoModel, SearchableModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
 
-class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel):
+class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel, SearchableModel):
 
     SUBVENTION_TYPE = (
         ('subvention', _(u'Subvention')),
@@ -59,7 +59,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
 Vous devez inclure dans votre demande au moins :
 <ul>
-                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="http://truffe.polylan.ch/media/uploads/modeles/Budget.xltx" target="_blank">ce modèle</a> pour les externes à l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
+                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="/file/download_list/?group=accounting" target="_blank">ce modèle</a> pour les externes à l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
     <li>Bilans et comptes des d'activité des années précédentes</li>
     <li>Documents officiels (pour les Association hors AGEPoly) : statuts, liste des membres du comité, PV de la dernière AG</li>
 </ul>
@@ -99,7 +99,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             '4': '150px',
         }
 
-        help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou association auprès de l'AGEPoly.""")
+        help_list = _(u"""Les demandes de subvention peuvent être faites par toutes les commissions ou associations auprès de l'AGEPoly.""")
 
     class MetaAccounting:
         copiable = False
@@ -188,6 +188,26 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             '2_treated': SubventionValidationForm
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        index_files = True
+
+        fields = [
+            'name',
+            'description',
+            'comment_root',
+            'amount_asked',
+            'amount_given',
+            'mobility_asked',
+            'mobility_given',
+        ]
+
+        linked_lines = {
+            'events': ['name', 'place']
+        }
+
     def __init__(self, *args, **kwargs):
         super(_Subvention, self).__init__(*args, **kwargs)
 
@@ -266,7 +286,7 @@ class SubventionLine(ModelUsedAsLine):
     start_date = models.DateField(_(u'Début de l\'évènement'))
     end_date = models.DateField(_(u'Fin de l\'évènement'))
     place = models.CharField(_(u'Lieu de l\'évènement'), max_length=100)
-    nb_spec = models.SmallIntegerField(_(u'Nombre de personnes attendues'))
+    nb_spec = models.PositiveIntegerField(_(u'Nombre de personnes attendues'))
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
 
@@ -274,7 +294,7 @@ class SubventionLine(ModelUsedAsLine):
         return u"{}:{}".format(self.subvention.name, self.name)
 
 
-class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, GenericGroupsModel, GenericContactableModel, AccountingYearLinked, UnitEditableModel):
+class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCenterLinked, GenericModelWithLines, GenericGroupsModel, GenericContactableModel, AccountingYearLinked, UnitEditableModel, SearchableModel):
     """Modèle pour les factures"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -330,7 +350,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outils (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'ils contiennent TOUTES LES INFORMATIONS NÉCESSAIRES).
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il contienne TOUTES LES INFORMATIONS NÉCESSAIRES).
 
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
@@ -364,6 +384,25 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
                     ('total', _(u'Montant (TTC)')),
                 ]},
         ]
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'address',
+            'date_and_place',
+            'ending',
+            'greetings',
+            'preface',
+            'sign',
+            'title',
+            'get_bvr_number',
+        ]
+
+        linked_lines = {
+            'lines': ['label', 'value_ttc', 'total']
+        }
 
     class MetaState:
 
@@ -636,7 +675,7 @@ class InvoiceLine(ModelUsedAsLine):
         return float(self.quantity) * float(self.value) * float(self.tva) / 100.0
 
 
-class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, AccountingYearLinked, AgepolyEditableModel, GenericGroupsModel, GenericContactableModel):
+class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, AccountingYearLinked, AgepolyEditableModel, GenericGroupsModel, GenericContactableModel, SearchableModel):
     """Modèle pour les transferts internes"""
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
@@ -678,6 +717,18 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
 
     class MetaGroups(GenericGroupsModel.MetaGroups):
         pass
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'account',
+            'cost_center_to',
+            'cost_center_from',
+            'description',
+            'name',
+        ]
 
     class MetaState:
         states = {
@@ -815,7 +866,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             raise forms.ValidationError(_(u'Les deux centres de coûts doivent être différents.'))
 
 
-class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel):
+class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, GenericModelWithFiles, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, SearchableModel):
     """Modèle pour les retraits cash"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -936,6 +987,18 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         states_default_filter = '0_draft,2_withdrawn,3_used'
         status_col_id = 3
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"rcash"
+        index_files = True
+
+        fields = [
+            'amount',
+            'description',
+            'name',
+            'user',
+        ]
+
     def may_switch_to(self, user, dest_state):
         if self.status[0] == '4' and not user.is_superuser:
             return False
@@ -1022,7 +1085,7 @@ class LinkedInfo(models.Model):
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
 
 
-class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels):
+class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les notes de frais (NdF)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -1033,7 +1096,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
     name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    nb_proofs = models.PositiveIntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
 
     class MetaData:
@@ -1041,6 +1104,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
+            ('get_total', _(u'Total')),
             ('status', _('Statut')),
         ]
 
@@ -1049,6 +1113,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_colums = ['get_total']
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
@@ -1066,6 +1131,10 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
         has_unit = True
 
         menu_id = 'menu-compta-ndf'
+
+        forced_widths = {
+            '1': '350px',
+        }
 
         help_list = _(u"""Les notes de frais permettent de se faire rembourser des frais avancés pour une unité.
 
@@ -1107,6 +1176,22 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     class MetaState(GenericAccountingStateModel.MetaState):
         pass
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"NDF"
+        index_files = True
+
+        fields = [
+            'name',
+            'user',
+            'comment',
+            'get_total',
+        ]
+
+        linked_lines = {
+            'lines': ['label', 'proof']
+        }
+
     def __unicode__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
@@ -1117,11 +1202,11 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         return super(_ExpenseClaim, self).rights_can_EDIT(user)
 
     def genericFormExtraClean(self, data, form):
-        if not data['user'].is_profile_ok():
+        if 'user' in data and not data['user'].is_profile_ok():
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
 
-        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.is_superuser:
+        if 'user' in data and data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.is_superuser:
             form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
             # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
 
@@ -1162,7 +1247,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
 
-class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, GenericAccountingStateModel, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels):
+class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, GenericAccountingStateModel, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les journaux de caisse (JdC)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -1173,7 +1258,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
 
     name = models.CharField(_(u'Titre du journal de caisse'), max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    nb_proofs = models.IntegerField(_(u'Nombre de justificatifs'), default=0)
+    nb_proofs = models.PositiveIntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
 
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
@@ -1185,6 +1270,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
+            ('get_total', _(u'Total')),
             ('status', _('Statut')),
         ]
 
@@ -1193,6 +1279,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_colums = ['get_total']
 
         base_title = _(u'Journaux de caisse')
         list_title = _(u'Liste des journaux de caisse')
@@ -1251,6 +1338,22 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     class MetaState(GenericAccountingStateModel.MetaState):
         pass
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"JDC"
+        index_files = True
+
+        fields = [
+            'name',
+            'user',
+            'comment',
+            'get_total',
+        ]
+
+        linked_lines = {
+            'lines': ['label', 'proof', 'amount']
+        }
+
     def __unicode__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
@@ -1271,7 +1374,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
 
-        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.is_superuser:
+        if data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.user.is_superuser:
             form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
             # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
 

@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 
-from generic.models import GenericModel, FalseFK
+from generic.models import GenericModel, FalseFK, SearchableModel
 from rights.utils import AgepolyEditableModel, UnitEditableModel
 from users.models import TruffeUser
 
@@ -14,7 +14,7 @@ import datetime
 from multiselectfield import MultiSelectField
 
 
-class _Unit(GenericModel, AgepolyEditableModel):
+class _Unit(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'INFORMATIQUE'
@@ -69,6 +69,14 @@ class _Unit(GenericModel, AgepolyEditableModel):
         help_list = _(u"""Les unités sont les différents groupes de l'AGEPoly (Comité de l'AGEPoly, commissions, équipes, etc.)
 
 Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPoly au sommet.""")
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'unité équipe'
+
+        fields = [
+            'name',
+        ]
 
     class Meta:
         abstract = True
@@ -260,7 +268,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         return super(_Unit, self).rights_can_SHOW(user)
 
 
-class _Role(GenericModel, AgepolyEditableModel):
+class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
     """Un role, pour une accred"""
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
@@ -329,6 +337,16 @@ class _Role(GenericModel, AgepolyEditableModel):
 Certains rôles donnent des accès particuliers.
 Par exemple, le rôle 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont gérés en fonction des accès !""")
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'rôle role roles'
+
+        fields = [
+            'name',
+            'description',
+            'get_access',
+        ]
+
     class Meta:
         abstract = True
 
@@ -340,7 +358,7 @@ Par exemple, le rôle 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont g
         return (True, None)
 
 
-class Accreditation(models.Model, UnitEditableModel):
+class Accreditation(models.Model, UnitEditableModel, SearchableModel):
     unit = models.ForeignKey('Unit')
     user = models.ForeignKey(TruffeUser)
     role = models.ForeignKey('Role')
@@ -424,6 +442,22 @@ class Accreditation(models.Model, UnitEditableModel):
 
     def display_url(self):
         return '%s?upk=%s' % (reverse('units.views.accreds_list'), self.unit.pk,)
+
+    class MetaData:
+        base_title = _(u'Accréditation')
+        elem_icon = 'fa fa-key'
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'accred'
+
+        last_edit_date_field = 'renewal_date'
+
+        fields = [
+            'user',
+            'role',
+            'display_name',
+        ]
 
 
 class AccreditationLog(models.Model):

@@ -4,6 +4,11 @@
     update_users(pk);
 {% endblock %}
 
+{% block bonus_year_updated %}
+    update_accounts();
+{% endblock %}
+
+
 {% block line_js_bonus %}
     {{block.super}}
 
@@ -26,6 +31,8 @@
         $('#id_user').css('width', '100%').select2();
 
         update_users({{CURRENT_UNIT_PK}});
+
+        update_accounts();
     });
 
     function update_users(pk) {
@@ -44,4 +51,33 @@
             $('#id_user').select2();
         });
     }
+
+    function update_accounts() {
+        $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
+
+            var options = '<option value="">----------</option>';
+            $.each(data.data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+                if (option.name.indexOf("{{CS_account_number}}") == 0)
+                    credit_suisse_id = option.pk;
+            });
+
+            $('.line_field_lines_account .select2').each(function(index, element) {
+                var elem = $(element).next('select');
+                var old_value = elem.val();
+
+                elem.select2('destroy');
+                elem.html(options);
+                elem.val(old_value);
+                elem.select2();
+            });
+        });
+    }
+{% endblock %}
+
+
+{% block line_add_line_bonus %}
+    {{block.super}}
+    // Update accounts for the new line
+    update_accounts();
 {% endblock %}

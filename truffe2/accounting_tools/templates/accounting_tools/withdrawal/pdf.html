@@ -11,14 +11,14 @@
     <tr class="tr-info"><td class="td-label">{% trans "Date de remise de l'argent : " %}</td><td class="td-large">{{object.withdrawn_date|date:"d/m/Y"}}</td></tr>
 {% endblock %}
 
-{% block detail_table %}    
+{% block detail_table %}
     <table>
         <tr><td class="td-label"><b>{% trans "Motif du retrait : " %}</b></td><td colspan ="3" class="td-label" style="text-align: left;"><b>{{object.description}}</b></td></tr>
         <tr><td colspan="4">&nbsp;</td></tr>
 
         <tr><td class="td-label" style="color: red;"><b>{% trans "Montant : " %}</b></td><td></td><td></td><td class="td-title" style="text-align: right;"><b>CHF {{object.amount|intcomma}}</b></td></tr>
         <tr><td colspan="4">&nbsp;</td></tr>
-         
+
         <tr><td colspan="2"><b>{% trans "Visa de la personne : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
         <tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr>
 

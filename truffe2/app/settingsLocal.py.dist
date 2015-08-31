@@ -13,6 +13,8 @@ DATABASES = {
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
+# Deactivate Haystack indexing on save
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
 
 # Logging to console, for debug :)
 LOGGING = {

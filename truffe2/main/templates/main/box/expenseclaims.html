@@ -1,17 +1,31 @@
-{% load i18n humanize %}
-{% if expenseclaim_to_validate or expenseclaim_to_account %}
-    <div class="col-sm-12 col-md-12 col-lg-6">
-        {% with w_title="Notes de frais en attente" %}{% include "widget/header.html" %}{% endwith %}
+{% load i18n humanize generic_extras %}
+<div class="col-sm-12 col-md-12 col-lg-6" main_id="expenseclaims.html">
+    {% with w_title="Notes de frais en attente" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
 
-            <ul>
-                {% for expenseclaim in expenseclaim_to_validate %}
-                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-primary pull-right">{% trans "A valider" %}{% if object.status == '1_unit_validable' %} {% trans "électroniquement" %}{% endif %}</span></a></li>
-                {% endfor %}
+        <table class="table table-condensed table-hover table-striped">
+            {% for expenseclaim in expenseclaim_to_validate %}
+                <tr>
+                    <td><a href="{{expenseclaim.display_url}}">{% if expenseclaim|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{expenseclaim.name}}</a></td>
+                    <td>CHF {{expenseclaim.get_total|intcomma}}</td>
+                    <td>{{expenseclaim.costcenter}}</td>
+                    <td><span class="label label-primary">{% trans "A valider" %}{% if object.status == '1_unit_validable' %} {% trans "électroniquement" %}{% endif %}</td>
+                </tr>
+            {% endfor %}
 
-                {% for expenseclaim in expenseclaim_to_account %}
-                    <li><a href="{{expenseclaim.display_url}}">{{expenseclaim.name}} (CHF {{expenseclaim.get_total|intcomma}}){% trans " : " %}{{expenseclaim.costcenter}} <span class="label label-success pull-right">{% trans "A comptabiliser" %}</span></a></li>
-                {% endfor %}
-            </ul>
-        {% include "widget/footer.html" %}
-    </div>
-{% endif %}
+            {% for expenseclaim in expenseclaim_to_account %}
+                <tr>
+                    <td><a href="{{expenseclaim.display_url}}">{% if expenseclaim|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{expenseclaim.name}}</a></td>
+                    <td>CHF {{expenseclaim.get_total|intcomma}}</td>
+                    <td>{{expenseclaim.costcenter}}</td>
+                    <td><span class="label label-success">{% trans "A comptabiliser" %}</span></td>
+                </tr>
+            {% endfor %}
+
+            {% if not expenseclaim_to_validate and not expenseclaim_to_account %}
+                <tr>
+                    <td colspan="4" class="success"><i class="fa fa-check"></i> {% trans "Aucune note de frais en attente !" %}</td>
+                </tr>
+            {% endif %}
+        </table>
+    {% include "widget/footer.html" %}
+</div>

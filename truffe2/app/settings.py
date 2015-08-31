@@ -118,6 +118,8 @@ INSTALLED_APPS = (
     'multiselectfield',
     'easy_thumbnails',
     'jfu',
+    'haystack',
+    'celery_haystack',
 
     'truffe',
 
@@ -232,6 +234,18 @@ NOTIFS_MAXIMUM_WAIT = 15  # En minutes, le temps maximal avant d'envoyer une not
 NOTIFS_MINIMUM_BLANK = 5  # En minutes, le temps minimal sans notification avant d'envoyer une notification
 
 FORMAT_MODULE_PATH = 'app.formats'
+
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': join(DJANGO_ROOT, 'whoosh_index'),
+    },
+}
+
+HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 25
+HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS = 100
 
 try:
     from settingsLocal import *

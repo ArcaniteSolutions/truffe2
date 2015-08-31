@@ -6,11 +6,11 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from app.utils import get_current_unit
-from generic.models import GenericModel, GenericStateModel, GenericGroupsModel, FalseFK
+from generic.models import GenericModel, GenericStateModel, GenericGroupsModel, FalseFK, SearchableModel
 from rights.utils import UnitEditableModel
 
 
-class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditableModel):
+class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['INFORMATIQUE', 'PRESIDENCE']
@@ -102,6 +102,14 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
         states_default_filter = '0_preparing,1_active'
         states_default_filter_related = '1_active,2_archived'
         status_col_id = 3
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u'set staff anciens'
+
+        fields = [
+            'name',
+        ]
 
     def genericFormExtraClean(self, data, form):
         """Check if accred corresponds to generation constraints & that unique_together is fulfiled"""

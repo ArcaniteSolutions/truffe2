@@ -33,6 +33,7 @@ import importlib
 import copy
 import inspect
 import urllib
+from wand.image import Image
 
 
 from accounting_core.utils import CostCenterLinked
@@ -224,14 +225,14 @@ def generate_list_json(module, base_name, model_class, tag_class):
             filter__ = filter_
 
         if hasattr(model_class.MetaData, 'extra_filter_for_list'):
-            filter___ = model_class.MetaData.extra_filter_for_list(request, current_unit, current_year, filter__)
+            filter___ = model_class.MetaData.extra_filter_for_list(request, unit_to_check, current_year, filter__)
         else:
             filter___ = filter__
 
         tag = request.GET.get('tag')
 
         if tag_class and tag:
-            filter____ = lambda x: filter__(x).filter(tags__tag=tag).distinct()
+            filter____ = lambda x: filter___(x).filter(tags__tag=tag).distinct()
         else:
             filter____ = filter___
 
@@ -329,6 +330,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
+
+        extra_args = None
 
         try:
             obj = model_class.objects.get(pk=pk, deleted=False)
@@ -542,7 +545,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     obj.save_signal()
 
                 if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
-                    obj.MetaEdit.do_extra_post_actions(obj, request.POST)
+                    extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, True)
 
                 messages.success(request, _(u'Élément sauvegardé !'))
 
@@ -588,6 +591,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                     log_class(who=request.user, what='edited', object=obj, extra_data=json.dumps(diff)).save()
 
+                obj.user_has_seen_object(request.user)
+
                 if request.POST.get('post-save-dest'):
                     if request.POST.get('post-save-dest') == 'new':
                         return redirect(module.__name__ + '.views.' + base_name + '_edit', pk='~')
@@ -595,6 +600,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         return redirect(module.__name__ + '.views.' + base_name + '_edit', pk=obj.pk)
 
                 return HttpResponseRedirect('%s%s' % (reverse(module.__name__ + '.views.' + base_name + '_show', args=(obj.pk,)), '?_upkns=_&_fromrelated=_' if related_mode else ''))
+            else:
+                if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
+                    extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, False)
+
         else:
             form = form_class(request.user, instance=obj)
 
@@ -634,7 +643,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user), 'related_mode': related_mode, 'list_related_view': list_related_view,
                 'file_mode': file_mode, 'file_upload_view': file_upload_view, 'file_delete_view': file_delete_view, 'files': files, 'file_key': file_key, 'file_get_view': file_get_view,
                 'file_get_thumbnail_view': file_get_thumbnail_view, 'lines_objects': lines_objects, 'costcenter_mode': costcenter_mode, 'tag_mode': tag_mode, 'tags': tags,
-                'tag_search_view': tag_search_view}
+                'tag_search_view': tag_search_view, 'extra_args': extra_args}
 
         if hasattr(model_class.MetaData, 'extra_args_for_edit'):
             data.update(model_class.MetaData.extra_args_for_edit(request, current_unit, current_year))
@@ -721,6 +730,8 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
 
         if tag_class:
             tags = [t.tag for t in obj.tags.order_by('tag')]
+
+        obj.user_has_seen_object(request.user)
 
         return render(request, ['%s/%s/show.html' % (module.__name__, base_name), 'generic/generic/show.html'], {
             'Model': model_class, 'delete_view': delete_view, 'edit_view': edit_view, 'log_view': log_view, 'list_view': list_view, 'status_view': status_view, 'contact_view': contact_view, 'list_related_view': list_related_view, 'file_get_view': file_get_view, 'file_get_thumbnail_view': file_get_thumbnail_view,
@@ -851,7 +862,10 @@ def generate_deleted(module, base_name, model_class, log_class):
         liste = model_class.objects.filter(deleted=True).annotate(Max('logs__when')).order_by('-logs__when__max')
 
         if unit_mode:
-            liste = liste.filter(unit=current_unit)
+            if isinstance(model_class(), CostCenterLinked):
+                liste = liste.filter(costcenter__unit=current_unit)
+            else:
+                liste = liste.filter(unit=current_unit)
 
         if year_mode:
             liste = liste.filter(accounting_year=current_year)
@@ -916,6 +930,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
             for obj in objs:
                 old_status = obj.status
                 obj.status = dest_status
+                obj.user_has_seen_object(request.user)
                 obj.save()
 
                 if isinstance(obj, BasicRightModel):
@@ -1413,15 +1428,29 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
             if isinstance(instance.object, BasicRightModel) and not instance.object.rights_can('SHOW', request.user):
                 raise Http404
 
+        remove_me = None
+
         if instance.is_picture():
             url = instance.file
         elif instance.is_pdf():
-            url = 'img/PDF.png'
+            try:
+
+                url = os.path.join('cache', 'pdfthumbnail', "{}.jpg".format(instance.file.name.replace('/', '_')))
+                full_url = os.path.join(settings.MEDIA_ROOT, url)
+
+                if not os.path.isfile(full_url):
+                    with Image(filename="{}{}[0]".format(settings.MEDIA_ROOT, instance.file)) as img:
+                        img.save(filename=full_url)
+            except:
+                url = 'img/PDF.png'
         else:
             url = 'img/File.png'
 
         options = {'size': (int(request.GET.get('w', 200)), int(request.GET.get('h', 100))), 'crop': True, 'upscale': True}
         thumb = get_thumbnailer(url).get_thumbnail(options)
+
+        if remove_me:
+            os.unlink(remove_me)
 
         return sendfile(request, '%s%s' % (settings.MEDIA_ROOT, thumb,))
 

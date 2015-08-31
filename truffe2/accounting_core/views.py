@@ -87,7 +87,7 @@ def costcenter_available_list(request):
         accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
         costcenters = costcenters.filter(accounting_year=accounting_year)
 
-    costcenters = filter(lambda cc: cc.rights_can('SHOW', request.user), list(costcenters))
+    # costcenters = filter(lambda cc: cc.rights_can('SHOW', request.user), list(costcenters))
     retour = {'data': [{'pk': costcenter.pk, 'name': costcenter.__unicode__()} for costcenter in costcenters]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
@@ -102,7 +102,7 @@ def pdf_list_cost_centers(request, pk):
     except AccountingYear.DoesNotExist:
         raise Http404
 
-    if not ay.rights_can('EDIT', request.user):
+    if not ay.rights_can('SHOW', request.user):
         raise Http404
 
     cc = CostCenter.objects.filter(accounting_year=ay, deleted=False).order_by('account_number')
@@ -119,7 +119,7 @@ def pdf_list_accounts(request, pk):
     except AccountingYear.DoesNotExist:
         raise Http404
 
-    if not ay.rights_can('EDIT', request.user):
+    if not ay.rights_can('SHOW', request.user):
         raise Http404
 
     root_ac = AccountCategory.objects.filter(accounting_year=ay, parent_hierarchique=None).order_by('order')

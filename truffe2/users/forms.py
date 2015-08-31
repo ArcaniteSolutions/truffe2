@@ -24,7 +24,7 @@ class TruffePasswordResetForm(PasswordResetForm):
 class TruffeUserForm(ModelForm):
     class Meta:
         model = TruffeUser
-        exclude = ('password', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions', 'body')
+        exclude = ('password', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions', 'body', 'homepage')
         widgets = {
             'adresse': Textarea(attrs={'rows': 3}),
         }

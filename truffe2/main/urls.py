@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from django.conf.urls import patterns, url
+from django.contrib.auth.decorators import login_required
 
+from main.views import HaystackSearchView
 
 urlpatterns = patterns(
     'main.views',
@@ -11,4 +13,11 @@ urlpatterns = patterns(
 
     url(r'^link/base$', 'link_base'),
     url(r'^last_100_logging_entries$', 'last_100_logging_entries'),
+
+    url(r'^search/?$', login_required(HaystackSearchView()), name='search_view'),
+
+    url(r'^set_homepage$', 'set_homepage'),
+
+    url(r'^file/download_list/$', 'file_download_list'),
+    url(r'^file/download/(?P<pk>[0-9,]+)$', 'file_download'),
 )

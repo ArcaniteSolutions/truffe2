@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load i18n rights_extras generic_extras %}
+
+{% block title %}{{block.super}} :: {% trans "Recherche" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Recherche" %}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+
+                {% with w_title="Recherche" w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+
+                    {% if simple_search %}
+                        <div class="alert alert-info">
+                            {% trans "La fonctionnalité de recherche est obligée de vérifier les permissions de tous les objets qui correspondent à ta recherche avant de te les proposer à l'affichage." %}<br />
+                            <b>{% trans "N'utilise pas des termes trop génériques, ou l'affichage des résultats prendra du temps." %}</b><br />
+                            {% trans "Seuls les 100 premiers résultats sont affichés." %}<br />
+                        </div>
+                    {% endif %}
+
+                    <form method="get" action="{% url 'search_view' %}">
+                        <div class="input-group input-group-lg hidden-mobile">
+                            <input class="form-control input-lg" id="form-search-q" name="q" type="text" placeholder="{% trans "Rechercher" %}" value="{{query}}">
+                            <div class="input-group-btn">
+                                <button type="submit" class="btn btn-default">
+                                    &nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-search fa-lg"></i>&nbsp;&nbsp;&nbsp;
+                                </button>
+                            </div>
+                        </div>
+
+                        {% if query %}
+                            <h3>{% trans "Résultats de la recherche" %}</h3>
+
+                            {% if page.object_list %}
+
+                                <table class="table table-condensed table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{% trans "Type" %}</th>
+                                            <th style="width: 40%;">{% trans "Objet" %}</th>
+                                            <th>{% trans "Contexte" %}</th>
+                                            <th>{% trans "Création" %}</th>
+                                            <th>{% trans "Dernière modification" %}</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for result in page.object_list %}
+                                            {% ifhasright result.object user 'SHOW' %}
+                                                <tr>
+                                                    <td><i class="fa fa-{{result.object.MetaData.elem_icon}}"></i> {{result.object.MetaData.base_title}}</td>
+                                                    <td>
+                                                        <a href="{{result.object.display_url}}">{{result.object}}</a>
+                                                        {% if result.object.status %}
+                                                            <span class='label label-{{result.object.status_color}}'><i class='{{result.object.status_icon}}'></i> {{result.object.get_status_display}}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if result.object.accounting_year %}
+                                                            <span class="label label-{{result.object.accounting_year.status_color}}">{{result.object.accounting_year}}</span>
+                                                        {% endif %}
+                                                        {% if result.object.unit %}
+                                                            <span class="label label-info">{{result.object.unit}}</span>
+                                                        {% elif result.object.costcenter %}
+                                                            <span class="label label-info">{{result.object.costcenter.unit}}</span>
+                                                            <span class="label label-primary" style="margin-left: 3px;">{{result.object.costcenter}}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {{result.object.get_creation_date|date:"d.m.Y"}}
+                                                        {{result.object.get_creation_date|time:"H:i:s"}}
+                                                    </td>
+                                                    <td>
+                                                        {{result.object.last_log.when|date:"d.m.Y"}}
+                                                        {{result.object.last_log.when|time:"H:i:s"}}
+                                                    </td>
+                                                </tr>
+                                            {% endifhasright %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fa fa-warning"></i> {% trans "Aucun résultat trouvé !" %}
+                                </div>
+                            {% endif %}
+
+                            {% if page.has_previous or page.has_next %}
+                                <center>
+                                    <a href="{% if page.has_previous %}?q={{query}}&amp;page={{page.previous_page_number}}{% else %}#{% endif %}" class="btn {{page.has_previous|yesno:"btn-primary,btn-default disabled"}} btn-xs">
+                                        &laquo; {% trans "Précédent" %}
+                                    </a>
+                                    {% trans "Page" %} {{page.number}} / {{page.paginator.num_pages}}
+                                    <a href="{% if page.has_next %}?q={{query}}&amp;page={{page.next_page_number}}{% else %}#{% endif %}" class="btn {{page.has_next|yesno:"btn-primary,btn-default disabled"}} btn-xs">
+                                        {% trans "Suivant" %} &raquo;
+                                    </a>
+                                </center>
+                            {% endif %}
+                        {% endif %}
+                    </form>
+
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript">
+        $('#form-search-q').focus(function() {
+            $(this).select();
+        }).focus();
+    </script>
+
+{% endblock %}

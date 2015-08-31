@@ -41,12 +41,23 @@
 {% endblock %}
 
 {% block extrabuttons %}
+    <a href="#" onclick="display_budget();" class="btn btn-info">
+        <i class="fa fa-list-alt"></i>
+        {% trans "Vue budget" %}
+    </a>
     <a href="#" onclick="display_graph();" class="btn btn-primary">
         <i class="fa fa-bar-chart-o"></i>
         {% trans "Graphique" %}
     </a>
 
     <div class="modal fade" id="modal-graph" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 95%;">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-budget" role="dialog" aria-hidden="true">
         <div class="modal-dialog" style="width: 95%;">
             <div class="modal-content">
             </div>
@@ -61,6 +72,14 @@
             $('#modal-graph').find('.modal-content').html('');
             $('#modal-graph').removeData('bs.modal');
             $('#modal-graph').modal({remote: '{% url 'accounting_main.views.accounting_graph' %}?costcenter=' + $('#ccostcenter').val()});
+        }
+
+        function display_budget() {
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+            $('#modal-budget').find('.modal-content').html('');
+            $('#modal-budget').removeData('bs.modal');
+            $('#modal-budget').modal({remote: '{% url 'accounting_main.views.accounting_budget_view' %}?costcenter=' + $('#ccostcenter').val()});
         }
 
     </script>

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, FalseFK
+from generic.models import GenericModel, GenericStateModel, FalseFK, SearchableModel
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 from rights.utils import AgepolyEditableModel, UnitEditableModel
 
 
-class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
+class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'COMMUNICATION'
@@ -106,6 +107,13 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
             '2_archive': (0.9, 0.5),
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        fields = [
+            'title',
+            'content',
+        ]
+
     class Meta:
         abstract = True
 
@@ -113,7 +121,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel):
         return self.title
 
 
-class _Link(GenericModel, UnitEditableModel):
+class _Link(GenericModel, UnitEditableModel, SearchableModel):
 
     class MetaRightsUniyt(UnitEditableModel.MetaRightsUnit):
         access = ['PRESIDENCE', 'INFORMATIQUE', 'COMMUNICATION']
@@ -141,6 +149,7 @@ class _Link(GenericModel, UnitEditableModel):
         ('/accounting/tools', _(u'Finances / Outils')),
         ('/accounting/proofs', _(u'Finances / Justifications')),
         ('/accounting/gestion', _(u'Finances / Gestion')),
+        ('/cs/', _(u'Informatique')),
         ('/misc/', _(u'Divers')),
     )
 
@@ -187,6 +196,14 @@ Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
             'icon': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
         }
 
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        fields = [
+            'title',
+            'description',
+            'url',
+        ]
+
     class Meta:
         abstract = True
 
@@ -207,3 +224,105 @@ Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
 
     def rights_can_SHOW_BASE(self, user):
         return self.rights_in_linked_unit(user)
+
+
+class _File(GenericModel, AgepolyEditableModel, SearchableModel):
+
+    class MetaRightsUniyt(AgepolyEditableModel.MetaRightsAgepoly):
+        access = ['PRESIDENCE', 'TRESORERIE', 'INFORMATIQUE', 'COMMUNICATION']
+        world_ro_access = False
+
+    title = models.CharField(_(u'Titre'), max_length=255)
+    description = models.TextField(_(u'Description'), blank=True, null=True)
+    file = models.FileField(upload_to='uploads/files/')
+
+    TYPE_ACCESS = [
+        ('agep', _(u'Selement les membres d\'une unité')),
+        ('all', _(u'Tous les utilisateurs')),
+    ]
+
+    access = models.CharField(_(u'Accès'), choices=TYPE_ACCESS, max_length=64, default='agep')
+
+    TYPE_GROUP = [
+        ('accounting', _(u'Finances')),
+        ('cs', _(u'Informatique')),
+        ('misc', _(u'Divers')),
+    ]
+
+    group = models.CharField(_(u'Groupe'), choices=TYPE_GROUP, max_length=64, default='misc')
+
+    class MetaData:
+        list_display = [
+            ('title', _(u'Titre')),
+            ('get_group_display', _(u'Groupe')),
+            ('get_access_display', _(u'Accès')),
+        ]
+        details_display = list_display + [
+            ('description', _('Description')),
+            ('get_file_link', _('Fichier')),
+        ]
+        filter_fields = ('title', 'group', 'access', 'description')
+        safe_fields = ['get_file_link']
+
+        default_sort = "[1, 'asc']"  # title
+
+        base_title = _('Fichiers')
+        list_title = _(u'Liste de tous les fichiers')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-file-text-o'
+
+        menu_id = 'menu-misc-files'
+
+        help_list = _(u"""Les différents fichiers publics disponibles dans truffe 2.
+
+Les fichiers sont regroupés en différents groupes accessibles depuis le menu latéral.""")
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        fields = [
+            'title',
+            'description',
+        ]
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return u'{} ({})'.format(self.title, self.get_group_display())
+
+    def __init__(self, *args, **kwargs):
+        super(_File, self).__init__(*args, **kwargs)
+
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
+        self.MetaRights.rights_update({
+            'DOWNLOAD': _(u'Peut télécharger le fichier'),
+            'LIST_ACCOUNTING': _(u'Peut affichier la liste des fichiers pour les finances'),
+            'LIST_CS': _(u'Peut affichier la liste des fichiers pour l\'informatique'),
+            'LIST_MISC': _(u'Peut affichier la liste des fichiers divers'),
+        })
+
+    def rights_can_DOWNLOAD(self, user):
+        if user.is_external():
+            return self.access == 'all'
+        return True  # Everyone else can download
+
+    def check_if_can(self, user, group):
+
+        l = self.__class__.objects.filter(group=group, deleted=False)
+
+        if user.is_external():
+            l = l.filter(access='all')
+
+        return l.exists()
+
+    def get_file_link(self):
+        return u'<a href="{}">{}</a>'.format(reverse('main.views.file_download', args=(self.pk,)), self.file)
+
+    def rights_can_LIST_ACCOUNTING(self, user):
+        return self.check_if_can(user, 'accounting')
+
+    def rights_can_LIST_CS(self, user):
+        return self.check_if_can(user, 'cs')
+
+    def rights_can_LIST_MISC(self, user):
+        return self.check_if_can(user, 'misc')
