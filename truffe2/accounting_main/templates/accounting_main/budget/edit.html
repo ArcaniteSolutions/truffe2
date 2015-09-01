@@ -119,6 +119,7 @@
 
             // Remove on change event listener for previous last
             $(row).find('input').off("change");
+            $(row).find('input').change(function() { update_account_subtot('#' + $(row).attr('id')); });
 
             var select_id = null;
             if ($(row).hasClass('account'))
@@ -129,12 +130,11 @@
             $(row).after("<tr id ='" + row_id + "'><td><input class='form-control' maxlength='250' name='description-" + select_id + "-" + row_id + "' placeholder='Description' required='required' title=' type='text'></td><td><input class='form-control' name='amount-" + select_id + "-" + row_id + "' placeholder='Montant' required='required' step='0.01' title='' type='number' min='0'></td><td style='padding-left: 5px;'><a data-original-title='Supprimer' href='#' class='btn btn-xs btn-danger' rel='tooltip' onclick='remove_line(this); return false;'><i class='fa fa-times'></i></a></td></tr>");
             $("#" + row_id + " td").css('padding-top', '5px');
 
-            $("#" + row_id + " input:last").change(function(e) {
-                update_account_subtot(e);
-            });
-
             // Add on change event listener for last & on clic button
-            $(row).next().find('input').change(function() { add_subline('#' + row_id); });
+            $(row).next().find('input').change(function() {
+                add_subline('#' + row_id);
+                update_account_subtot('#' + row_id);
+            });
             $(row).next().next().find('a').attr('onclick', "add_subline('#" + row_id + "'); return false;");
 
             return row_id;
@@ -151,7 +151,11 @@
 
                 // Reactivate onchange event on last row
                 if (this_row.prev().find('.select2-input').length == 0){
-                    this_row.prev().find('input').change(function() { add_subline('#' + $(this).parent().parent().attr('id')); });
+                    this_row.prev().find('input').change(function() {
+                        var prev_row_id = '#' + $(this).parent().parent().attr('id');
+                        add_subline(prev_row_id);
+                        update_account_subtot(prev_row_id);
+                    });
                 }
             }
 
@@ -166,10 +170,11 @@
             }
         }
 
-        function update_account_subtot(e) {
+        function update_account_subtot(row_id) {
             // Update total of account category
-            var account_name = e.target.name.split('-').slice(0, 3).join('-');
-            var select_tr = find_prev_matching($(e.target).parents('tr'), '.account');
+            var value_input = $(row_id).find('input:last');
+            var account_name = value_input.attr('name').split('-').slice(0, 3).join('-');
+            var select_tr = find_prev_matching(value_input.parents('tr'), '.account');
             var cat_values = $("input[name^='" + account_name + "']");
 
             var sum = 0.00;
