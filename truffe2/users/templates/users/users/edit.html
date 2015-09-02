@@ -19,10 +19,6 @@
                 <form class="form-horizontal" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
 
-                    <div class="alert alert-warning">
-                        {% trans "Les utilisateurs sont synchronisées vers Truffe1 toutes les 5 minutes: il peut y avoir un délais pour l'application des modifications du coté de Truffe1 !" %}
-                    </div>
-
                     {% bootstrap_form form layout='horizontal' %}
 
                     <div class="form-actions">
