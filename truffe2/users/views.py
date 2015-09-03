@@ -286,7 +286,7 @@ def users_myunit_list_json(request):
 
     current_unit = get_current_unit(request)
 
-    if not current_unit.is_user_in_groupe(request.user):
+    if not current_unit or not current_unit.is_user_in_groupe(request.user):
         raise Http404
 
     filter = lambda x: x.filter(Q(unit=current_unit) & Q(end_date=None)).distinct()
