@@ -120,7 +120,7 @@ EMAIL;INTERNET:%s
         if not with_hiddens:
             liste = liste.filter(hidden_in_truffe=False)
 
-        return liste.order_by('unit__name', 'role__ordre')
+        return liste.order_by('unit__name', 'role__order')
 
     def rights_in_any_unit(self, access):
         for accred in self.active_accreds(with_hiddens=True):
@@ -137,7 +137,7 @@ EMAIL;INTERNET:%s
         return re.match('^\d{6}$', self.username)
 
     def old_accreds(self):
-        return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__ordre', 'start_date', 'end_date')
+        return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__order', 'start_date', 'end_date')
 
     def clear_rights_cache(self):
         cache.set('right~user_%s' % (self.pk,), time.time())

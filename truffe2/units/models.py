@@ -256,7 +256,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
         return (True, None)
 
     def current_accreds(self):
-        return self.accreditation_set.filter(end_date=None).order_by('role__ordre', 'user__first_name', 'user__last_name')
+        return self.accreditation_set.filter(end_date=None).order_by('role__order', 'user__first_name', 'user__last_name')
 
     def get_users(self):
         return [a.user for a in self.current_accreds()]
@@ -278,7 +278,7 @@ class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
     name = models.CharField(max_length=255)
     id_epfl = models.CharField(max_length=255, null=True, blank=True, help_text=_(u'Mettre ici l\'ID accred du rôle pour la synchronisation EPFL'))
     description = models.TextField(null=True, blank=True)
-    ordre = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'accréditer la même personne dans la même unité plusieurs fois. Le rôle avec le plus PETIT ordre sera pris en compte'))
+    order = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'accréditer la même personne dans la même unité plusieurs fois. Le rôle avec le plus PETIT ordre sera pris en compte'))
 
     need_validation = models.BooleanField(_(u'Nécessite validation'), default=False, help_text=_(u'A cocher pour indiquer que le comité de l\'AGEPoly doit valider l\'attribution du rôle'))
 
@@ -307,7 +307,7 @@ class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
             ('name', _('Nom')),
             ('id_epfl', _('ID EPFL ?')),
             ('need_validation', _('Validation ?')),
-            ('ordre', _('Ordre'))
+            ('order', _('Ordre'))
         ]
 
         details_display = [
@@ -315,7 +315,7 @@ class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
             ('description', _('Description')),
             ('id_epfl', _('ID EPFL ?')),
             ('need_validation', _('Validation ?')),
-            ('ordre', _('Ordre')),
+            ('order', _('Ordre')),
             ('get_access', _(u'Accès')),
         ]
 
