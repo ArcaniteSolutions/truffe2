@@ -7,7 +7,7 @@
 
     {% trans "Tu travailles actuellement avec l'année comptable" %}<br /><br />
 
-    <center><b class="cyear" pk="{{CURRENT_YEAR_PK}}"><span class="label label-{{CURRENT_YEAR.status_color}}">{{CURRENT_YEAR_NAME}}</span></b></center><br />
+    <center><b class="cyear" pk="{{CURRENT_YEAR_PK}}"><span class="label label-{{CURRENT_YEAR.status_color|default:"danger"}}">{{CURRENT_YEAR_NAME}}</span></b></center><br />
 
     <span style="float: right;">
         <div class="dropdown">
