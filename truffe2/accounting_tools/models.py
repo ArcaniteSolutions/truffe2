@@ -89,7 +89,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         elem_icon = 'fa fa-gift'
 
         menu_id = 'menu-compta-subventions'
-        not_sortable_colums = ['get_unit_name']
+        not_sortable_columns = ['get_unit_name']
         safe_fields = ['get_unit_name']
 
         has_unit = True
@@ -354,7 +354,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
-        not_sortable_colums = ['get_reference', 'get_bvr_number']
+        not_sortable_columns = ['get_reference', 'get_bvr_number']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex']
 
     class MetaEdit:
@@ -1113,7 +1113,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
-        not_sortable_colums = ['get_total']
+        not_sortable_columns = ['get_total']
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
@@ -1279,7 +1279,7 @@ class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericM
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
-        not_sortable_colums = ['get_total']
+        not_sortable_columns = ['get_total']
 
         base_title = _(u'Journaux de caisse')
         list_title = _(u'Liste des journaux de caisse')

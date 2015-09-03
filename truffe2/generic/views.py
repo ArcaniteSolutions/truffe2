@@ -1320,7 +1320,7 @@ def generate_logs_json(module, base_name, model_class, logging_class):
              'list_view': list_view,
              'show_view': show_view,
             },
-            not_sortable_colums=['unit',],
+            not_sortable_columns=['unit',],
             filter_fields=['when', 'who__first_name', 'what'] + bonus_filter,
         )
 

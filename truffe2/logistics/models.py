@@ -178,7 +178,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
         help_calendar_specific = _(u"""Les réservation d'un type de salle particulier.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
-        not_sortable_colums = ['get_conflits_list', ]
+        not_sortable_columns = ['get_conflits_list', ]
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
@@ -431,7 +431,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
         help_calendar_specific = _(u"""Les réservation d'un type de matériel particulier.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'supply__title'}
-        not_sortable_colums = ['get_conflits_list', ]
+        not_sortable_columns = ['get_conflits_list', ]
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')

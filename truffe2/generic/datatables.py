@@ -3,13 +3,13 @@ from django.template import RequestContext
 from django.shortcuts import render
 
 
-def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_colums=[], selector_column=False, columns_mapping=None, bonus_total_filter_function=None):
+def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_columns=[], selector_column=False, columns_mapping=None, bonus_total_filter_function=None):
     """Generic function for json list"""
 
     if not filter_fields:
         filter_fields = columns
 
-    not_sortable_colums_local = not_sortable_colums + (model.MetaData.not_sortable_colums if hasattr(model, 'MetaData') and hasattr(model.MetaData, 'not_sortable_colums') else [])
+    not_sortable_columns_local = not_sortable_columns + (model.MetaData.not_sortable_columns if hasattr(model, 'MetaData') and hasattr(model.MetaData, 'not_sortable_columns') else [])
     columns_mapping_local = model.MetaData.trans_sort if hasattr(model, 'MetaData') and hasattr(model.MetaData, 'trans_sort') else (columns_mapping or {})
 
     def do_ordering(qs):
@@ -34,10 +34,10 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
 
             if isinstance(sortcol, list):
                 for sc in sortcol:
-                    if sc not in not_sortable_colums_local:
+                    if sc not in not_sortable_columns_local:
                         order.append('%s%s' % (sdir, columns_mapping_local.get(sc, sc)))
             else:
-                if sortcol not in not_sortable_colums_local:
+                if sortcol not in not_sortable_columns_local:
                     order.append('%s%s' % (sdir, columns_mapping_local.get(sortcol, sortcol)))
 
         if '-pk' not in order and 'pk' not in order:
