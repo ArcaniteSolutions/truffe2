@@ -66,7 +66,7 @@
 
                             <td style="min-width: 58px;">
                                 <input type="hidden" name="_LINES_LIST_{{line_data.related_name}}[]" value="-ID-">
-                                <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this);" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
+                                <a href="#" onclick="lines_remove_line_{{line_data.related_name}}(this); return false;" class="btn btn-xs btn-danger"><i class="fa fa-minus"></i></a>
 
                                 {% if line_data.sortable %}
                                     <span style="cursor: move;" class="handle btn btn-default btn-xs">
@@ -98,7 +98,7 @@
 
                 <div id="lines_footer">
                     <span></span>
-                    <a href="#" onclick="lines_add_line_{{line_data.related_name}}(); return false;" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> {% trans "Ajouter" %}</a>
+                    <a href="#" id="new_line" onclick="lines_add_line_{{line_data.related_name}}(); return false;" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> {% trans "Ajouter" %}</a>
                 </div>
 
                 <hr style="clear: both; visibility: hidden;">
@@ -153,6 +153,8 @@
                     function lines_remove_line_{{line_data.related_name}}(elem) {
                         $(elem).parents('tr').remove();
                         lines_make_sortable_{{line_data.related_name}}();
+
+                        {% block line_remove_line_bonus %}{% endblock %}
                     }
 
 

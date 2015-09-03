@@ -170,7 +170,6 @@ def cashbook_pdf(request, pk):
     return generate_pdf("accounting_tools/cashbook/pdf.html", request, {'object': cashbook}, [f.file for f in cashbook.get_pdf_files()])
 
 
-
 @login_required
 def get_withdrawal_infos(request, pk):
     from accounting_tools.models import Withdrawal
@@ -180,7 +179,7 @@ def get_withdrawal_infos(request, pk):
     if not withdrawal.rights_can('SHOW', request.user):
         raise Http404
 
-    return HttpResponse(json.dumps({'user_pk': withdrawal.user.pk, 'costcenter_pk': withdrawal.costcenter.pk}), content_type='application/json')
+    return HttpResponse(json.dumps({'user_pk': withdrawal.user.pk, 'costcenter_pk': withdrawal.costcenter.pk, 'date': str(withdrawal.withdrawn_date)}), content_type='application/json')
 
 
 @login_required

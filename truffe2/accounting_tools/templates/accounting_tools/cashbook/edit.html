@@ -22,10 +22,18 @@
         update_total();
     });
 
-    // Update total if valud_ttc changes
+    // Update total if value or value_ttc changes
     new_line.find('.line_field_lines_value_ttc input').change(function(e) {
         update_total();
     });
+
+    new_line.find('.line_field_lines_value input').change(function(e) {
+        update_total();
+    });
+{% endblock %}
+
+{% block line_remove_line_bonus %}
+    update_total();
 {% endblock %}
 
 
@@ -70,7 +78,18 @@
 
                     $('#id_costcenter').select2('val', data['costcenter_pk']);
                     $('#id_costcenter').attr('disabled', true);
+
+                    // Auto fill a line with withdrawal infos
+                    $('#new_line').click();
+                    new_line = $('#lines_tbody_lines tr:last');
+                    new_line.find('.line_field_lines_date input').datepicker('setDate', data['date']);
+                    new_line.find('.line_field_lines_helper select').select2('val', '0_withdraw');
+                    new_line.find('.line_field_lines_label input').val('Retrait Cash');
+                    new_line.find('.line_field_lines_account select').select2('val', credit_suisse_id);
+                    new_line.find('.line_field_lines_tva input').select2('val', 0);
                 });
+
+
 
             } else {
                 $('select#id_user').attr('disabled', false);
@@ -100,7 +119,11 @@
             update_total();
         });
 
-        $('.line_field_lines_value_ttc input').change(function(e) {
+        $('.line_field_lines_value_ttc').change(function(e) {
+            update_total();
+        });
+
+        $('.line_field_lines_value').change(function(e) {
             update_total();
         });
 
@@ -126,7 +149,7 @@
     function update_rcashs() {
         $.ajax('{% url 'accounting_tools.views.withdrawal_available_list' %}?ypk=' + $('#input_ypk').val() + '&upk=' + $('#input_upk').val()).done(function (data) {
             var old_value = $('#id_withdrawal').val();
-            var options = '<option value=""></option>';
+            var options = '<option value="">-------------</option>';
 
             $.each(data.data, function (index, option) {
                 options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
@@ -162,23 +185,24 @@
     }
 
     function helper_autofill(e) {
+
         var row = $(e.target).parents('tr');
         var index = e.val[0];
         if (index == 0) {
             row.find('.line_field_lines_label input').val('Retrait Cash');
             row.find('.line_field_lines_proof input').val('');
-            row.find('.line_field_lines_account select').val(credit_suisse_id).change();
-            row.find('.line_field_lines_tva input').val(8).change();
+            row.find('.line_field_lines_account select').select2('val', credit_suisse_id);
+            row.find('.line_field_lines_tva input').select2('val', 0);
         } else if (index == 1) {
             row.find('.line_field_lines_label input').val('Versement Crédit Suisse');
             row.find('.line_field_lines_proof input').val('Crédit Suisse');
-            row.find('.line_field_lines_account select').val(credit_suisse_id).change();
-            row.find('.line_field_lines_tva input').val(8).change();
+            row.find('.line_field_lines_account select').select2('val', credit_suisse_id);
+            row.find('.line_field_lines_tva input').select2('val', 0);
         } else {
             row.find('.line_field_lines_label input').val('');
             row.find('.line_field_lines_proof input').val('');
-            row.find('.line_field_lines_account select').val('').change();
-            row.find('.line_field_lines_tva input').val('').change();
+            row.find('.line_field_lines_account select').select2('val', '');
+            row.find('.line_field_lines_tva input').select2('val', '');
         }
     }
 
