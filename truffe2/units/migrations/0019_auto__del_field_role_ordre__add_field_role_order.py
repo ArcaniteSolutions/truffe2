@@ -8,23 +8,12 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'Role.ordre'
-        db.delete_column(u'units_role', 'ordre')
-
-        # Adding field 'Role.order'
-        db.add_column(u'units_role', 'order',
-                      self.gf('django.db.models.fields.IntegerField')(null=True, blank=True),
-                      keep_default=False)
-
+        # Renaming field 'Role.order'
+        db.rename_column(u'units_role', 'ordre', 'order')
 
     def backwards(self, orm):
-        # Adding field 'Role.ordre'
-        db.add_column(u'units_role', 'ordre',
-                      self.gf('django.db.models.fields.IntegerField')(null=True, blank=True),
-                      keep_default=False)
-
-        # Deleting field 'Role.order'
-        db.delete_column(u'units_role', 'order')
+        # Renaming field 'Role.ordre'
+        db.rename_column(u'units_role', 'order', 'ordre')
 
 
     models = {
