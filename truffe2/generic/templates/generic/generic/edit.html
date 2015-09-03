@@ -327,7 +327,7 @@
                 {% include "widget/footer.html" %}
 
               {% else %}
-                  {% with function_to_call="year_updated" %}
+                  {% with function_to_call="year_updated" not_active_year_warning=True %}
                       {% include "accounting_core/selector/year_selector.html" %}
                   {% endwith %}
 

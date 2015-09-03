@@ -7,7 +7,7 @@
 
     {% trans "Tu travailles actuellement avec l'année comptable" %}<br /><br />
 
-    <center><b class="cyear" pk="{{CURRENT_YEAR_PK}}">{{CURRENT_YEAR_NAME}}</b></center><br />
+    <center><b class="cyear" pk="{{CURRENT_YEAR_PK}}"><span class="label label-{{CURRENT_YEAR.status_color|default:"danger"}}">{{CURRENT_YEAR_NAME}}</span></b></center><br />
 
     <span style="float: right;">
         <div class="dropdown">
@@ -16,7 +16,7 @@
 
             {% for year in years_available %}
                 <li>
-                    <a href="#" onclick="select_year({{year.pk}}, '{{year|escapejs}}');"><span class="label label-{{year.status_color}}">{{year}}</span> ({{year.get_status_display}})</a>
+                    <a href="#" onclick="select_year({{year.pk}}, '<span class=\'label label-{{year.status_color}}\'>{{year|escape|escapejs}}</span>', {% if year.status == '1_active' %}true{% else %}false{% endif %});"><span class="label label-{{year.status_color}}">{{year}}</span> ({{year.get_status_display}})</a>
                 </li>
             {% endfor %}
 
@@ -26,15 +26,30 @@
 
     <br />
 
+    {% if not_active_year_warning %}
+    <div class="alert alert-danger not_active_year_warning" style="margin-top: 15px; {% if CURRENT_YEAR.status == '1_active' %}display: none;{% endif %}">
+            <i class="fa fa-warning fa-2x"></i>
+            {% trans "Attention ! Cette année comptable n'est pas l'année comptable en cours ! Es-tu sur de vouloir l'utiliser ?" %}
+        </div>
+    {% endif %}
+
 </div>
 
 
 <script type="text/javascript">
 
-    function select_year(pk, name) {
+    function select_year(pk, name, active) {
 
-        $('.cyear').text(name);
+        $('.cyear').html(name);
         $('.cyear').attr("pk", pk);
+
+        {% if not_active_year_warning %}
+            if (active) {
+                $('.not_active_year_warning').hide();
+            } else {
+                $('.not_active_year_warning').show();
+            }
+        {% endif %}
 
         {% if function_to_call %}
             {{function_to_call}}(pk, name);

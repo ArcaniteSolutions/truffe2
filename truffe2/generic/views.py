@@ -948,6 +948,8 @@ def generate_switch_status(module, base_name, model_class, log_class):
                 if no_more_access:
                     messages.warning(request, _(u'Vous avez perdu le droit de voir l\'objet !'))
 
+                obj.user_has_seen_object(request.user)
+
         return render(request, ['%s/%s/switch_status.html' % (module.__name__, base_name), 'generic/generic/switch_status.html'], {
             'Model': model_class, 'objs': objs, 'can_switch': can_switch, 'can_switch_message': can_switch_message, 'done': done, 'no_more_access': no_more_access,
             'dest_status': dest_status, 'dest_status_message': objs[0].MetaState.states.get(dest_status),
