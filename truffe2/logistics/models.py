@@ -103,7 +103,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
     start_date = models.DateTimeField(_(u'Date de début'))
     end_date = models.DateTimeField(_(u'Date de fin'))
 
-    raison = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
+    reason = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     class MetaData:
@@ -134,7 +134,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
             '7': '80px',
         }
 
-        details_display = list_display_base + [('get_room_infos', _('Salle')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
+        details_display = list_display_base + [('get_room_infos', _('Salle')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
         filter_fields = ('title', 'status', 'room__title')
 
         base_title = _(u'Réservation de salle')
@@ -178,7 +178,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
         help_calendar_specific = _(u"""Les réservation d'un type de salle particulier.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_room_link': 'room__title'}
-        not_sortable_colums = ['get_conflits_list', ]
+        not_sortable_columns = ['get_conflits_list', ]
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
@@ -195,7 +195,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
         fields = [
             'room',
             'title',
-            'raison',
+            'reason',
             'remarks',
         ]
 
@@ -356,7 +356,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
     start_date = models.DateTimeField(_(u'Date de début'))
     end_date = models.DateTimeField(_(u'Date de fin'))
 
-    raison = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
+    reason = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     class MetaData:
@@ -387,7 +387,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
             '7': '80px',
         }
 
-        details_display = list_display_base + [('get_supply_infos', _('Matériel')), ('raison', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
+        details_display = list_display_base + [('get_supply_infos', _('Matériel')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
         filter_fields = ('title', 'status', 'supply__title')
 
         base_title = _(u'Réservation de matériel')
@@ -431,7 +431,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
         help_calendar_specific = _(u"""Les réservation d'un type de matériel particulier.""")
 
         trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'supply__title'}
-        not_sortable_colums = ['get_conflits_list', ]
+        not_sortable_columns = ['get_conflits_list', ]
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
@@ -448,7 +448,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
         fields = [
             'supply',
             'title',
-            'raison',
+            'reason',
             'remarks',
         ]
 

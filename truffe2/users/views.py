@@ -291,7 +291,7 @@ def users_myunit_list_json(request):
 
     filter = lambda x: x.filter(Q(unit=current_unit) & Q(end_date=None)).distinct()
 
-    return generic_list_json(request, Accreditation, ['user__username', 'user__first_name', 'user__last_name', 'user__pk', 'role__ordre'], 'users/users/myunit_list_json.html', bonus_filter_function=filter)
+    return generic_list_json(request, Accreditation, ['user__username', 'user__first_name', 'user__last_name', 'user__pk', 'role__order'], 'users/users/myunit_list_json.html', bonus_filter_function=filter)
 
 
 @login_required

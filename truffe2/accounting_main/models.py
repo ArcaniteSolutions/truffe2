@@ -83,7 +83,6 @@ class _AccountingLine(GenericModel, GenericStateModel, AccountingYearLinked, Cos
         elem_icon = 'fa fa-ellipsis-horizontal'
 
         menu_id = 'menu-compta-compta'
-        not_sortable_colums = []
         trans_sort = {'get_output_display': 'output', 'get_input_display': 'input', 'get_current_sum_display': 'current_sum', 'pk': 'order'}
         safe_fields = ['get_output_display', 'get_input_display', 'get_current_sum_display']
         datetime_fields = ['date']
@@ -330,7 +329,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         elem_icon = 'fa fa-warning'
 
         menu_id = 'menu-compta-errors'
-        not_sortable_colums = ['get_line_title', 'costcenter']
+        not_sortable_columns = ['get_line_title', 'costcenter']
         trans_sort = {'get_linked_line': 'linked_line_cache'}
         safe_fields = []
 
