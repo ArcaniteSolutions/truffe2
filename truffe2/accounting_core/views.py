@@ -132,7 +132,7 @@ def tva_available_list(request):
     """Return the list of available TVA for a user"""
     from accounting_core.models import TVA
 
-    tvas = TVA.objects.filter(deleted=False).order_by('value')
+    tvas = TVA.objects.filter(deleted=False).order_by('-value')
 
     if not TVA.static_rights_can('ANYTVA', request.user):
         tvas = tvas.filter(agepoly_only=False)
