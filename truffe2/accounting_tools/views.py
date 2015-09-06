@@ -56,7 +56,7 @@ def export_all_demands(request):
     if not Subvention.static_rights_can('EXPORT', request.user):
         raise Http404
 
-    years = AccountingYear.objects.order_by('start_date')
+    years = AccountingYear.objects.filter(deleted=False).order_by('start_date')
     subventions = []
     for ay in years:
         subv = Subvention.objects.filter(accounting_year=ay).order_by('unit__name', 'unit_blank_name')

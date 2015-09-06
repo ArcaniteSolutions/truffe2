@@ -14,7 +14,7 @@ from app.utils import get_current_year
 class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
-        access = ['TRESORERIE', 'SECRETARIAT']
+        access = ['TRESORERIE']
 
     name = models.CharField(_('Nom'), max_length=255, unique=True)
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
@@ -143,11 +143,15 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel, Sea
         return self.name
 
     def rights_can_EDIT(self, user):
-        # On ne peut éditer/supprimer que les années en préparation
-
-        if self.status == '0_preparing':
+        # On ne peut éditer que les années en préparation ou active
+        if self.status in ['0_preparing', '1_active']:
             return super(_AccountingYear, self).rights_can_EDIT(user)
+        return False
 
+    def rights_can_DELETE(self, user):
+        # On ne peut supprimer que les années en préparation
+        if self.status == '0_preparing':
+            return super(_AccountingYear, self).rights_can_DELETE(user)
         return False
 
     @classmethod

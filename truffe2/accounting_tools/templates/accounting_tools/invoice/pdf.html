@@ -1,5 +1,5 @@
 {% extends "base_pdf.html" %}
-{% load i18n %}
+{% load i18n humanize %}
 
 {% block bonus_css_pdf %}
     @page {
@@ -130,35 +130,33 @@
 
     <table class="liste-c maintable">
         <tr class="tr-a noright">
-            <td width="10%">{% trans "Quantité" %}</td>
-            <td class="noright">&nbsp;&nbsp;{% trans "Description" %}</td>
+            <td width="51%" class="noright">&nbsp;&nbsp;{% trans "Description" %}</td>
             <td width="15%">{% trans "Prix unitaire" %}</td>
-            <td width="10%">{% trans "% TVA" %}</td>
-            <td width="10%">{% trans "TVA" %}</td>
+            <td width="8%">{% trans "% TVA" %}</td>
+            <td width="15%">{% trans "TVA" %}</td>
             <td width="15%">{% trans "Total" %}</td>
         </tr>
         {% for line in invoice.get_lines %}
             <tr>
-                <td>{{line.quantity}}</td>
-                <td class="noright">&nbsp;&nbsp;{{line.label}}</td>
-                <td>{{line.value|floatformat:"2"}} CHF</td>
+                <td class="noright">{% if line.quantity == 1 %}&nbsp;{% else %}{{line.quantity}}{% endif %} {{line.label}}</td>
+                <td>{{line.value|floatformat:"2"|intcomma}} CHF</td>
                 <td>{{line.tva|floatformat:"2"}} %</td>
-                <td>{{line.get_tva_value|floatformat:"2"}} CHF</td>
-                <td>{{line.total|floatformat:"2"}} CHF</td>
+                <td>{{line.get_tva_value|floatformat:"2"|intcomma}} CHF</td>
+                <td>{{line.total|floatformat:"2"|intcomma}} CHF</td>
             </tr>
         {% endfor %}
 
         <tr style="border-top: 1px #000 solid;">
-            <td colspan="5" style="text-align: right;">
+            <td colspan="4" style="text-align: right;">
                 <b>{% trans "Total (HT)" %}:</b>
             </td>
-            <td>{{invoice.get_total_ht|floatformat:"2"}} CHF</td>
+            <td>{{invoice.get_total_ht|floatformat:"2"|intcomma}} CHF</td>
         </tr>
         <tr>
-            <td colspan="5" style="text-align: right;">
+            <td colspan="4" style="text-align: right;">
                 <b>{% trans "Total (TTC)" %}:</b>
             </td>
-            <td><b>{{invoice.get_total|floatformat:"2"}} CHF</b></td>
+            <td><b>{{invoice.get_total|floatformat:"2"|intcomma}} CHF</b></td>
         </tr>
     </table>
 
