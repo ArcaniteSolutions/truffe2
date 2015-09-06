@@ -922,7 +922,6 @@ class GenericAccountingStateModel(object):
         return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
 
     def switch_status_signal(self, request, old_status, dest_status):
-
         s = super(GenericAccountingStateModel, self)
 
         if hasattr(s, 'switch_status_signal'):
@@ -940,6 +939,10 @@ class GenericAccountingStateModel(object):
             notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'accounting_accountable', self, self.people_in_root_unit('SECRETARIAT'))
 
         elif dest_status == '4_archived':
+            if request.POST.get('archive_proving_obj') and self.proving_object:
+                self.proving_object.status = '4_archived'
+                self.proving_object.save()
+
             unotify_people('%s.accountable' % (self.__class__.__name__,), self)
             notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, self.build_group_members_for_canedit())
 

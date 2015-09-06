@@ -3,7 +3,6 @@
 from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.forms import CharField, Form, IntegerField, DateField
 from django.contrib import messages
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -180,9 +179,9 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         states_default_filter = '0_draft,0_correct'
         status_col_id = 5
 
-        class SubventionValidationForm(Form):
-            amount_given = IntegerField(label=_(u'Montant accordé'))
-            mobility_given = IntegerField(label=_(u'Montant mobilité accordé'))
+        class SubventionValidationForm(forms.Form):
+            amount_given = forms.IntegerField(label=_(u'Montant accordé'))
+            mobility_given = forms.IntegerField(label=_(u'Montant mobilité accordé'))
 
         states_bonus_form = {
             '2_treated': SubventionValidationForm
@@ -463,8 +462,8 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             '4_canceled': (0.8, 0.85),
         }
 
-        class FormBVR(Form):
-            bvr = CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
+        class FormBVR(forms.Form):
+            bvr = forms.CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
 
         states_bonus_form = {
             '0_preparing': FormBVR
@@ -988,9 +987,9 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         status_col_id = 3
 
         def build_form_withdrawn(request, obj):
-            class FormWithdrawn(Form):
+            class FormWithdrawn(forms.Form):
                 initial = obj.withdrawn_date if obj.withdrawn_date else now().date()
-                withdrawn_date = DateField(label=_('Date retrait banque'), help_text=_(u'La date de retrait à la banque'), required=True, initial=initial)
+                withdrawn_date = forms.DateField(label=_('Date retrait banque'), help_text=_(u'La date de retrait à la banque'), required=True, initial=initial)
 
             return FormWithdrawn
 
@@ -1354,7 +1353,15 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         pass
 
     class MetaState(GenericAccountingStateModel.MetaState):
-        pass
+
+        def build_form_archive(request, obj):
+            class FormArchive(forms.Form):
+                archive_proving_obj = forms.BooleanField(label=_(u'Archiver le retrait cash lié?'), initial=True, required=False)
+            return FormArchive if obj.proving_object else None
+
+        states_bonus_form = {
+            '4_archived': build_form_archive
+        }
 
     class MetaSearch(SearchableModel.MetaSearch):
 
