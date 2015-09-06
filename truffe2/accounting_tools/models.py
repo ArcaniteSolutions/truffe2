@@ -3,14 +3,14 @@
 from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.forms import CharField, Form, IntegerField
+from django.forms import CharField, Form, IntegerField, DateField
 from django.contrib import messages
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.template.defaultfilters import date as _date
 from django.utils import translation
-
+from django.utils.timezone import now
 
 import datetime
 import string
@@ -935,7 +935,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         states_texts = {
             '0_draft': _(u'La demande est en cours de création.'),
             '1_agep_validable': _(u'La demande doit être acceptée par l\'AGEPoly.'),
-            '2_withdrawn': _(u'La somme est prête à être récupérée.'),
+            '2_withdrawn': _(u'La somme est prête à être récupérée au secrétariat.'),
             '3_used': _(u'La somme a été retirée et doit maintenant être justifiée.'),
             '4_archived': _(u'La demande est archivée. Elle n\'est plus modifiable.'),
             '4_canceled': _(u'La demande a été annulée, potentiellement par refus.'),
@@ -986,6 +986,17 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
         states_default_filter = '0_draft,2_withdrawn,3_used'
         status_col_id = 3
+
+        def build_form_withdrawn(request, obj):
+            class FormWithdrawn(Form):
+                initial = obj.withdrawn_date if obj.withdrawn_date else now().date()
+                withdrawn_date = DateField(label=_('Date retrait banque'), help_text=_(u'La date de retrait à la banque'), required=True, initial=initial)
+
+            return FormWithdrawn
+
+        states_bonus_form = {
+            '2_withdrawn': build_form_withdrawn
+        }
 
     class MetaSearch(SearchableModel.MetaSearch):
 
@@ -1042,14 +1053,22 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
         if dest_status == '1_agep_validable':
             notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(self.MetaRightsUnit.access))
+
         elif dest_status == '2_withdrawn':
+            if request.POST.get('withdrawn_date'):
+                self.withdrawn_date = request.POST.get('withdrawn_date')
+                self.save()
+
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
             notify_people(request, '%s.withdrawn' % (self.__class__.__name__,), 'accounting_withdrawn', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE', no_parent=True))
+
         elif dest_status == '3_used':
             unotify_people('%s.withdrawn' % (self.__class__.__name__,), self)
             notify_people(request, '%s.used' % (self.__class__.__name__,), 'accounting_used', self, self.people_in_unit(self.costcenter.unit, access='TRESORERIE'))
+
         elif dest_status == '4_archived':
             unotify_people('%s.used' % (self.__class__.__name__,), self)
+
         elif dest_status == '4_canceled' and self.status != '0_draft':
             notify_people(request, '%s.canceled' % (self.__class__.__name__,), 'accounting_canceled', self, self.build_group_members_for_canedit())
 
@@ -1061,7 +1080,6 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
 
         if not self.rights_in_root_unit(current_user, 'SECRETARIAT'):
             del form.fields['withdrawn_date']
-
 
     def rights_can_DISPLAY_LOG(self, user):
 
