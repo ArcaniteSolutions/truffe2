@@ -585,16 +585,17 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                     lines[field_arr[2]]['entries'][field_arr[3]]['amount'] = value
 
             for __, line_object in lines.iteritems():
-                account = get_object_or_404(Account, pk=line_object['account_pk'])
-                coeff = line_object['type']  # -1 for outcomes, 1 for incomes
-                entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
-                for entry in entries:
-                    if entry[1]['amount'] and entry[1]['description']:
-                        amount = coeff * abs(float(entry[1]['amount']))
-                        if form_is_valid:
-                            BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1]['description'], amount=amount)
-                    else:
-                        del line_object['entries'][entry[0]]
+                if 'account_pk' in line_object:
+                    account = get_object_or_404(Account, pk=line_object['account_pk'])
+                    coeff = line_object['type']  # -1 for outcomes, 1 for incomes
+                    entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
+                    for entry in entries:
+                        if entry[1]['amount'] and entry[1]['description']:
+                            amount = coeff * abs(float(entry[1]['amount']))
+                            if form_is_valid:
+                                BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1]['description'], amount=amount)
+                        else:
+                            del line_object['entries'][entry[0]]
             return dict(lines)
 
     class MetaState:
