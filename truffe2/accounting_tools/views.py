@@ -123,7 +123,7 @@ def withdrawal_pdf(request, pk):
     if not withdrawal.rights_can('SHOW', request.user):
         raise Http404
 
-    return generate_pdf("accounting_tools/withdrawal/pdf.html", request, {'object': withdrawal}, [f.file for f in withdrawal.get_pdf_files()])
+    return generate_pdf("accounting_tools/withdrawal/pdf.html", request, {'object': withdrawal})
 
 
 @login_required
