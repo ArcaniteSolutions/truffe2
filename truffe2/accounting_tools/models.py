@@ -541,7 +541,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         abstract = True
 
     def __unicode__(self):
-        return '{} ({})'.format(self.title, self.get_reference())
+        return u'{} ({})'.format(self.title, self.get_reference())
 
     def get_reference(self):
         return 'T2-{}-{}'.format(self.costcenter.account_number, self.pk)
