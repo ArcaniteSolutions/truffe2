@@ -541,7 +541,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         abstract = True
 
     def __unicode__(self):
-        return '{} ({})'.format(self.title, self.get_reference())
+        return u'{} ({})'.format(self.title, self.get_reference())
 
     def get_reference(self):
         return 'T2-{}-{}'.format(self.costcenter.account_number, self.pk)
@@ -1246,7 +1246,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
     expense_claim = models.ForeignKey('ExpenseClaim', related_name="lines")
 
     label = models.CharField(_(u'Concerne'), max_length=255)
-    proof = models.CharField(_(u'Justificatif'), max_length=255)
+    proof = models.CharField(_(u'Justificatif'), max_length=255, blank=True)
 
     account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
     value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
@@ -1441,7 +1441,7 @@ class CashBookLine(ModelUsedAsLine):
     date = models.DateField(_(u'Date'))
     helper = models.CharField(max_length=15, choices=HELPER_TYPE)
     label = models.CharField(_(u'Concerne'), max_length=255)
-    proof = models.CharField(_(u'Justificatif'), max_length=255)
+    proof = models.CharField(_(u'Justificatif'), max_length=255, blank=True)
 
     account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
     value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)

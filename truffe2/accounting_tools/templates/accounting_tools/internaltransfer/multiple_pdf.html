@@ -76,14 +76,4 @@
             <tr><td colspan="3">&nbsp;</td><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
         </tfoot>
     </table>
-
-    {% block upload_files %}
-        {% for u in object.get_uploaded_images %}
-            <pdf:nextpage/>
-            <img src="{{MEDIA_ROOT}}..{{u.file.url}}">
-        {% endfor %}
-    {% endblock %}
 {% endblock %} <!-- block content -->
-
-
-
