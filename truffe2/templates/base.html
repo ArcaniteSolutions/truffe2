@@ -44,7 +44,7 @@
             <div id="logo-group">
 
               <!-- Squares: http://www.thenounproject.com/term/stop/23031/ -->
-              <span id="logo"><a href="/"><img src="{{MEDIA_URL}}img/logo.png" alt="Truffe"></a></span>
+              <span id="logo"><a href="/"><img src="{{MEDIA_URL}}img/logo{% if request.META.HTTP_HOST == 'truffe2testing.agepoly.ch' %}_testing{% endif %}.png" alt="Truffe"></a></span>
                 <!-- END LOGO PLACEHOLDER -->
 
                 <span id="activity" class="activity-dropdown" url="{% url 'notifications.views.dropdown' %}">
@@ -53,6 +53,7 @@
                 </span>
 
                 <div class="ajax-dropdown"></div>
+
             </div>
 
             <!-- pulled right: nav area -->
