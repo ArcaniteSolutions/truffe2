@@ -128,7 +128,7 @@ def clone_repo():
     sudo('mkdir -p /var/www/git-repo')
 
     with cd('/var/www/git-repo'):
-        sudo('git clone ssh://git@dit.polylan.ch:1025/agepoly/truffe2.git truffe2')
+        sudo('git clone ssh://git@gitlab.polylan.ch:10622/agepoly/truffe2.git truffe2')
 
 
 @task

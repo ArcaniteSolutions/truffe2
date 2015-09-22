@@ -842,7 +842,11 @@ def generate_deleted(module, base_name, model_class, log_class):
             obj = get_object_or_404(model_class, pk=request.POST.get('pk'), deleted=True)
 
             if unit_mode:
-                update_current_unit(request, obj.unit.pk if obj.unit else -1)
+                if isinstance(obj, CostCenterLinked):
+                    update_current_unit(request, obj.costcenter.unit.pk if obj.costcenter.unit else -1)
+                else:
+                    update_current_unit(request, obj.unit.pk if obj.unit else -1)
+
             if year_mode:
                 update_current_year(request, obj.accounting_year.pk)
 
