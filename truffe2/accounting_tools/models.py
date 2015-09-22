@@ -228,8 +228,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
             self.save()
 
     def may_switch_to(self, user, dest_state):
-
-        return self.rights_can('EDIT', user)
+        return self.rights_can('EDIT', user) and super(_Subvention, self).may_switch_to(user, dest_state)
 
     def can_switch_to(self, user, dest_state):
 
