@@ -360,7 +360,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         @staticmethod
         def set_extra_defaults(obj, request):
-            obj.sign = '{} {}'.format(request.user.first_name, request.user.last_name)
+            obj.sign = u'{} {}'.format(request.user.first_name, request.user.last_name)
 
             with translation.override('fr'):
                 obj.date_and_place = u'Lausanne, le {}'.format(_date(datetime.datetime.now(), u'd F Y'))
