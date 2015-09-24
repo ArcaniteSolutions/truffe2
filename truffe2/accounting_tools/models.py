@@ -1429,7 +1429,7 @@ class CashBookLine(ModelUsedAsLine):
         ('1_deposit', _(u'J\'ai fait un versement à la banque : ')),
         ('2_sell', _(u'J\'ai vendu quelque chose : ')),
         ('3_invoice', _(u'J\'ai payé une facture avec la caisse : ')),
-        ('4_buy', _(u'J\'ai achecté quelque chose avec la caisse : ')),
+        ('4_buy', _(u'J\'ai acheté quelque chose avec la caisse : ')),
         ('5_reimburse', _(u'J\'ai remboursé quelqu\'un avec la caisse : ')),
         ('6_input', _(u'Je fais un Crédit manuel : ')),
         ('7_output', _(u'Je fais un Débit manuel : ')),
