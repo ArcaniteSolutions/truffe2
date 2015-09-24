@@ -352,7 +352,7 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel, Searcha
         default_sort = "[2, 'asc']"  # name
 
         details_display = list_display + [('description', _(u'Description')), ('get_visibility_display', _(u'Visibilité')), ('accounting_year', _(u'Année comptable'))]
-        filter_fields = ('name', 'account_number', 'category')
+        filter_fields = ('name', 'account_number', 'category__name')
 
         base_title = _(u'Comptes de Comptabilité Générale')
         list_title = _(u'Liste des comptes')
