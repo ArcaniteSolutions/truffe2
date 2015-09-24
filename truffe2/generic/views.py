@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.utils.encoding import smart_str
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -15,7 +16,6 @@ from django.db import connections
 from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db.models import Max, Q
@@ -945,7 +945,10 @@ def generate_switch_status(module, base_name, model_class, log_class):
 
                 log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': unicode(obj.MetaState.states.get(old_status)), 'new': unicode(obj.MetaState.states.get(dest_status))})).save()
 
-                messages.success(request, _(u'Statut modifié !'))
+                storage = messages.get_messages(request)
+                if not storage:
+                    messages.success(request, _(u'Statut modifié !'))
+                storage.used = False
                 done = True
                 no_more_access = not obj.rights_can('SHOW', request.user)
 
