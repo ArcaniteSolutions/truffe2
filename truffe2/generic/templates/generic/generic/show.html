@@ -22,41 +22,30 @@
                         {% for elem, title in Model.MetaData.details_display %}
 
                           {% ifcandisplay obj user elem %}
-                            <dt title="{{title}}">{{title}}</dt>
-                            <dd>
-                            {% if elem in Model.MetaData.yes_or_no_fields %}
-                              {% with val=obj|get_attr:elem %}{% include "generic/yesorno.html" %}{% endwith %}
-                            {% else %}
-                              {% if elem in Model.MetaData.datetime_fields %}
-                                  {{obj|get_attr:elem|date:"d.m.Y"}} {{obj|get_attr:elem|time:"H:i:s"|default_if_none:"&nbsp;"}}
-                              {% else %}
-                                  {% if elem in Model.MetaData.images_fields %}
-                                    {% with w=obj|get_attr:elem %}
-                                      <a href="{{MEDIA_URL}}{{w}}" class="thumbnail" data-lightbox="image-1" style="width: 110px; margin-top: 5px;"><img src="{% thumbnail w 100x100 crop %}" alt="" /></a>
-                                    {% endwith %}
-                                  {% else %}
-                                    {% if elem == 'status' and obj.MetaState.states %}
+                              <dt title="{{title}}">{{title}}</dt>
+                              <dd>
+                                  {% if elem in Model.MetaData.yes_or_no_fields %}
+                                      {% with val=obj|get_attr:elem %}{% include "generic/yesorno.html" %}{% endwith %}
+                                  {% elif elem in Model.MetaData.datetime_fields %}
+                                      {{obj|get_attr:elem|date:"d.m.Y"}} {{obj|get_attr:elem|time:"H:i:s"|default_if_none:"&nbsp;"}}
+                                  {% elif elem in Model.MetaData.images_fields %}
+                                      {% with w=obj|get_attr:elem %}
+                                          <a href="{{MEDIA_URL}}{{w}}" class="thumbnail" data-lightbox="image-1" style="width: 110px; margin-top: 5px;"><img src="{% thumbnail w 100x100 crop %}" alt="" /></a>
+                                      {% endwith %}
+                                  {% elif elem == 'status' and obj.MetaState.states %}
                                       <span class="label label-{{obj.status_color}}"><i class="{{obj.status_icon}}"></i> {{obj.get_status_display}}</span>
                                       {% include "generic/generic/show_state_switcher.html" %}
-                                    {% else %}
-                                      {% if elem in Model.MetaData.html_fields %}
-                                        {{obj|get_attr:elem|default_if_none:"&nbsp;"|html_check_and_safe}}
-                                      {% else %}
-
-                                          {% if elem in Model.MetaData.safe_fields %}
-                                              {{obj|get_attr:elem|safe|default_if_none:"&nbsp;"|linebreaksbr}}
-                                          {% else %}
-                                              {{obj|get_attr:elem|default_if_none:"&nbsp;"|linebreaksbr}}
-                                          {% endif %}
-
-                                      {% endif %}
-                                    {% endif %}
+                                  {% elif elem in Model.MetaData.html_fields %}
+                                      {{obj|get_attr:elem|default_if_none:"&nbsp;"|html_check_and_safe}}
+                                  {% elif elem in Model.MetaData.safe_fields %}
+                                      {{obj|get_attr:elem|safe|default_if_none:"&nbsp;"|linebreaksbr}}
+                                  {% elif obj|get_attr:elem == 0 %}
+                                      0
+                                  {% else %}
+                                      {{obj|get_attr:elem|default:"&nbsp;"|linebreaksbr}}
                                   {% endif %}
-                              {% endif %}
-
-                            {% endif %}
-                            </dd>
-                            {% endifcandisplay %}
+                              </dd>
+                          {% endifcandisplay %}
                         {% endfor %}
                     </dl>
 
