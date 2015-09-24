@@ -21,7 +21,7 @@ Enter Search Query:<br />
 {% if query and page.object_list %}
   <ul>
     {% for user in page.object_list %}
-      <li><a href="{% url 'impersonate-start' user.id %}{{redirect}}">{{user}} {{user.get_full_name}}</a> - Impersonate</li>
+      <li><a href="{% url 'impersonate-start' user.id %}{{redirect}}">{{user}}</a> - Impersonate</li>
     {% endfor %}
   </ul>
 {% endif %}
