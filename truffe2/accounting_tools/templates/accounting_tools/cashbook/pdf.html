@@ -41,7 +41,13 @@
             </tr>
          {% endfor %}
 
-         <tr><td colspan="7">&nbsp;</td></tr>
+        <tr style="padding-top: 4px; text-align: right;" valign="middle"><td colspan="4"></td>
+            <td >{{object.total_incomes}}</td>
+            <td>{{object.total_outcomes}}</td>
+            <td></td>
+        </tr>
+
+        <tr><td colspan="7">&nbsp;</td></tr>
 
         {% if object.get_total > 0 %}
             <tr>

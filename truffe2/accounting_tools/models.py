@@ -1421,6 +1421,12 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def get_total(self):
         return sum([line.get_line_delta() for line in self.get_lines()])
 
+    def total_incomes(self):
+        return sum([line.input_amount() for line in self.get_lines()])
+
+    def total_outcomes(self):
+        return sum([line.output_amount() for line in self.get_lines()])
+
     def is_unit_validator(self, user):
         """Check if user is a validator for the step '1_unit_validable'."""
         return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
