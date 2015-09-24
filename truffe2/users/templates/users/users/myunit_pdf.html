@@ -30,7 +30,7 @@
 
         {% for accred in liste %}
             <tr>
-                <td width="23%">{{accred.get_role_or_display_name}}</td>
+                <td width="23%">{{accred.role}}</td>
                 <td width="20%">{{accred.user.first_name}}</td>
                 <td width="20%">{{accred.user.last_name}}</td>
                 <td width="22%">{{accred.user.email}}</td>
