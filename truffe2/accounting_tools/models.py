@@ -10,6 +10,7 @@ from django.conf import settings
 from django.template.defaultfilters import date as _date
 from django.utils import translation
 from django.utils.timezone import now
+from raven.contrib.django.models import client
 
 import datetime
 import string
@@ -1384,7 +1385,10 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def genericFormExtraClean(self, data, form):
 
         if 'withdrawal' in data.keys() and data['withdrawal']:
-            if data['withdrawal'].user != data['user'] or data['withdrawal'].costcenter != data['costcenter']:
+            if not hasattr(data, 'user') or not hasattr(data, 'costcenter'):
+                client.captureMessage('Withdrawal linked to Cashbook is missing mandatory data (user / costcenter)!')
+
+            if data['withdrawal'].user != getattr(data, 'user', '') or data['withdrawal'].costcenter != getattr(data, 'costcenter', ''):
                 raise forms.ValidationError(_(u'L\'utilisateur responsable et/ou le centre de coûts ne correspondent pas au retrait cash lié.'))
 
             data['object_id'] = data['withdrawal'].pk
