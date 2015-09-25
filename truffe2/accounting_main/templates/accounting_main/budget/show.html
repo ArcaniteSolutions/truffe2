@@ -1,5 +1,5 @@
 {% extends "generic/generic/show.html" %}
-{% load i18n generic_extras %}
+{% load i18n generic_extras humanize %}
 
 {% block bonus_box %}
     <div class="col-sm-12 col-md-12 col-lg-6">
@@ -12,7 +12,7 @@
                     {% for line in obj.budgetline_set|args:"account__account_number"|call:"order_by" %}
                         {% if line.amount < 0 %}
                             <tr><td style="font-weight: bold;" width="80%">{{line.description}} ({{line.account.account_number}})</td>
-                            <td width="20%">{{line.amount|floatformat:"2"|slice:"1:"}}</td></tr>
+                            <td width="20%">{{line.amount|floatformat:"2"|intcomma|slice:"1:"}}</td></tr>
                         {% endif %}
                     {% endfor %}
                 </table>
@@ -24,7 +24,7 @@
                     {% for line in obj.budgetline_set|args:"account__account_number"|call:"order_by" %}
                         {% if line.amount > 0 %}
                             <tr><td style="font-weight: bold;" width="80%">{{line.description}} ({{line.account.account_number}})</td>
-                            <td width="20%">{{line.amount|floatformat:"2"}}</td></tr>
+                            <td width="20%">{{line.amount|floatformat:"2"|intcomma}}</td></tr>
                         {% endif %}
                     {% endfor %}
                 </table>

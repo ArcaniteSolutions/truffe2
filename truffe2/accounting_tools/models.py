@@ -10,6 +10,7 @@ from django.conf import settings
 from django.template.defaultfilters import date as _date
 from django.utils import translation
 from django.utils.timezone import now
+from raven.contrib.django.models import client
 
 import datetime
 import string
@@ -1215,6 +1216,10 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
             return True
 
+    def rights_can_LIST(self, user):
+        if not self.costcenter_id:
+            return True
+
         return super(_ExpenseClaim, self).rights_can_EDIT(user)
 
     def genericFormExtraClean(self, data, form):
@@ -1384,7 +1389,10 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def genericFormExtraClean(self, data, form):
 
         if 'withdrawal' in data.keys() and data['withdrawal']:
-            if data['withdrawal'].user != data['user'] or data['withdrawal'].costcenter != data['costcenter']:
+            if not hasattr(data, 'user') or not hasattr(data, 'costcenter'):
+                client.captureMessage('Withdrawal linked to Cashbook is missing mandatory data (user / costcenter)!')
+
+            if data['withdrawal'].user != getattr(data, 'user', '') or data['withdrawal'].costcenter != getattr(data, 'costcenter', ''):
                 raise forms.ValidationError(_(u'L\'utilisateur responsable et/ou le centre de coûts ne correspondent pas au retrait cash lié.'))
 
             data['object_id'] = data['withdrawal'].pk
@@ -1417,6 +1425,12 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def get_total(self):
         return sum([line.get_line_delta() for line in self.get_lines()])
 
+    def total_incomes(self):
+        return sum([line.input_amount() for line in self.get_lines()])
+
+    def total_outcomes(self):
+        return sum([line.output_amount() for line in self.get_lines()])
+
     def is_unit_validator(self, user):
         """Check if user is a validator for the step '1_unit_validable'."""
         return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
@@ -1429,7 +1443,7 @@ class CashBookLine(ModelUsedAsLine):
         ('1_deposit', _(u'J\'ai fait un versement à la banque : ')),
         ('2_sell', _(u'J\'ai vendu quelque chose : ')),
         ('3_invoice', _(u'J\'ai payé une facture avec la caisse : ')),
-        ('4_buy', _(u'J\'ai achecté quelque chose avec la caisse : ')),
+        ('4_buy', _(u'J\'ai acheté quelque chose avec la caisse : ')),
         ('5_reimburse', _(u'J\'ai remboursé quelqu\'un avec la caisse : ')),
         ('6_input', _(u'Je fais un Crédit manuel : ')),
         ('7_output', _(u'Je fais un Débit manuel : ')),

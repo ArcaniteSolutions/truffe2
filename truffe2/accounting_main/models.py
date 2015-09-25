@@ -590,10 +590,10 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                     coeff = line_object['type']  # -1 for outcomes, 1 for incomes
                     entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
                     for entry in entries:
-                        if entry[1]['amount'] and entry[1]['description']:
+                        if entry[1]['amount']:
                             amount = coeff * abs(float(entry[1]['amount']))
                             if form_is_valid:
-                                BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1]['description'], amount=amount)
+                                BudgetLine.objects.get_or_create(budget=obj, account=account, description=getattr(entry[1], 'description', ''), amount=amount)
                         else:
                             del line_object['entries'][entry[0]]
             return dict(lines)

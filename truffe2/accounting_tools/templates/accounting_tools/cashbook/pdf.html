@@ -39,9 +39,15 @@
                 <td valign="top" style="text-align: right;">{{line.output_amount|intcomma}}</td>
                 <td valign="top" style="text-align: right;">{{line.sub_total|intcomma}}</td>
             </tr>
-         {% endfor %}
+        {% endfor %}
 
-         <tr><td colspan="7">&nbsp;</td></tr>
+        <tr style="padding-top: 4px; text-align: right;" valign="middle"><td colspan="4"></td>
+            <td>{{object.total_incomes}}</td>
+            <td>{{object.total_outcomes}}</td>
+            <td></td>
+        </tr>
+
+        <tr><td colspan="7">&nbsp;</td></tr>
 
         {% if object.get_total > 0 %}
             <tr>
@@ -66,12 +72,6 @@
 
         <tr>
             <td colspan="3"><b>{% trans "Visa de la personne : " %}</b></td>
-            <td colspan="4" style="border-bottom: 1px black solid;"></td>
-        </tr>
-        <tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr>
-
-        <tr>
-            <td colspan="3"><b>{% trans "Visa responsable commision : " %}</b></td>
             <td colspan="4" style="border-bottom: 1px black solid;"></td>
         </tr>
         <tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr>

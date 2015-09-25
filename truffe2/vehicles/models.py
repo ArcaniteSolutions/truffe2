@@ -6,7 +6,7 @@ from django import forms
 from django.shortcuts import get_object_or_404
 
 
-from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel, GenericGroupsModel, GenericStateRootValidable, GenericGroupsModerableModel, GenericContactableModel, SearchableModel
+from generic.models import GenericModel, GenericStateModel, FalseFK, GenericGroupsModel, GenericStateRootValidable, GenericGroupsModerableModel, GenericContactableModel, SearchableModel
 from rights.utils import AgepolyEditableModel, UnitEditableModel
 from users.models import TruffeUser
 
@@ -373,7 +373,8 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
             del form.fields['location']
             del form.fields['remark_agepoly']
 
-        form.fields['responsible'].queryset = TruffeUser.objects.order_by('first_name', 'last_name')
+        unit_users_pk = map(lambda user: user.pk, self.unit.users_with_access())
+        form.fields['responsible'].queryset = TruffeUser.objects.filter(pk__in=unit_users_pk).order_by('first_name', 'last_name')
 
     def genericFormExtraClean(self, data, form):
 
