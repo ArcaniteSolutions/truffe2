@@ -322,12 +322,14 @@ def users_myunit_vcard(request):
 @login_required
 @csrf_exempt
 def users_myunit_pdf(request):
-    """VCARD for users in the current unit"""
+    """PDF of users in the current unit"""
 
     current_unit = get_current_unit(request)
 
     if not current_unit.is_user_in_groupe(request.user):
         raise Http404
+
+    no_display = bool(request.GET.get('no_display', False))
 
     liste = []
 
@@ -335,4 +337,4 @@ def users_myunit_pdf(request):
         accred.truffe2_tmp_pdf_display_mobile = UserPrivacy.user_can_access(request.user, accred.user, 'mobile')
         liste.append(accred)
 
-    return generate_pdf("users/users/myunit_pdf.html", request, {'unit': current_unit, 'liste': liste})
+    return generate_pdf("users/users/myunit_pdf.html", request, {'unit': current_unit, 'liste': liste, 'no_display_name': no_display})

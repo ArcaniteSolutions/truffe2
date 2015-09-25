@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block content %}
-    <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des membres du" %} {% if unit.pk != 1 %} {% trans "comité" %}{% endif %}<u>{{unit}}</u></h3>
+    <h3 style="text-align: center; font-size: 20px;">{% trans "Liste des membres du" %} {% if unit.pk != 1 %} {% trans "comité" %}{% endif %} <u>{{unit}}</u></h3>
 
     <table class="liste">
         <tr class="tr-header">
@@ -31,7 +31,7 @@
         {% for accred in liste %}
             <tr>
                 <td width="23%">{{accred.role}}</td>
-                <td width="20%">{{accred.user.first_name}}</td>
+                <td width="20%">{% if no_display_name %}{{accred.user.first_name}}{% else %}{{accred.get_role_or_display_name}}{% endif %}</td>
                 <td width="20%">{{accred.user.last_name}}</td>
                 <td width="22%">{{accred.user.email}}</td>
                 <td width="15%">{% if accred.truffe2_tmp_pdf_display_mobile %}{{accred.user.mobile}}{% endif %}</td>
