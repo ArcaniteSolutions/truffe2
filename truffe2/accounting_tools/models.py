@@ -1216,6 +1216,8 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
             return True
 
+        return super(_ExpenseClaim, self).rights_can_EDIT(user)
+
     def rights_can_LIST(self, user):
         if not self.costcenter_id:
             return True
