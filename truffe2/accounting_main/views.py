@@ -168,7 +168,7 @@ def _get_import_session_data(request, key):
     return (session_key, session_data)
 
 
-def _csv_2014_processor(file):
+def _csv_2014_processor(request, file):
 
     def unicode_csv_reader(unicode_csv_data, *args, **kwargs):
 
@@ -307,7 +307,7 @@ def _csv_2014_processor(file):
         return False
 
 
-def _diff_generator(year, data):
+def _diff_generator(request, year, data):
 
     from accounting_main.models import AccountingLine
     from accounting_core.models import CostCenter, Account
@@ -406,10 +406,10 @@ def accounting_import_step1(request, key):
                         destination.write(chunk)
 
                 if form.cleaned_data['type'] == 'csv_2014':
-                    wanted_data = _csv_2014_processor(file_key)
+                    wanted_data = _csv_2014_processor(request, file_key)
 
                     if wanted_data:
-                        diff = _diff_generator(form.cleaned_data['year'], wanted_data)
+                        diff = _diff_generator(request, form.cleaned_data['year'], wanted_data)
 
                         if diff:
 
