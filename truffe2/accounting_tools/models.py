@@ -1393,7 +1393,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             if 'user' not in data or 'costcenter' not in data:
                 client.captureMessage('Withdrawal linked to Cashbook is missing mandatory data (user / costcenter)!\n{}'.format(data))
 
-            if data['withdrawal'].user != data['user'] or data['withdrawal'].costcenter != data['costcenter']:
+            if data['withdrawal'].user != data.get('user', '') or data['withdrawal'].costcenter != data.get('costcenter', ''):
                 raise forms.ValidationError(_(u'L\'utilisateur responsable et/ou le centre de coûts ne correspondent pas au retrait cash lié.'))
 
             data['object_id'] = data['withdrawal'].pk
