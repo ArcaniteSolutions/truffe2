@@ -1270,7 +1270,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
 
-class _CashBook(GenericModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, GenericAccountingStateModel, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les journaux de caisse (JdC)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
