@@ -97,13 +97,14 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight, SearchableM
         """Returns the short name for the user."""
         return self.first_name
 
-    def generate_vcard(self, source_user):
+    def generate_vcard(self, source_user, add_unit=None):
         """Generate the user's vcard"""
 
         retour = u"""BEGIN:VCARD
+VERSION:3.0%s
 N:%s;%s
 EMAIL;INTERNET:%s
-""" % (self.first_name, self.last_name, self.email)
+""" % (u'\nORG:{}'.format(add_unit) if add_unit else u'', self.first_name, self.last_name, self.email)
         if UserPrivacy.user_can_access(source_user, self, 'mobile'):
             retour += u"""TEL;CELL:%s
 """ % (self.mobile, )

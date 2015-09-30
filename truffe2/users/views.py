@@ -298,6 +298,7 @@ def users_myunit_list_json(request):
 @csrf_exempt
 def users_myunit_vcard(request):
     """VCARD for users in the current unit"""
+
     current_unit = get_current_unit(request)
 
     if not current_unit.is_user_in_groupe(request.user):
@@ -306,7 +307,7 @@ def users_myunit_vcard(request):
     retour = ""
 
     for accred in current_unit.current_accreds():
-        retour += "%s\n\n" % (accred.user.generate_vcard(request.user),)
+        retour += "%s\n\n" % (accred.user.generate_vcard(request.user, add_unit=current_unit),)
 
     response = HttpResponse(retour[:-2], content_type='text/x-vcard')
     name = smart_str(current_unit)
