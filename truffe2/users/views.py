@@ -298,6 +298,7 @@ def users_myunit_list_json(request):
 @csrf_exempt
 def users_myunit_vcard(request):
     """VCARD for users in the current unit"""
+    current_unit = get_current_unit(request)
 
     if not current_unit.is_user_in_groupe(request.user):
         raise Http404
