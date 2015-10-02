@@ -136,14 +136,9 @@ def internaltransfer_pdf(request, pk):
     if not transfers:
         raise Http404
     elif len(transfers) == 1:
-        return generate_pdf("accounting_tools/internaltransfer/single_pdf.html", request, {'object': transfers[0]}, [f.file for f in transfers[0].get_pdf_files()])
-
+        return generate_pdf("accounting_tools/internaltransfer/single_pdf.html", request, {'object': transfers[0]})
     else:
-        files = []
-        for t in transfers:
-            for f in t.get_pdf_files():
-                files.append(f.file)
-        return generate_pdf("accounting_tools/internaltransfer/multiple_pdf.html", request, {'objects': transfers}, files)
+        return generate_pdf("accounting_tools/internaltransfer/multiple_pdf.html", request, {'objects': transfers})
 
 
 @login_required
