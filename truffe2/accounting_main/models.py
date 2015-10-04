@@ -593,7 +593,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                         if entry[1]['amount']:
                             amount = coeff * abs(float(entry[1]['amount']))
                             if form_is_valid:
-                                BudgetLine.objects.get_or_create(budget=obj, account=account, description=getattr(entry[1], 'description', ''), amount=amount)
+                                BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1].get('description', ''), amount=amount)
                         else:
                             del line_object['entries'][entry[0]]
             return dict(lines)
