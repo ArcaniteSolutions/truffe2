@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.humanize.templatetags.humanize import intcomma
+from django.contrib import messages
 from django.db import models
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from django.forms import CharField, Form, Textarea, BooleanField
-from django.contrib.humanize.templatetags.humanize import intcomma
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 
 import collections
 from copy import deepcopy
 import json
 from math import copysign
+
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from accounting_core.models import AccountingGroupModels
@@ -554,7 +556,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
     class MetaEdit:
         @staticmethod
-        def do_extra_post_actions(obj, post_request, form_is_valid):
+        def do_extra_post_actions(obj, request, post_request, form_is_valid):
             """Edit budget lines on edit"""
             from accounting_core.models import Account
             from accounting_main.models import BudgetLine
@@ -599,7 +601,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                             else:
                                 del line_object['entries'][entry[0]]
                     except Account.DoesNotExist:
-                        pass
+                        messages.warning(request, _(u"Le compte de CG {} n'existe pas dans cette année comptable.".format(line_object['account_pk'])))
 
             modif_lines = collections.defaultdict(list)  # {account: [{'amount', 'description'}, ...], ...}
             for (account, entries) in old_lines.items():
