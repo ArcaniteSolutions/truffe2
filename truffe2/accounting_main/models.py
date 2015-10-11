@@ -9,7 +9,9 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 
 
 import collections
+from copy import deepcopy
 import json
+from math import copysign
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from accounting_core.models import AccountingGroupModels
@@ -557,8 +559,8 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
             from accounting_core.models import Account
             from accounting_main.models import BudgetLine
 
-            if form_is_valid:
-                map(lambda line: line.delete(), list(obj.budgetline_set.all()))  # Remove all previous lines
+            old_lines = collections.defaultdict(list)  # {account: [{'amount', 'description'}, ...], ...}
+            map(lambda line: old_lines[line.account.pk].append({'amount': line.amount, 'description': line.description}), obj.budgetline_set.all())
 
             lines = collections.defaultdict(dict)  # {id: {type, account_pk, entries: {id1: {description, amount}, id2:{}, ...}}, ...}
             for (field, value) in post_request.iteritems():
@@ -584,19 +586,70 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                         lines[field_arr[2]]['entries'][field_arr[3]] = {}
                     lines[field_arr[2]]['entries'][field_arr[3]]['amount'] = value
 
-            for __, line_object in lines.iteritems():
+            new_lines = collections.defaultdict(list)  # {account: [{'amount', 'description'}, ...], ...}
+            for line_object in lines.values():
                 if 'account_pk' in line_object:
-                    account = get_object_or_404(Account, pk=line_object['account_pk'])
-                    coeff = line_object['type']  # -1 for outcomes, 1 for incomes
-                    entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
+                    try:
+                        account = Account.objects.get(pk=line_object['account_pk'])
+                        coeff = line_object['type']  # -1 for outcomes, 1 for incomes
+                        entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
+                        for entry in entries:
+                            if entry[1]['amount']:
+                                new_lines[account.pk].append({'amount': coeff * abs(float(entry[1]['amount'])), 'description': entry[1].get('description', '')})
+                            else:
+                                del line_object['entries'][entry[0]]
+                    except Account.DoesNotExist:
+                        pass
+
+            modif_lines = collections.defaultdict(list)  # {account: [{'amount', 'description'}, ...], ...}
+            for (account, entries) in old_lines.items():
+                new_acc_descriptions = map(lambda new_ent: new_ent['description'], new_lines[account])
+                for old_ent in deepcopy(entries):
+                    if old_ent in new_lines[account]:
+                        # Line was already in previous budget as is
+                        old_lines[account].remove(old_ent)
+                        new_lines[account].remove(old_ent)
+                        new_acc_descriptions.remove(old_ent['description'])
+
+                    elif old_ent['description'] in new_acc_descriptions:
+                        # Line was already in previous budget but amount changed
+                        idx = new_acc_descriptions.index(old_ent['description'])
+                        new_acc_descriptions.pop(idx)
+                        modif_lines[account].append(new_lines[account].pop(idx))
+                        old_lines[account].remove(old_ent)
+
+            if form_is_valid:
+                for account, entries in modif_lines.items():
+                    acc = Account.objects.get(pk=account)
                     for entry in entries:
-                        if entry[1]['amount']:
-                            amount = coeff * abs(float(entry[1]['amount']))
-                            if form_is_valid:
-                                BudgetLine.objects.get_or_create(budget=obj, account=account, description=entry[1].get('description', ''), amount=amount)
-                        else:
-                            del line_object['entries'][entry[0]]
-            return dict(lines)
+                        bline = BudgetLine.objects.filter(budget=obj, account=acc, description=entry['description']).first()
+                        entry['old_amount'] = bline.amount
+                        bline.amount = copysign(entry['amount'], entry['old_amount'])
+                        bline.save()
+
+                for account, entries in new_lines.items():
+                    acc = Account.objects.get(pk=account)
+                    for entry in entries:
+                        BudgetLine(budget=obj, account=acc, description=entry['description'], amount=entry['amount']).save()
+
+                for account, entries in old_lines.items():
+                    acc = Account.objects.get(pk=account)
+                    for entry in entries:
+                        BudgetLine.objects.filter(budget=obj, account=acc, description=entry['description'], amount=entry['amount']).first().delete()
+
+            result = {'display': dict(lines)}
+
+            if form_is_valid:
+                for (title, lines) in [('log_add', new_lines), ('log_update', modif_lines), ('log_delete', old_lines)]:
+                    map(lambda key: lines.pop(key), filter(lambda key: not lines[key], lines.keys()))
+                    if title == 'log_update':
+                        result[title] = dict(map(lambda (acc, entries): ('{}'.format(Account.objects.get(pk=acc)),
+                                                                         (', '.join(map(lambda ent: '{} : {}'.format(ent['description'], ent['old_amount']), entries)),
+                                                                          ', '.join(map(lambda ent: '{} : {}'.format(ent['description'], ent['amount']), entries)))), lines.items()))
+                    else:
+                        result[title] = dict(map(lambda (acc, entries): ('{}'.format(Account.objects.get(pk=acc)),
+                                                                         ', '.join(map(lambda ent: '{} : {}'.format(ent['description'], ent['amount']), entries))), lines.items()))
+            return result
 
     class MetaState:
         states = {
@@ -733,5 +786,5 @@ class BudgetLine(models.Model):
     amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
     description = models.CharField(max_length=250)
 
-    def __unicode(self):
+    def __unicode__(self):
         return "{} : {} ({} - {})".format(self.budget, self.amount, self.description, self.account.account_number)

@@ -331,7 +331,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
 
-        extra_args = None
+        extra_args = {}
 
         try:
             obj = model_class.objects.get(pk=pk, deleted=False)
@@ -546,6 +546,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
                     extra_args = obj.MetaEdit.do_extra_post_actions(obj, request.POST, True)
+                    for (lines, logs) in [(lines_adds, 'log_add'), (lines_updates, 'log_update'), (lines_deletes, 'log_delete')]:
+                        lines.update(extra_args[logs])
 
                 messages.success(request, _(u'Élément sauvegardé !'))
 
@@ -643,7 +645,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 'years_available': AccountingYear.build_year_menu('EDIT' if obj.pk else 'CREATE', request.user), 'related_mode': related_mode, 'list_related_view': list_related_view,
                 'file_mode': file_mode, 'file_upload_view': file_upload_view, 'file_delete_view': file_delete_view, 'files': files, 'file_key': file_key, 'file_get_view': file_get_view,
                 'file_get_thumbnail_view': file_get_thumbnail_view, 'lines_objects': lines_objects, 'costcenter_mode': costcenter_mode, 'tag_mode': tag_mode, 'tags': tags,
-                'tag_search_view': tag_search_view, 'extra_args': extra_args}
+                'tag_search_view': tag_search_view, 'extra_args': extra_args.get('display', '')}
 
         if hasattr(model_class.MetaData, 'extra_args_for_edit'):
             data.update(model_class.MetaData.extra_args_for_edit(request, current_unit, current_year))
