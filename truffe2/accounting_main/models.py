@@ -645,12 +645,12 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                 for (title, lines) in [('log_add', new_lines), ('log_update', modif_lines), ('log_delete', old_lines)]:
                     map(lambda key: lines.pop(key), filter(lambda key: not lines[key], lines.keys()))
                     if title == 'log_update':
-                        result[title] = dict(map(lambda (acc, entries): ('{}'.format(Account.objects.get(pk=acc)),
-                                                                         (', '.join(map(lambda ent: '{} : {}'.format(ent['description'], ent['old_amount']), entries)),
-                                                                          ', '.join(map(lambda ent: '{} : {}'.format(ent['description'], ent['amount']), entries)))), lines.items()))
+                        result[title] = dict(map(lambda (acc, entries): (u'{}'.format(Account.objects.get(pk=acc)),
+                                                                         (u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['old_amount']), entries)),
+                                                                          u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['amount']), entries)))), lines.items()))
                     else:
-                        result[title] = dict(map(lambda (acc, entries): ('{}'.format(Account.objects.get(pk=acc)),
-                                                                         ', '.join(map(lambda ent: '{} : {}'.format(ent['description'], ent['amount']), entries))), lines.items()))
+                        result[title] = dict(map(lambda (acc, entries): (u'{}'.format(Account.objects.get(pk=acc)),
+                                                                         u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['amount']), entries))), lines.items()))
             return result
 
     class MetaState:
