@@ -620,6 +620,8 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                         modif_lines[account].append(new_lines[account].pop(idx))
                         old_lines[account].remove(old_ent)
 
+            result = {'display': dict(lines)}
+
             if form_is_valid:
                 for account, entries in modif_lines.items():
                     acc = Account.objects.get(pk=account)
@@ -639,9 +641,6 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                     for entry in entries:
                         BudgetLine.objects.filter(budget=obj, account=acc, description=entry['description'], amount=entry['amount']).first().delete()
 
-            result = {'display': dict(lines)}
-
-            if form_is_valid:
                 for (title, lines) in [('log_add', new_lines), ('log_update', modif_lines), ('log_delete', old_lines)]:
                     map(lambda key: lines.pop(key), filter(lambda key: not lines[key], lines.keys()))
                     if title == 'log_update':
@@ -676,7 +675,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
             '0_draft': ['1_submited', '1_private'],
             '0_correct': ['1_submited'],
             '1_submited': ['2_treated', '0_correct'],
-            '1_private': [],
+            '1_private': ['0_draft'],
             '2_treated': [],
         }
 
