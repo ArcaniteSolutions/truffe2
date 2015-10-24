@@ -196,7 +196,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel, Sear
             ('unit', _(u'Appartient à'))
         ]
 
-        default_sort = "[2, 'asc']"  # name
+        default_sort = "[1, 'asc']"  # account_number
 
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
         filter_fields = ('name', 'account_number', 'unit__name')

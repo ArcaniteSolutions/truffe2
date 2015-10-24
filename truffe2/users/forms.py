@@ -15,6 +15,7 @@ class EmailFieldLoginWidget(widgets.EmailInput):
 
         return mark_safe(content)
 
+
 class TruffePasswordResetForm(PasswordResetForm):
     def __init__(self, *args, **kwargs):
         super(TruffePasswordResetForm, self).__init__(*args, **kwargs)
@@ -30,14 +31,16 @@ class TruffeUserForm(ModelForm):
         }
 
     def __init__(self, current_user, *args, **kwargs):
-        """Use or not the superuser field"""
+        """Use or not the superuser fields"""
 
         super(TruffeUserForm, self).__init__(*args, **kwargs)
 
         if not current_user.is_superuser:
             del self.fields['is_superuser']
-            del self.fields['username']
             del self.fields['is_betatester']
+
+        if not TruffeUser().rights_can('CREATE', current_user):
+            del self.fields['username']
             del self.fields['first_name']
             del self.fields['last_name']
 

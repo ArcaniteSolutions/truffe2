@@ -122,6 +122,7 @@ class _Card(GenericModel, AgepolyEditableModel, SearchableModel):
     name = models.CharField(_('Nom'), max_length=255)
     number = models.CharField(_(u'Numéro'), max_length=255)
     description = models.TextField(_('Description'))
+    exclusif = models.BooleanField(_('Usage exclusif'), default=True, help_text=_(u'Ne peut pas être utilisé plusieurs fois en même temps ?'))
 
     class MetaData:
         list_display = [
@@ -131,10 +132,12 @@ class _Card(GenericModel, AgepolyEditableModel, SearchableModel):
         ]
         details_display = list_display + [
             ('description', _(u'Description')),
+            ('exclusif', _(u'Usage exclusif'))
         ]
 
         default_sort = "[1, 'asc']"  # name
 
+        yes_or_no_fields = ['exclusif']
         filter_fields = ('name', 'number', 'description', 'provider__name')
 
         base_title = _(u'Cartes')
