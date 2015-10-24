@@ -14,7 +14,7 @@
         $('#switch_status_conflict').hide();
         {% for obj in objs %}
             {% for creservation in obj.conflicting_reservation %}
-                {% if creservation.card %}
+                {% if creservation.card and creservation.card.exclusif %}
                     if (new_val == '{{creservation.card.pk}}') {
                         $('#switch_status_conflict').show();
                         $('#switch_status_conflict span').html('{{creservation.title|escapejs}} ({{creservation.unit|escapejs}}) {% trans "du" %} {{creservation.start_date|date:"d.m.Y"}} {{creservation.start_date|time:"H:i:s"}} {% trans "au" %} {{creservation.end_date|date:"d.m.Y"}} {{creservation.end_date|time:"H:i:s"}}');
