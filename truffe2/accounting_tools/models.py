@@ -422,7 +422,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states_texts = {
             '0_preparing': _(u'La facture est en cours de rédaction'),
             '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
-            '2_sent': _(u'La facture a été envoyée, le paiement est en attente.'),
+            '2_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
             '3_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
             '4_canceled': _(u'La facture a été annulée'),
         }
