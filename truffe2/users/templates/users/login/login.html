@@ -10,14 +10,13 @@
                 <h4 class="paragraph-header">{% trans "L'intranet de l'AGEPoly. Version 2 !" %}</h4>
 
                 {% blocktrans %}
-                  Grâce à Truffe tu peux gérer ta commission, y compris ses accréditations, les documents comptables.
-                  Tu peux aussi réserver du matériel ou une salle de l'AGEPoly.
-                  Tu peux même rallonger se texte pour qu'il soit terminé parque c'est pas le cas :).
+                    Grâce à Truffe 2 tu peux gérer ta commission, y compris ses accréditations, les documents comptables, etc.
+                    Tu peux aussi réserver du matériel ou une salle de l'AGEPoly.
                 {% endblocktrans %}
 
                 <div class="login-app-icons">
                     <a href="https://agepoly.ch" class="btn btn-danger btn-sm">{% trans "Site de l'AGEPoly" %}</a>
-               </div>
+                </div>
             </div>
 
             <img src="{{MEDIA_URL}}img/agep_logo.png" class="pull-right display-image" alt="" style="margin-top: 60px; width:210px">
@@ -25,20 +24,20 @@
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-              <h5 class="about-heading">{% trans "Ceci est une nouvelle version de Truffe" %}</h5>
+                <h5 class="about-heading">{% trans "Ceci est une nouvelle version de Truffe" %}</h5>
                 <p>
-                  {% blocktrans %}
-                    Cette version est en pré-prod, des choses peuvent ne pas fonctionner. Signale les bugs aux autorités compétentes ! (truffe [at] polylan.ch).
-                  {% endblocktrans %}
+                    {% blocktrans %}
+                        Cette version est en production mais est développée en permanance, des choses peuvent ne pas fonctionner. Signales les bugs aux autorités compétentes ! (truffe [at] agepoly.ch).
+                    {% endblocktrans %}
                 </p>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
                 <h5 class="about-heading">{% trans "Connexion" %}</h5>
                 <p>
-                  {% blocktrans %}
-                    Tu veux probablement te logger avec ton compte Tequila. Les comptes Truffe sont réservés aux externes qui n'ont pas de compte Tequila.
-                    Clique sur le bouton bleu en dessous du formulaire de login !
-                  {% endblocktrans %}
+                    {% blocktrans %}
+                        Tu veux probablement te logger avec ton compte Tequila. Les comptes Truffe sont réservés aux externes qui n'ont pas de compte Tequila.
+                        Clique sur le bouton bleu en dessous du formulaire de login !
+                    {% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -55,16 +54,20 @@
                 <fieldset>
                     <section>
                         <label class="label">{% trans "Username" %}</label>
-                        <label class="input"> <i class="icon-append fa fa-user"></i>
+                        <label class="input">
+                            <i class="icon-append fa fa-user"></i>
                             <input type="text" name="username">
-                            <b class="tooltip tooltip-top-right"><i class="fa fa-user txt-color-teal"></i> {% trans "Entrez votre username" %}</b></label>
+                            <b class="tooltip tooltip-top-right"><i class="fa fa-user txt-color-teal"></i> {% trans "Entrez votre username" %}</b>
+                        </label>
                     </section>
 
                     <section>
                         <label class="label">{% trans "Mot de passe" %}</label>
-                        <label class="input"> <i class="icon-append fa fa-lock"></i>
+                        <label class="input">
+                            <i class="icon-append fa fa-lock"></i>
                             <input type="password" name="password">
-                            <b class="tooltip tooltip-top-right"><i class="fa fa-lock txt-color-teal"></i> {% trans "Entrez votre mot de passe" %}</b> </label>
+                            <b class="tooltip tooltip-top-right"><i class="fa fa-lock txt-color-teal"></i> {% trans "Entrez votre mot de passe" %}</b>
+                        </label>
                         <div class="note">
                             <a href="#" onclick="$('#password-reset-form').show(); $('#login-form').hide();">{% trans "Mot de passe oublié?" %}</a>
                         </div>
@@ -122,7 +125,6 @@
                     </section>
 
                 </fieldset>
-
 
                 <footer>
                     <a href="{% url 'app.tequila.login' %}?next={{next}}" class="btn btn-primary">{% trans "Se connecter via Tequila" %}</a>

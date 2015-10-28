@@ -110,6 +110,10 @@
     min-height: 800px !important;
 }
 
+#content_login {
+    min-height: 600px !important;
+}
+
 .menulogo {
     margin: auto;
     display: block;
