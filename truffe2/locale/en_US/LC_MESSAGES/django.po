@@ -1,0 +1,6142 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-10-28 18:30+0100\n"
+"PO-Revision-Date: 2015-10-28 18:36+0100\n"
+"Last-Translator: Maximilien Cuony <theglu@theglu.org>\n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.5\n"
+
+#: accounting_core/models.py:19 accounting_core/models.py:435
+#: accounting_core/templates/accounting_core/account/sub_ac_pdf.html:21
+#: accounting_core/templates/accounting_core/costcenter/liste_pdf.html:10
+#: accounting_main/templates/accounting_main/accountingline/_budget_view_account.html:23
+#: communication/models.py:145 members/models.py:19 units/models.py:36
+#: units/models.py:45 units/models.py:307 units/models.py:314
+#: users/templates/users/users/list.html:25
+#: users/templates/users/users/myunit_list.html:26
+#: users/templates/users/users/myunit_pdf.html:25
+#: users/templates/users/users/profile.html:32 vehicles/models.py:20
+#: vehicles/models.py:25 vehicles/models.py:73 vehicles/models.py:78
+#: vehicles/models.py:122 vehicles/models.py:129 vehicles/models.py:176
+#: vehicles/models.py:182
+msgid "Nom"
+msgstr ""
+
+#: accounting_core/models.py:20 communication/models.py:81
+#: logistics/models.py:103 logistics/models.py:356
+msgid "Date de début"
+msgstr ""
+
+#: accounting_core/models.py:21 communication/models.py:82
+#: logistics/models.py:104 logistics/models.py:357
+msgid "Date de fin"
+msgstr ""
+
+#: accounting_core/models.py:22 accounting_core/models.py:33
+msgid "Délai pour les subventions"
+msgstr ""
+
+#: accounting_core/models.py:23
+msgid "Dernier import de la compta"
+msgstr ""
+
+#: accounting_core/models.py:27
+msgid "Nom de l'année comptable"
+msgstr ""
+
+#: accounting_core/models.py:28 communication/models.py:21
+#: communication/models.py:27 communication/models.py:87
+#: logistics/models.py:114 logistics/models.py:367 main/models.py:46
+#: vehicles/models.py:243
+msgid "Date début"
+msgstr ""
+
+#: accounting_core/models.py:29 communication/models.py:22
+#: communication/models.py:28 communication/models.py:88
+#: logistics/models.py:115 logistics/models.py:368 main/models.py:47
+#: vehicles/models.py:244
+msgid "Date fin"
+msgstr ""
+
+#: accounting_core/models.py:30 accounting_main/models.py:62
+#: accounting_main/models.py:320 accounting_main/models.py:533
+#: accounting_tools/models.py:74 accounting_tools/models.py:324
+#: accounting_tools/models.py:705 accounting_tools/models.py:897
+#: accounting_tools/models.py:1133 accounting_tools/models.py:1305
+#: communication/models.py:29 communication/models.py:89
+#: logistics/models.py:116 logistics/models.py:369 main/models.py:48
+#: members/models.py:32 vehicles/models.py:247
+#: vehicles/templates/vehicles/booking/pdf.html:16
+msgid "Statut"
+msgstr ""
+
+#: accounting_core/models.py:39 templates/base.html:455
+msgid "Années Comptables"
+msgstr ""
+
+#: accounting_core/models.py:40
+msgid "Liste des années comptables"
+msgstr ""
+
+#: accounting_core/models.py:48
+msgid ""
+"Les années comptables définissent les périodes d'exercices dans tous les "
+"documents comptables."
+msgstr ""
+
+#: accounting_core/models.py:53 accounting_tools/models.py:413
+#: members/models.py:59
+msgid "En préparation"
+msgstr ""
+
+#: accounting_core/models.py:54
+msgid "Année active"
+msgstr ""
+
+#: accounting_core/models.py:55
+msgid "En clôture"
+msgstr ""
+
+#: accounting_core/models.py:56
+msgid "Année archivée"
+msgstr ""
+
+#: accounting_core/models.py:62
+msgid "L'année est en cours de création et n'est pas publique."
+msgstr ""
+
+#: accounting_core/models.py:63
+msgid "L'année est active."
+msgstr ""
+
+#: accounting_core/models.py:64
+msgid "L'année est en train d'être clôturée."
+msgstr ""
+
+#: accounting_core/models.py:65
+msgid "L'année est archivé. Il n'est plus possible de faire des modifications."
+msgstr ""
+
+#: accounting_core/models.py:90
+msgid "Rendre l'année active"
+msgstr ""
+
+#: accounting_core/models.py:91
+msgid "Passer l'année en clôture"
+msgstr ""
+
+#: accounting_core/models.py:92
+msgid "Archiver l'année"
+msgstr ""
+
+#: accounting_core/models.py:122 generic/models.py:581 main/models.py:31
+#: members/models.py:143
+msgid "Seul un super utilisateur peut sortir cet élément de l'état archivé"
+msgstr ""
+
+#: accounting_core/models.py:125 accounting_main/models.py:738
+#: accounting_tools/models.py:241 members/models.py:146
+msgid "Seul un super utilisateur peut sauter des étapes ou revenir en arrière."
+msgstr ""
+
+#: accounting_core/models.py:128 accounting_main/models.py:199
+#: accounting_main/models.py:413 accounting_main/models.py:744
+#: accounting_tools/models.py:247 accounting_tools/models.py:528
+#: accounting_tools/models.py:821 accounting_tools/models.py:1040
+#: generic/models.py:599 generic/models.py:890 members/models.py:149
+msgid "Pas les droits."
+msgstr ""
+
+#: accounting_core/models.py:183 accounting_core/models.py:195
+msgid "Nom du centre de coût"
+msgstr ""
+
+#: accounting_core/models.py:184
+msgid "Numéro associé au centre de coût"
+msgstr ""
+
+#: accounting_core/models.py:185 accounting_core/models.py:196
+msgid "Appartient à"
+msgstr ""
+
+#: accounting_core/models.py:186 accounting_core/models.py:201
+#: accounting_core/models.py:248 accounting_core/models.py:260
+#: accounting_core/models.py:339 accounting_core/models.py:354
+#: accounting_core/templates/accounting_core/account/sub_ac_pdf.html:22
+#: accounting_core/templates/accounting_core/costcenter/liste_pdf.html:11
+#: accounting_tools/models.py:44 accounting_tools/models.py:80
+#: accounting_tools/models.py:692 accounting_tools/models.py:708
+#: accounting_tools/models.py:887 accounting_tools/models.py:900
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:134
+#: generic/templates/generic/generic/directory.html:40 logistics/models.py:43
+#: logistics/models.py:296
+#: logistics/templates/logistics/roomreservation/show.html:8
+#: logistics/templates/logistics/supplyreservation/show.html:8
+#: main/models.py:131 main/models.py:165 main/models.py:236 main/models.py:261
+#: units/models.py:52 units/models.py:315 vehicles/models.py:21
+#: vehicles/models.py:28 vehicles/models.py:74 vehicles/models.py:82
+#: vehicles/models.py:124 vehicles/models.py:134 vehicles/models.py:177
+#: vehicles/models.py:185
+msgid "Description"
+msgstr "Description"
+
+#: accounting_core/models.py:194 accounting_core/models.py:347
+#: vehicles/models.py:123 vehicles/models.py:131
+msgid "Numéro"
+msgstr ""
+
+#: accounting_core/models.py:201 accounting_core/models.py:354
+#: accounting_core/utils.py:15 accounting_main/models.py:536
+#: accounting_tools/models.py:80 accounting_tools/models.py:708
+#: accounting_tools/models.py:900 accounting_tools/models.py:1136
+#: accounting_tools/models.py:1308
+msgid "Année comptable"
+msgstr ""
+
+#: accounting_core/models.py:204 templates/base.html:460
+msgid "Centres de coût"
+msgstr ""
+
+#: accounting_core/models.py:205
+msgid "Liste des centres de coût"
+msgstr ""
+
+#: accounting_core/models.py:211
+msgid ""
+"Les centres de coût sont les différents comptes qui appartiennent aux unités "
+"de l'AGEPoly (commissions, équipes, sous-commissions, Comité de Direction)."
+msgstr ""
+
+#: accounting_core/models.py:234
+msgid "Un centre de coûts avec ce nom existe déjà pour cette année comptable."
+msgstr ""
+
+#: accounting_core/models.py:237
+msgid ""
+"Un centre de coûts avec ce numéro de compte existe déjà pour cette année "
+"comptable."
+msgstr ""
+
+#: accounting_core/models.py:245 accounting_core/models.py:256
+msgid "Nom de la catégorie"
+msgstr ""
+
+#: accounting_core/models.py:246
+msgid "Catégorie parente pour la hiérarchie"
+msgstr ""
+
+#: accounting_core/models.py:247
+msgid "Ordre dans le plan comptable"
+msgstr ""
+
+#: accounting_core/models.py:247
+msgid "Le plus petit d'abord"
+msgstr ""
+
+#: accounting_core/models.py:257
+msgid "Catégorie parente"
+msgstr ""
+
+#: accounting_core/models.py:260
+msgid "Année Comptable"
+msgstr ""
+
+#: accounting_core/models.py:267
+msgid "Catégories des comptes de CG"
+msgstr ""
+
+#: accounting_core/models.py:268
+msgid "Liste des catégories"
+msgstr ""
+
+#: accounting_core/models.py:274
+msgid ""
+"Les catégories des comptes de comptabilité générale servent à classer les "
+"comptes de CG dans les différents documents comptables."
+msgstr ""
+
+#: accounting_core/models.py:302
+msgid "Une catégorie avec ce nom existe déjà pour cette année comptable."
+msgstr ""
+
+#: accounting_core/models.py:305
+msgid ""
+"La catégorie parente choisie n'appartient pas à la bonne année comptable."
+msgstr ""
+
+#: accounting_core/models.py:329
+msgid "Visible à tous"
+msgstr ""
+
+#: accounting_core/models.py:330
+msgid "Visible au Comité de Direction uniquement"
+msgstr ""
+
+#: accounting_core/models.py:331
+msgid "Visible aux personnes qui gère la comptabilité générale"
+msgstr ""
+
+#: accounting_core/models.py:332
+msgid "Visible à personne"
+msgstr ""
+
+#: accounting_core/models.py:335 accounting_core/models.py:348
+msgid "Nom du compte"
+msgstr ""
+
+#: accounting_core/models.py:336
+msgid "Numéro du compte"
+msgstr ""
+
+#: accounting_core/models.py:337
+msgid "Visibilité dans les documents comptables"
+msgstr ""
+
+#: accounting_core/models.py:338 accounting_core/models.py:349
+msgid "Catégorie"
+msgstr ""
+
+#: accounting_core/models.py:354 communication/models.py:147
+#: rights/utils.py:340 users/templates/users/users/edit.html:48
+msgid "Visibilité"
+msgstr ""
+
+#: accounting_core/models.py:357
+msgid "Comptes de Comptabilité Générale"
+msgstr ""
+
+#: accounting_core/models.py:358
+msgid "Liste des comptes"
+msgstr ""
+
+#: accounting_core/models.py:364
+msgid ""
+"Les comptes de comptabilité générale sont les différents comptes qui "
+"apparaissent dans la comptabilité de l'AGEPoly.\n"
+"Ils permettent de séparer les recettes et les dépenses par catégories."
+msgstr ""
+
+#: accounting_core/models.py:399
+msgid "Un compte de CG avec ce nom existe déjà pour cette année comptable."
+msgstr ""
+
+#: accounting_core/models.py:402
+msgid ""
+"Un compte de CG avec ce numéro de compte existe déjà pour cette année "
+"comptable."
+msgstr ""
+
+#: accounting_core/models.py:405
+msgid "La catégorie choisie n'appartient pas à la bonne année comptable."
+msgstr ""
+
+#: accounting_core/models.py:426
+msgid "Nom de la TVA"
+msgstr ""
+
+#: accounting_core/models.py:427 accounting_core/models.py:436
+msgid "Valeur (%)"
+msgstr ""
+
+#: accounting_core/models.py:428
+msgid "Limiter l'usage au comité de l'AGEPoly"
+msgstr ""
+
+#: accounting_core/models.py:437
+msgid "Limité AGEPoly ?"
+msgstr ""
+
+#: accounting_core/models.py:445 accounting_main/models.py:38
+#: accounting_tools/models.py:386 accounting_tools/models.py:665
+#: accounting_tools/models.py:1193 accounting_tools/models.py:1267
+#: accounting_tools/models.py:1361 accounting_tools/models.py:1470
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:137
+msgid "TVA"
+msgstr "VAT"
+
+#: accounting_core/models.py:446
+msgid "Liste des taux de TVA"
+msgstr ""
+
+#: accounting_core/models.py:454
+msgid ""
+"Les TVA sélectionnables dans les champs de TVA. Il est possible de "
+"restrainre l'usage de certaines TVA au CDD.\n"
+"\n"
+"Les TVA ne sont pas liées aux autres objets comptables, il est possible de "
+"les modifier à tout moment sans risques."
+msgstr ""
+
+#: accounting_core/models.py:472
+msgid "Peut utiliser n'importe quelle valeure de TVA."
+msgstr ""
+
+#: accounting_core/models.py:505
+msgid "L'administrateur de l'AGEPoly"
+msgstr ""
+
+#: accounting_core/models.py:506
+msgid "Les secrétaires de l'AGEPoly"
+msgstr ""
+
+#: accounting_core/models.py:507
+msgid "Le trésorier de l'unité liée"
+msgstr ""
+
+#: accounting_core/models.py:508
+msgid ""
+"Toutes les personnes liées via la compta (Admin et secrétaires AGEP, "
+"trésorier unité, éditeurs de l'objet)"
+msgstr ""
+
+#: accounting_core/utils.py:52 accounting_tools/models.py:325
+msgid "Centre de coût"
+msgstr ""
+
+#: accounting_core/views.py:64 accounting_main/views.py:95
+msgid "Copie terminée avec succès"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/account/list.html:8
+msgid "Plan comptable"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/account/liste_pdf.html:5
+msgid "Plan comptable pour"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/account/sub_ac_pdf.html:20
+#: accounting_core/templates/accounting_core/costcenter/liste_pdf.html:9
+#: accounting_main/templates/accounting_main/accountingline/_budget_view_account.html:22
+msgid "Compte n°"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/account/sub_ac_pdf.html:34
+msgid "Pas de compte de ce type pour cette année"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/accountingyear/list_json.html:6
+#: accounting_main/templates/accounting_main/budget/list_json.html:5
+#: templates/datatables.html:117
+msgid "Copier"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/costcenter/list.html:8
+msgid "Liste des centres de coûts"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/costcenter/liste_pdf.html:5
+msgid "Liste des centres de coûts pour"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/costcenter/liste_pdf.html:22
+msgid "Pas de centres de coûts pour cette année"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/selector/year_selector.html:8
+msgid "Tu travailles actuellement avec l'année comptable"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/selector/year_selector.html:14
+#: units/templates/units/selector/unit_selector.html:14
+msgid "Changer"
+msgstr ""
+
+#: accounting_core/templates/accounting_core/selector/year_selector.html:32
+msgid ""
+"Attention ! Cette année comptable n'est pas l'année comptable en cours ! Es-"
+"tu sur de vouloir l'utiliser ?"
+msgstr ""
+
+#: accounting_main/forms2.py:12
+msgid "L'année comptable"
+msgstr ""
+
+#: accounting_main/forms2.py:13
+msgid "Le fichier avec la compta"
+msgstr ""
+
+#: accounting_main/forms2.py:14
+msgid "Le type de fichier"
+msgstr ""
+
+#: accounting_main/forms2.py:15
+msgid "Format CSV 2014"
+msgstr ""
+
+#: accounting_main/models.py:36 accounting_main/models.py:55
+msgid "Compte de CG"
+msgstr ""
+
+#: accounting_main/models.py:40 accounting_main/models.py:59
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:53
+msgid "Débit"
+msgstr ""
+
+#: accounting_main/models.py:41 accounting_main/models.py:60
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:53
+msgid "Crédit"
+msgstr ""
+
+#: accounting_main/models.py:42 accounting_main/models.py:61
+msgid "Situation"
+msgstr ""
+
+#: accounting_main/models.py:43
+msgid "Numéro de pièce comptable"
+msgstr ""
+
+#: accounting_main/models.py:54
+#: accounting_main/templates/accounting_main/import/step2.html:35
+#: accounting_main/templates/accounting_main/import/step2.html:72
+#: accounting_main/templates/accounting_main/import/step2.html:117
+#: accounting_main/templates/accounting_main/import/step2.html:154
+#: accounting_tools/models.py:1355 accounting_tools/models.py:1463
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:23
+#: notifications/templates/notifications/center/index.html:41
+msgid "Date"
+msgstr ""
+
+#: accounting_main/models.py:56
+msgid "Pièce comptable"
+msgstr ""
+
+#: accounting_main/models.py:57
+#: accounting_main/templates/accounting_main/import/step2.html:37
+#: accounting_main/templates/accounting_main/import/step2.html:74
+#: accounting_main/templates/accounting_main/import/step2.html:119
+#: accounting_main/templates/accounting_main/import/step2.html:156
+msgid "Texte"
+msgstr ""
+
+#: accounting_main/models.py:58
+msgid "% TVA"
+msgstr "VAT %"
+
+#: accounting_main/models.py:81 accounting_main/models.py:318
+#: accounting_main/models.py:532
+#: accounting_main/templates/accounting_main/import/step2.html:34
+#: accounting_main/templates/accounting_main/import/step2.html:71
+#: accounting_main/templates/accounting_main/import/step2.html:116
+#: accounting_main/templates/accounting_main/import/step2.html:153
+#: accounting_tools/models.py:896 accounting_tools/models.py:1130
+#: accounting_tools/models.py:1302
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:56
+msgid "Centre de coûts"
+msgstr ""
+
+#: accounting_main/models.py:84
+#: accounting_main/templates/accounting_main/import/step1.html:4
+#: accounting_main/templates/accounting_main/import/step2.html:4
+#: templates/base.html:375
+msgid "Comptabilité"
+msgstr ""
+
+#: accounting_main/models.py:85
+msgid "Liste des entrées de la comptabilité"
+msgstr ""
+
+#: accounting_main/models.py:98
+msgid ""
+"Les lignes de la compta de l'AGEPoly.\n"
+"\n"
+"Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les "
+"boutons corespondants."
+msgstr ""
+
+#: accounting_main/models.py:124
+msgid "En attente"
+msgstr ""
+
+#: accounting_main/models.py:125 generic/models.py:733
+msgid "Validé"
+msgstr ""
+
+#: accounting_main/models.py:126 accounting_main/models.py:317
+#: generic/templates/generic/generic/file_upload.html:175
+msgid "Erreur"
+msgstr ""
+
+#: accounting_main/models.py:132
+msgid "La ligne vient d'être importée"
+msgstr ""
+
+#: accounting_main/models.py:133
+msgid "La ligne est validée"
+msgstr ""
+
+#: accounting_main/models.py:134
+msgid "La ligne est fausse et nécessite une correction"
+msgstr ""
+
+#: accounting_main/models.py:153 accounting_main/models.py:154
+msgid "Signaler une erreur"
+msgstr ""
+
+#: accounting_main/models.py:153 accounting_main/models.py:155
+msgid "Marquer comme validé"
+msgstr ""
+
+#: accounting_main/models.py:170
+msgid "Description de l'erreur"
+msgstr ""
+
+#: accounting_main/models.py:170
+msgid ""
+"Une erreur sera crée automatiquement, liée à la ligne. Laisse le champ vide "
+"si tu ne veux pas créer une erreur (mais ceci est fortement déconseillé)"
+msgstr ""
+
+#: accounting_main/models.py:173
+msgid "Résoudre les erreurs liées"
+msgstr ""
+
+#: accounting_main/models.py:173
+msgid ""
+"Fix automatiquement les erreurs liées à la ligne. Attention, des erreurs "
+"peuvent être dissociées !"
+msgstr ""
+
+#: accounting_main/models.py:285
+msgid "Peut importer la compta"
+msgstr ""
+
+#: accounting_main/models.py:301
+msgid "Ligne liée"
+msgstr ""
+
+#: accounting_main/models.py:304 accounting_main/models.py:327
+msgid "Remarque initiale"
+msgstr ""
+
+#: accounting_main/models.py:304
+msgid "Décrit le problème"
+msgstr ""
+
+#: accounting_main/models.py:319
+msgid "Ligne"
+msgstr ""
+
+#: accounting_main/models.py:330
+#: accounting_main/templates/accounting_main/accountingline/show.html:6
+#: templates/base.html:384
+msgid "Erreurs"
+msgstr ""
+
+#: accounting_main/models.py:331
+msgid "Liste des erreurs de la comptabilité"
+msgstr ""
+
+#: accounting_main/models.py:342
+msgid "Les erreurs signalées dans la compta de l'AGEPoly."
+msgstr ""
+
+#: accounting_main/models.py:347
+msgid "Établisement du problème"
+msgstr ""
+
+#: accounting_main/models.py:348
+msgid "En attente de correction"
+msgstr ""
+
+#: accounting_main/models.py:349
+msgid "Correction effectuée"
+msgstr ""
+
+#: accounting_main/models.py:355
+msgid "L'erreur a été signalée, les détails sont en cours d'élaboration."
+msgstr ""
+
+#: accounting_main/models.py:356
+msgid "L'erreur a été déterminée et une correction est en attente."
+msgstr ""
+
+#: accounting_main/models.py:357
+msgid "L'erreur a été corrigée."
+msgstr ""
+
+#: accounting_main/models.py:376 accounting_main/models.py:378
+msgid "Marquer comme 'En attente de correction'"
+msgstr ""
+
+#: accounting_main/models.py:376 accounting_main/models.py:377
+msgid "Marquer comme corrigé"
+msgstr ""
+
+#: accounting_main/models.py:391
+msgid "Mettre la ligne liée comme valide"
+msgstr ""
+
+#: accounting_main/models.py:391
+msgid ""
+"Met automatiquement la ligne liée comme valide. Attention, la ligne n'est "
+"plus forcément liée !"
+msgstr ""
+
+#: accounting_main/models.py:443
+msgid "(Aucune ligne liée)"
+msgstr ""
+
+#: accounting_main/models.py:457
+msgid "Peut ajouter un commentaire"
+msgstr ""
+
+#: accounting_main/models.py:461
+msgid ""
+"Toutes les personnes liées via la compta (Admin et secrétaires AGEP, "
+"trésorier unité, éditeurs de l'objet) + les personnes ayant commenté"
+msgstr ""
+
+#: accounting_main/models.py:465
+msgid "Erreur #{} du {} signalée par {}"
+msgstr ""
+
+#: accounting_main/models.py:526
+msgid "Titre du budget"
+msgstr ""
+
+#: accounting_main/models.py:531 accounting_tools/models.py:118
+#: accounting_tools/models.py:323 accounting_tools/models.py:383
+#: accounting_tools/models.py:662 accounting_tools/models.py:1129
+#: accounting_tools/models.py:1189 accounting_tools/models.py:1301
+#: accounting_tools/models.py:1357 communication/models.py:16
+#: communication/models.py:26 communication/models.py:77
+#: communication/models.py:86 logistics/models.py:22 logistics/models.py:37
+#: logistics/models.py:101 logistics/models.py:112 logistics/models.py:272
+#: logistics/models.py:289 logistics/models.py:354 logistics/models.py:365
+#: main/models.py:45 main/models.py:130 main/models.py:161 main/models.py:235
+#: main/models.py:256 units/models.py:370 vehicles/models.py:226
+#: vehicles/models.py:242
+msgid "Titre"
+msgstr ""
+
+#: accounting_main/models.py:541 templates/base.html:418
+msgid "Budgets"
+msgstr ""
+
+#: accounting_main/models.py:542
+msgid "Liste des budgets"
+msgstr ""
+
+#: accounting_main/models.py:550
+msgid ""
+"Les budgets permettent de prévoir les dépenses de l'unité sur l'année.\n"
+"\n"
+"Il est obligatoire de fournir un budget au plus tard 6 semaines après le "
+"début du semestre d'automne à l'AGEPoly."
+msgstr ""
+
+#: accounting_main/models.py:604
+msgid "Le compte de CG {} n'existe pas dans cette année comptable."
+msgstr ""
+
+#: accounting_main/models.py:657 accounting_tools/models.py:130
+#: accounting_tools/models.py:742 accounting_tools/models.py:933
+#: generic/models.py:701 generic/models.py:731 generic/models.py:784
+#: main/models.py:71
+msgid "Brouillon"
+msgstr ""
+
+#: accounting_main/models.py:658 accounting_tools/models.py:131
+msgid "A corriger"
+msgstr ""
+
+#: accounting_main/models.py:659
+msgid "Budget soumis"
+msgstr ""
+
+#: accounting_main/models.py:660
+msgid "Budget privé"
+msgstr ""
+
+#: accounting_main/models.py:661
+msgid "Budget validé"
+msgstr ""
+
+#: accounting_main/models.py:667
+msgid "Le budget est en cours de création et n'est pas public."
+msgstr ""
+
+#: accounting_main/models.py:668
+msgid "Le budget doit être corrigé."
+msgstr ""
+
+#: accounting_main/models.py:669
+msgid "Le budget a été soumis."
+msgstr ""
+
+#: accounting_main/models.py:670
+msgid "Le budget est terminé et privé."
+msgstr ""
+
+#: accounting_main/models.py:671
+msgid "Le budget a été validé."
+msgstr ""
+
+#: accounting_main/models.py:699 accounting_main/models.py:700
+msgid "Soumettre le budget"
+msgstr ""
+
+#: accounting_main/models.py:701
+msgid "Marquer le budget comme validé"
+msgstr ""
+
+#: accounting_main/models.py:701 accounting_tools/models.py:169
+#: generic/models.py:825 generic/models.py:826
+msgid "Demander des corrections"
+msgstr ""
+
+#: accounting_main/models.py:702
+msgid "Remodifier"
+msgstr ""
+
+#: accounting_main/models.py:734 accounting_tools/models.py:237
+msgid "Seul un super utilisateur peut sortir cet élément de l'état traité"
+msgstr ""
+
+#: accounting_main/models.py:741
+msgid ""
+"Seul un membre du Comité de Direction peut marquer la demande comme validée "
+"ou à corriger."
+msgstr ""
+
+#: accounting_main/models.py:784
+#: accounting_main/templates/accounting_main/accountingline/_budget_view_account.html:25
+#: accounting_main/templates/accounting_main/budget/list_json.html:7
+#: accounting_main/templates/accounting_main/budget/pdf.html:51
+#: accounting_main/templates/accounting_main/budget/show.html:38
+msgid "Budget"
+msgstr ""
+
+#: accounting_main/models.py:785 accounting_tools/models.py:701
+#: accounting_tools/models.py:1191 accounting_tools/models.py:1265
+#: accounting_tools/models.py:1359 accounting_tools/models.py:1468
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:56
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:209
+msgid "Compte"
+msgstr "Account"
+
+#: accounting_main/models.py:787
+#: accounting_main/templates/accounting_main/accountingline/_budget_view_account.html:24
+#: accounting_tools/models.py:696 accounting_tools/models.py:702
+#: accounting_tools/models.py:888 accounting_tools/models.py:895
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:18
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:53
+msgid "Montant"
+msgstr ""
+
+#: accounting_main/views.py:70
+msgid "Message ajouté !"
+msgstr ""
+
+#: accounting_main/views.py:165
+msgid "Session d'importation invalide."
+msgstr ""
+
+#: accounting_main/views.py:486
+msgid "Compta importée ! Si tout est ok, n'oublie pas de notifier les gens."
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingerror/show.html:37
+msgid "Nouveau message"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingerror/show.html:45
+#: accounting_main/templates/accounting_main/import/step1.html:60
+#: generic/templates/generic/generic/contact.html:22
+msgid "Envoyer"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingline/budget_view.html:9
+msgid "Vue en budget de la compta"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingline/budget_view.html:27
+#: accounting_main/templates/accounting_main/accountingline/graph.html:19
+#: members/templates/members/membership/add.html:27
+#: members/templates/members/membership/add.html:46
+#: members/templates/members/membership/import.html:30
+msgid "Fermer"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingline/graph.html:9
+msgid "Graphique du solde en fonction du temps sur le centre de coût "
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingline/list.html:46
+msgid "Vue budget"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingline/list.html:50
+msgid "Graphique"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingline/list.html:92
+msgid "importée le "
+msgstr ""
+
+#: accounting_main/templates/accounting_main/accountingline/list.html:92
+#: generic/templates/generic/generic/show.html:171
+#: generic/templates/generic/generic/show_deleted.html:21
+#: notifications/templates/notifications/mails/new_notifs_html.html:19
+#: notifications/templates/notifications/mails/new_notifs_plain.txt:9
+msgid "à"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:15
+#: generic/templates/generic/generic/directory.html:76
+#: generic/templates/generic/generic/show.html:4
+#: generic/templates/generic/generic/mail/contact_html.html:22
+#: generic/templates/generic/generic/mail/contact_html.html:24
+#: notifications/templates/notifications/mails/new_notif_html.html:18
+#: notifications/templates/notifications/mails/new_notif_html.html:20
+#: notifications/templates/notifications/mails/new_notifs_html.html:32
+#: notifications/templates/notifications/mails/new_notifs_html.html:34
+#: notifications/templates/notifications/species/accounting_base.html:30
+#: notifications/templates/notifications/species/accounting_error_created.html:15
+#: notifications/templates/notifications/species/accounting_error_fixed.html:15
+#: notifications/templates/notifications/species/accounting_error_message.html:15
+#: notifications/templates/notifications/species/accounting_line_error.html:15
+#: notifications/templates/notifications/species/accounting_line_fixed.html:15
+#: notifications/templates/notifications/species/accounting_new_compta.html:15
+#: notifications/templates/notifications/species/accreds_deleted.html:21
+#: notifications/templates/notifications/species/accreds_tovalidate.html:19
+#: notifications/templates/notifications/species/accreds_validated.html:19
+#: notifications/templates/notifications/species/accreds_warning.html:21
+#: notifications/templates/notifications/species/deleted.html:15
+#: notifications/templates/notifications/species/drafted.html:15
+#: notifications/templates/notifications/species/invoices_bvr_needed.html:15
+#: notifications/templates/notifications/species/invoices_bvr_set.html:15
+#: notifications/templates/notifications/species/invoices_done.html:15
+#: notifications/templates/notifications/species/invoices_sent.html:15
+#: notifications/templates/notifications/species/moderation.html:15
+#: notifications/templates/notifications/species/online.html:15
+#: notifications/templates/notifications/species/refused.html:15
+#: notifications/templates/notifications/species/validated.html:15
+#: notifications/templates/notifications/species/center/buttons/accounting_accepted.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_accountable.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_canceled.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_error_created.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_error_fixed.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_error_message.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_line_error.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_line_fixed.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_new_compta.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_used.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_validable.html:6
+#: notifications/templates/notifications/species/center/buttons/accounting_withdrawn.html:6
+#: notifications/templates/notifications/species/center/buttons/accreds_deleted.html:6
+#: notifications/templates/notifications/species/center/buttons/accreds_tovalidate.html:6
+#: notifications/templates/notifications/species/center/buttons/accreds_validated.html:6
+#: notifications/templates/notifications/species/center/buttons/accreds_warning.html:6
+#: notifications/templates/notifications/species/center/buttons/deleted.html:6
+#: notifications/templates/notifications/species/center/buttons/drafted.html:6
+#: notifications/templates/notifications/species/center/buttons/invoices_bvr_needed.html:6
+#: notifications/templates/notifications/species/center/buttons/invoices_bvr_set.html:6
+#: notifications/templates/notifications/species/center/buttons/invoices_done.html:6
+#: notifications/templates/notifications/species/center/buttons/invoices_sent.html:6
+#: notifications/templates/notifications/species/center/buttons/moderation.html:6
+#: notifications/templates/notifications/species/center/buttons/online.html:6
+#: notifications/templates/notifications/species/center/buttons/refused.html:6
+#: notifications/templates/notifications/species/center/buttons/validated.html:6
+#: units/templates/units/accreds/logs_list.html:27
+msgid "Détails"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:18
+#: accounting_main/templates/accounting_main/budget/pdf.html:56
+#: accounting_main/templates/accounting_main/budget/show.html:11
+msgid "Dépenses"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:18
+#: accounting_main/templates/accounting_main/budget/pdf.html:57
+#: accounting_main/templates/accounting_main/budget/show.html:23
+msgid "Recettes"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:19
+msgid "Ajouter une dépense"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:19
+msgid "Ajouter une recette"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:21
+#: accounting_tools/models.py:1132 accounting_tools/models.py:1304
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:138
+msgid "Total"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:52
+msgid "Es-tu sûr de vouloir quitter cette page ?"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/edit.html:111
+msgid "Plus"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/list_json.html:7
+#: accounting_tools/templates/accounting_tools/cashbook/list_json.html:5
+#: accounting_tools/templates/accounting_tools/expenseclaim/list_json.html:5
+#: accounting_tools/templates/accounting_tools/internaltransfer/list_json.html:5
+#: accounting_tools/templates/accounting_tools/invoice/list_json.html:6
+#: accounting_tools/templates/accounting_tools/withdrawal/list_json.html:5
+msgid "PDF"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/budget/show.html:38
+#: accounting_tools/templates/accounting_tools/internaltransfer/show.html:5
+#: accounting_tools/templates/accounting_tools/withdrawal/show.html:6
+msgid "Voir le PDF"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:4
+#: accounting_main/templates/accounting_main/import/step2.html:4
+msgid "Import"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:4
+#: accounting_main/templates/accounting_main/import/step1.html:9
+#: accounting_main/templates/accounting_main/import/step2.html:9
+msgid "Étape 1"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:8
+#: accounting_main/templates/accounting_main/import/step2.html:8
+msgid "Import de la compta"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:18
+msgid "Import de la compta: Étape 1"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:20
+msgid ""
+"Merci de bien vouloir sélectionner l'année comptable, le fichier et le type "
+"de fichier pour commencer."
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:36
+#: accounting_main/templates/accounting_main/import/step2.html:194
+msgid "Merci de patienter..."
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:36
+msgid "Continuer"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:51
+msgid "Notifier les trésoriers"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:53
+msgid ""
+"Pour envoyer une notification à tous les trésoriers afin de les informer "
+"d'une nouvelle comptabilité, clique sur ce bouton:"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step1.html:67
+msgid "Note qu'il faut commencer par uploader la compta avant :)"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:4
+#: accounting_main/templates/accounting_main/import/step2.html:10
+msgid "Étape 2"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:19
+msgid "Import de la compta: Étape 2"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:21
+msgid ""
+"La compta a été parsée correctement, mais les modifications n'ont PAS encore "
+"été effectuées. Merci de confirmer que tout est ok et de valider pour "
+"appliquer les modifications."
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:27
+msgid "Lignes à rajouter"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:36
+#: accounting_main/templates/accounting_main/import/step2.html:73
+#: accounting_main/templates/accounting_main/import/step2.html:118
+#: accounting_main/templates/accounting_main/import/step2.html:155
+msgid "N° pièce comptable"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:38
+#: accounting_main/templates/accounting_main/import/step2.html:75
+#: accounting_main/templates/accounting_main/import/step2.html:120
+#: accounting_main/templates/accounting_main/import/step2.html:157
+msgid "Opération"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:64
+msgid "Lignes à modifier"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:76
+msgid "Modification(s)"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:109
+msgid "Lignes à supprimer"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:146
+msgid "Lignes sans modifications"
+msgstr ""
+
+#: accounting_main/templates/accounting_main/import/step2.html:194
+msgid "Appliquer les changements"
+msgstr ""
+
+#: accounting_tools/models.py:31 accounting_tools/models.py:86
+msgid "Subvention"
+msgstr ""
+
+#: accounting_tools/models.py:32
+msgid "Sponsoring"
+msgstr ""
+
+#: accounting_tools/models.py:39
+msgid "Nom du projet"
+msgstr ""
+
+#: accounting_tools/models.py:40 accounting_tools/models.py:72
+msgid "Montant demandé"
+msgstr ""
+
+#: accounting_tools/models.py:41 accounting_tools/models.py:81
+msgid "Montant attribué"
+msgstr ""
+
+#: accounting_tools/models.py:42
+msgid "Montant mobilité demandé"
+msgstr ""
+
+#: accounting_tools/models.py:43 accounting_tools/models.py:82
+msgid "Montant mobilité attribué"
+msgstr ""
+
+#: accounting_tools/models.py:45
+msgid "Commentaire AGEPoly"
+msgstr ""
+
+#: accounting_tools/models.py:46
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:29
+msgid "Type de soutien"
+msgstr ""
+
+#: accounting_tools/models.py:47
+msgid "Budget annuel lié"
+msgstr ""
+
+#: accounting_tools/models.py:58 accounting_tools/models.py:85
+#: communication/models.py:152 communication/models.py:169 main/models.py:269
+#: templates/base.html:487 templates/base.html.py:502 templates/base.html:529
+msgid "Fichiers"
+msgstr ""
+
+#: accounting_tools/models.py:59
+msgid ""
+"Envoie les fichiers nécessaires pour ta demande de subvention.<br />\n"
+"Vous devez inclure dans votre demande au moins :\n"
+"<ul>\n"
+"                       <li>Budget du projet. Merci d'utiliser le système de "
+"budgets dans le menu latéral, ou <a href=\"/file/download_list/?"
+"group=accounting\" target=\"_blank\">ce modèle</a> pour les externes à "
+"l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est "
+"vivement recommandé.</li>\n"
+"    <li>Bilans et comptes des d'activité des années précédentes</li>\n"
+"    <li>Documents officiels (pour les Association hors AGEPoly) : statuts, "
+"liste des membres du comité, PV de la dernière AG</li>\n"
+"</ul>\n"
+"Ces différents documents sont demandés au format PDF dans la mesure du "
+"possible, afin d'éviter les problèmes d'ouvertures et de mise en page."
+msgstr ""
+
+#: accounting_tools/models.py:70
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:27
+msgid "Projet"
+msgstr ""
+
+#: accounting_tools/models.py:71
+msgid "Association / Commission"
+msgstr ""
+
+#: accounting_tools/models.py:73
+msgid "Mobilité demandé"
+msgstr ""
+
+#: accounting_tools/models.py:87
+msgid "Liste des demandes de subvention"
+msgstr ""
+
+#: accounting_tools/models.py:102
+msgid ""
+"Les demandes de subvention peuvent être faites par toutes les commissions ou "
+"associations auprès de l'AGEPoly."
+msgstr ""
+
+#: accounting_tools/models.py:110
+msgid "Evènements"
+msgstr ""
+
+#: accounting_tools/models.py:119
+msgid "Du"
+msgstr ""
+
+#: accounting_tools/models.py:120
+msgid "Au"
+msgstr ""
+
+#: accounting_tools/models.py:121 vehicles/models.py:235 vehicles/models.py:255
+#: vehicles/models.py:322 vehicles/templates/vehicles/booking/pdf.html:32
+msgid "Lieu"
+msgstr ""
+
+#: accounting_tools/models.py:122
+msgid "Nb personnes attendues"
+msgstr ""
+
+#: accounting_tools/models.py:132
+msgid "Demande soumise"
+msgstr ""
+
+#: accounting_tools/models.py:133
+msgid "Demande traitée"
+msgstr ""
+
+#: accounting_tools/models.py:139
+msgid "La demande est en cours de création et n'est pas publique."
+msgstr ""
+
+#: accounting_tools/models.py:140
+msgid "La demande a été soumise."
+msgstr ""
+
+#: accounting_tools/models.py:141
+msgid "La demande doit être corrigée."
+msgstr ""
+
+#: accounting_tools/models.py:142
+msgid "La demande a été traitée."
+msgstr ""
+
+#: accounting_tools/models.py:167 accounting_tools/models.py:168
+msgid "Soumettre la demande"
+msgstr ""
+
+#: accounting_tools/models.py:169
+msgid "Marquer la demande comme traitée"
+msgstr ""
+
+#: accounting_tools/models.py:184
+msgid "Montant accordé"
+msgstr ""
+
+#: accounting_tools/models.py:185
+msgid "Montant mobilité accordé"
+msgstr ""
+
+#: accounting_tools/models.py:216
+msgid "Peut exporter les éléments"
+msgstr ""
+
+#: accounting_tools/models.py:244
+msgid ""
+"Seul un membre du Comité de Direction peut marquer la demande comme traitée "
+"ou à corriger."
+msgstr ""
+
+#: accounting_tools/models.py:259
+msgid ""
+"Une demande de subvention pour cette unité existe déjà pour cette année "
+"comptable."
+msgstr ""
+
+#: accounting_tools/models.py:284
+msgid "Nom de l'évènement"
+msgstr ""
+
+#: accounting_tools/models.py:285
+msgid "Début de l'évènement"
+msgstr ""
+
+#: accounting_tools/models.py:286
+msgid "Fin de l'évènement"
+msgstr ""
+
+#: accounting_tools/models.py:287
+msgid "Lieu de l'évènement"
+msgstr ""
+
+#: accounting_tools/models.py:288
+msgid "Nombre de personnes attendues"
+msgstr ""
+
+#: accounting_tools/models.py:290
+msgid "Subvention/sponsoring"
+msgstr ""
+
+#: accounting_tools/models.py:307
+msgid "Numéro de BVR manuel"
+msgstr ""
+
+#: accounting_tools/models.py:307
+msgid ""
+"Ne PAS utiliser un numéro aléatoire, mais utiliser un VRAI et UNIQUE numéro "
+"de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera "
+"généré automatiquement. Il est possible de demander des BVR à Marianne."
+msgstr ""
+
+#: accounting_tools/models.py:309 accounting_tools/models.py:330
+#: accounting_tools/models.py:1107 users/models.py:178
+#: users/templates/users/users/profile.html:56
+msgid "Adresse"
+msgstr ""
+
+#: accounting_tools/models.py:309
+msgid "Exemple: 'Monsieur Poney - Rue Des Canard 19 - 1015 Lausanne'"
+msgstr ""
+
+#: accounting_tools/models.py:310 accounting_tools/models.py:331
+msgid "Lieu et date"
+msgstr ""
+
+#: accounting_tools/models.py:311 accounting_tools/models.py:332
+msgid "Introduction"
+msgstr ""
+
+#: accounting_tools/models.py:311
+msgid ""
+"Texte affiché avant la liste. Exemple: 'Pour l'achat du Yearbook 2014' ou "
+"'Chère Madame, - Par la présente, je me permets de vous remettre notre "
+"facture pour le financement de nos activités associatives pour l'année "
+"académique 2014-2015.'"
+msgstr ""
+
+#: accounting_tools/models.py:312 accounting_tools/models.py:333
+msgid "Conclusion"
+msgstr ""
+
+#: accounting_tools/models.py:312
+msgid "Affiché après la liste, avant les moyens de paiements"
+msgstr ""
+
+#: accounting_tools/models.py:313 accounting_tools/models.py:334
+msgid "Afficher paiement via BVR"
+msgstr ""
+
+#: accounting_tools/models.py:313
+msgid ""
+"Affiche un BVR et le texte corespondant dans le PDF. Attention, le BVR "
+"généré n'est pas utilisable à la poste ! (Il est possible d'obtenir un "
+"'vrai' BVR via Marianne.)"
+msgstr ""
+
+#: accounting_tools/models.py:314 accounting_tools/models.py:335
+msgid "Afficher paiement via compte"
+msgstr ""
+
+#: accounting_tools/models.py:314
+msgid "Affiche le texte pour le paiement via le compte de l'AGEPoly."
+msgstr ""
+
+#: accounting_tools/models.py:315 accounting_tools/models.py:337
+msgid "Salutations"
+msgstr ""
+
+#: accounting_tools/models.py:316 accounting_tools/models.py:338
+msgid "Signature"
+msgstr ""
+
+#: accounting_tools/models.py:316
+msgid "Titre de la zone de signature"
+msgstr ""
+
+#: accounting_tools/models.py:317 accounting_tools/models.py:339
+msgid "Annexes"
+msgstr ""
+
+#: accounting_tools/models.py:317
+msgid "Affiche 'Annexe(s): ment.' en bas de la facture"
+msgstr ""
+
+#: accounting_tools/models.py:318 accounting_tools/models.py:336
+msgid "Délay de payement en jours"
+msgstr ""
+
+#: accounting_tools/models.py:318
+msgid ""
+"Mettre zéro pour cacher le texte. Il s'agit du nombre de jours de délais "
+"pour le payement."
+msgstr ""
+
+#: accounting_tools/models.py:319
+msgid "Anglais"
+msgstr ""
+
+#: accounting_tools/models.py:319
+msgid "Génére la facture en anglais"
+msgstr ""
+
+#: accounting_tools/models.py:326
+msgid "Référence"
+msgstr ""
+
+#: accounting_tools/models.py:327
+msgid "Numéro de BVR"
+msgstr ""
+
+#: accounting_tools/models.py:340
+msgid "Facture en anglais"
+msgstr ""
+
+#: accounting_tools/models.py:345
+#: accounting_tools/templates/accounting_tools/invoice/list_json.html:6
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:126
+#: accounting_tools/templates/accounting_tools/invoice/show.html:5
+msgid "Facture"
+msgstr "Invoice"
+
+#: accounting_tools/models.py:346
+msgid "Liste de toutes les factures"
+msgstr ""
+
+#: accounting_tools/models.py:356
+msgid ""
+"Les factures te permettent de demander de l'argent à, par exemple, une "
+"entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet "
+"outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il "
+"contienne TOUTES LES INFORMATIONS NÉCESSAIRES).\n"
+"\n"
+"Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' "
+"BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX."
+msgstr ""
+
+#: accounting_tools/models.py:375 accounting_tools/models.py:1181
+#: accounting_tools/models.py:1346
+msgid "Lignes"
+msgstr ""
+
+#: accounting_tools/models.py:384 accounting_tools/models.py:663
+#: logistics/models.py:276 logistics/models.py:295
+msgid "Quantité"
+msgstr ""
+
+#: accounting_tools/models.py:385 accounting_tools/models.py:664
+msgid "Montant unitaire (HT)"
+msgstr ""
+
+#: accounting_tools/models.py:387 accounting_tools/models.py:666
+#: accounting_tools/models.py:1194 accounting_tools/models.py:1268
+#: accounting_tools/models.py:1362 accounting_tools/models.py:1471
+msgid "Montant (TTC)"
+msgstr ""
+
+#: accounting_tools/models.py:414
+msgid "En attente d'un numéro BVR"
+msgstr ""
+
+#: accounting_tools/models.py:415
+msgid "Envoyée / paiement en attente"
+msgstr ""
+
+#: accounting_tools/models.py:416
+msgid "Archivée / Payement reçu"
+msgstr ""
+
+#: accounting_tools/models.py:417
+msgid "Annulée"
+msgstr ""
+
+#: accounting_tools/models.py:423
+msgid "La facture est en cours de rédaction"
+msgstr ""
+
+#: accounting_tools/models.py:424
+msgid "La facture nécessite un vrai BVR, en attente d'attribution"
+msgstr ""
+
+#: accounting_tools/models.py:425
+msgid "La facture a été envoyée, le paiement est en attente."
+msgstr ""
+
+#: accounting_tools/models.py:426
+msgid ""
+"Le paiement de la facture a été reçu, le processus de facturation est "
+"terminé."
+msgstr ""
+
+#: accounting_tools/models.py:427
+msgid "La facture a été annulée"
+msgstr ""
+
+#: accounting_tools/models.py:450
+msgid "Marquer comme envoyée"
+msgstr ""
+
+#: accounting_tools/models.py:450
+msgid "Demander un BVR"
+msgstr ""
+
+#: accounting_tools/models.py:452
+msgid "Marquer comme terminée"
+msgstr ""
+
+#: accounting_tools/models.py:470
+msgid "BVR"
+msgstr ""
+
+#: accounting_tools/models.py:470
+msgid ""
+"Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté "
+"automatiquement"
+msgstr ""
+
+#: accounting_tools/models.py:499
+msgid "Numéro BVR invalide (Ne contenant pas 27 chiffres)"
+msgstr ""
+
+#: accounting_tools/models.py:502 accounting_tools/models.py:646
+msgid "Numéro BVR invalide (Checksum)"
+msgstr ""
+
+#: accounting_tools/models.py:505 accounting_tools/models.py:649
+msgid "Numéro BVR invalide (Doit commencer par 94 42100)"
+msgstr ""
+
+#: accounting_tools/models.py:643
+msgid "Numéro BVR invalide (ne contenant pas 27 chiffres)"
+msgstr ""
+
+#: accounting_tools/models.py:691
+msgid "Raison du transfert"
+msgstr ""
+
+#: accounting_tools/models.py:693
+msgid "Compte concerné"
+msgstr ""
+
+#: accounting_tools/models.py:694
+msgid "Centre de coûts prélevé"
+msgstr ""
+
+#: accounting_tools/models.py:695
+msgid "Centre de coûts versé"
+msgstr ""
+
+#: accounting_tools/models.py:700 accounting_tools/models.py:894
+#: logistics/models.py:137 logistics/models.py:390
+msgid "Raison"
+msgstr ""
+
+#: accounting_tools/models.py:703
+msgid "De"
+msgstr ""
+
+#: accounting_tools/models.py:704
+msgid "Vers"
+msgstr ""
+
+#: accounting_tools/models.py:711
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:48
+#: templates/base.html:403
+msgid "Transferts internes"
+msgstr ""
+
+#: accounting_tools/models.py:712
+msgid "Liste des transferts internes"
+msgstr ""
+
+#: accounting_tools/models.py:718
+msgid ""
+"Les transferts internes permettent de déplacer de l'argent entre les "
+"entitées de l'AGEPoly sur un même compte.\n"
+"\n"
+"Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un "
+"remboursement d'une unité vers l'autre."
+msgstr ""
+
+#: accounting_tools/models.py:743 accounting_tools/models.py:934
+#: generic/models.py:787
+msgid "Attente accord AGEPoly"
+msgstr ""
+
+#: accounting_tools/models.py:744 generic/models.py:788
+#: main/templates/main/box/cashbooks.html:20
+#: main/templates/main/box/expenseclaims.html:20
+#: main/templates/main/box/internaltransfers.html:22
+msgid "A comptabiliser"
+msgstr ""
+
+#: accounting_tools/models.py:745 accounting_tools/models.py:937
+#: generic/models.py:704 generic/models.py:734 generic/models.py:789
+#: main/models.py:73 members/models.py:61
+msgid "Archivé"
+msgstr ""
+
+#: accounting_tools/models.py:746 accounting_tools/models.py:938
+#: generic/models.py:790
+msgid "Annulé"
+msgstr ""
+
+#: accounting_tools/models.py:751 generic/models.py:795
+msgid "L'objet est en cours de création."
+msgstr ""
+
+#: accounting_tools/models.py:752 generic/models.py:798
+msgid "L'objet doit être accepté par l'AGEPoly."
+msgstr ""
+
+#: accounting_tools/models.py:753 generic/models.py:799
+msgid "L'objet est en attente d'être comptabilisé."
+msgstr ""
+
+#: accounting_tools/models.py:754 generic/models.py:713 generic/models.py:800
+msgid "L'objet est archivé. Il n'est plus modifiable."
+msgstr ""
+
+#: accounting_tools/models.py:755 generic/models.py:801
+#: notifications/templates/notifications/species/center/message/accounting_canceled.html:3
+msgid "L'objet a été annulé."
+msgstr ""
+
+#: accounting_tools/models.py:767 accounting_tools/models.py:961
+#: generic/models.py:817 generic/models.py:825
+msgid "Demander accord AGEPoly"
+msgstr ""
+
+#: accounting_tools/models.py:767 accounting_tools/models.py:768
+#: accounting_tools/models.py:769
+#: generic/templates/generic/generic/contact.html:21
+#: generic/templates/generic/generic/delete.html:56
+#: generic/templates/generic/generic/delete.html:74
+#: generic/templates/generic/generic/edit.html:288
+#: generic/templates/generic/generic/file_upload.html:199
+#: generic/templates/generic/generic/switch_status.html:40
+#: members/templates/members/membership/import.html:48 templates/base.html:86
+#: units/templates/units/accreds/add.html:31
+#: units/templates/units/accreds/edit.html:29
+#: users/templates/registration/password_change_form.html:27
+#: users/templates/users/users/create_external.html:26
+#: users/templates/users/users/edit.html:27
+msgid "Annuler"
+msgstr ""
+
+#: accounting_tools/models.py:768 generic/models.py:818 generic/models.py:826
+msgid "Demander à comptabiliser"
+msgstr ""
+
+#: accounting_tools/models.py:769 accounting_tools/models.py:964
+#: generic/models.py:551 generic/models.py:720 generic/models.py:750
+#: generic/models.py:819 generic/models.py:827
+msgid "Archiver"
+msgstr ""
+
+#: accounting_tools/models.py:815 generic/models.py:878
+msgid ""
+"Seul un super utilisateur peut sortir cet élément de l'état archivé/annulé"
+msgstr ""
+
+#: accounting_tools/models.py:873
+msgid "Les deux centres de coûts doivent être différents."
+msgstr ""
+
+#: accounting_tools/models.py:885
+msgid "Raison du retrait"
+msgstr ""
+
+#: accounting_tools/models.py:886 accounting_tools/models.py:900
+#: vehicles/models.py:227 vehicles/models.py:250
+#: vehicles/templates/vehicles/booking/pdf.html:24
+msgid "Responsable"
+msgstr ""
+
+#: accounting_tools/models.py:889 accounting_tools/models.py:900
+msgid "Date souhaitée"
+msgstr ""
+
+#: accounting_tools/models.py:890
+msgid "Date réelle de retrait"
+msgstr ""
+
+#: accounting_tools/models.py:900
+msgid "Date retrait"
+msgstr ""
+
+#: accounting_tools/models.py:906 templates/base.html:408
+msgid "Retraits cash"
+msgstr ""
+
+#: accounting_tools/models.py:907
+msgid "Liste des retraits cash"
+msgstr ""
+
+#: accounting_tools/models.py:908 accounting_tools/models.py:924
+msgid "Pièces comptables"
+msgstr ""
+
+#: accounting_tools/models.py:916
+msgid ""
+"Les demandes de retrait cash doivent impérativement être remplies pour "
+"pouvoir retirer de l'argent depuis le compte d'une unité.\n"
+"\n"
+"L'argent doit ensuite être justifié au moyen d'un journal de caisse."
+msgstr ""
+
+#: accounting_tools/models.py:925
+msgid "Pièces comptables liées au retrait cash."
+msgstr ""
+
+#: accounting_tools/models.py:935
+msgid "Prêt à être récupéré"
+msgstr ""
+
+#: accounting_tools/models.py:936
+msgid "Récupéré / A justifier"
+msgstr ""
+
+#: accounting_tools/models.py:943
+msgid "La demande est en cours de création."
+msgstr ""
+
+#: accounting_tools/models.py:944
+msgid "La demande doit être acceptée par l'AGEPoly."
+msgstr ""
+
+#: accounting_tools/models.py:945
+msgid "La somme est prête à être récupérée au secrétariat."
+msgstr ""
+
+#: accounting_tools/models.py:946
+msgid "La somme a été retirée et doit maintenant être justifiée."
+msgstr ""
+
+#: accounting_tools/models.py:947
+msgid "La demande est archivée. Elle n'est plus modifiable."
+msgstr ""
+
+#: accounting_tools/models.py:948
+msgid "La demande a été annulée, potentiellement par refus."
+msgstr ""
+
+#: accounting_tools/models.py:962
+msgid "Marquer comme retiré"
+msgstr ""
+
+#: accounting_tools/models.py:963
+msgid "Demander justification"
+msgstr ""
+
+#: accounting_tools/models.py:1000
+msgid "Date retrait banque"
+msgstr ""
+
+#: accounting_tools/models.py:1000
+msgid "La date de retrait à la banque"
+msgstr ""
+
+#: accounting_tools/models.py:1031
+msgid ""
+"Seul un super utilisateur peut sortir cet élément de l'état archivé/annulé."
+msgstr ""
+
+#: accounting_tools/models.py:1034
+msgid "Seules les secrétaires de l'AGEPoly peuvent passer à l'état suivant."
+msgstr ""
+
+#: accounting_tools/models.py:1037
+msgid "Il faut renseigner la date réelle du retrait avant de poursuivre."
+msgstr ""
+
+#: accounting_tools/models.py:1105 users/models.py:39
+#: users/templates/users/users/list.html:26
+#: users/templates/users/users/myunit_list.html:25
+#: users/templates/users/users/myunit_pdf.html:26
+#: users/templates/users/users/profile.html:30
+msgid "Prénom"
+msgstr ""
+
+#: accounting_tools/models.py:1106 users/models.py:40
+msgid "Nom de famille"
+msgstr ""
+
+#: accounting_tools/models.py:1108
+msgid "Numéro de téléphone"
+msgstr ""
+
+#: accounting_tools/models.py:1109
+msgid "Nom de la banque"
+msgstr ""
+
+#: accounting_tools/models.py:1110
+msgid "IBAN / CCP"
+msgstr ""
+
+#: accounting_tools/models.py:1122
+msgid "Titre de la note de frais"
+msgstr ""
+
+#: accounting_tools/models.py:1124 accounting_tools/models.py:1136
+#: accounting_tools/models.py:1292 accounting_tools/models.py:1308
+msgid "Nombre de justificatifs"
+msgstr ""
+
+#: accounting_tools/models.py:1125 accounting_tools/models.py:1136
+#: accounting_tools/models.py:1293 accounting_tools/models.py:1308
+msgid "Commentaire"
+msgstr ""
+
+#: accounting_tools/models.py:1131 accounting_tools/models.py:1303
+#: units/templates/units/accreds/list.html:23
+msgid "Personne"
+msgstr ""
+
+#: accounting_tools/models.py:1143 templates/base.html:431
+msgid "Notes de frais"
+msgstr ""
+
+#: accounting_tools/models.py:1144
+msgid "Liste des notes de frais"
+msgstr ""
+
+#: accounting_tools/models.py:1145 accounting_tools/models.py:1173
+#: accounting_tools/models.py:1317 accounting_tools/models.py:1338
+msgid "Justificatifs"
+msgstr ""
+
+#: accounting_tools/models.py:1164
+msgid ""
+"Les notes de frais permettent de se faire rembourser des frais avancés pour "
+"une unité.\n"
+"\n"
+"Il est nécessaire de fournir les preuves d'achat et que celles-ci "
+"contiennent uniquement des choses qui doivent être remboursées.\n"
+"Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si "
+"certains achats à la Migros sont à 8% et d'autres à 0%, il faut les séparer "
+"en 2 lignes."
+msgstr ""
+
+#: accounting_tools/models.py:1174
+msgid "Justificatifs pour le remboursement de la note de frais."
+msgstr ""
+
+#: accounting_tools/models.py:1190 accounting_tools/models.py:1263
+#: accounting_tools/models.py:1358 accounting_tools/models.py:1466
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:25
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:16
+msgid "Justificatif"
+msgstr ""
+
+#: accounting_tools/models.py:1192 accounting_tools/models.py:1266
+#: accounting_tools/models.py:1360 accounting_tools/models.py:1469
+msgid "Montant (HT)"
+msgstr ""
+
+#: accounting_tools/models.py:1237 accounting_tools/models.py:1415
+msgid "Le profil de cet utilisateur doit d'abord être completé."
+msgstr ""
+
+#: accounting_tools/models.py:1241 accounting_tools/models.py:1419
+msgid ""
+"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un "
+"d'autre."
+msgstr ""
+
+#: accounting_tools/models.py:1262 accounting_tools/models.py:1465
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:24
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:15
+msgid "Concerne"
+msgstr ""
+
+#: accounting_tools/models.py:1290
+msgid "Titre du journal de caisse"
+msgstr ""
+
+#: accounting_tools/models.py:1315 templates/base.html:436
+msgid "Journaux de caisse"
+msgstr ""
+
+#: accounting_tools/models.py:1316
+msgid "Liste des journaux de caisse"
+msgstr ""
+
+#: accounting_tools/models.py:1329
+msgid ""
+"Les journaux de caisse servent à justifier des dépenses et des recettes "
+"liées à des versements à la banque ou des retraits cash.\n"
+"\n"
+"Il est nécessaire de fournir les preuves d'achat et que celles-ci "
+"contiennent uniquement des choses qui doivent être remboursées.\n"
+"Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si "
+"certains achats à la Migros sont à 8% et d'autres à 0%, il faut les séparer "
+"en 2 lignes."
+msgstr ""
+
+#: accounting_tools/models.py:1339
+msgid "Justificatifs liés aux lignes du journal de caisse."
+msgstr ""
+
+#: accounting_tools/models.py:1356
+#: main/templates/main/last_100_logging_entries.html:18
+#: main/templates/main/search.html:41
+#: notifications/templates/notifications/center/index.html:42
+msgid "Type"
+msgstr ""
+
+#: accounting_tools/models.py:1373
+msgid "Archiver le retrait cash lié?"
+msgstr ""
+
+#: accounting_tools/models.py:1405
+msgid ""
+"L'utilisateur responsable et/ou le centre de coûts ne correspondent pas au "
+"retrait cash lié."
+msgstr ""
+
+#: accounting_tools/models.py:1426
+msgid "Retrait cash lié"
+msgstr ""
+
+#: accounting_tools/models.py:1451
+msgid "J'ai fait un retrait cash : "
+msgstr ""
+
+#: accounting_tools/models.py:1452
+msgid "J'ai fait un versement à la banque : "
+msgstr ""
+
+#: accounting_tools/models.py:1453
+msgid "J'ai vendu quelque chose : "
+msgstr ""
+
+#: accounting_tools/models.py:1454
+msgid "J'ai payé une facture avec la caisse : "
+msgstr ""
+
+#: accounting_tools/models.py:1455
+msgid "J'ai acheté quelque chose avec la caisse : "
+msgstr ""
+
+#: accounting_tools/models.py:1456
+msgid "J'ai remboursé quelqu'un avec la caisse : "
+msgstr ""
+
+#: accounting_tools/models.py:1457
+msgid "Je fais un Crédit manuel : "
+msgstr ""
+
+#: accounting_tools/models.py:1458
+msgid "Je fais un Débit manuel : "
+msgstr ""
+
+#: accounting_tools/views.py:46
+msgid "Période inconnue"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/edit.html:229
+msgid ""
+"En l'état, l'AGEPoly devra rembourser ce montant à l'utilisateur responsable."
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/edit.html:232
+msgid "Cet argent devra être remboursé par l'utilisateur responsable."
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/edit.html:235
+msgid "C'est bien !"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/edit.html:238
+msgid "Le total de ton journal de caisse fait"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/list_json.html:5
+#: notifications/templates/notifications/species/accounting_base.html:18
+#: notifications/templates/notifications/species/mails/accounting_base.html:11
+msgid "Journal de Caisse"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:5
+#: accounting_tools/templates/accounting_tools/cashbook/show.html:5
+msgid "Journal de caisse"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:9
+msgid "Titre du journal de caisse : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:12
+msgid "Nom du retrait cash lié : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:13
+msgid "Date du retrait cash lié : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:15
+msgid "Attention, objet lié inconnu : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:26
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:17
+msgid "Numéro de compte"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:27
+msgid "Entrée"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:28
+msgid "Sortie"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:29
+msgid "Solde"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:54
+msgid "Solde dû : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:60
+msgid "Solde en sa faveur : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:67
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:35
+msgid "Nombre de justificatifs : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:74
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:38
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:22
+msgid "Visa de la personne : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:80
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:41
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:73
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:29
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:25
+msgid "Visa president(e) AGEPoly : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/pdf.html:86
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:44
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:76
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:32
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:28
+msgid "Visa administrateur(trice) AGEPoly : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/cashbook/show.html:9
+#: accounting_tools/templates/accounting_tools/expenseclaim/show.html:9
+#: accounting_tools/templates/accounting_tools/invoice/show.html:9
+msgid "Total : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/expenseclaim/list_json.html:5
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:5
+#: accounting_tools/templates/accounting_tools/expenseclaim/show.html:5
+#: notifications/templates/notifications/species/accounting_base.html:16
+#: notifications/templates/notifications/species/mails/accounting_base.html:9
+#: templates/base_pdf.html:112
+msgid "Note de frais"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:9
+msgid "Titre de la note de frais : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:32
+msgid "Solde en ma faveur : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/list_json.html:5
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:5
+msgid "Transfert interne"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:53
+msgid "Libellé"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/show.html:5
+msgid "Transfert"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:9
+msgid "Titre du transfert : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:10
+msgid "Compte concerné : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:17
+msgid "Pris sur le centre de coût : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:18
+msgid "Versé sur le compte : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:23
+msgid "Motif du transfert : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/internaltransfer/single_pdf.html:26
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:19
+msgid "Montant : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:126
+msgid "N°"
+msgstr "#"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:135
+msgid "Prix unitaire"
+msgstr "Unit price"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:136
+#, python-format
+msgid "%% TVA"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:152
+msgid "Total (HT)"
+msgstr "Sub total"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:158
+msgid "Total (TTC)"
+msgstr "Total (With VAT)"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:173
+#, python-format
+msgid ""
+"\n"
+"                    Nous vous remercions de bien vouloir payer ce montant à "
+"%(d)s jours sur le compte de l'AGEPoly au moyen de bulletin de versement "
+"annexé.\n"
+"                "
+msgstr ""
+"\n"
+"Please pay that amount within %(d)s days on AGEPoly's account with the "
+"annexed payment slip ."
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:177
+msgid ""
+"Nous vous remercions de bien vouloir payer ce montant sur le compte de "
+"l'AGEPoly au moyen de bulletin de versement annexé."
+msgstr ""
+"Please pay that amount on AGEPoly's account with the annexed payment slip ."
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:185
+msgid "Vous pouvez aussi effectuer le paiement sur le compte suivant :"
+msgstr "You can also make the payment on the following account:"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:189
+#, python-format
+msgid ""
+"\n"
+"                        Nous vous remercions de bien vouloir payer ce "
+"montant à %(d)s jours sur le compte suivante :\n"
+"                    "
+msgstr ""
+"\n"
+"Please pay that amount within %(d)s days on the following account:"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:193
+msgid ""
+"Nous vous remercions de bien vouloir payer ce montant sur le compte suivant :"
+msgstr "Please pay that amount on the following account:"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:201
+msgid "Banque"
+msgstr "Bank"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:225
+msgid "Mention/Référence"
+msgstr "Reference"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:253
+msgid "Annexe(s): ment."
+msgstr "Enclosed: as mentioned"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:278
+msgid ""
+"Attention: Ce BVR ne peut pas être utilisé pour un paiement aux guichets de "
+"la poste ou d'une banque"
+msgstr ""
+"Warning: This BVR cannot be used to pay at post offices' counters or a bank"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:286
+#: main/templates/main/search.html:96 templates/base_pdf.html:151
+msgid "Page"
+msgstr "Page"
+
+#: accounting_tools/templates/accounting_tools/invoice/pdf.html:286
+#: templates/base_pdf.html:151
+msgid "Généré le"
+msgstr "Generated on"
+
+#: accounting_tools/templates/accounting_tools/subvention/edit.html:21
+#: accounting_tools/templates/accounting_tools/withdrawal/edit.html:14
+msgid "Réservé au Comité de Direction"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/list.html:12
+msgid "Exporter cette année"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/list.html:18
+msgid "Tout exporter"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:22
+msgid "Liste des demandes de subvention pour"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:26
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:78
+#: generic/templates/generic/generic/logs.html:24 members/models.py:20
+#: units/templates/units/accreds/add.html:19
+msgid "Unité"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:28
+msgid "Nb. personnes attendues"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:30
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:86
+msgid "Demandé"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:31
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:87
+msgid "Attribué"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:32
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:88
+msgid "Mobilité demandée"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:33
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:89
+msgid "Mobilité attribué"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:39
+msgid "Total Commissions"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:46
+msgid "Total Associations"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:66
+msgid "Pas de subventions pour cette année"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/subvention/subventions_pdf.html:74
+msgid "Résumé de toutes les demandes de subvention"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/list_json.html:5
+#: accounting_tools/templates/accounting_tools/withdrawal/show.html:6
+msgid "Retrait Cash"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:5
+msgid "Demande de retrait cash"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:10
+msgid "Date de la demande : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:11
+msgid "Date de remise de l'argent : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:16
+msgid "Motif du retrait : "
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:31
+msgid "Reçu CHF."
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:34
+msgid "Le :"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:37
+msgid "Signature :"
+msgstr ""
+
+#: accounting_tools/templates/accounting_tools/withdrawal/pdf.html:40
+msgid ""
+"*ATTENTION - La personne qui vise est responsable du suivi du retrait et de "
+"le justifier dans les 2 mois."
+msgstr ""
+
+#: app/settings.py:33
+msgid "English"
+msgstr ""
+
+#: app/settings.py:34
+msgid "French"
+msgstr ""
+
+#: app/utils.py:26 units/templates/units/selector/unit_selector.html:24
+msgid "Unités externes"
+msgstr ""
+
+#: app/utils.py:46 units/templates/units/selector/unit_selector.html:32
+msgid "Toutes les unités"
+msgstr ""
+
+#: app/utils.py:77
+msgid "?"
+msgstr ""
+
+#: communication/models.py:17 communication/models.py:31
+msgid "Contenu"
+msgstr ""
+
+#: communication/models.py:31 main/models.py:162 units/models.py:53
+msgid "URL"
+msgstr ""
+
+#: communication/models.py:34
+msgid "News AGEPoly"
+msgstr ""
+
+#: communication/models.py:35
+msgid "Liste de toutes les news sur le site de l'AGEPoly"
+msgstr ""
+
+#: communication/models.py:47
+msgid ""
+"Les news du site de l'AGEPoly sont les nouvelles affichées sur toutes les "
+"pages du site de l'AGEPoly.\n"
+"\n"
+"Elles sont soumises à modération par le responsable communication de "
+"l'AGEPoly avant d'être visibles."
+msgstr ""
+
+#: communication/models.py:78 communication/models.py:91
+msgid "Image"
+msgstr ""
+
+#: communication/models.py:78
+msgid ""
+"Pour des raisons de qualité, il est fortement recommandé d'envoyer une image "
+"en HD (1920x1080)"
+msgstr ""
+
+#: communication/models.py:94
+msgid "Slide à l'AGEPoly"
+msgstr ""
+
+#: communication/models.py:95
+msgid "Liste de tous les slides à l'AGEPoly"
+msgstr ""
+
+#: communication/models.py:109
+msgid ""
+"Les slides à l'AGEPoly sont affichés de manière aléatoire sur les écrans à "
+"l'AGEPoly.\n"
+"\n"
+"Ils sont soumis à modération par le responsable communication de l'AGEPoly "
+"avant d'être visibles."
+msgstr ""
+
+#: communication/models.py:132
+msgid ""
+"<span class=\"text-warning\"><i class=\"fa fa-warning\"></i> Les dimensions "
+"de l'image sont trop petites ! ({}x{} contre 1920x1080 recommandé)"
+msgstr ""
+
+#: communication/models.py:150
+msgid "Logo"
+msgstr ""
+
+#: communication/models.py:151
+msgid "Liste de tous les logos"
+msgstr ""
+
+#: communication/models.py:162
+msgid ""
+"Les logos de ton unité.\n"
+"\n"
+"Tu peux rendre public les logos, ce qui est recommandé afin d'aider les "
+"autres unités lors de constructions graphiques (ex: agenda) ou ton propre "
+"comité.\n"
+"\n"
+"Un logo peut comporter plusieurs fichiers : ceci te permet d'uploader "
+"différents formats pour un même fichier !"
+msgstr ""
+
+#: communication/models.py:170
+msgid ""
+"Envoie le ou les fichiers de ton logo. Le système te permet d'envoyer "
+"plusieurs fichiers pour te permettre d'envoyer des formats différents."
+msgstr ""
+
+#: communication/templates/communication/logo_public_list.html:5
+#: communication/templates/communication/logo_public_list.html:9
+#: communication/templates/communication/logo_public_list.html:13
+#: templates/base.html:184
+msgid "Logos"
+msgstr ""
+
+#: communication/templates/communication/logo_public_list.html:15
+msgid "Chargement en cours !"
+msgstr ""
+
+#: communication/templates/communication/logo_public_list.html:33
+msgid "(Chargement en cours...)"
+msgstr ""
+
+#: communication/templates/communication/logo_public_list.html:45
+msgid ""
+"Tu trouvera ici la liste de tous les logos des différentes unités de "
+"l'AGEPoly (que tu peux afficher)"
+msgstr ""
+
+#: generic/forms.py:49
+msgid "Le nom de l'entité externe est obligatoire !"
+msgstr ""
+
+#: generic/forms.py:56
+msgid "Aucun centre de coûts sélectionné !"
+msgstr ""
+
+#: generic/forms.py:59
+msgid "Le centre de coût n'est pas lié à l'unité !"
+msgstr ""
+
+#: generic/forms.py:62
+msgid "Le centre de coût n'est pas lié à l'année comptable !"
+msgstr ""
+
+#: generic/forms.py:69
+msgid "Sujet"
+msgstr ""
+
+#: generic/forms.py:70
+#: notifications/templates/notifications/center/index.html:44
+msgid "Message"
+msgstr ""
+
+#: generic/forms.py:77
+msgid "Destinataire(s)"
+msgstr ""
+
+#: generic/models.py:473
+msgid "Importé depuis Truffe 1"
+msgstr ""
+
+#: generic/models.py:474
+msgid "Creation"
+msgstr ""
+
+#: generic/models.py:475
+msgid "Edité"
+msgstr ""
+
+#: generic/models.py:476
+msgid "Supprimé"
+msgstr ""
+
+#: generic/models.py:477
+msgid "Restauré"
+msgstr ""
+
+#: generic/models.py:478
+msgid "Statut changé"
+msgstr ""
+
+#: generic/models.py:479
+msgid "Fichier ajouté"
+msgstr ""
+
+#: generic/models.py:480
+msgid "Fichier supprimé"
+msgstr ""
+
+#: generic/models.py:513
+msgid "Peut modérer cet élément"
+msgstr ""
+
+#: generic/models.py:549 generic/models.py:718
+msgid "Demander à modérer"
+msgstr ""
+
+#: generic/models.py:550 generic/models.py:749
+#: units/templates/units/accreds/list.html:44
+#: units/templates/units/accreds/list_json.html:16
+#: units/templates/units/accreds/validate.html:45
+msgid "Valider"
+msgstr ""
+
+#: generic/models.py:550
+msgid "Refuser"
+msgstr ""
+
+#: generic/models.py:584
+msgid ""
+"Seul un modérateur peut valider cet élément. Merci de passer cet élément "
+"dans le statut 'Modération en cours' pour demander une validation."
+msgstr ""
+
+#: generic/models.py:587
+msgid "Seul un modérateur peut refuser cet élément."
+msgstr ""
+
+#: generic/models.py:593
+msgid ""
+"Les modérateurs ne peuvent pas repasser en brouillon un élément qui ne leur "
+"appartient pas."
+msgstr ""
+
+#: generic/models.py:702
+msgid "Modération en cours"
+msgstr ""
+
+#: generic/models.py:703 main/models.py:72
+msgid "En ligne"
+msgstr ""
+
+#: generic/models.py:705 generic/models.py:735
+msgid "Refusé"
+msgstr ""
+
+#: generic/models.py:710
+msgid "L'objet est en cours de création et n'est pas public."
+msgstr ""
+
+#: generic/models.py:711
+msgid ""
+"L'objet est en cours de modération. Il n'est pas éditable. Sélectionner ce "
+"statut pour demander une modération !"
+msgstr ""
+
+#: generic/models.py:712
+msgid "L'objet est publié. Il n'est pas éditable."
+msgstr ""
+
+#: generic/models.py:714
+msgid "La modération a été refusée."
+msgstr ""
+
+#: generic/models.py:719
+msgid "Mettre en ligne"
+msgstr ""
+
+#: generic/models.py:720 generic/models.py:750
+msgid "Repasser en brouillon"
+msgstr ""
+
+#: generic/models.py:732
+msgid "Validation en cours"
+msgstr ""
+
+#: generic/models.py:740 vehicles/models.py:309
+msgid "La réservation est en cours de création et n'est pas publique."
+msgstr ""
+
+#: generic/models.py:741
+msgid ""
+"La réservation est en cours de modération. Elle n'est pas éditable. "
+"Sélectionner ce statut pour demander une modération ! ATTENTION ! Tu "
+"acceptes par défaut les conditions de réservation liées !"
+msgstr ""
+
+#: generic/models.py:742 vehicles/models.py:311
+msgid "La résevation est validée. Elle n'est pas éditable."
+msgstr ""
+
+#: generic/models.py:743 vehicles/models.py:312
+msgid "La réservation est archivée. Elle n'est plus modifiable."
+msgstr ""
+
+#: generic/models.py:744
+msgid ""
+"La modération a été refusée. L'objet n'était probablement pas disponible "
+"suite à un conflit."
+msgstr ""
+
+#: generic/models.py:748
+msgid "Demander à valider"
+msgstr ""
+
+#: generic/models.py:756 vehicles/models.py:320
+#: vehicles/templates/vehicles/booking/pdf.html:37
+msgid "Remarque"
+msgstr ""
+
+#: generic/models.py:785
+msgid "Corrections nécessaires"
+msgstr ""
+
+#: generic/models.py:786
+msgid "Attente accord unité"
+msgstr ""
+
+#: generic/models.py:796
+msgid "L'objet nécessite d'être modifié avant d'être revalidé."
+msgstr ""
+
+#: generic/models.py:797
+msgid ""
+"L'objet doit être accepté au sein de l'unité. A partir de maintenant, il "
+"n'est plus éditable."
+msgstr ""
+
+#: generic/models.py:815 generic/models.py:816 generic/models.py:823
+#: generic/models.py:824
+msgid "Demander accord unité"
+msgstr ""
+
+#: generic/models.py:884
+msgid ""
+"Seul l'admin peut valider cet élément pour le moment. Merci de patienter."
+msgstr ""
+
+#: generic/models.py:887
+msgid "Seul ton trésorier peut valider cet élément pour le moment."
+msgstr ""
+
+#: generic/models.py:985
+msgid "Créateur de cet élément"
+msgstr ""
+
+#: generic/models.py:986
+msgid "Personnes ayant modifié cet élément (y compris le statut)"
+msgstr ""
+
+#: generic/models.py:987
+msgid "Personnes pouvant éditer cet élément"
+msgstr ""
+
+#: generic/models.py:1030
+msgid "Personnes pouvant modérer cet élément"
+msgstr ""
+
+#: generic/models.py:1031
+msgid "Personnes pouvant valider cet élément"
+msgstr ""
+
+#: generic/models.py:1062
+msgid "Nom de l'entité externe"
+msgstr ""
+
+#: generic/models.py:1080 logistics/models.py:46 logistics/models.py:299
+msgid "Nombre maximum de jours de réservation"
+msgstr ""
+
+#: generic/models.py:1080
+msgid ""
+"Si supérieur à zéro, empêche de demander une réservation si la longeur de la "
+"réservation dure plus longtemps que le nombre de jours défini."
+msgstr ""
+
+#: generic/models.py:1081 logistics/models.py:47 logistics/models.py:300
+msgid "Nombre maximum de jours de réservation (externes)"
+msgstr ""
+
+#: generic/models.py:1081
+msgid ""
+"Si supérieur à zéro, empêche de demander une réservation si la longeur de la "
+"réservation dure plus longtemps que le nombre de jours défini, pour les "
+"unités externes."
+msgstr ""
+
+#: generic/models.py:1083 logistics/models.py:48 logistics/models.py:301
+msgid "Nombre de jours minimum avant réservation"
+msgstr ""
+
+#: generic/models.py:1083
+msgid ""
+"Si supérieur à zéro, empêche de demander une réservation si la réservation "
+"n'est pas au moins dans X jours."
+msgstr ""
+
+#: generic/models.py:1084 logistics/models.py:49 logistics/models.py:302
+msgid "Nombre de jours minimum avant réservation (externes)"
+msgstr ""
+
+#: generic/models.py:1084
+msgid ""
+"Si supérieur à zéro, empêche de demander une réservation si la réservation "
+"n'est pas au plus dans X jours, pour les externes."
+msgstr ""
+
+#: generic/models.py:1086 logistics/models.py:50 logistics/models.py:303
+msgid "Nombre de jours maximum avant réservation"
+msgstr ""
+
+#: generic/models.py:1086
+msgid ""
+"Si supérieur à zéro, empêche de demander une réservation si la réservation "
+"est dans plus de X jours."
+msgstr ""
+
+#: generic/models.py:1087 logistics/models.py:51 logistics/models.py:304
+msgid "Nombre de jours maximum avant réservation (externes)"
+msgstr ""
+
+#: generic/models.py:1087
+msgid ""
+"Si supérieur à zéro, empêche de demander une réservation si la réservation "
+"est dans plus de X jours, pour les externes."
+msgstr ""
+
+#: generic/models.py:1107
+#, python-format
+msgid "La résevation est trop longue ! Maximium %s jours !"
+msgstr ""
+
+#: generic/models.py:1110
+#, python-format
+msgid "La résevation est trop proche d'aujourd'hui ! Minimum %s jours (%s) !"
+msgstr ""
+
+#: generic/models.py:1113
+#, python-format
+msgid "La résevation est trop loin d'aujourd'hui ! Maximum %s jours (%s) !"
+msgstr ""
+
+#: generic/views.py:465
+msgid "Tu n'as pas le droit de créer/modifier cet objet."
+msgstr ""
+
+#: generic/views.py:506
+msgid ""
+"Erreur lors de la récupération de la session pour la gestion des fichiers. "
+"Il est possible que le formulaire aie été sauvegardé deux fois. Vérifiez si "
+"l'état actuel des fichiers correspond à ce que vous désirez !"
+msgstr ""
+
+#: generic/views.py:552
+msgid "Élément sauvegardé !"
+msgstr ""
+
+#: generic/views.py:803
+msgid "Élément supprimé !"
+msgstr ""
+
+#: generic/views.py:865
+msgid "Élément restauré !"
+msgstr ""
+
+#: generic/views.py:952
+msgid "Statut modifié !"
+msgstr ""
+
+#: generic/views.py:958
+msgid "Vous avez perdu le droit de voir l'objet !"
+msgstr ""
+
+#: generic/views.py:1020
+#, python-format
+msgid "Truffe :: Contact :: %s"
+msgstr ""
+
+#: generic/views.py:1023
+msgid "Message envoyé !"
+msgstr ""
+
+#: generic/templates/generic/generic/calendar.html:5
+#: generic/templates/generic/generic/calendar.html:10
+#: generic/templates/generic/generic/directory.html:81
+msgid "Calendrier"
+msgstr ""
+
+#: generic/templates/generic/generic/calendar.html:48
+msgid "Mois"
+msgstr ""
+
+#: generic/templates/generic/generic/calendar.html:49
+msgid "Semaine"
+msgstr ""
+
+#: generic/templates/generic/generic/calendar.html:50
+msgid "Jour"
+msgstr ""
+
+#: generic/templates/generic/generic/contact.html:13
+msgid "Formulaire de contact"
+msgstr ""
+
+#: generic/templates/generic/generic/delete.html:4
+#: generic/templates/generic/generic/delete.html:15
+#: members/templates/members/membership/delete.html:4
+#: members/templates/members/membership/delete.html:10
+#: units/templates/units/accreds/delete.html:4
+#: units/templates/units/accreds/delete.html:9
+msgid "Suppression"
+msgstr ""
+
+#: generic/templates/generic/generic/delete.html:33
+msgid "Vous êtes sur le point de supprimer l'objet"
+msgstr ""
+
+#: generic/templates/generic/generic/delete.html:36
+msgid "Vous êtes sur le point de supprimer les objets suivants:"
+msgstr ""
+
+#: generic/templates/generic/generic/delete.html:48
+#: generic/templates/generic/generic/switch_status.html:20
+#: members/templates/members/membership/delete.html:27
+#: units/templates/units/accreds/delete.html:45
+#: units/templates/units/accreds/renew.html:38
+#: units/templates/units/accreds/validate.html:38
+msgid "Êtes-vous sûr de vouloir faire ça ?"
+msgstr ""
+
+#: generic/templates/generic/generic/delete.html:54
+#: generic/templates/generic/generic/delete.html:72
+#: members/templates/members/membership/delete.html:33
+#: units/templates/units/accreds/delete.html:52
+#: units/templates/units/accreds/renew.html:44
+#: units/templates/units/accreds/validate.html:44
+msgid "Annuler et retourner sur la liste"
+msgstr ""
+
+#: generic/templates/generic/generic/delete.html:58
+#: generic/templates/generic/generic/file_upload.html:79
+#: generic/templates/generic/generic/file_upload.html:194
+#: generic/templates/generic/generic/list_json.html:43
+#: generic/templates/generic/generic/show.html:229
+#: members/templates/members/membership/delete.html:34
+#: members/templates/members/membership/list_json.html:11
+#: units/templates/units/accreds/delete.html:53
+#: units/templates/units/accreds/list.html:42
+#: units/templates/units/accreds/list_json.html:16
+msgid "Supprimer"
+msgstr ""
+
+#: generic/templates/generic/generic/delete.html:65
+msgid "Impossible de supprimer l'objet"
+msgstr ""
+
+#: generic/templates/generic/generic/deleted.html:5
+#: generic/templates/generic/generic/deleted.html:10
+#: generic/templates/generic/generic/deleted.html:14
+msgid "Éléments supprimés"
+msgstr ""
+
+#: generic/templates/generic/generic/deleted.html:24
+msgid "Élément"
+msgstr ""
+
+#: generic/templates/generic/generic/deleted.html:25
+msgid "Date suppression"
+msgstr ""
+
+#: generic/templates/generic/generic/deleted.html:26
+msgid "Auteur suppression"
+msgstr ""
+
+#: generic/templates/generic/generic/deleted.html:36
+msgid ""
+"Êtes-vous sûr de vouloir faire ceci ? Les conséquences peuvent être non-"
+"négligeables !"
+msgstr ""
+
+#: generic/templates/generic/generic/deleted.html:36
+msgid "Restaurer"
+msgstr ""
+
+#: generic/templates/generic/generic/deleted.html:70
+#: generic/templates/generic/generic/logs.html:43
+#: generic/templates/generic/generic/show.html:223
+#: generic/templates/generic/generic/show_deleted.html:31
+#: units/templates/units/accreds/logs_list.html:39
+msgid "Retourner sur la liste"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:4
+msgid "Éléments disponibles"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:9
+msgid "Éléments diponibles"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:43 logistics/models.py:28
+#: logistics/models.py:280
+#: logistics/templates/logistics/roomreservation/show.html:11
+#: logistics/templates/logistics/supplyreservation/show.html:14
+msgid "Conditions de réservation"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:47
+#: generic/templates/generic/generic/directory.html:57
+#: logistics/templates/logistics/roomreservation/show.html:17
+#: logistics/templates/logistics/roomreservation/show.html:27
+#: logistics/templates/logistics/supplyreservation/show.html:20
+#: logistics/templates/logistics/supplyreservation/show.html:30
+msgid "La réservation ne peut pas durer plus de"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:47
+#: generic/templates/generic/generic/directory.html:57
+#: logistics/templates/logistics/roomreservation/show.html:17
+#: logistics/templates/logistics/roomreservation/show.html:27
+#: logistics/templates/logistics/supplyreservation/show.html:20
+#: logistics/templates/logistics/supplyreservation/show.html:30
+msgid "jour(s)"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:50
+#: generic/templates/generic/generic/directory.html:60
+#: logistics/templates/logistics/roomreservation/show.html:20
+#: logistics/templates/logistics/roomreservation/show.html:30
+#: logistics/templates/logistics/supplyreservation/show.html:23
+#: logistics/templates/logistics/supplyreservation/show.html:33
+msgid "La réservation doit être faite au moins"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:50
+#: generic/templates/generic/generic/directory.html:53
+#: generic/templates/generic/generic/directory.html:60
+#: generic/templates/generic/generic/directory.html:63
+#: logistics/templates/logistics/roomreservation/show.html:20
+#: logistics/templates/logistics/roomreservation/show.html:23
+#: logistics/templates/logistics/roomreservation/show.html:30
+#: logistics/templates/logistics/roomreservation/show.html:33
+#: logistics/templates/logistics/supplyreservation/show.html:23
+#: logistics/templates/logistics/supplyreservation/show.html:26
+#: logistics/templates/logistics/supplyreservation/show.html:33
+#: logistics/templates/logistics/supplyreservation/show.html:36
+msgid "jour(s) à l'avance"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:53
+#: generic/templates/generic/generic/directory.html:63
+#: logistics/templates/logistics/roomreservation/show.html:23
+#: logistics/templates/logistics/roomreservation/show.html:33
+#: logistics/templates/logistics/supplyreservation/show.html:26
+#: logistics/templates/logistics/supplyreservation/show.html:36
+msgid "La réservation doit être faite au plus"
+msgstr ""
+
+#: generic/templates/generic/generic/directory.html:85
+msgid "Réserver"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:4
+#: generic/templates/generic/generic/edit.html:11
+#: users/templates/users/users/edit.html:4
+#: users/templates/users/users/edit.html:10
+msgid "Edition"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:4
+#: generic/templates/generic/generic/edit.html:13
+#: main/templates/main/search.html:44
+msgid "Création"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:24
+msgid "Création d'un élément"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:32
+#: generic/templates/generic/generic/show.html:19
+msgid "Informations de base"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:101
+#: generic/templates/generic/generic/list.html:82
+#: members/templates/members/memberset/show.html:84
+#: members/templates/members/membership/add.html:48
+#: members/templates/members/membership/import.html:50
+#: units/templates/units/accreds/add.html:33
+msgid "Ajouter"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:198
+#: generic/templates/generic/generic/show.html:105
+msgid "Tags"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:206
+msgid ""
+"Tu peux utiliser n'importe quel tag pour classer et mieux retrouver tes "
+"différents objets."
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:279
+msgid ""
+"Tu peux 'drag & dropper' des fichiers sur toute la page pour les envoyer."
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:289
+msgid "Sauvegarder et créer un nouveau"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:290
+msgid "Sauvegarder et continuer l'édition"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:291
+#: units/templates/units/accreds/edit.html:31
+#: users/templates/registration/password_change_form.html:28
+#: users/templates/users/users/edit.html:31
+msgid "Sauvegarder"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:305
+msgid "Cet objet est lié à l'unité"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:327
+msgid "Cet objet est lié à l'année comptable"
+msgstr ""
+
+#: generic/templates/generic/generic/edit.html:395
+msgid ""
+"Attention ! Une unité existe déjà avec ce nom. Est-ce que tu manques de "
+"droits pour utiliser directement l'unité ? Hors cas exceptionnels, il ne "
+"faut pas passer via une entité externe, mais demander les droits ! Demande "
+"au président !"
+msgstr ""
+
+#: generic/templates/generic/generic/file_upload.html:38
+msgid "Ajouter un fichier..."
+msgstr ""
+
+#: generic/templates/generic/generic/file_upload.html:44
+msgid "Supprimer les fichiers sélectionnés"
+msgstr ""
+
+#: generic/templates/generic/generic/file_upload.html:117
+msgid "Traitement..."
+msgstr ""
+
+#: generic/templates/generic/generic/file_upload.html:128
+msgid "Commencer"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:4
+#: members/templates/members/memberset/show.html:12
+#: units/templates/units/accreds/list.html:4
+msgid "Liste"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:18
+msgid "Il y a des éléments à modérer !"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:20
+msgid "Accès rapide"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:55
+#: members/templates/members/memberset/show.html:54
+msgid ""
+"Effectuer une action sur les <span id='doable_nb'></span> élément(s) "
+"sélectionné(s) :"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:73
+msgid "Logs globaux"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:78
+msgid "Élements supprimés"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:117
+msgid "Filter par tag"
+msgstr ""
+
+#: generic/templates/generic/generic/list.html:133
+msgid "(Ne plus filter)"
+msgstr ""
+
+#: generic/templates/generic/generic/list_json.html:46
+#: main/templates/main/file/download.html:20
+#: main/templates/main/link/base.html:20
+#: users/templates/users/users/list_json.html:12
+#: users/templates/users/users/myunit_list_json.html:12
+msgid "Editer"
+msgstr ""
+
+#: generic/templates/generic/generic/logs.html:4
+#: generic/templates/generic/generic/logs.html:9
+#: units/templates/units/accreds/list.html:57
+#: units/templates/units/accreds/logs_list.html:4
+#: units/templates/units/accreds/logs_list.html:12
+msgid "Logs"
+msgstr ""
+
+#: generic/templates/generic/generic/logs.html:13
+msgid "Logs sur tous/toutes les"
+msgstr ""
+
+#: generic/templates/generic/generic/logs.html:23
+#: main/templates/main/last_100_logging_entries.html:19
+#: main/templates/main/search.html:42
+msgid "Objet"
+msgstr ""
+
+#: generic/templates/generic/generic/logs.html:25
+#: generic/templates/generic/generic/show.html:127
+#: main/templates/main/last_100_logging_entries.html:22
+#: units/templates/units/accreds/logs_list.html:26
+msgid "Quand"
+msgstr ""
+
+#: generic/templates/generic/generic/logs.html:26
+#: generic/templates/generic/generic/show.html:128
+#: main/templates/main/last_100_logging_entries.html:20
+#: units/templates/units/accreds/logs_list.html:24
+msgid "Qui"
+msgstr ""
+
+#: generic/templates/generic/generic/logs.html:27
+#: generic/templates/generic/generic/show.html:129
+#: main/templates/main/last_100_logging_entries.html:21
+#: units/templates/units/accreds/logs_list.html:25
+msgid "Quoi"
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:141
+#: generic/templates/generic/generic/show.html:169
+msgid "Détails de la modification"
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:146
+msgid "Champ"
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:147
+msgid "Avant"
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:148
+msgid "Après"
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:171
+msgid "Passé de "
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:176 main/models.py:262
+msgid "Fichier"
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:236
+msgid "Contacter..."
+msgstr ""
+
+#: generic/templates/generic/generic/show.html:256
+#: generic/templates/generic/generic/show_state_switcher.html:5
+#: generic/templates/generic/generic/switch_status.html:42
+#: templates/base.html:587 units/templates/units/accreds/list_json.html:16
+#: users/templates/users/users/profile.html:108
+msgid "Modifier"
+msgstr ""
+
+#: generic/templates/generic/generic/show_deleted.html:4
+msgid "Objet supprimé"
+msgstr ""
+
+#: generic/templates/generic/generic/show_deleted.html:16
+msgid "Désolé, mais cet objet a été supprimé et tu ne peux plus l'afficher."
+msgstr ""
+
+#: generic/templates/generic/generic/show_deleted.html:21
+msgid "L'objet a été supprimé par "
+msgstr ""
+
+#: generic/templates/generic/generic/show_deleted.html:21
+msgid "le"
+msgstr ""
+
+#: generic/templates/generic/generic/switch_status.html:12
+msgid "Modification de statut"
+msgstr ""
+
+#: generic/templates/generic/generic/switch_status.html:20
+msgid "Vous êtes sur le point de passer"
+msgstr ""
+
+#: generic/templates/generic/generic/switch_status.html:20
+msgid "vers le statut"
+msgstr ""
+
+#: generic/templates/generic/generic/switch_status.html:32
+msgid "Impossible de modifier le statut"
+msgstr ""
+
+#: generic/templates/generic/generic/mail/base_html.html:310
+#: notifications/templates/notifications/mails/new_notif_plain.txt:2
+#: notifications/templates/notifications/mails/new_notifs_plain.txt:2
+#: users/templates/registration/password_reset_email.html:1
+#: users/templates/users/users/mail/newuser_plain.txt:1
+msgid "Bonjour,"
+msgstr ""
+
+#: generic/templates/generic/generic/mail/base_html.html:314
+msgid ""
+"Tu étais sensé recevoir un mail de la part de Truffe mais les développeurs "
+"n'ont pas implémenté son contenu."
+msgstr ""
+
+#: generic/templates/generic/generic/mail/base_html.html:315
+msgid "Merci de transmettre ce problème aux gens responsables."
+msgstr ""
+
+#: generic/templates/generic/generic/mail/base_html.html:325
+#: generic/templates/generic/generic/mail/contact_plain.txt:12
+#: notifications/templates/notifications/mails/new_notif_html.html:29
+#: notifications/templates/notifications/mails/new_notif_plain.txt:12
+#: notifications/templates/notifications/mails/new_notifs_html.html:43
+#: notifications/templates/notifications/mails/new_notifs_plain.txt:21
+#: users/templates/registration/password_reset_email.html:10
+#: users/templates/users/users/mail/newuser_plain.txt:12
+msgid "Bonne journée,"
+msgstr ""
+
+#: generic/templates/generic/generic/mail/base_html.html:326
+msgid "Le système de contact de Truffe."
+msgstr ""
+
+#: generic/templates/generic/generic/mail/contact_html.html:6
+#, python-format
+msgid ""
+"\n"
+"            Ce mail vous a été envoyé par %(sender)s concernant l'élément "
+"%(obj)s.\n"
+"        "
+msgstr ""
+
+#: generic/templates/generic/generic/mail/contact_plain.txt:2
+msgid "Bonjour"
+msgstr ""
+
+#: generic/templates/generic/generic/mail/contact_plain.txt:4
+#, python-format
+msgid ""
+"\n"
+"Ce mail vous a été envoyé par %(sender)s concernant l'élément %(obj)s.\n"
+msgstr ""
+
+#: generic/templates/generic/generic/mail/contact_plain.txt:8
+#: notifications/templates/notifications/mails/new_notif_plain.txt:10
+#: notifications/templates/notifications/mails/new_notifs_plain.txt:13
+msgid "Détails :"
+msgstr ""
+
+#: generic/templates/generic/generic/mail/contact_plain.txt:14
+#: users/templates/registration/password_reset_email.html:12
+#: users/templates/users/users/mail/newuser_plain.txt:14
+msgid "Le système de contact de Truffe"
+msgstr ""
+
+#: logistics/models.py:26 logistics/models.py:38 logistics/models.py:278
+#: logistics/models.py:290 members/models.py:60 users/models.py:43
+msgid "Actif"
+msgstr ""
+
+#: logistics/models.py:26 logistics/models.py:278
+msgid "Pour désactiver temporairement la posibilité de réserver."
+msgstr ""
+
+#: logistics/models.py:28
+msgid ""
+"Si tu veux préciser les conditions de réservation pour la salle. Tu peux par "
+"exemple mettre un lien vers un contrat."
+msgstr ""
+
+#: logistics/models.py:30 logistics/models.py:39 logistics/models.py:282
+#: logistics/models.py:291
+msgid "Autoriser les externes"
+msgstr ""
+
+#: logistics/models.py:30
+msgid "Permet aux externes (pas dans l'AGEPoly) de réserver la salle."
+msgstr ""
+
+#: logistics/models.py:31 logistics/models.py:283
+msgid "Conditions de réservation pour les externes"
+msgstr ""
+
+#: logistics/models.py:31
+msgid ""
+"Si tu veux préciser des informations sur la réservation de la salle pour les "
+"externes. Remplace le champ 'Conditions' pour les externe si rempli."
+msgstr ""
+
+#: logistics/models.py:33 logistics/models.py:285
+msgid "Autoriser tout le monde à voir le calendrier"
+msgstr ""
+
+#: logistics/models.py:33
+msgid ""
+"Permet à tout le monde d'afficher le calendrier des réservations de la salle"
+msgstr ""
+
+#: logistics/models.py:44 logistics/models.py:297
+msgid "Conditions"
+msgstr ""
+
+#: logistics/models.py:45 logistics/models.py:298
+msgid "Conditions pour les externes"
+msgstr ""
+
+#: logistics/models.py:55 logistics/models.py:99 logistics/models.py:119
+#: logistics/models.py:120 logistics/models.py:137 logistics/models.py:164
+msgid "Salle"
+msgstr ""
+
+#: logistics/models.py:56
+msgid "Liste de toutes les salles réservables"
+msgstr ""
+
+#: logistics/models.py:69
+msgid ""
+"Les salles sont la liste des salles réservables, gérés par l'unité active.\n"
+"\n"
+"N'importe quelle unité peut mettre à disposition des salles et est "
+"responsable de la modération des réservations."
+msgstr ""
+
+#: logistics/models.py:106 logistics/models.py:359
+msgid "Explique pourquoi tu as besoin (manifestation par ex.)"
+msgstr ""
+
+#: logistics/models.py:107 logistics/models.py:137 logistics/models.py:360
+#: logistics/models.py:390 vehicles/models.py:229 vehicles/models.py:252
+#: vehicles/templates/vehicles/booking/edit.html:18
+msgid "Remarques"
+msgstr ""
+
+#: logistics/models.py:113 logistics/models.py:366
+msgid "Nom de l'unité"
+msgstr ""
+
+#: logistics/models.py:120 logistics/models.py:137 logistics/models.py:373
+#: logistics/models.py:390
+msgid "Conflits"
+msgstr ""
+
+#: logistics/models.py:140
+msgid "Réservation de salle"
+msgstr ""
+
+#: logistics/models.py:141
+msgid "Liste de toutes les réservations de salles"
+msgstr ""
+
+#: logistics/models.py:142
+msgid "Liste de toutes les réservations des salles de mon unité"
+msgstr ""
+
+#: logistics/models.py:143
+msgid "Calendrier de mes réservations de salles"
+msgstr ""
+
+#: logistics/models.py:144
+msgid "Calendrier des réservations des salles de mon unité"
+msgstr ""
+
+#: logistics/models.py:145
+msgid "Calendrier des réservations de la salle"
+msgstr ""
+
+#: logistics/models.py:166
+msgid ""
+"Les réservation de salles.\n"
+"\n"
+"Les réservations sont soumises à modération par l'unité liée à la salle.\n"
+"\n"
+"Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une "
+"unité externe)."
+msgstr ""
+
+#: logistics/models.py:172
+msgid ""
+"Les réservation des salles de l'unité.\n"
+"\n"
+"Les réservations sont soumises à modération par l'unité liée à la salle.\n"
+"\n"
+"Tu peux gérer ici la liste de réservation des salles de l'unité active."
+msgstr ""
+
+#: logistics/models.py:178
+msgid "Les réservation d'un type de salle particulier."
+msgstr ""
+
+#: logistics/models.py:220 logistics/models.py:223
+msgid "Salle non disponible"
+msgstr ""
+
+#: logistics/models.py:228
+msgid "gérée par"
+msgstr ""
+
+#: logistics/models.py:237 logistics/models.py:493
+msgid "Pas de conflits !"
+msgstr ""
+
+#: logistics/models.py:239 logistics/models.py:496
+msgid "Il y a d'autres réservations en même temps !"
+msgstr ""
+
+#: logistics/models.py:276
+msgid "Le nombre de fois que tu as l'objet à disposition"
+msgstr ""
+
+#: logistics/models.py:280
+msgid ""
+"Si tu veux préciser les conditions de réservations pour le matériel. Tu peux "
+"par exemple mettre un lien vers un contrat."
+msgstr ""
+
+#: logistics/models.py:282
+msgid "Permet aux externes (pas dans l'AGEPoly) de réserver le matériel."
+msgstr ""
+
+#: logistics/models.py:283
+msgid ""
+"Si tu veux préciser des informations sur la réservation du matériel pour les "
+"externes. Remplace le champ 'Conditions' pour les externe si rempli."
+msgstr ""
+
+#: logistics/models.py:285
+msgid ""
+"Permet à tout le monde d'afficher le calendrier des réservations du matériel"
+msgstr ""
+
+#: logistics/models.py:308 logistics/models.py:352 logistics/models.py:372
+#: logistics/models.py:373 logistics/models.py:390 logistics/models.py:417
+#: templates/base.html:290
+msgid "Matériel"
+msgstr ""
+
+#: logistics/models.py:309
+msgid "Liste de tout le matériel réservable"
+msgstr ""
+
+#: logistics/models.py:322
+msgid ""
+"La liste du matériel réservable, gérés par l'unité active.\n"
+"\n"
+"N'importe quelle unité peut mettre à disposition du matériel et est "
+"responsable de la modération des réservations."
+msgstr ""
+
+#: logistics/models.py:393
+msgid "Réservation de matériel"
+msgstr ""
+
+#: logistics/models.py:394
+msgid "Liste de toutes les réservations de matériel"
+msgstr ""
+
+#: logistics/models.py:395
+msgid "Liste de toutes les réservations du matériel de mon unité"
+msgstr ""
+
+#: logistics/models.py:396
+msgid "Calendrier de mes réservations de matériel"
+msgstr ""
+
+#: logistics/models.py:397
+msgid "Calendrier des réservations du matériel de mon unité"
+msgstr ""
+
+#: logistics/models.py:398
+msgid "Calendrier des réservations du matériel"
+msgstr ""
+
+#: logistics/models.py:419
+msgid ""
+"Les réservation de matériel.\n"
+"\n"
+"Les réservations sont soumises à modération par l'unité liée au matériel.\n"
+"\n"
+"Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une "
+"unité externe)."
+msgstr ""
+
+#: logistics/models.py:425
+msgid ""
+"Les réservation du matériel de l'unité.\n"
+"\n"
+"Les réservations sont soumises à modération par l'unité liée au matériel.\n"
+"\n"
+"Tu peux gérer ici la liste de réservation du matériel de l'unité active."
+msgstr ""
+
+#: logistics/models.py:431
+msgid "Les réservation d'un type de matériel particulier."
+msgstr ""
+
+#: logistics/models.py:473 logistics/models.py:476
+msgid "Matériel non disponible"
+msgstr ""
+
+#: logistics/models.py:484
+msgid "géré par"
+msgstr ""
+
+#: logistics/templates/logistics/roomreservation/show.html:13
+#: logistics/templates/logistics/supplyreservation/show.html:16
+msgid ""
+"La personne effectuant la réservation s'engage à respecter les conditions en "
+"demandant une validation de la réservation !"
+msgstr ""
+
+#: logistics/templates/logistics/supplyreservation/show.html:11
+msgid "Quantité réservable"
+msgstr ""
+
+#: main/models.py:34
+msgid "Pas les droits"
+msgstr ""
+
+#: main/models.py:50
+msgid "Content"
+msgstr ""
+
+#: main/models.py:55 templates/base.html:170
+msgid "News Truffe"
+msgstr ""
+
+#: main/models.py:56
+msgid "Liste de toutes les news Truffe"
+msgstr ""
+
+#: main/models.py:64
+msgid ""
+"Les news Truffe sont les nouvelles affichées sur la page d'accueil de Truffe."
+msgstr ""
+
+#: main/models.py:96
+msgid ""
+"La news est en cours de création et n'est pas affichée sur la page d'accueil."
+msgstr ""
+
+#: main/models.py:97
+msgid ""
+"La news est finalisée et sera affichée sur la page d'accueil aux dates "
+"prévues."
+msgstr ""
+
+#: main/models.py:98
+msgid ""
+"La news est archivée et n'est plus affichée sur la page d'accueil. Elle "
+"n'est plus modifiable."
+msgstr ""
+
+#: main/models.py:137
+msgid "Principal / En haut"
+msgstr ""
+
+#: main/models.py:138
+msgid "Principal / En bas"
+msgstr ""
+
+#: main/models.py:139 templates/base.html:125
+msgid "Admin"
+msgstr ""
+
+#: main/models.py:140 templates/base.html:146
+msgid "Gens"
+msgstr ""
+
+#: main/models.py:141 templates/base.html:166 units/models.py:288
+msgid "Communication"
+msgstr ""
+
+#: main/models.py:142 templates/base.html:198 units/models.py:291
+msgid "Logistique"
+msgstr ""
+
+#: main/models.py:143
+msgid "Logistique / Véhicules"
+msgstr ""
+
+#: main/models.py:144
+msgid "Logistique / Salles"
+msgstr ""
+
+#: main/models.py:145
+msgid "Logistique / Matériel"
+msgstr ""
+
+#: main/models.py:146
+msgid "Unités et Accreds"
+msgstr ""
+
+#: main/models.py:147 main/models.py:247 templates/base.html:372
+msgid "Finances"
+msgstr ""
+
+#: main/models.py:148
+msgid "Finances / Compta"
+msgstr ""
+
+#: main/models.py:149
+msgid "Finances / Outils"
+msgstr ""
+
+#: main/models.py:150
+msgid "Finances / Justifications"
+msgstr ""
+
+#: main/models.py:151
+msgid "Finances / Gestion"
+msgstr ""
+
+#: main/models.py:152 main/models.py:248 templates/base.html:498
+#: units/models.py:289
+msgid "Informatique"
+msgstr ""
+
+#: main/models.py:153 main/models.py:249 templates/base.html:513
+msgid "Divers"
+msgstr ""
+
+#: main/models.py:156
+msgid "Position dans le menu de gauche"
+msgstr ""
+
+#: main/models.py:156
+msgid ""
+"Laisser blanc pour faire un lien normal. Réservé au comité de l'AGEPoly. "
+"Attention, cache de 15 minutes !"
+msgstr ""
+
+#: main/models.py:157
+msgid "Icone FontAwesome"
+msgstr ""
+
+#: main/models.py:166
+msgid "Menu de gauche"
+msgstr ""
+
+#: main/models.py:167
+msgid "Icone"
+msgstr ""
+
+#: main/models.py:174 templates/base.html:517
+msgid "Liens"
+msgstr ""
+
+#: main/models.py:175
+msgid "Liste de toutes les liens"
+msgstr ""
+
+#: main/models.py:183
+msgid ""
+"Les liens sont affichés dans la banque de liens pour les différentes unités. "
+"Tu peux par exemple lister les différents services interne à ta commission.\n"
+"\"\n"
+"Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche."
+msgstr ""
+
+#: main/models.py:222
+msgid "Peut afficher la base de liens"
+msgstr ""
+
+#: main/models.py:240
+msgid "Selement les membres d'une unité"
+msgstr ""
+
+#: main/models.py:241
+msgid "Tous les utilisateurs"
+msgstr ""
+
+#: main/models.py:244 main/models.py:258 units/models.py:319
+#: units/models.py:500
+msgid "Accès"
+msgstr ""
+
+#: main/models.py:252 main/models.py:257
+#: members/templates/members/membership/add.html:34
+#: members/templates/members/membership/import.html:36
+msgid "Groupe"
+msgstr ""
+
+#: main/models.py:270
+msgid "Liste de tous les fichiers"
+msgstr ""
+
+#: main/models.py:276
+msgid ""
+"Les différents fichiers publics disponibles dans truffe 2.\n"
+"\n"
+"Les fichiers sont regroupés en différents groupes accessibles depuis le menu "
+"latéral."
+msgstr ""
+
+#: main/models.py:298
+msgid "Peut télécharger le fichier"
+msgstr ""
+
+#: main/models.py:299
+msgid "Peut affichier la liste des fichiers pour les finances"
+msgstr ""
+
+#: main/models.py:300
+msgid "Peut affichier la liste des fichiers pour l'informatique"
+msgstr ""
+
+#: main/models.py:301
+msgid "Peut affichier la liste des fichiers divers"
+msgstr ""
+
+#: main/templates/main/home.html:4
+msgid "Page d'accueil"
+msgstr ""
+
+#: main/templates/main/home.html:7
+msgid "Bienvenue !"
+msgstr ""
+
+#: main/templates/main/last_100_logging_entries.html:4
+msgid "Logging"
+msgstr ""
+
+#: main/templates/main/last_100_logging_entries.html:7
+msgid "Liste des 100 dernières entrées dans les logs"
+msgstr ""
+
+#: main/templates/main/search.html:4 main/templates/main/search.html.py:7
+msgid "Recherche"
+msgstr ""
+
+#: main/templates/main/search.html:17
+msgid ""
+"La fonctionnalité de recherche est obligée de vérifier les permissions de "
+"tous les objets qui correspondent à ta recherche avant de te les proposer à "
+"l'affichage."
+msgstr ""
+
+#: main/templates/main/search.html:18
+msgid ""
+"N'utilise pas des termes trop génériques, ou l'affichage des résultats "
+"prendra du temps."
+msgstr ""
+
+#: main/templates/main/search.html:19
+msgid "Seuls les 100 premiers résultats sont affichés."
+msgstr ""
+
+#: main/templates/main/search.html:25
+msgid "Rechercher"
+msgstr ""
+
+#: main/templates/main/search.html:34
+msgid "Résultats de la recherche"
+msgstr ""
+
+#: main/templates/main/search.html:43
+msgid "Contexte"
+msgstr ""
+
+#: main/templates/main/search.html:45
+msgid "Dernière modification"
+msgstr ""
+
+#: main/templates/main/search.html:87
+msgid "Aucun résultat trouvé !"
+msgstr ""
+
+#: main/templates/main/search.html:94
+msgid "Précédent"
+msgstr ""
+
+#: main/templates/main/search.html:98 templates/datatables.html:102
+msgid "Suivant"
+msgstr ""
+
+#: main/templates/main/to_moderate.html:5
+msgid "Rien à faire !"
+msgstr ""
+
+#: main/templates/main/to_moderate.html:6
+msgid ""
+"Tu n'as rien à modérer, soit parce que tu as peu de droits, soit parce que "
+"tu as bien fait ton travail :)"
+msgstr ""
+
+#: main/templates/main/box/accounting_errors.html:13
+msgid "Aucune erreur !"
+msgstr ""
+
+#: main/templates/main/box/accounting_lines.html:14
+msgid "ok !"
+msgstr ""
+
+#: main/templates/main/box/accounting_lines.html:18
+msgid "ligne(s) à valider"
+msgstr ""
+
+#: main/templates/main/box/accounting_lines.html:24
+msgid "ligne(s) à corriger"
+msgstr ""
+
+#: main/templates/main/box/accreds_to_validate.html:10
+msgid "Aucune accréditation à valider !"
+msgstr ""
+
+#: main/templates/main/box/cashbooks.html:11
+#: main/templates/main/box/expenseclaims.html:11
+msgid "À valider (trésorier)"
+msgstr ""
+
+#: main/templates/main/box/cashbooks.html:11
+#: main/templates/main/box/expenseclaims.html:11
+msgid "À valider (AGEPoly)"
+msgstr ""
+
+#: main/templates/main/box/cashbooks.html:26
+msgid "Aucun journal de caisse en attente !"
+msgstr ""
+
+#: main/templates/main/box/expenseclaims.html:26
+msgid "Aucune note de frais en attente !"
+msgstr ""
+
+#: main/templates/main/box/internaltransfers.html:12
+msgid "A valider"
+msgstr ""
+
+#: main/templates/main/box/internaltransfers.html:28
+msgid "Aucun transfert interne en attente !"
+msgstr ""
+
+#: main/templates/main/box/invoices.html:9
+msgid "Besoin d'un BVR !"
+msgstr ""
+
+#: main/templates/main/box/invoices.html:21
+msgid "Aucune facture en attente !"
+msgstr ""
+
+#: main/templates/main/box/moderate.html:6
+msgid "Chargement..."
+msgstr ""
+
+#: main/templates/main/box/withdrawals.html:11
+msgid "A valider / retirer pour le"
+msgstr ""
+
+#: main/templates/main/box/withdrawals.html:20
+msgid "Prêt à être retiré depuis le"
+msgstr ""
+
+#: main/templates/main/box/withdrawals.html:29
+msgid "A justifier"
+msgstr ""
+
+#: main/templates/main/box/withdrawals.html:35
+msgid "Aucun retrait cash en attente !"
+msgstr ""
+
+#: main/templates/main/file/download.html:4
+msgid "Liste de fichiers"
+msgstr ""
+
+#: main/templates/main/file/download.html:8
+#: main/templates/main/file/download.html:12
+msgid "Liste des fichiers"
+msgstr ""
+
+#: main/templates/main/link/base.html:4
+msgid "Base de lien"
+msgstr ""
+
+#: main/templates/main/link/base.html:8 main/templates/main/link/base.html:12
+msgid "Base de liens"
+msgstr ""
+
+#: members/forms2.py:33 units/forms2.py:32
+msgid "Pas un username valide"
+msgstr ""
+
+#: members/forms2.py:48
+msgid "Fichier à importer"
+msgstr ""
+
+#: members/forms2.py:49
+msgid "Copier les cotisations ?"
+msgstr ""
+
+#: members/forms2.py:55
+msgid ""
+"Accepte les fichiers JSON composés de listes de username ou de listes de "
+"couples (username, cotisation_payée)"
+msgstr ""
+
+#: members/models.py:21
+msgid "Génère des accreds"
+msgstr ""
+
+#: members/models.py:22
+msgid "Accréditation générée pour les membres"
+msgstr ""
+
+#: members/models.py:23
+msgid "Rend les accreds visibles dans l'annuaire"
+msgstr ""
+
+#: members/models.py:24 members/models.py:31
+msgid "Gestion des cotisations"
+msgstr ""
+
+#: members/models.py:28
+msgid "Nom du groupe de membres"
+msgstr ""
+
+#: members/models.py:29
+msgid "Génère une accréditation"
+msgstr ""
+
+#: members/models.py:30
+msgid "Visible dans l'annuaire EPFL"
+msgstr ""
+
+#: members/models.py:35
+msgid "Type généré"
+msgstr ""
+
+#: members/models.py:41 members/templates/members/membership/delete.html:8
+msgid "Groupes de Membres"
+msgstr ""
+
+#: members/models.py:42
+msgid "Liste des groupes de membre"
+msgstr ""
+
+#: members/models.py:52
+msgid ""
+"Les groupes de membres représentent l'ensemble des membres des différentes "
+"unités de l'AGEPoly.\n"
+"Par exemple, ils peuvent contenir les membres d'honneurs d'une unité ou les "
+"membres qui cotisent.\n"
+"Les groupes peuvent générer une accréditation EPFL pour leurs membres et "
+"gérer les cotisations suivant leur état."
+msgstr ""
+
+#: members/models.py:67
+msgid "Le groupe de membres est en cours de création et n'est pas public."
+msgstr ""
+
+#: members/models.py:68
+msgid "Le groupe de membres est actif."
+msgstr ""
+
+#: members/models.py:69
+msgid "Le groupe de membres est archivé."
+msgstr ""
+
+#: members/models.py:91
+msgid "Rendre le groupe de membres actif"
+msgstr ""
+
+#: members/models.py:92
+msgid "Archiver le groupe de membres"
+msgstr ""
+
+#: members/models.py:120
+msgid "Accréditation nécessaire pour l'attribuer aux membres."
+msgstr ""
+
+#: members/models.py:128
+msgid "L'unité possède déjà un groupe avec ce nom."
+msgstr ""
+
+#: members/models.py:170
+msgid "Groupe de membres"
+msgstr ""
+
+#: members/models.py:171
+msgid "Date d'ajout au groupe"
+msgstr ""
+
+#: members/models.py:172
+msgid "Date de retrait du groupe"
+msgstr ""
+
+#: members/models.py:173
+msgid "A payé sa cotisation"
+msgstr ""
+
+#: members/views.py:81
+msgid "Membre retiré !"
+msgstr ""
+
+#: members/views.py:102
+msgid "Cotisation mise à jour !"
+msgstr ""
+
+#: members/views.py:178
+msgid "Impossible de créer l'utilisateur"
+msgstr ""
+
+#: members/views.py:183
+msgid "L'utilisateur est déjà membre de ce groupe"
+msgstr ""
+
+#: members/views.py:188
+msgid "Utilisateur ajouté avec succès"
+msgstr ""
+
+#: members/views.py:192
+msgid "ERREUR"
+msgstr ""
+
+#: members/views.py:192
+msgid "Le fichier ne peut pas être lu correctement, l'import a été annulé"
+msgstr ""
+
+#: members/templates/members/memberset/show.html:15 templates/base.html:451
+msgid "Gestion"
+msgstr ""
+
+#: members/templates/members/memberset/show.html:42 units/models.py:498
+#: units/models.py:504 users/models.py:156
+msgid "Utilisateur"
+msgstr ""
+
+#: members/templates/members/memberset/show.html:43
+msgid "Date d'ajout"
+msgstr ""
+
+#: members/templates/members/memberset/show.html:44
+msgid "Cotisation payée ?"
+msgstr ""
+
+#: members/templates/members/memberset/show.html:70
+#: templates/datatables.html:128
+msgid "Exporter"
+msgstr ""
+
+#: members/templates/members/memberset/show.html:77
+msgid "Importer"
+msgstr ""
+
+#: members/templates/members/membership/add.html:12
+msgid "Nouveau membre"
+msgstr ""
+
+#: members/templates/members/membership/add.html:20
+msgid "ajouté avec success !"
+msgstr ""
+
+#: members/templates/members/membership/add.html:23
+msgid "Cette personne est déjà membre du groupe !"
+msgstr ""
+
+#: members/templates/members/membership/add.html:38
+#: members/templates/members/membership/import.html:40
+msgid "Ferme cette fenêtre et selectionne le bon groupe si tu veux en changer"
+msgstr ""
+
+#: members/templates/members/membership/delete.html:4
+msgid "Membre du Groupe"
+msgstr ""
+
+#: members/templates/members/membership/delete.html:25
+msgid "Vous êtes sur le point de retirer le membre "
+msgstr ""
+
+#: members/templates/members/membership/delete.html:25
+msgid "du groupe"
+msgstr ""
+
+#: members/templates/members/membership/import.html:13
+msgid "Import de membres"
+msgstr ""
+
+#: members/templates/members/membership/list_json.html:10
+msgid "Changer le statut de la cotisation"
+msgstr ""
+
+#: notifications/management/commands/process_notifications.py:33
+msgid "Truffe :: Notification :: {}"
+msgstr ""
+
+#: notifications/management/commands/process_notifications.py:47
+msgid "Truffe :: Notifications ({}) :: {}"
+msgstr ""
+
+#: notifications/templates/notifications/dropdown.html:17
+msgid "Aucune notification !"
+msgstr ""
+
+#: notifications/templates/notifications/dropdown.html:31
+#: notifications/templates/notifications/center/index.html:4
+#: notifications/templates/notifications/center/index.html:8
+#: templates/base.html:547
+msgid "Centre de notifications"
+msgstr ""
+
+#: notifications/templates/notifications/dropdown.html:35
+msgid "Marquer tout comme lu"
+msgstr ""
+
+#: notifications/templates/notifications/center/index.html:13
+msgid "Gestion des notifications"
+msgstr ""
+
+#: notifications/templates/notifications/center/index.html:25
+msgid "Type de notification"
+msgstr ""
+
+#: notifications/templates/notifications/center/index.html:30
+msgid "Restrictions"
+msgstr ""
+
+#: notifications/templates/notifications/center/index.html:43
+msgid "Objet lié"
+msgstr ""
+
+#: notifications/templates/notifications/center/json.html:12
+msgid "Traité !"
+msgstr ""
+
+#: notifications/templates/notifications/center/keys.html:4
+msgid "Tous les types"
+msgstr ""
+
+#: notifications/templates/notifications/center/restrictions.html:4
+msgid "Pour les notifications de type"
+msgstr ""
+
+#: notifications/templates/notifications/center/restrictions.html:6
+msgid "Pour toutes les notificaitons:"
+msgstr ""
+
+#: notifications/templates/notifications/center/restrictions.html:9
+msgid "Désactiver les mails"
+msgstr ""
+
+#: notifications/templates/notifications/center/restrictions.html:14
+#: notifications/templates/notifications/center/restrictions.html:25
+msgid "Oui"
+msgstr ""
+
+#: notifications/templates/notifications/center/restrictions.html:14
+#: notifications/templates/notifications/center/restrictions.html:25
+msgid "Non"
+msgstr ""
+
+#: notifications/templates/notifications/center/restrictions.html:20
+msgid "Ignorer automatiquement"
+msgstr ""
+
+#: notifications/templates/notifications/center/restrictions.html:34
+msgid "Désactiver toutes les notifications est une mauvaise idée !"
+msgstr ""
+
+#: notifications/templates/notifications/mails/new_notif_html.html:5
+msgid "Vous avez une nouvelle notification sur Truffe !"
+msgstr ""
+
+#: notifications/templates/notifications/mails/new_notif_html.html:30
+#: notifications/templates/notifications/mails/new_notif_plain.txt:14
+#: notifications/templates/notifications/mails/new_notifs_html.html:44
+#: notifications/templates/notifications/mails/new_notifs_plain.txt:23
+msgid "Le système de notifications de Truffe"
+msgstr ""
+
+#: notifications/templates/notifications/mails/new_notif_plain.txt:4
+msgid ""
+"\n"
+"Vous avez une nouvelle notification sur Truffe !\n"
+msgstr ""
+
+#: notifications/templates/notifications/mails/new_notifs_html.html:5
+msgid "Vous avez plusieurs nouvelles notifications sur Truffe !"
+msgstr ""
+
+#: notifications/templates/notifications/mails/new_notifs_html.html:19
+#: notifications/templates/notifications/mails/new_notifs_plain.txt:9
+msgid "Notification du "
+msgstr ""
+
+#: notifications/templates/notifications/mails/new_notifs_plain.txt:4
+msgid ""
+"\n"
+"Vous avez plusieures nouvelles notifications sur Truffe !\n"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_accepted.html:5
+#: notifications/templates/notifications/species/accounting_accountable.html:5
+#: notifications/templates/notifications/species/accounting_canceled.html:5
+#: notifications/templates/notifications/species/accounting_used.html:5
+#: notifications/templates/notifications/species/accounting_validable.html:5
+#: notifications/templates/notifications/species/accounting_withdrawn.html:5
+#: notifications/templates/notifications/species/mails/accounting_accepted.html:5
+#: notifications/templates/notifications/species/mails/accounting_accountable.html:5
+#: notifications/templates/notifications/species/mails/accounting_canceled.html:5
+#: notifications/templates/notifications/species/mails/accounting_used.html:5
+#: notifications/templates/notifications/species/mails/accounting_validable.html:5
+#: notifications/templates/notifications/species/mails/accounting_withdrawn.html:5
+msgid "La pièce comptable \""
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_accepted.html:5
+msgid "\" a été validée."
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_accountable.html:5
+msgid "\" est prête à être comptabilisée."
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_base.html:8
+msgid ""
+"Le message qui devrait s'afficher ici n'a pas été implémenté. Merci de "
+"contacter l'administrateur."
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_base.html:14
+#: notifications/templates/notifications/species/mails/accounting_base.html:7
+msgid "Retrait"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_base.html:20
+#: notifications/templates/notifications/species/mails/accounting_base.html:13
+#, python-format
+msgid "Objet non reconnu (%(class)s), contacter l'administrateur."
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_base.html:27
+#: notifications/templates/notifications/species/accounting_error_created.html:12
+#: notifications/templates/notifications/species/accounting_error_fixed.html:12
+#: notifications/templates/notifications/species/accounting_error_message.html:12
+#: notifications/templates/notifications/species/accounting_line_error.html:12
+#: notifications/templates/notifications/species/accounting_line_fixed.html:12
+#: notifications/templates/notifications/species/accounting_new_compta.html:12
+#: notifications/templates/notifications/species/accreds_deleted.html:18
+#: notifications/templates/notifications/species/accreds_tovalidate.html:16
+#: notifications/templates/notifications/species/accreds_validated.html:16
+#: notifications/templates/notifications/species/accreds_warning.html:18
+#: notifications/templates/notifications/species/deleted.html:12
+#: notifications/templates/notifications/species/drafted.html:12
+#: notifications/templates/notifications/species/invoices_bvr_needed.html:12
+#: notifications/templates/notifications/species/invoices_bvr_set.html:12
+#: notifications/templates/notifications/species/invoices_done.html:12
+#: notifications/templates/notifications/species/invoices_sent.html:12
+#: notifications/templates/notifications/species/moderation.html:12
+#: notifications/templates/notifications/species/online.html:12
+#: notifications/templates/notifications/species/refused.html:12
+#: notifications/templates/notifications/species/validated.html:12
+#: notifications/templates/notifications/species/center/buttons/accounting_accepted.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_accountable.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_canceled.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_error_created.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_error_fixed.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_error_message.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_line_error.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_line_fixed.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_new_compta.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_used.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_validable.html:4
+#: notifications/templates/notifications/species/center/buttons/accounting_withdrawn.html:4
+#: notifications/templates/notifications/species/center/buttons/accreds_deleted.html:4
+#: notifications/templates/notifications/species/center/buttons/accreds_tovalidate.html:4
+#: notifications/templates/notifications/species/center/buttons/accreds_validated.html:4
+#: notifications/templates/notifications/species/center/buttons/accreds_warning.html:4
+#: notifications/templates/notifications/species/center/buttons/deleted.html:4
+#: notifications/templates/notifications/species/center/buttons/drafted.html:4
+#: notifications/templates/notifications/species/center/buttons/invoices_bvr_needed.html:4
+#: notifications/templates/notifications/species/center/buttons/invoices_bvr_set.html:4
+#: notifications/templates/notifications/species/center/buttons/invoices_done.html:4
+#: notifications/templates/notifications/species/center/buttons/invoices_sent.html:4
+#: notifications/templates/notifications/species/center/buttons/moderation.html:4
+#: notifications/templates/notifications/species/center/buttons/online.html:4
+#: notifications/templates/notifications/species/center/buttons/refused.html:4
+#: notifications/templates/notifications/species/center/buttons/validated.html:4
+msgid "Ignorer"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_canceled.html:5
+#: notifications/templates/notifications/species/mails/accounting_canceled.html:5
+msgid "\" a été annulée."
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_error_created.html:7
+msgid "Une nouvelle erreur a été signalée dans la compta:"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_error_fixed.html:7
+#: notifications/templates/notifications/species/mails/accounting_line_fixed.html:2
+msgid "L'erreur dans la compta"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_error_fixed.html:7
+msgid "a été marquée comme fixée"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_error_message.html:7
+#: notifications/templates/notifications/species/center/message/accounting_error_message.html:3
+#: notifications/templates/notifications/species/mails/accounting_error_message.html:2
+msgid "Un message a été ajouté sur une erreur de la compta"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_line_error.html:7
+#: notifications/templates/notifications/species/accounting_line_fixed.html:7
+#: notifications/templates/notifications/species/mails/accounting_error_fixed.html:2
+#: notifications/templates/notifications/species/mails/accounting_line_error.html:2
+msgid "La ligne"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_line_error.html:7
+msgid "a été signalée comme erronée dans la compta !"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_line_fixed.html:7
+msgid "qui était signalée comme erronée dans la compta a été validée !"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_new_compta.html:7
+msgid "La compta a été mise à jour"
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_used.html:5
+msgid "\" doit maintenant être justifiée."
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_validable.html:5
+#: notifications/templates/notifications/species/mails/accounting_validable.html:5
+msgid "\" doit être validée."
+msgstr ""
+
+#: notifications/templates/notifications/species/accounting_withdrawn.html:5
+#: notifications/templates/notifications/species/mails/accounting_withdrawn.html:5
+msgid "\" peut être retirée."
+msgstr ""
+
+#: notifications/templates/notifications/species/accreds_deleted.html:7
+#: notifications/templates/notifications/species/accreds_warning.html:7
+#: notifications/templates/notifications/species/mails/accreds_deleted.html:2
+#: notifications/templates/notifications/species/mails/accreds_warning.html:2
+msgid "Les accréditations suivantes dans l'unité"
+msgstr ""
+
+#: notifications/templates/notifications/species/accreds_deleted.html:7
+#: notifications/templates/notifications/species/mails/accreds_deleted.html:2
+msgid "ont été supprimées !"
+msgstr ""
+
+#: notifications/templates/notifications/species/accreds_tovalidate.html:7
+#: notifications/templates/notifications/species/accreds_validated.html:7
+#: notifications/templates/notifications/species/mails/accreds_tovalidate.html:2
+#: notifications/templates/notifications/species/mails/accreds_validated.html:2
+msgid "L'accréditation suivante dans l'unité"
+msgstr ""
+
+#: notifications/templates/notifications/species/accreds_tovalidate.html:7
+#: notifications/templates/notifications/species/mails/accreds_tovalidate.html:2
+msgid "doit être validée"
+msgstr ""
+
+#: notifications/templates/notifications/species/accreds_validated.html:7
+msgid "a été validée"
+msgstr ""
+
+#: notifications/templates/notifications/species/accreds_warning.html:7
+#: notifications/templates/notifications/species/mails/accreds_warning.html:2
+msgid "vont expirer dans "
+msgstr ""
+
+#: notifications/templates/notifications/species/accreds_warning.html:7
+#: notifications/templates/notifications/species/mails/accreds_warning.html:2
+msgid "jours !"
+msgstr ""
+
+#: notifications/templates/notifications/species/deleted.html:7
+#: notifications/templates/notifications/species/drafted.html:7
+#: notifications/templates/notifications/species/online.html:7
+#: notifications/templates/notifications/species/refused.html:7
+#: notifications/templates/notifications/species/validated.html:7
+#: notifications/templates/notifications/species/mails/deleted.html:2
+#: notifications/templates/notifications/species/mails/drafted.html:2
+#: notifications/templates/notifications/species/mails/online.html:2
+#: notifications/templates/notifications/species/mails/refused.html:2
+#: notifications/templates/notifications/species/mails/validated.html:2
+msgid "L'élément"
+msgstr ""
+
+#: notifications/templates/notifications/species/deleted.html:7
+#: notifications/templates/notifications/species/mails/deleted.html:2
+msgid "a été supprimé alors qu'il était validé !"
+msgstr ""
+
+#: notifications/templates/notifications/species/drafted.html:7
+msgid "est repassé en brouillon alors qu'il était validé !"
+msgstr ""
+
+#: notifications/templates/notifications/species/invoices_bvr_needed.html:7
+#: notifications/templates/notifications/species/mails/invoices_bvr_needed.html:2
+msgid "Il faut attribuer un BVR à la facture"
+msgstr ""
+
+#: notifications/templates/notifications/species/invoices_bvr_set.html:7
+#: notifications/templates/notifications/species/mails/invoices_bvr_set.html:2
+msgid "Un numéro de BVR a été attribué à la facture"
+msgstr ""
+
+#: notifications/templates/notifications/species/invoices_done.html:7
+#: notifications/templates/notifications/species/mails/invoices_done.html:2
+msgid "Le paiement pour la facture"
+msgstr ""
+
+#: notifications/templates/notifications/species/invoices_done.html:7
+msgid "a été effectué !"
+msgstr ""
+
+#: notifications/templates/notifications/species/invoices_sent.html:7
+#: notifications/templates/notifications/species/mails/invoices_sent.html:2
+msgid "Une nouvelle facture a été émise"
+msgstr ""
+
+#: notifications/templates/notifications/species/moderation.html:7
+#: notifications/templates/notifications/species/mails/moderation.html:2
+msgid "Il faut modérer l'élément"
+msgstr ""
+
+#: notifications/templates/notifications/species/online.html:7
+#: notifications/templates/notifications/species/mails/online.html:2
+msgid "est maintenant en ligne !"
+msgstr ""
+
+#: notifications/templates/notifications/species/refused.html:7
+#: notifications/templates/notifications/species/mails/refused.html:2
+msgid "a été refusé !"
+msgstr ""
+
+#: notifications/templates/notifications/species/validated.html:7
+#: notifications/templates/notifications/species/mails/validated.html:2
+msgid "est maintenant validé !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_accepted.html:3
+msgid "L'objet a été saisi"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_accountable.html:3
+msgid "L'objet peut être comptabilisé"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_error_created.html:3
+msgid "Une nouvelle erreur a été signalée dans la compta"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_error_fixed.html:3
+msgid "Une erreur dans la compta a été marquée comme fixée"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_line_error.html:3
+msgid "Une ligne a été signalée comme erronée dans la compta"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_line_fixed.html:3
+msgid ""
+"Une ligne qui était signalée comme erronée dans la compta a été marquée "
+"comme fixée"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_new_compta.html:3
+msgid "La compta a été mise à jour."
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_used.html:3
+msgid "L'objet doit maintenant être justifié."
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_validable.html:3
+msgid "L'objet doit être validé"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accounting_withdrawn.html:3
+msgid "L'objet peut-être retiré à la boutique."
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accreds_deleted.html:3
+msgid "Des accréditations ont été supprimées !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accreds_tovalidate.html:3
+msgid "Une accréditation doit être validée"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accreds_validated.html:3
+msgid "Une accréditation a été validée"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/accreds_warning.html:3
+#, python-format
+msgid "Des accréditations vont expirer dans %(days_left)s jours !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/deleted.html:3
+msgid "L'objet a été supprimé alors qu'il était validé !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/drafted.html:3
+msgid "L'objet a été repassé en brouillon alors qu'il était validé"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/invoices_bvr_needed.html:3
+msgid "Il faut attribuer un numéro de BVR !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/invoices_bvr_set.html:3
+msgid "Un numéro de BVR a été attribué !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/invoices_done.html:3
+msgid "L'argent d'une facture a été reçu."
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/invoices_sent.html:3
+msgid "Une facture a été émise !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/moderation.html:3
+msgid "Il faut modérer l'objet lié !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/online.html:3
+msgid "L'objet lié est maintenant en ligne !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/refused.html:3
+msgid "La modération a refusé l'objet lié !"
+msgstr ""
+
+#: notifications/templates/notifications/species/center/message/validated.html:3
+msgid "L'objet lié est maintenant validé !"
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_accepted.html:5
+msgid "\" a été saisie."
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_accountable.html:5
+msgid "\" peut être comptabilisée."
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_base.html:2
+msgid "Message manquant! Contacter l'administrateur."
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_error_created.html:2
+msgid "Une nouvelle erreur a été signalée dans la compta: "
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_error_fixed.html:2
+msgid "qui était signalée comme erronée dans la compta a été validée"
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_line_error.html:2
+msgid "a été signalée comme erronée dans la compta."
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_line_fixed.html:2
+msgid "a été marquée comme résolue"
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_new_compta.html:2
+msgid ""
+"La compta a été mise à jour. N'oublie pas qu'il faut régulièrement la "
+"vérifier et signaler les erreurs !"
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accounting_used.html:5
+msgid "\" doit être justifiée."
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/accreds_validated.html:2
+msgid "a été validée !"
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/drafted.html:2
+msgid "a été repassé en brouillon alors qu'il était validé !"
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/invoices_done.html:2
+msgid "a été effectué "
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/validated.html:5
+msgid "La carte qui t'as été attribuée est : "
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/validated.html:6
+msgid "Le lieu de récupération du véhicule est : "
+msgstr ""
+
+#: notifications/templates/notifications/species/mails/validated.html:7
+msgid "Remarques: "
+msgstr ""
+
+#: rights/utils.py:192
+msgid "Peut lister les éléments"
+msgstr ""
+
+#: rights/utils.py:193
+msgid "Peut afficher cet élément"
+msgstr ""
+
+#: rights/utils.py:194
+msgid "Peut modifier cet élément"
+msgstr ""
+
+#: rights/utils.py:195
+msgid "Peut supprimer cet élément"
+msgstr ""
+
+#: rights/utils.py:196
+msgid "Peut restaurer un élément"
+msgstr ""
+
+#: rights/utils.py:197
+msgid "Peut créer un élément"
+msgstr ""
+
+#: rights/utils.py:198
+msgid "Peut afficher les logs de l'élément"
+msgstr ""
+
+#: rights/utils.py:332
+msgid "De base (En fonction de l'objet et des droits)"
+msgstr ""
+
+#: rights/utils.py:333
+msgid "Unité liée"
+msgstr ""
+
+#: rights/utils.py:334
+msgid "Unité liée et Comité de l'AGEPoly"
+msgstr ""
+
+#: rights/utils.py:335
+msgid "Toutes les personnes accrédités dans une unité"
+msgstr ""
+
+#: rights/utils.py:336
+msgid "Tout le monde"
+msgstr ""
+
+#: rights/utils.py:340
+msgid "Permet de rendre l'objet plus visible que les droits de base"
+msgstr ""
+
+#: templates/404.html:4 templates/404.html.py:8
+msgid "404"
+msgstr ""
+
+#: templates/404.html:494
+msgid "Erreur 404"
+msgstr ""
+
+#: templates/404.html:495
+msgid "Page non trouvée / Pas les droits nécessaires "
+msgstr ""
+
+#: templates/404.html:498
+msgid ""
+"La page que vous avez demandé n'existe pas ou vous n'avez pas le droit de "
+"l'afficher. Essayez de retourner sur la page précédente avec le bouton "
+"retour de votre navigateur. Si cela n'est pas normal, merci de contacter les "
+"responsables de Truffe."
+msgstr ""
+
+#: templates/500.html:59
+msgid "Erreur 500"
+msgstr ""
+
+#: templates/500.html:60
+msgid "Hoho, grosse erreur pas prévue et triste"
+msgstr ""
+
+#: templates/500.html:63
+msgid "Un mail a été envoyé avec les détails de l'erreur"
+msgstr ""
+
+#: templates/500.html:64
+msgid ""
+"En attendant vous pouvez utiliser le bouton retour de votre navigateur pour "
+"continuer à utiliser le site. Merci de nous contacter si le problème "
+"persiste."
+msgstr ""
+
+#: templates/base.html:8 templates/base_login.html:8
+msgid "L'intranet de l'AGEPoly !"
+msgstr ""
+
+#: templates/base.html:64
+msgid "Cacher le menu"
+msgstr ""
+
+#: templates/base.html:70
+msgid "Logout"
+msgstr ""
+
+#: templates/base.html:82
+msgid "Rechercher dans truffe 2"
+msgstr ""
+
+#: templates/base.html:116 templates/base.html.py:572
+msgid "Accueil"
+msgstr ""
+
+#: templates/base.html:129 templates/impersonate/search_users.html:4
+#: templates/impersonate/search_users.html:8
+msgid "Impersonate"
+msgstr ""
+
+#: templates/base.html:131
+msgid "Stop Impersonate"
+msgstr ""
+
+#: templates/base.html:136
+msgid "Logging général"
+msgstr ""
+
+#: templates/base.html:149
+#: users/templates/registration/password_change_form.html:9
+#: users/templates/users/users/create_external.html:9
+#: users/templates/users/users/edit.html:8
+#: users/templates/users/users/list.html:4
+#: users/templates/users/users/list.html:8
+#: users/templates/users/users/profile.html:8
+msgid "Annuaire global"
+msgstr ""
+
+#: templates/base.html:152
+msgid "Mon unité"
+msgstr ""
+
+#: templates/base.html:156
+msgid "Mon profil"
+msgstr ""
+
+#: templates/base.html:175
+msgid "News du site de l'AGEPoly"
+msgstr ""
+
+#: templates/base.html:180
+msgid "Slides des écrans de l'AGEPoly"
+msgstr ""
+
+#: templates/base.html:188
+msgid "Gestion des logos"
+msgstr ""
+
+#: templates/base.html:201
+msgid "Véhicules"
+msgstr ""
+
+#: templates/base.html:207
+msgid "Réservations"
+msgstr ""
+
+#: templates/base.html:212 templates/base.html.py:257 templates/base.html:299
+msgid "Calendrier de mes réservations"
+msgstr ""
+
+#: templates/base.html:217
+msgid "Calendrier de toutes les réservations"
+msgstr ""
+
+#: templates/base.html:222 vehicles/models.py:35
+msgid "Fournisseurs"
+msgstr ""
+
+#: templates/base.html:227
+msgid "Types de véhicules"
+msgstr ""
+
+#: templates/base.html:232 vehicles/models.py:143
+msgid "Cartes"
+msgstr ""
+
+#: templates/base.html:237 vehicles/models.py:193
+msgid "Lieux"
+msgstr ""
+
+#: templates/base.html:248
+msgid "Salles"
+msgstr ""
+
+#: templates/base.html:254
+msgid "Réservations de salle"
+msgstr ""
+
+#: templates/base.html:262
+msgid "Liste des salles"
+msgstr ""
+
+#: templates/base.html:268
+msgid "Gestion des salles"
+msgstr ""
+
+#: templates/base.html:274
+msgid "Réservations de mes salles"
+msgstr ""
+
+#: templates/base.html:277
+msgid "Calendrier des réservation de mes salles"
+msgstr ""
+
+#: templates/base.html:296
+msgid "Réservations de matériel"
+msgstr ""
+
+#: templates/base.html:305
+msgid "Liste du matériel"
+msgstr ""
+
+#: templates/base.html:311
+msgid "Gestion du matériel"
+msgstr ""
+
+#: templates/base.html:317
+msgid "Réservations de mon matériel"
+msgstr ""
+
+#: templates/base.html:320
+msgid "Calendrier des réservation de mon matériel"
+msgstr ""
+
+#: templates/base.html:338
+msgid "Unités & Accreds"
+msgstr ""
+
+#: templates/base.html:342 units/models.py:62
+#: units/templates/units/selector/menu_unit.html:50
+msgid "Unités"
+msgstr ""
+
+#: templates/base.html:347 units/models.py:328
+#: users/templates/users/users/list.html:27
+msgid "Rôles"
+msgstr ""
+
+#: templates/base.html:352 units/models.py:290
+#: units/templates/units/accreds/delete.html:4
+#: units/templates/units/accreds/delete.html:8
+#: units/templates/units/accreds/list.html:4
+#: units/templates/units/accreds/list.html:8
+#: units/templates/units/accreds/logs_list.html:4
+#: units/templates/units/accreds/logs_list.html:8
+#: units/templates/units/accreds/renew.html:4
+#: units/templates/units/accreds/renew.html:8
+#: units/templates/units/accreds/validate.html:4
+#: units/templates/units/accreds/validate.html:8
+msgid "Accréditations"
+msgstr ""
+
+#: templates/base.html:357
+msgid "Délégations d'accès"
+msgstr ""
+
+#: templates/base.html:362
+msgid "Membres de l'unité"
+msgstr ""
+
+#: templates/base.html:379
+msgid "Ma compta"
+msgstr ""
+
+#: templates/base.html:389
+msgid "Importer la compta"
+msgstr ""
+
+#: templates/base.html:399
+msgid "Outils"
+msgstr ""
+
+#: templates/base.html:413
+msgid "Factures"
+msgstr "Invoices"
+
+#: templates/base.html:427
+msgid "Justifications"
+msgstr ""
+
+#: templates/base.html:447
+msgid "Demandes de subvention"
+msgstr ""
+
+#: templates/base.html:465
+msgid "Comptes de CG"
+msgstr ""
+
+#: templates/base.html:470
+msgid "Catégories des comptes"
+msgstr ""
+
+#: templates/base.html:475
+msgid "TVAs"
+msgstr ""
+
+#: templates/base.html:523
+msgid "Gestion des liens"
+msgstr ""
+
+#: templates/base.html:535
+msgid "Gestion des fichiers"
+msgstr ""
+
+#: templates/base.html:585
+msgid ""
+"Ton profil n'est pas correctement rempli : il faut au moins indiquer ton "
+"téléphone portable, ton adresse, ta banque et ton IBAN !"
+msgstr ""
+
+#: templates/base.html:594 templates/base_login.html:84
+msgid "contributeurs"
+msgstr ""
+
+#: templates/base.html:595 templates/base_login.html:85
+msgid "Développé pour l'"
+msgstr ""
+
+#: templates/base.html:595 templates/base_login.html:85
+msgid "avec"
+msgstr ""
+
+#: templates/base.html:595 templates/base_login.html:85
+msgid "Soutien technique partiel par"
+msgstr ""
+
+#: templates/base_login.html:47
+msgid ""
+"Si un compte Truffe est lié à l'adresse mail fournie, tu viens de recevoir "
+"les instructions pour récupérer ton mot de passe par email."
+msgstr ""
+
+#: templates/base_login.html:50
+msgid ""
+"Ton mot de passe a bien été modifié. Tu peux maintenant te connecter avec."
+msgstr ""
+
+#: templates/base_login.html:53
+msgid ""
+"Username / mot de passe incorrects. Es-tu sûr de ne pas vouloir te connecter "
+"avec Tequila?"
+msgstr ""
+
+#: templates/base_login.html:56
+msgid ""
+"Tu dois te connecter par Tequila et utiliser ton username Gaspar à la place "
+"de ton Sciper."
+msgstr ""
+
+#: templates/base_login.html:59
+#, python-format
+msgid ""
+"\n"
+"                      Impossible de se connecter via Tequila. L'erreur est : "
+"%(why)s.\n"
+"                    "
+msgstr ""
+
+#: templates/base_pdf.html:116 vehicles/templates/vehicles/booking/pdf.html:9
+msgid "Pour"
+msgstr ""
+
+#: templates/base_pdf.html:116 vehicles/templates/vehicles/booking/pdf.html:9
+msgid "l'équipe"
+msgstr ""
+
+#: templates/base_pdf.html:116 vehicles/templates/vehicles/booking/pdf.html:9
+msgid "la commission"
+msgstr ""
+
+#: templates/base_pdf.html:116 vehicles/templates/vehicles/booking/pdf.html:9
+msgid " : "
+msgstr ""
+
+#: templates/base_pdf.html:117
+msgid "Numéro comptable de l'unité : "
+msgstr ""
+
+#: templates/base_pdf.html:123
+msgid "Nom : "
+msgstr ""
+
+#: templates/base_pdf.html:124
+msgid "Prenom : "
+msgstr ""
+
+#: templates/base_pdf.html:125
+msgid "Téléphone : "
+msgstr ""
+
+#: templates/base_pdf.html:129
+msgid "Adresse : "
+msgstr ""
+
+#: templates/base_pdf.html:130
+msgid "Nom de la banque (Ou poste) : "
+msgstr ""
+
+#: templates/base_pdf.html:131
+msgid "IBAN / CCP : "
+msgstr ""
+
+#: templates/base_pdf.html:151
+msgid "avec Truffe2"
+msgstr ""
+
+#: templates/base_pdf.html:151
+msgid "par"
+msgstr ""
+
+#: templates/datatables.html:89
+msgid "Traitement en cours..."
+msgstr ""
+
+#: templates/datatables.html:92
+msgid ""
+"Affichage de l'&eacute;lement _START_ &agrave; _END_ sur _TOTAL_ &eacute;"
+"l&eacute;ments"
+msgstr ""
+
+#: templates/datatables.html:93
+msgid "Affichage de l'&eacute;lement 0 &agrave; 0 sur 0 &eacute;l&eacute;ments"
+msgstr ""
+
+#: templates/datatables.html:94
+msgid "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)"
+msgstr ""
+
+#: templates/datatables.html:96
+msgid "Chargement en cours..."
+msgstr ""
+
+#: templates/datatables.html:97
+msgid "Aucun &eacute;l&eacute;ment &agrave; afficher"
+msgstr ""
+
+#: templates/datatables.html:97
+msgid "Une recherche est active"
+msgstr ""
+
+#: templates/datatables.html:97
+msgid "Effacer"
+msgstr ""
+
+#: templates/datatables.html:98
+msgid "Aucune donnée disponible dans le tableau"
+msgstr ""
+
+#: templates/datatables.html:100
+msgid "Premier"
+msgstr ""
+
+#: templates/datatables.html:101
+msgid "Pr&eacute;c&eacute;dent"
+msgstr ""
+
+#: templates/datatables.html:103
+msgid "Dernier"
+msgstr ""
+
+#: templates/datatables.html:106
+msgid ": activer pour trier la colonne par ordre croissant"
+msgstr ""
+
+#: templates/datatables.html:107
+msgid ": activer pour trier la colonne par ordre décroissant"
+msgstr ""
+
+#: templates/datatables.html:122
+msgid "Imprimer"
+msgstr ""
+
+#: templates/datatables.html:123
+msgid "Appuiez sur <Esc> quand vous avez terminé !"
+msgstr ""
+
+#: units/models.py:24
+msgid "Utilisé pour la synchronisation des accréditations"
+msgstr ""
+
+#: units/models.py:28
+msgid "Cocher si cette unité est une commission de l'AGEPoly"
+msgstr ""
+
+#: units/models.py:29
+msgid "Cocher si cette unité est une équipe de l'AGEPoly"
+msgstr ""
+
+#: units/models.py:30
+msgid ""
+"Cocher rend l'unité inselectionnable au niveau du contexte d'unité, sauf "
+"pour les administrateurs et les personnes accréditées comité de l'AGEPoly"
+msgstr ""
+
+#: units/models.py:32
+msgid ""
+"Pour les commissions et les équipes, sélectionner le comité de l'AGEPoly. "
+"Pour les sous-commisions, sélectionner la commission parente. Pour un "
+"coaching de section, sélectionner la commission Coaching. Pour le comité de "
+"l'AGEPoly, ne rien mettre."
+msgstr ""
+
+#: units/models.py:37 units/models.py:46
+msgid "Commission ?"
+msgstr ""
+
+#: units/models.py:38 units/models.py:47
+msgid "Équipe ?"
+msgstr ""
+
+#: units/models.py:39 units/models.py:48
+msgid "Cachée ?"
+msgstr ""
+
+#: units/models.py:40 units/models.py:49
+msgid "Parent"
+msgstr ""
+
+#: units/models.py:41 units/models.py:50
+msgid "Président"
+msgstr ""
+
+#: units/models.py:51
+msgid "ID EPFL"
+msgstr ""
+
+#: units/models.py:63
+msgid "Liste de toutes les unités"
+msgstr ""
+
+#: units/models.py:69
+msgid ""
+"Les unités sont les différents groupes de l'AGEPoly (Comité de l'AGEPoly, "
+"commissions, équipes, etc.)\n"
+"\n"
+"Les unités sont organisées en arbre hiérarchique, avec le Comité de "
+"l'AGEPoly au sommet."
+msgstr ""
+
+#: units/models.py:254
+msgid ""
+"Au moins une accéditation existe avec cette unité, impossible de supprimer "
+"l'unité (NB: Historique compris)."
+msgstr ""
+
+#: units/models.py:279
+msgid "Mettre ici l'ID accred du rôle pour la synchronisation EPFL"
+msgstr ""
+
+#: units/models.py:281
+msgid ""
+"Il n'est pas possible d'accréditer la même personne dans la même unité "
+"plusieurs fois. Le rôle avec le plus PETIT ordre sera pris en compte"
+msgstr ""
+
+#: units/models.py:283
+msgid "Nécessite validation"
+msgstr ""
+
+#: units/models.py:283
+msgid ""
+"A cocher pour indiquer que le comité de l'AGEPoly doit valider l'attribution "
+"du rôle"
+msgstr ""
+
+#: units/models.py:286
+msgid "Présidence"
+msgstr ""
+
+#: units/models.py:287
+msgid "Trésorerie"
+msgstr ""
+
+#: units/models.py:292
+msgid "Secrétariat"
+msgstr ""
+
+#: units/models.py:293 units/templates/units/selector/menu_unit.html:18
+msgid "Commissions"
+msgstr ""
+
+#: units/models.py:308 units/models.py:316
+msgid "ID EPFL ?"
+msgstr ""
+
+#: units/models.py:309 units/models.py:317
+msgid "Validation ?"
+msgstr ""
+
+#: units/models.py:310 units/models.py:318
+msgid "Ordre"
+msgstr ""
+
+#: units/models.py:329
+msgid "Liste de tous les rôles"
+msgstr ""
+
+#: units/models.py:335
+msgid ""
+"Les rôles sont les différents type d'accréditations possibles pour une "
+"unité.\n"
+"\n"
+"Certains rôles donnent des accès particuliers.\n"
+"Par exemple, le rôle 'Trésorier' donne l'accès TRÉSORERIE. Les droits sont "
+"gérés en fonction des accès !"
+msgstr ""
+
+#: units/models.py:356
+msgid ""
+"Au moins une accréditation existe avec ce rôle, impossible de supprimer le "
+"rôle (NB: Historique compris)"
+msgstr ""
+
+#: units/models.py:370
+msgid ""
+"Précision optionnelle à afficher dans Truffe. Peut être utilisé pour "
+"préciser la fonction, par exemple: \"Responsable Réseau\" pour une "
+"accréditation de Responsable Informatique."
+msgstr ""
+
+#: units/models.py:372
+msgid "Désactiver syncronisation EPFL"
+msgstr ""
+
+#: units/models.py:372
+msgid "A cocher pour ne pas synchroniser cette accréditation au niveau EPFL"
+msgstr ""
+
+#: units/models.py:373
+msgid "Cacher au niveau EPFL"
+msgstr ""
+
+#: units/models.py:373
+msgid "A cocher pour ne pas rendre public l'accréditation au niveau EPFL"
+msgstr ""
+
+#: units/models.py:374
+msgid "Cacher dans Truffe"
+msgstr ""
+
+#: units/models.py:374
+msgid ""
+"A cocher pour ne pas rendre public l'accréditation au niveau truffe (sauf "
+"aux accréditeurs sur la page d'accréditation)"
+msgstr ""
+
+#: units/models.py:389
+msgid "Peut supprimer le dernier président"
+msgstr ""
+
+#: units/models.py:390
+msgid "Valider les changements"
+msgstr ""
+
+#: units/models.py:447 units/templates/units/accreds/logs_list.html:23
+msgid "Accréditation"
+msgstr ""
+
+#: units/models.py:471
+msgid "Créée"
+msgstr ""
+
+#: units/models.py:472
+msgid "Modifiée"
+msgstr ""
+
+#: units/models.py:473
+msgid "Supprimée"
+msgstr ""
+
+#: units/models.py:474
+msgid "Supprimée automatiquement"
+msgstr ""
+
+#: units/models.py:475
+msgid "Renouvelée"
+msgstr ""
+
+#: units/models.py:476
+msgid "Validée"
+msgstr ""
+
+#: units/models.py:486 units/models.py:507
+msgid "Valide pour les sous-unités"
+msgstr ""
+
+#: units/models.py:486
+msgid ""
+"Si sélectionné, les accès supplémentaires dans l'unité courante seront aussi "
+"valides dans les sous-unités"
+msgstr ""
+
+#: units/models.py:488
+msgid ""
+"(Optionnel !) L'utilisateur concerné. L'utilisateur doit disposer d'une "
+"accréditation dans l'unité."
+msgstr ""
+
+#: units/models.py:489
+msgid "(Optionnel !) Le rôle concerné."
+msgstr ""
+
+#: units/models.py:499 units/models.py:505
+#: units/templates/units/accreds/list.html:24
+#: users/templates/users/users/myunit_list.html:27
+msgid "Rôle"
+msgstr ""
+
+#: units/models.py:506
+msgid "Accès supplémentaires"
+msgstr ""
+
+#: units/models.py:515
+msgid "Délégation d'accès"
+msgstr ""
+
+#: units/models.py:516
+msgid "Liste de toutes les délégations d'accès"
+msgstr ""
+
+#: units/models.py:526
+msgid ""
+"Les délégations d'accès permettent de donner des accès supplémentaires dans "
+"une unité.\n"
+"\n"
+"Les accès sont normalement déterminés en fonction des accréditations, au "
+"niveau global.\n"
+"Par exemple, une personne accréditée en temps que 'Trésorier' dans une unité "
+"disposera de l'accès TRESORERIE pour l'unité.\n"
+"\n"
+"Avec les délégations d'accês, il est par exemple possible de donner l'accès "
+"\"COMMUNICATION\" à tout les membres d'une unité en créant une délégations "
+"d'accès.\n"
+"\n"
+"Il est aussi possible de restreindre une délégation â un utilisateur ou à un "
+"rôle particulier."
+msgstr ""
+
+#: units/models.py:543
+#, python-format
+msgid "Accês supplémentaire n°%s"
+msgstr ""
+
+#: units/models.py:555
+msgid "Délégation #{}"
+msgstr ""
+
+#: units/views.py:147
+msgid "Accréditations renouvelées !"
+msgstr ""
+
+#: units/views.py:149
+msgid "Accréditation renouvelée !"
+msgstr ""
+
+#: units/views.py:235 units/views.py:370
+msgid "Accréditation sauvegardée !"
+msgstr ""
+
+#: units/views.py:278
+msgid "Accréditations supprimées !"
+msgstr ""
+
+#: units/views.py:280
+msgid "Accréditation supprimée !"
+msgstr ""
+
+#: units/views.py:314
+msgid "Accréditations validées !"
+msgstr ""
+
+#: units/views.py:316
+msgid "Accréditation validée !"
+msgstr ""
+
+#: units/templates/units/accreds/add.html:12
+msgid "Nouvelle accréditation"
+msgstr ""
+
+#: units/templates/units/accreds/add.html:23
+msgid ""
+"Ferme cette fenêtre et utilise le sélecteur en haut à droite si tu veux "
+"changer d'unité"
+msgstr ""
+
+#: units/templates/units/accreds/add.html:42
+#: units/templates/units/accreds/edit.html:40
+msgid ""
+"Tu dois notifier et justifier auprès du comité de l\\\\\\'AGEPoly toutes les "
+"accréditations utilisant ce rôle !"
+msgstr ""
+
+#: units/templates/units/accreds/delete.html:25
+msgid "Impossible de supprimer l'accréditation de"
+msgstr ""
+
+#: units/templates/units/accreds/delete.html:25
+#: units/templates/units/accreds/delete.html:33
+#: units/templates/units/accreds/edit.html:19
+#: units/templates/units/accreds/renew.html:26
+#: units/templates/units/accreds/validate.html:26
+msgid "dans l'unité"
+msgstr ""
+
+#: units/templates/units/accreds/delete.html:27
+#: units/templates/units/accreds/edit.html:21
+msgid "Il faut au moins un président accrédité !"
+msgstr ""
+
+#: units/templates/units/accreds/delete.html:33
+msgid "Vous êtes sur le point de supprimer l'accréditation de"
+msgstr ""
+
+#: units/templates/units/accreds/delete.html:35
+msgid ""
+"Vous êtes sur le point de supprimer les accréditations suivantes dans l'unité"
+msgstr ""
+
+#: units/templates/units/accreds/edit.html:12
+msgid "Modification d'accréditation"
+msgstr ""
+
+#: units/templates/units/accreds/edit.html:19
+msgid "Impossible de modifier l'accréditation de"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:12
+msgid "Liste de toutes les accréditations"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:25
+msgid "Début"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:26
+msgid "Synchronisation EPFL"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:27
+msgid "Visible EPFL"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:28
+msgid "Visible Truffe"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:29
+msgid "Expiration automatique"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:39
+msgid ""
+"Effectuer une action sur les <span id='doable_nb'></span> accrédiations(s) "
+"sélectionné(s) :"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:43
+#: units/templates/units/accreds/renew.html:45
+msgid "Renouveler"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:61
+msgid "Ajouter une accréditation"
+msgstr ""
+
+#: units/templates/units/accreds/list.html:72
+msgid ""
+"\n"
+"                    Les accréditations permettent d'ajouter officiellement "
+"une personne dans une unité et de lui donner un rôle particulier.<br /><br /"
+">\n"
+"                    Certains rôles donnent des accès particuliers (exemple: "
+"Trésorier donne l'accès TRÉSORERIE). Les accès déterminent les droits dans "
+"Truffe.<br /><br />\n"
+"                    Les accéditations sont, sauf configuration contraire, "
+"synchronisées avec les accréditations de l'EFPL. Ceci peut prendre jusqu'a "
+"48h avant d'être effectif.<br /><br />\n"
+"                    Les accéditations se propagent au niveau des unités "
+"inférieurs : par exemple, une personne accéditée en temps que Président de "
+"Coaching diposera aussi du rôle Président dans Coaching Physique. Par "
+"contre, une seule accréditation EPFL est créée, au niveau Coaching.<br /"
+"><br />\n"
+"                    Il doit toujours y avoir un président dans une unité: il "
+"n'est pas possible de supprimer le dernier président !\n"
+"                  "
+msgstr ""
+
+#: units/templates/units/accreds/list_json.html:10
+#: users/templates/users/users/profile.html:83
+msgid "Pas validé par le comité de l\\'AGEPoly !"
+msgstr ""
+
+#: units/templates/units/accreds/list_json.html:15
+msgid "Accréditation échue le"
+msgstr ""
+
+#: units/templates/units/accreds/list_json.html:16
+msgid "Renouveler pour un an !"
+msgstr ""
+
+#: units/templates/units/accreds/renew.html:4
+#: units/templates/units/accreds/renew.html:9
+msgid "Renouvelement"
+msgstr ""
+
+#: units/templates/units/accreds/renew.html:26
+msgid "Vous êtes sur le point de renouveler l'accréditation de"
+msgstr ""
+
+#: units/templates/units/accreds/renew.html:28
+msgid ""
+"Vous êtes sur le point de renouveler les accréditations suivantes dans "
+"l'unité"
+msgstr ""
+
+#: units/templates/units/accreds/validate.html:4
+#: units/templates/units/accreds/validate.html:9
+msgid "Validation"
+msgstr ""
+
+#: units/templates/units/accreds/validate.html:26
+msgid "Vous êtes sur le point de valider l'accréditation de"
+msgstr ""
+
+#: units/templates/units/accreds/validate.html:28
+msgid ""
+"Vous êtes sur le point de valider les accréditations suivantes dans l'unité"
+msgstr ""
+
+#: units/templates/units/selector/menu_unit.html:34
+msgid "Équipes"
+msgstr ""
+
+#: units/templates/units/selector/unit_selector.html:8
+msgid "Tu travailles actuellement avec l'unité"
+msgstr ""
+
+#: units/templates/units/selector/unit_selector.html:44
+msgid ""
+"Malheureusement, tu ne disposes pas des droits nécessaires pour afficher "
+"cette liste, dans aucune unité !"
+msgstr ""
+
+#: units/templates/units/selector/unit_selector.html:100
+msgid "Aucun droit !"
+msgstr ""
+
+#: units/templates/units/unit/show.html:12
+#: users/templates/users/users/profile.html:83
+msgid "depuis le"
+msgstr ""
+
+#: units/templates/units/unit/show.html:16
+msgid "Page d'accréditation"
+msgstr ""
+
+#: users/forms.py:14
+msgid "Entrez votre adresse mail"
+msgstr ""
+
+#: users/models.py:38
+msgid "Sciper ou username"
+msgstr ""
+
+#: users/models.py:41 users/templates/users/users/myunit_pdf.html:27
+msgid "Adresse email"
+msgstr ""
+
+#: users/models.py:42 users/models.py:181
+msgid "Adresse email privée"
+msgstr ""
+
+#: users/models.py:43
+msgid ""
+"Défini si cet utilisateur doit être considéré comme actif. Désactiver ceci "
+"au lieu de supprimer le compte."
+msgstr ""
+
+#: users/models.py:44
+msgid "Betatesteur"
+msgstr ""
+
+#: users/models.py:44
+msgid "Rend visible les éléments en cours de développement"
+msgstr ""
+
+#: users/models.py:45
+msgid "Date d'inscription"
+msgstr ""
+
+#: users/models.py:49
+msgid "Pour la poste, mets Postfinance. Sinon, mets le nom de ta banque."
+msgstr ""
+
+#: users/models.py:50
+msgid "Pour la poste, mets ton CCP. Sinon, mets ton IBAN"
+msgstr ""
+
+#: users/models.py:55
+msgid ""
+"Si pas renseigné, utilise la photo EPFL. Si pas de photo EPFL publique, "
+"utilise un poney."
+msgstr ""
+
+#: users/models.py:63
+msgid "User"
+msgstr ""
+
+#: users/models.py:64
+msgid "Users"
+msgstr ""
+
+#: users/models.py:73
+msgid "Peut créer un nouvel utilisateur"
+msgstr ""
+
+#: users/models.py:74
+msgid "Peut editer un utilisateur"
+msgstr ""
+
+#: users/models.py:75
+msgid "Peut afficher un utilisateur"
+msgstr ""
+
+#: users/models.py:76
+msgid "Peut utiliser la recherche sans filtrage préliminaire"
+msgstr ""
+
+#: users/models.py:177 users/templates/users/users/profile.html:52
+msgid "Mobile"
+msgstr ""
+
+#: users/models.py:179 users/templates/users/users/profile.html:67
+msgid "Nom banque"
+msgstr ""
+
+#: users/models.py:180 users/templates/users/users/profile.html:71
+msgid "IBAN ou CCP"
+msgstr ""
+
+#: users/models.py:187
+msgid "Privé"
+msgstr ""
+
+#: users/models.py:188
+msgid "Membres de mes groupes"
+msgstr ""
+
+#: users/models.py:189
+msgid "Accrédités AGEPoly"
+msgstr ""
+
+#: users/models.py:190
+msgid "Public"
+msgstr ""
+
+#: users/views.py:130 users/views.py:245
+msgid "Profil sauvegardé !"
+msgstr ""
+
+#: users/views.py:225
+msgid "Truffe :: Nouveau compte"
+msgstr ""
+
+#: users/templates/registration/password_change_form.html:4
+#: users/templates/users/users/create_external.html:5
+#: users/templates/users/users/edit.html:4
+#: users/templates/users/users/list.html:4
+#: users/templates/users/users/myunit_list.html:4
+#: users/templates/users/users/profile.html:4
+msgid "Utilisateurs"
+msgstr ""
+
+#: users/templates/registration/password_change_form.html:4
+#: users/templates/registration/password_change_form.html:11
+#: users/templates/registration/password_change_form.html:15
+msgid "Changement de mot de passe"
+msgstr ""
+
+#: users/templates/registration/password_reset_confirm.html:12
+msgid "Nouveau mot de passe"
+msgstr ""
+
+#: users/templates/registration/password_reset_confirm.html:21
+msgid "Changer le mot de passe"
+msgstr ""
+
+#: users/templates/registration/password_reset_confirm.html:26
+msgid ""
+"Le lien est invalide, probablement car il a déjà été utilisé. Merci d'en "
+"demander un nouveau."
+msgstr ""
+
+#: users/templates/registration/password_reset_email.html:3
+msgid ""
+"Tu reçois cet email car tu as demandé à récupérer ton mot de passe sur "
+"Truffe."
+msgstr ""
+
+#: users/templates/registration/password_reset_email.html:5
+msgid ""
+"Merci de cliquer sur le lien ci-dessous et de choisir un nouveau mot de "
+"passe :"
+msgstr ""
+
+#: users/templates/registration/password_reset_email.html:8
+msgid "Ton username, au cas où tu l'as oublié, est :"
+msgstr ""
+
+#: users/templates/registration/password_reset_email_html.html:6
+#, python-format
+msgid ""
+"\n"
+"      Tu reçois cet email car tu as demandé à récupérer ton mot de passe sur "
+"Truffe.<br />\n"
+"      Merci de cliquer sur le lien ci-dessous et de choisir un nouveau mot "
+"de passe \n"
+"      <a href=\"%(protocol)s://%(domain)s%(link)s\">%(protocol)s://%(domain)s"
+"%(link)s</a><br />\n"
+"      Ton username, au cas où tu l'as oublié, est : %(username)s.\n"
+"    "
+msgstr ""
+
+#: users/templates/users/login/login.html:10
+msgid "L'intranet de l'AGEPoly. Version 2 !"
+msgstr ""
+
+#: users/templates/users/login/login.html:12
+msgid ""
+"\n"
+"                    Grâce à Truffe 2 tu peux gérer ta commission, y compris "
+"ses accréditations, les documents comptables, etc.\n"
+"                    Tu peux aussi réserver du matériel ou une salle de "
+"l'AGEPoly.\n"
+"                "
+msgstr ""
+
+#: users/templates/users/login/login.html:18
+msgid "Site de l'AGEPoly"
+msgstr ""
+
+#: users/templates/users/login/login.html:27
+msgid "Ceci est une nouvelle version de Truffe"
+msgstr ""
+
+#: users/templates/users/login/login.html:29
+msgid ""
+"\n"
+"                        Cette version est en production mais est développée "
+"en permanance, des choses peuvent ne pas fonctionner. Signales les bugs aux "
+"autorités compétentes ! (truffe [at] agepoly.ch).\n"
+"                    "
+msgstr ""
+
+#: users/templates/users/login/login.html:35
+#: users/templates/users/login/login.html:79
+msgid "Connexion"
+msgstr ""
+
+#: users/templates/users/login/login.html:37
+msgid ""
+"\n"
+"                        Tu veux probablement te logger avec ton compte "
+"Tequila. Les comptes Truffe sont réservés aux externes qui n'ont pas de "
+"compte Tequila.\n"
+"                        Clique sur le bouton bleu en dessous du formulaire "
+"de login !\n"
+"                    "
+msgstr ""
+
+#: users/templates/users/login/login.html:51
+msgid "Se connecter (compte Truffe)"
+msgstr ""
+
+#: users/templates/users/login/login.html:56
+msgid "Username"
+msgstr ""
+
+#: users/templates/users/login/login.html:60
+msgid "Entrez votre username"
+msgstr ""
+
+#: users/templates/users/login/login.html:65
+msgid "Mot de passe"
+msgstr ""
+
+#: users/templates/users/login/login.html:69
+msgid "Entrez votre mot de passe"
+msgstr ""
+
+#: users/templates/users/login/login.html:72
+msgid "Mot de passe oublié?"
+msgstr ""
+
+#: users/templates/users/login/login.html:78
+#: users/templates/users/login/login.html:130
+msgid "Se connecter via Tequila"
+msgstr ""
+
+#: users/templates/users/login/login.html:86
+msgid "Mot de passe oublié"
+msgstr ""
+
+#: users/templates/users/login/login.html:92
+msgid "Mot de passe retrouvé !"
+msgstr ""
+
+#: users/templates/users/login/login.html:96
+msgid "Récupérer le mot de passe"
+msgstr ""
+
+#: users/templates/users/login/login.html:104
+msgid "Se connecter"
+msgstr ""
+
+#: users/templates/users/login/login.html:110
+msgid ""
+"\n"
+"                                La connexion se fait via Tequila, le service "
+"de login de<br /> l'EPFL.\n"
+"                            "
+msgstr ""
+
+#: users/templates/users/login/login.html:118
+msgid ""
+"\n"
+"                                Si tu n'as pas de compte Tequila, tu peux te "
+"logger via<br /> un compte Truffe.\n"
+"                            "
+msgstr ""
+
+#: users/templates/users/login/login.html:123
+msgid "Connexion non-Tequila"
+msgstr ""
+
+#: users/templates/users/users/create_external.html:5
+msgid "Création d'un utilisateur"
+msgstr ""
+
+#: users/templates/users/users/create_external.html:10
+msgid "Création d'utilisateur"
+msgstr ""
+
+#: users/templates/users/users/create_external.html:14
+msgid "Création d'un compte"
+msgstr ""
+
+#: users/templates/users/users/create_external.html:27
+msgid "Créer"
+msgstr ""
+
+#: users/templates/users/users/edit.html:29
+msgid "Changer de mot de passe"
+msgstr ""
+
+#: users/templates/users/users/list.html:13
+msgid "Liste de toutes les personnes"
+msgstr ""
+
+#: users/templates/users/users/list.html:24
+#: users/templates/users/users/myunit_list.html:24
+msgid "Sciper"
+msgstr ""
+
+#: users/templates/users/users/list.html:45
+msgid "Créer un nouveau compte"
+msgstr ""
+
+#: users/templates/users/users/myunit_list.html:4
+#: users/templates/users/users/myunit_list.html:8
+msgid "Annuaire de l'unité"
+msgstr ""
+
+#: users/templates/users/users/myunit_list.html:13
+msgid "Liste de toutes les personnes dans mon unité"
+msgstr ""
+
+#: users/templates/users/users/myunit_list.html:43
+msgid "VCARD de l'unité"
+msgstr ""
+
+#: users/templates/users/users/myunit_list.html:47
+msgid "PDF de l'unité"
+msgstr ""
+
+#: users/templates/users/users/myunit_list.html:52
+msgid "PDF de l'unité (sans titres)"
+msgstr ""
+
+#: users/templates/users/users/myunit_pdf.html:20
+msgid "Liste des membres du"
+msgstr ""
+
+#: users/templates/users/users/myunit_pdf.html:20
+msgid "comité"
+msgstr ""
+
+#: users/templates/users/users/myunit_pdf.html:24
+msgid "Poste"
+msgstr ""
+
+#: users/templates/users/users/myunit_pdf.html:28
+msgid "Téléphone"
+msgstr ""
+
+#: users/templates/users/users/profile.html:4
+msgid "Profil"
+msgstr ""
+
+#: users/templates/users/users/profile.html:13
+msgid "(C'est vous !)"
+msgstr ""
+
+#: users/templates/users/users/profile.html:22
+msgid "Username/sciper"
+msgstr ""
+
+#: users/templates/users/users/profile.html:24
+msgid "Email"
+msgstr ""
+
+#: users/templates/users/users/profile.html:27
+msgid "Email privé"
+msgstr ""
+
+#: users/templates/users/users/profile.html:35
+msgid "Est admin ?"
+msgstr ""
+
+#: users/templates/users/users/profile.html:37
+msgid "Est betatesteur ?"
+msgstr ""
+
+#: users/templates/users/users/profile.html:89
+#: vehicles/templates/vehicles/booking/switch_status.html:20
+msgid "du"
+msgstr ""
+
+#: users/templates/users/users/profile.html:89
+#: vehicles/templates/vehicles/booking/switch_status.html:20
+msgid "au"
+msgstr ""
+
+#: users/templates/users/users/profile.html:103
+msgid "VCard"
+msgstr ""
+
+#: users/templates/users/users/mail/newuser_html.html:7
+#, python-format
+msgid ""
+"\n"
+"        Un compte vient d'etre créé avec ton adresse email, ton nom "
+"d'utilisateur est : %(username)s.<br />\n"
+"      Le mot de passe a été généré automatiquement : %(psw)s<br />\n"
+"      N'oublies pas <a href=\"https://%(domain)s%(link)s\">de le changer "
+"lors de ta première connexion</a>.\n"
+"    "
+msgstr ""
+
+#: users/templates/users/users/mail/newuser_plain.txt:4
+#, python-format
+msgid ""
+"\n"
+"Un compte vient d'etre créé avec ton adresse email, ton nom d'utilisateur "
+"est : %(username)s\n"
+"Le mot de passe a été généré automatiquement : %(psw)s\n"
+"N'oublies pas de le changer lors de ta première connexion ici : http://"
+"%(domain)s%(link)s.\n"
+msgstr ""
+
+#: vehicles/models.py:36
+msgid "Liste des fournisseurs"
+msgstr ""
+
+#: vehicles/models.py:42
+msgid "Les entreprises fournissant des services de locations de véhicules."
+msgstr ""
+
+#: vehicles/models.py:72 vehicles/models.py:79 vehicles/models.py:121
+#: vehicles/models.py:130 vehicles/models.py:232 vehicles/models.py:245
+#: vehicles/templates/vehicles/booking/pdf.html:29
+msgid "Fournisseur"
+msgstr ""
+
+#: vehicles/models.py:89
+msgid "Types de véhicule"
+msgstr ""
+
+#: vehicles/models.py:90
+msgid "Liste des types de véhicules"
+msgstr ""
+
+#: vehicles/models.py:96
+msgid "Les différents types de véhicules, par fournisseur"
+msgstr ""
+
+#: vehicles/models.py:125 vehicles/models.py:135
+msgid "Usage exclusif"
+msgstr ""
+
+#: vehicles/models.py:125
+msgid "Ne peut pas être utilisé plusieurs fois en même temps ?"
+msgstr ""
+
+#: vehicles/models.py:144
+msgid "Liste des cartes"
+msgstr ""
+
+#: vehicles/models.py:150
+msgid "Les différentes cartes utilisées pour les réservations"
+msgstr ""
+
+#: vehicles/models.py:178 vehicles/models.py:186
+msgid "URL carte lieu"
+msgstr ""
+
+#: vehicles/models.py:194
+msgid "Liste des lieux"
+msgstr ""
+
+#: vehicles/models.py:200
+msgid "Les lieux de récupération des locations"
+msgstr ""
+
+#: vehicles/models.py:228 vehicles/models.py:251
+#: vehicles/templates/vehicles/booking/pdf.html:36
+msgid "Motif"
+msgstr ""
+
+#: vehicles/models.py:230 vehicles/models.py:253
+msgid "Remarques AGEPoly"
+msgstr ""
+
+#: vehicles/models.py:233 vehicles/models.py:246
+msgid "Type de véhicule"
+msgstr ""
+
+#: vehicles/models.py:234 vehicles/models.py:254 vehicles/models.py:321
+#: vehicles/templates/vehicles/booking/pdf.html:31
+msgid "Carte"
+msgstr ""
+
+#: vehicles/models.py:237
+msgid "Début de la réservation"
+msgstr ""
+
+#: vehicles/models.py:238
+msgid "Fin de la résrvation"
+msgstr ""
+
+#: vehicles/models.py:260
+msgid "Réservations de véhicule"
+msgstr ""
+
+#: vehicles/models.py:261
+msgid "Liste de toutes les réservations de véhicules"
+msgstr ""
+
+#: vehicles/models.py:276
+msgid ""
+"Les réservations de véhicules te permettent de demander la location d'un "
+"véhicule pour ton unité.\n"
+"\n"
+"Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut "
+"toujours faire les réservations le plus tôt possible !"
+msgstr ""
+
+#: vehicles/models.py:280
+msgid "La liste de toutes les réservations de véhicules."
+msgstr ""
+
+#: vehicles/models.py:310
+msgid ""
+"La réservation est en cours de modération. Elle n'est pas éditable. "
+"Sélectionner ce statut pour demander une modération !"
+msgstr ""
+
+#: vehicles/models.py:313
+msgid ""
+"La modération a été refusée. Le véhicule n'était probablement pas disponible."
+msgstr ""
+
+#: vehicles/models.py:387
+msgid "La carte n'est pas lié au fournisseur sélectionné"
+msgstr ""
+
+#: vehicles/models.py:390
+msgid "Le type de véhicule n'est pas lié au fournisseur sélectionné"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/edit.html:10
+msgid "Informations temporelles"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/edit.html:16
+msgid "Type de réservation"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/pdf.html:5
+#: vehicles/templates/vehicles/booking/show.html:5
+msgid "Réservation de véhicule"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/pdf.html:17
+msgid "Date de prise en charge"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/pdf.html:19
+msgid "Date de retour"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/pdf.html:25
+msgid "Téléphone responsable"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/pdf.html:30
+msgid "Type véhicule"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/pdf.html:38
+msgid "Remarque AGEPoly"
+msgstr ""
+
+#: vehicles/templates/vehicles/booking/switch_status.html:8
+msgid "Cette carte est déjà utilisée pour la réservation"
+msgstr ""
