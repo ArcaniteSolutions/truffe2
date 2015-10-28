@@ -1227,10 +1227,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         return super(_ExpenseClaim, self).rights_can_EDIT(user)
 
     def rights_can_LIST(self, user):
-        if not self.costcenter_id:
-            return True
-
-        return super(_ExpenseClaim, self).rights_can_EDIT(user)
+        return True  # Tout le monde peut lister les notes de frais de n'importe quelle unité (à noter qu'il y a un sous filtre qui affiche que les NDF que l'user peut voir dans la liste)
 
     def genericFormExtraClean(self, data, form):
         if 'user' in data and not data['user'].is_profile_ok():
