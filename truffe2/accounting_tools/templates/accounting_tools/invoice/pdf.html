@@ -168,7 +168,13 @@
     {% endif %}
 
     {% if invoice.display_bvr %}
-        {% trans "Nous vous remercions de bien vouloir payer ce montant à 30 jours sur le compte de l'AGEPoly au moyen de bulletin de versement annexé." %}
+        {% if invoice.delay > 0 %}
+            {% blocktrans with d=invoice.delay %}
+                Nous vous remercions de bien vouloir payer ce montant à {{d}} jours sur le compte de l'AGEPoly au moyen de bulletin de versement annexé.
+            {% endblocktrans %}
+        {% else %}
+            {% trans "Nous vous remercions de bien vouloir payer ce montant sur le compte de l'AGEPoly au moyen de bulletin de versement annexé." %}
+        {% endif %}
         <br /><br />
 
     {% endif %}
@@ -177,7 +183,14 @@
         {% if invoice.display_bvr %}
             {% trans "Vous pouvez aussi effectuer le paiement sur le compte suivant :" %}<br />
         {% else %}
-            {% trans "Nous vous remercions de bien vouloir payer ce montant à 30 jours sur le compte suivant :" %}
+
+            {% if invoice.delay > 0 %}
+                {% blocktrans with d=invoice.delay %}
+                    Nous vous remercions de bien vouloir payer ce montant à {{d}} jours sur le compte suivante :
+                {% endblocktrans %}
+            {% else %}
+                {% trans "Nous vous remercions de bien vouloir payer ce montant sur le compte suivant :" %}
+            {% endif %}
         {% endif %}
 
         <br />

@@ -315,6 +315,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
     sign = models.TextField(_(u'Signature'), help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
+    delay = models.SmallIntegerField(_(u'Nombre de jours de délais'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délais pour le payement.'))
+    english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
 
     class MetaData:
         list_display = [
