@@ -315,7 +315,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
     sign = models.TextField(_(u'Signature'), help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
-    delay = models.SmallIntegerField(_(u'Nombre de jours de délais'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délais pour le payement.'))
+    delay = models.SmallIntegerField(_(u'Délay de payement en jours'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délais pour le payement.'))
     english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
 
     class MetaData:
@@ -333,9 +333,11 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('ending', _(u'Conclusion')),
             ('display_bvr', _(u'Afficher paiement via BVR')),
             ('display_account', _(u'Afficher paiement via compte')),
+            ('delay', _(u'Délay de payement en jours')),
             ('greetings', _(u'Salutations')),
             ('sign', _(u'Signature')),
             ('annex', _(u'Annexes')),
+            ('english', _(u'Facture en anglais')),
 
         ]
         filter_fields = ('title', )
@@ -356,7 +358,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
         not_sortable_columns = ['get_reference', 'get_bvr_number']
-        yes_or_no_fields = ['display_bvr', 'display_account', 'annex']
+        yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english']
 
     class MetaEdit:
 
@@ -647,6 +649,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
                 raise forms.ValidationError(_(u'Numéro BVR invalide (Doit commencer par 94 42100)'))
 
             data['custom_bvr_number'] = "{} {} {} {} {} {}".format(bvr[:2], bvr[2:7], bvr[7:12], bvr[12:17], bvr[17:22], bvr[22:])
+
+    def get_language(self):
+
+        return 'en-us' if self.english else 'fr-ch'
 
 
 class InvoiceLine(ModelUsedAsLine):

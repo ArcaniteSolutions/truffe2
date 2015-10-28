@@ -1,7 +1,10 @@
 # Django settings for truffe2 project.
 
+from django.utils.translation import ugettext_lazy as _
+
 from os.path import abspath, dirname, join, normpath
 DJANGO_ROOT = dirname(abspath(__file__)) + '/../'
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -24,7 +27,16 @@ TIME_ZONE = 'Europe/Zurich'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-ch'
+
+LANGUAGES = (
+    ('en-us', _('English')),
+    ('fr-ch', _('French')),
+)
+
+LOCALE_PATHS = (
+    normpath(join(DJANGO_ROOT, 'locale')) + '/',
+)
 
 SITE_ID = 1
 
