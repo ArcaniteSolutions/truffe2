@@ -141,3 +141,7 @@
 .main-placeholder {
     height: 200px;
 }
+
+.login-info img {
+    max-height: 27px;
+}
