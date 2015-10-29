@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-28 18:30+0100\n"
-"PO-Revision-Date: 2015-10-29 10:17+0100\n"
+"POT-Creation-Date: 2015-10-29 19:11+0100\n"
+"PO-Revision-Date: 2015-10-29 19:12+0100\n"
 "Last-Translator: Maximilien Cuony <theglu@theglu.org>\n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -73,7 +73,7 @@ msgstr ""
 #: accounting_main/models.py:320 accounting_main/models.py:533
 #: accounting_tools/models.py:74 accounting_tools/models.py:324
 #: accounting_tools/models.py:705 accounting_tools/models.py:897
-#: accounting_tools/models.py:1133 accounting_tools/models.py:1305
+#: accounting_tools/models.py:1133 accounting_tools/models.py:1302
 #: communication/models.py:29 communication/models.py:89
 #: logistics/models.py:116 logistics/models.py:369 main/models.py:48
 #: members/models.py:32 vehicles/models.py:247
@@ -200,7 +200,7 @@ msgstr ""
 #: accounting_core/utils.py:15 accounting_main/models.py:536
 #: accounting_tools/models.py:80 accounting_tools/models.py:708
 #: accounting_tools/models.py:900 accounting_tools/models.py:1136
-#: accounting_tools/models.py:1308
+#: accounting_tools/models.py:1305
 msgid "Année comptable"
 msgstr ""
 
@@ -359,8 +359,8 @@ msgstr ""
 
 #: accounting_core/models.py:445 accounting_main/models.py:38
 #: accounting_tools/models.py:386 accounting_tools/models.py:665
-#: accounting_tools/models.py:1193 accounting_tools/models.py:1267
-#: accounting_tools/models.py:1361 accounting_tools/models.py:1470
+#: accounting_tools/models.py:1193 accounting_tools/models.py:1264
+#: accounting_tools/models.py:1358 accounting_tools/models.py:1467
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:137
 msgid "TVA"
 msgstr "VAT"
@@ -502,7 +502,7 @@ msgstr ""
 #: accounting_main/templates/accounting_main/import/step2.html:72
 #: accounting_main/templates/accounting_main/import/step2.html:117
 #: accounting_main/templates/accounting_main/import/step2.html:154
-#: accounting_tools/models.py:1355 accounting_tools/models.py:1463
+#: accounting_tools/models.py:1352 accounting_tools/models.py:1460
 #: accounting_tools/templates/accounting_tools/cashbook/pdf.html:23
 #: notifications/templates/notifications/center/index.html:41
 msgid "Date"
@@ -531,7 +531,7 @@ msgstr "VAT %"
 #: accounting_main/templates/accounting_main/import/step2.html:116
 #: accounting_main/templates/accounting_main/import/step2.html:153
 #: accounting_tools/models.py:896 accounting_tools/models.py:1130
-#: accounting_tools/models.py:1302
+#: accounting_tools/models.py:1299
 #: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:56
 msgid "Centre de coûts"
 msgstr ""
@@ -709,8 +709,8 @@ msgstr ""
 #: accounting_main/models.py:531 accounting_tools/models.py:118
 #: accounting_tools/models.py:323 accounting_tools/models.py:383
 #: accounting_tools/models.py:662 accounting_tools/models.py:1129
-#: accounting_tools/models.py:1189 accounting_tools/models.py:1301
-#: accounting_tools/models.py:1357 communication/models.py:16
+#: accounting_tools/models.py:1189 accounting_tools/models.py:1298
+#: accounting_tools/models.py:1354 communication/models.py:16
 #: communication/models.py:26 communication/models.py:77
 #: communication/models.py:86 logistics/models.py:22 logistics/models.py:37
 #: logistics/models.py:101 logistics/models.py:112 logistics/models.py:272
@@ -820,8 +820,8 @@ msgid "Budget"
 msgstr ""
 
 #: accounting_main/models.py:785 accounting_tools/models.py:701
-#: accounting_tools/models.py:1191 accounting_tools/models.py:1265
-#: accounting_tools/models.py:1359 accounting_tools/models.py:1468
+#: accounting_tools/models.py:1191 accounting_tools/models.py:1262
+#: accounting_tools/models.py:1356 accounting_tools/models.py:1465
 #: accounting_tools/templates/accounting_tools/internaltransfer/multiple_pdf.html:56
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:209
 msgid "Compte"
@@ -975,7 +975,7 @@ msgid "Ajouter une recette"
 msgstr ""
 
 #: accounting_main/templates/accounting_main/budget/edit.html:21
-#: accounting_tools/models.py:1132 accounting_tools/models.py:1304
+#: accounting_tools/models.py:1132 accounting_tools/models.py:1301
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:138
 msgid "Total"
 msgstr ""
@@ -1380,16 +1380,16 @@ msgid "Affiche 'Annexe(s): ment.' en bas de la facture"
 msgstr ""
 
 #: accounting_tools/models.py:318 accounting_tools/models.py:336
-msgid "Délay de payement en jours"
+msgid "Délai de paiement en jours"
 msgstr ""
 
 #: accounting_tools/models.py:318
 msgid ""
-"Mettre zéro pour cacher le texte. Il s'agit du nombre de jours de délais "
-"pour le payement."
+"Mettre zéro pour cacher le texte. Il s'agit du nombre de jours de délai pour "
+"le paiement."
 msgstr ""
 
-#: accounting_tools/models.py:319
+#: accounting_tools/models.py:319 app/settings.py:35
 msgid "Anglais"
 msgstr ""
 
@@ -1432,7 +1432,7 @@ msgid ""
 msgstr ""
 
 #: accounting_tools/models.py:375 accounting_tools/models.py:1181
-#: accounting_tools/models.py:1346
+#: accounting_tools/models.py:1343
 msgid "Lignes"
 msgstr ""
 
@@ -1446,8 +1446,8 @@ msgid "Montant unitaire (HT)"
 msgstr ""
 
 #: accounting_tools/models.py:387 accounting_tools/models.py:666
-#: accounting_tools/models.py:1194 accounting_tools/models.py:1268
-#: accounting_tools/models.py:1362 accounting_tools/models.py:1471
+#: accounting_tools/models.py:1194 accounting_tools/models.py:1265
+#: accounting_tools/models.py:1359 accounting_tools/models.py:1468
 msgid "Montant (TTC)"
 msgstr ""
 
@@ -1460,7 +1460,7 @@ msgid "Envoyée / paiement en attente"
 msgstr ""
 
 #: accounting_tools/models.py:416
-msgid "Archivée / Payement reçu"
+msgid "Archivée / Paiement reçu"
 msgstr ""
 
 #: accounting_tools/models.py:417
@@ -1476,7 +1476,9 @@ msgid "La facture nécessite un vrai BVR, en attente d'attribution"
 msgstr ""
 
 #: accounting_tools/models.py:425
-msgid "La facture a été envoyée, le paiement est en attente."
+msgid ""
+"La facture a été envoyée, le paiement est en attente. La facture n'est plus "
+"éditable !"
 msgstr ""
 
 #: accounting_tools/models.py:426
@@ -1796,16 +1798,16 @@ msgid "Titre de la note de frais"
 msgstr ""
 
 #: accounting_tools/models.py:1124 accounting_tools/models.py:1136
-#: accounting_tools/models.py:1292 accounting_tools/models.py:1308
+#: accounting_tools/models.py:1289 accounting_tools/models.py:1305
 msgid "Nombre de justificatifs"
 msgstr ""
 
 #: accounting_tools/models.py:1125 accounting_tools/models.py:1136
-#: accounting_tools/models.py:1293 accounting_tools/models.py:1308
+#: accounting_tools/models.py:1290 accounting_tools/models.py:1305
 msgid "Commentaire"
 msgstr ""
 
-#: accounting_tools/models.py:1131 accounting_tools/models.py:1303
+#: accounting_tools/models.py:1131 accounting_tools/models.py:1300
 #: units/templates/units/accreds/list.html:23
 msgid "Personne"
 msgstr ""
@@ -1819,7 +1821,7 @@ msgid "Liste des notes de frais"
 msgstr ""
 
 #: accounting_tools/models.py:1145 accounting_tools/models.py:1173
-#: accounting_tools/models.py:1317 accounting_tools/models.py:1338
+#: accounting_tools/models.py:1314 accounting_tools/models.py:1335
 msgid "Justificatifs"
 msgstr ""
 
@@ -1839,47 +1841,47 @@ msgstr ""
 msgid "Justificatifs pour le remboursement de la note de frais."
 msgstr ""
 
-#: accounting_tools/models.py:1190 accounting_tools/models.py:1263
-#: accounting_tools/models.py:1358 accounting_tools/models.py:1466
+#: accounting_tools/models.py:1190 accounting_tools/models.py:1260
+#: accounting_tools/models.py:1355 accounting_tools/models.py:1463
 #: accounting_tools/templates/accounting_tools/cashbook/pdf.html:25
 #: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:16
 msgid "Justificatif"
 msgstr ""
 
-#: accounting_tools/models.py:1192 accounting_tools/models.py:1266
-#: accounting_tools/models.py:1360 accounting_tools/models.py:1469
+#: accounting_tools/models.py:1192 accounting_tools/models.py:1263
+#: accounting_tools/models.py:1357 accounting_tools/models.py:1466
 msgid "Montant (HT)"
 msgstr ""
 
-#: accounting_tools/models.py:1237 accounting_tools/models.py:1415
+#: accounting_tools/models.py:1234 accounting_tools/models.py:1412
 msgid "Le profil de cet utilisateur doit d'abord être completé."
 msgstr ""
 
-#: accounting_tools/models.py:1241 accounting_tools/models.py:1419
+#: accounting_tools/models.py:1238 accounting_tools/models.py:1416
 msgid ""
 "Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un "
 "d'autre."
 msgstr ""
 
-#: accounting_tools/models.py:1262 accounting_tools/models.py:1465
+#: accounting_tools/models.py:1259 accounting_tools/models.py:1462
 #: accounting_tools/templates/accounting_tools/cashbook/pdf.html:24
 #: accounting_tools/templates/accounting_tools/expenseclaim/pdf.html:15
 msgid "Concerne"
 msgstr ""
 
-#: accounting_tools/models.py:1290
+#: accounting_tools/models.py:1287
 msgid "Titre du journal de caisse"
 msgstr ""
 
-#: accounting_tools/models.py:1315 templates/base.html:436
+#: accounting_tools/models.py:1312 templates/base.html:436
 msgid "Journaux de caisse"
 msgstr ""
 
-#: accounting_tools/models.py:1316
+#: accounting_tools/models.py:1313
 msgid "Liste des journaux de caisse"
 msgstr ""
 
-#: accounting_tools/models.py:1329
+#: accounting_tools/models.py:1326
 msgid ""
 "Les journaux de caisse servent à justifier des dépenses et des recettes "
 "liées à des versements à la banque ou des retraits cash.\n"
@@ -1891,60 +1893,60 @@ msgid ""
 "en 2 lignes."
 msgstr ""
 
-#: accounting_tools/models.py:1339
+#: accounting_tools/models.py:1336
 msgid "Justificatifs liés aux lignes du journal de caisse."
 msgstr ""
 
-#: accounting_tools/models.py:1356
+#: accounting_tools/models.py:1353
 #: main/templates/main/last_100_logging_entries.html:18
 #: main/templates/main/search.html:41
 #: notifications/templates/notifications/center/index.html:42
 msgid "Type"
 msgstr ""
 
-#: accounting_tools/models.py:1373
+#: accounting_tools/models.py:1370
 msgid "Archiver le retrait cash lié?"
 msgstr ""
 
-#: accounting_tools/models.py:1405
+#: accounting_tools/models.py:1402
 msgid ""
 "L'utilisateur responsable et/ou le centre de coûts ne correspondent pas au "
 "retrait cash lié."
 msgstr ""
 
-#: accounting_tools/models.py:1426
+#: accounting_tools/models.py:1423
 msgid "Retrait cash lié"
 msgstr ""
 
-#: accounting_tools/models.py:1451
+#: accounting_tools/models.py:1448
 msgid "J'ai fait un retrait cash : "
 msgstr ""
 
-#: accounting_tools/models.py:1452
+#: accounting_tools/models.py:1449
 msgid "J'ai fait un versement à la banque : "
 msgstr ""
 
-#: accounting_tools/models.py:1453
+#: accounting_tools/models.py:1450
 msgid "J'ai vendu quelque chose : "
 msgstr ""
 
-#: accounting_tools/models.py:1454
+#: accounting_tools/models.py:1451
 msgid "J'ai payé une facture avec la caisse : "
 msgstr ""
 
-#: accounting_tools/models.py:1455
+#: accounting_tools/models.py:1452
 msgid "J'ai acheté quelque chose avec la caisse : "
 msgstr ""
 
-#: accounting_tools/models.py:1456
+#: accounting_tools/models.py:1453
 msgid "J'ai remboursé quelqu'un avec la caisse : "
 msgstr ""
 
-#: accounting_tools/models.py:1457
+#: accounting_tools/models.py:1454
 msgid "Je fais un Crédit manuel : "
 msgstr ""
 
-#: accounting_tools/models.py:1458
+#: accounting_tools/models.py:1455
 msgid "Je fais un Débit manuel : "
 msgstr ""
 
@@ -2159,7 +2161,7 @@ msgstr "You can also make the payment to the following account:"
 msgid ""
 "\n"
 "                        Nous vous remercions de bien vouloir payer ce "
-"montant à %(d)s jours sur le compte suivante :\n"
+"montant à %(d)s jours sur le compte suivant :\n"
 "                    "
 msgstr ""
 "\n"
@@ -2302,12 +2304,8 @@ msgid ""
 "le justifier dans les 2 mois."
 msgstr ""
 
-#: app/settings.py:33
-msgid "English"
-msgstr ""
-
-#: app/settings.py:34
-msgid "French"
+#: app/settings.py:36
+msgid "Français"
 msgstr ""
 
 #: app/utils.py:26 units/templates/units/selector/unit_selector.html:24

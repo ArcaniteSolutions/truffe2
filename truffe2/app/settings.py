@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Django settings for truffe2 project.
 
 from django.utils.translation import ugettext_lazy as _
@@ -30,8 +32,8 @@ TIME_ZONE = 'Europe/Zurich'
 LANGUAGE_CODE = 'fr-ch'
 
 LANGUAGES = (
-    ('en-us', _('English')),
-    ('fr-ch', _('French')),
+    ('en-us', _(u'Anglais')),
+    ('fr-ch', _(u'Français')),
 )
 
 LOCALE_PATHS = (

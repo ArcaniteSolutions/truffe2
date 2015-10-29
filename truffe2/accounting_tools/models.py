@@ -315,7 +315,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
     sign = models.TextField(_(u'Signature'), help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
-    delay = models.SmallIntegerField(_(u'Délay de payement en jours'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délais pour le payement.'))
+    delay = models.SmallIntegerField(_(u'Délai de paiement en jours'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délai pour le paiement.'))
     english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
 
     class MetaData:
@@ -333,7 +333,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('ending', _(u'Conclusion')),
             ('display_bvr', _(u'Afficher paiement via BVR')),
             ('display_account', _(u'Afficher paiement via compte')),
-            ('delay', _(u'Délay de payement en jours')),
+            ('delay', _(u'Délai de paiement en jours')),
             ('greetings', _(u'Salutations')),
             ('sign', _(u'Signature')),
             ('annex', _(u'Annexes')),
@@ -413,7 +413,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             '0_preparing': _(u'En préparation'),
             '1_need_bvr': _(u'En attente d\'un numéro BVR'),
             '2_sent': _(u'Envoyée / paiement en attente'),
-            '3_archived': _(u'Archivée / Payement reçu'),
+            '3_archived': _(u'Archivée / Paiement reçu'),
             '4_canceled': _(u'Annulée'),
         }
 
