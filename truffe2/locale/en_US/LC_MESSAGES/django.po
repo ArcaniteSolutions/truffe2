@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-28 18:30+0100\n"
-"PO-Revision-Date: 2015-10-28 18:36+0100\n"
+"PO-Revision-Date: 2015-10-29 10:17+0100\n"
 "Last-Translator: Maximilien Cuony <theglu@theglu.org>\n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -2140,19 +2140,19 @@ msgid ""
 "                "
 msgstr ""
 "\n"
-"Please pay that amount within %(d)s days on AGEPoly's account with the "
-"annexed payment slip ."
+"Please pay that amount within %(d)s days to AGEPoly's account with the "
+"enclosed payment slip."
 
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:177
 msgid ""
 "Nous vous remercions de bien vouloir payer ce montant sur le compte de "
 "l'AGEPoly au moyen de bulletin de versement annexé."
 msgstr ""
-"Please pay that amount on AGEPoly's account with the annexed payment slip ."
+"Please pay that amount to AGEPoly's account with the enclosed payment slip."
 
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:185
 msgid "Vous pouvez aussi effectuer le paiement sur le compte suivant :"
-msgstr "You can also make the payment on the following account:"
+msgstr "You can also make the payment to the following account:"
 
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:189
 #, python-format
@@ -2163,12 +2163,12 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"Please pay that amount within %(d)s days on the following account:"
+"Please pay that amount within %(d)s days to the following account:"
 
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:193
 msgid ""
 "Nous vous remercions de bien vouloir payer ce montant sur le compte suivant :"
-msgstr "Please pay that amount on the following account:"
+msgstr "Please pay that amount to the following account:"
 
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:201
 msgid "Banque"
