@@ -634,7 +634,12 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 tags = [t.tag for t in obj.tags.all()] if obj.pk else []
 
         if file_mode:
-            files = [file_class.objects.get(pk=pk_) for pk_ in request.session['pca_files_%s' % (file_key,)]]
+            if 'pca_files_%s' % (file_key,) in request.session:
+                files = [file_class.objects.get(pk=pk_) for pk_ in request.session['pca_files_%s' % (file_key,)]]
+            else:
+                files = None
+                messages.warning(request, _(u'Erreur lors de la récupération de la session pour la gestion des fichiers. Il est possible que le formulaire aie été sauvegardé deux fois. Vérifiez si l\'état actuel des fichiers correspond à ce que vous désirez !'))
+
         else:
             files = None
 
@@ -1367,7 +1372,11 @@ def generate_file_upload(module, base_name, model_class, log_class, file_class):
         }
 
         # Can't do it in one line !
-        file_list = request.session['pca_files_%s' % (key,)]
+        try:
+            file_list = request.session['pca_files_%s' % (key,)]
+        except KeyError:
+            return HttpResponseNotFound()
+
         file_list.append(instance.pk)
         request.session['pca_files_%s' % (key,)] = file_list
 

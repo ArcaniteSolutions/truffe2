@@ -315,6 +315,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
     sign = models.TextField(_(u'Signature'), help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
+    delay = models.SmallIntegerField(_(u'Délai de paiement en jours'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délai pour le paiement.'))
+    english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
 
     class MetaData:
         list_display = [
@@ -331,9 +333,11 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('ending', _(u'Conclusion')),
             ('display_bvr', _(u'Afficher paiement via BVR')),
             ('display_account', _(u'Afficher paiement via compte')),
+            ('delay', _(u'Délai de paiement en jours')),
             ('greetings', _(u'Salutations')),
             ('sign', _(u'Signature')),
             ('annex', _(u'Annexes')),
+            ('english', _(u'Facture en anglais')),
 
         ]
         filter_fields = ('title', )
@@ -354,7 +358,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
         not_sortable_columns = ['get_reference', 'get_bvr_number']
-        yes_or_no_fields = ['display_bvr', 'display_account', 'annex']
+        yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english']
 
     class MetaEdit:
 
@@ -409,7 +413,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             '0_preparing': _(u'En préparation'),
             '1_need_bvr': _(u'En attente d\'un numéro BVR'),
             '2_sent': _(u'Envoyée / paiement en attente'),
-            '3_archived': _(u'Archivée / Payement reçu'),
+            '3_archived': _(u'Archivée / Paiement reçu'),
             '4_canceled': _(u'Annulée'),
         }
 
@@ -418,7 +422,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states_texts = {
             '0_preparing': _(u'La facture est en cours de rédaction'),
             '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
-            '2_sent': _(u'La facture a été envoyée, le paiement est en attente.'),
+            '2_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
             '3_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
             '4_canceled': _(u'La facture a été annulée'),
         }
@@ -645,6 +649,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
                 raise forms.ValidationError(_(u'Numéro BVR invalide (Doit commencer par 94 42100)'))
 
             data['custom_bvr_number'] = "{} {} {} {} {} {}".format(bvr[:2], bvr[2:7], bvr[7:12], bvr[12:17], bvr[17:22], bvr[22:])
+
+    def get_language(self):
+
+        return 'en-us' if self.english else 'fr-ch'
 
 
 class InvoiceLine(ModelUsedAsLine):
@@ -1219,10 +1227,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
         return super(_ExpenseClaim, self).rights_can_EDIT(user)
 
     def rights_can_LIST(self, user):
-        if not self.costcenter_id:
-            return True
-
-        return super(_ExpenseClaim, self).rights_can_EDIT(user)
+        return True  # Tout le monde peut lister les notes de frais de n'importe quelle unité (à noter qu'il y a un sous filtre qui affiche que les NDF que l'user peut voir dans la liste)
 
     def genericFormExtraClean(self, data, form):
         if 'user' in data and not data['user'].is_profile_ok():
