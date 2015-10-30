@@ -747,7 +747,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
     def rights_can_EDIT(self, user):
         if int(self.status[0]) > 0:
-            return False
+            return self.rights_in_root_unit(user, self.MetaRightsUnit.access)
 
         return super(_Budget, self).rights_can_EDIT(user)
 
