@@ -204,7 +204,7 @@ class UserPrivacy(models.Model):
     def user_can_access(user_reader, user_readed, field):
         level = UserPrivacy.get_privacy_for_field(user_readed, field)
 
-        if user_reader == user_readed or user_reader.is_superuser or user_readed.rights_can('EDIT', user_reader):
+        if user_reader == user_readed or user_readed.rights_can('EDIT', user_reader) or self.rights_in_root_unit(user_reader, access='TRESORERIE'):
             return True
         else:
             if level == 'public':
