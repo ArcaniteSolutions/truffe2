@@ -2,7 +2,8 @@
 {% load i18n humanize %}
 
 {% block title %}
-    <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">{% trans "Demande de retrait cash" %}</h1>
+    <h1 style="text-align: center; font-size: 32px; padding-top: 1cm; padding-top:0px;">{% trans "Demande de retrait cash" %}</h1>
+    <h1 style="text-align: center; padding-top:-50px; margin-bottom:0px">{{object.name}}</h1>
 {% endblock %}
 
 {% block post_linkedinfo %}
