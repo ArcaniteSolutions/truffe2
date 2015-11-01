@@ -438,7 +438,7 @@ class Accreditation(models.Model, UnitEditableModel, SearchableModel):
         notify_people(request, 'Accreds.ToValidate', 'accreds_tovalidate', self, dest_users)
 
     def __unicode__(self):
-        return '%s (%s)' % (self.user, self.get_role_or_display_name())
+        return u'%s (%s)' % (self.user, self.get_role_or_display_name())
 
     def display_url(self):
         return '%s?upk=%s' % (reverse('units.views.accreds_list'), self.unit.pk,)
@@ -474,6 +474,7 @@ class AccreditationLog(models.Model):
         ('autodeleted', _(u'Supprimée automatiquement')),
         ('renewed', _(u'Renouvelée')),
         ('validated', _(u'Validée')),
+        ('autocreated', _(u'Crée automatiquement')),
     ]
 
     type = models.CharField(max_length=32, choices=TYPE_CHOICES)

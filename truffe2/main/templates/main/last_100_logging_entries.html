@@ -40,7 +40,7 @@
                                     </td>
                                     <td>{{info.who}}</td>
                                     <td>{{info.get_what_display}}</td>
-                                    <td>{{info.when}}</td>
+                                    <td>{{info.when|date:"d.m.Y"}} {{info.when|time:"H:i:s"}}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
