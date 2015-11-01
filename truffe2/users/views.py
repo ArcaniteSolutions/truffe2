@@ -259,7 +259,7 @@ def ldap_search(request):
     if retour:
         internal = filter(lambda x: not x.username_is_sciper(), internal)
 
-    retour += map(lambda x: {'id': x.username, 'text': '%s - %s %s (%s)%s' % (x.username, x.first_name, x.last_name, x.email, _(u'(Pas dans l\'annuaire EPFL !)') if x.username_is_sciper() and not retour else '')}, internal)
+    retour += map(lambda x: {'id': x.username, 'text': '{} - {} {} ({}){}'.format(x.username, x.first_name, x.last_name, x.email, _(u'(Pas dans l\'annuaire EPFL !)') if x.username_is_sciper() and not retour else '')}, internal)
 
     return HttpResponse(json.dumps(retour))
 
