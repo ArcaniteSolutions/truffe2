@@ -10,6 +10,7 @@ import datetime
 
 from notifications.utils import notify_people
 from units.models import Unit, AccreditationLog
+from users.models import TruffeUser
 
 
 class Command(BaseCommand):
@@ -18,6 +19,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         days_before_warnings = [30, 15, 7, 3, 2, 1]
+
+        system_user = TruffeUser.objects.get(pk=settings.SYSTEM_USER_PK)
 
         # On travaille par unité
         for u in Unit.objects.filter(deleted=False):
@@ -43,7 +46,7 @@ class Command(BaseCommand):
                     a.end_date = now()
                     a.save()
 
-                    AccreditationLog(accreditation=a, who=a.user, what='autodeleted').save()
+                    AccreditationLog(accreditation=a, who=system_user, what='autodeleted').save()
 
                     to_delete.append(a)
 
