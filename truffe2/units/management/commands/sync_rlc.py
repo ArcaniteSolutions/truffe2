@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
             for accred in unit.accreditation_set.filter(end_date=None, role__pk__in=roles):
 
-                rlc_accred, created = Accreditation.objects.get_or_create(unit=rlc_unit, user=accred.user, end_date=None, role=rlc_role, display_name=u'{} {}'.format(settings.AUTO_RLC_TAG, accred.get_role_or_display_name()), no_epfl_sync=False, hidden_in_epfl=True, hidden_in_truffe=True, need_validation=False)
+                rlc_accred, created = Accreditation.objects.get_or_create(unit=rlc_unit, user=accred.user, end_date=None, role=rlc_role, display_name=u'{} {} ({})'.format(settings.AUTO_RLC_TAG, accred.get_role_or_display_name(), unit), no_epfl_sync=False, hidden_in_epfl=True, hidden_in_truffe=True, need_validation=False)
 
                 rlc_accred.renewal_date = accred.renewal_date
                 rlc_accred.save()
