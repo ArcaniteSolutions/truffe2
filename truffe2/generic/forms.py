@@ -55,7 +55,7 @@ class GenericForm(ModelForm):
             if 'costcenter' not in cleaned_data:
                 raise ValidationError(_(u'Aucun centre de coûts sélectionné !'))
 
-            if hasattr(self.instance, 'unit') and self.instance.unit != cleaned_data['costcenter'].unit:
+            if hasattr(self.instance, 'unit') and cleaned_data['costcenter'].unit.pk not in [self.instance.unit.pk] + map(lambda un: un.pk, self.instance.unit.sub_eqi() + self.instance.unit.sub_grp()):
                 raise ValidationError(_(u'Le centre de coût n\'est pas lié à l\'unité !'))
 
             if hasattr(self.instance, 'accounting_year') and self.instance.accounting_year != cleaned_data['costcenter'].accounting_year:

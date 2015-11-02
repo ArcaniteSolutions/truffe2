@@ -255,8 +255,11 @@ def ldap_search(request):
     retour = map(lambda (sciper, data): {'id': sciper, 'text': '%s - %s %s (%s)' % data}, results.iteritems())
 
     internal = TruffeUser.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(email__icontains=query))
-    internal = filter(lambda x: not x.username_is_sciper(), internal)
-    retour += map(lambda x: {'id': x.username, 'text': '%s - %s %s (%s)' % (x.username, x.first_name, x.last_name, x.email)}, internal)
+
+    if retour:
+        internal = filter(lambda x: not x.username_is_sciper(), internal)
+
+    retour += map(lambda x: {'id': x.username, 'text': '{} - {} {} ({}){}'.format(x.username, x.first_name, x.last_name, x.email, _(u'(Pas dans l\'annuaire EPFL !)') if x.username_is_sciper() and not retour else '')}, internal)
 
     return HttpResponse(json.dumps(retour))
 
