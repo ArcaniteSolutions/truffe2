@@ -1193,6 +1193,9 @@ def generate_calendar_specific(module, base_name, model_class):
         if not cobject.allow_externals and request.user.is_external():
             raise Http404()
 
+        if not cobject.allow_external_calendar and request.user.is_external():
+            raise Http404()
+
         return {'cobject': cobject}
 
     return generate_generic_list(module, base_name, model_class, '_calendar_specific_json', 'SHOW', 'SHOW', 'calendar_specific', False, bonus_args_transformator=_check_and_add_context)
@@ -1211,6 +1214,9 @@ def generate_calendar_specific_json(module, base_name, model_class):
         cobject = get_object_or_404(base_model, pk=pk, deleted=False, allow_calendar=True)
 
         if not cobject.allow_externals and request.user.is_external():
+            raise Http404()
+
+        if not cobject.allow_external_calendar and request.user.is_external():
             raise Http404()
 
         filter_ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): cobject.pk})
