@@ -78,7 +78,10 @@
 
                                                           {% if obj.allow_calendar %}
 
-                                                              <a href="{% url calendar_specific_view obj.pk %}" class="btn btn-info">{% trans "Calendrier" %}</a>
+                                                              {% if not user.is_external or obj.allow_external_calendar %}
+
+                                                                  <a href="{% url calendar_specific_view obj.pk %}" class="btn btn-info">{% trans "Calendrier" %}</a>
+                                                              {% endif %}
                                                           {% endif %}
 
                                                           <!-- Le droit est nécessaire -->

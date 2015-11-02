@@ -31,6 +31,7 @@ class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayVal
     conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation de la salle pour les externes. Remplace le champ \'Conditions\' pour les externe si rempli.'), blank=True)
 
     allow_calendar = models.BooleanField(_(u'Autoriser tout le monde à voir le calendrier'), help_text=_(u'Permet à tout le monde d\'afficher le calendrier des réservations de la salle'), default=True)
+    allow_external_calendar = models.BooleanField(_(u'Autoriser les externes à voir le calendrier'), help_text=_(u'Permet aux les externes d\'afficher le calendrier des réservations de la salle. Le calendrier doit être visible.'), default=True)
 
     class MetaData:
         list_display = [
@@ -283,6 +284,7 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
     conditions_externals = models.TextField(_(u'Conditions de réservation pour les externes'), help_text=_(u'Si tu veux préciser des informations sur la réservation du matériel pour les externes. Remplace le champ \'Conditions\' pour les externe si rempli.'), blank=True)
 
     allow_calendar = models.BooleanField(_(u'Autoriser tout le monde à voir le calendrier'), help_text=_(u'Permet à tout le monde d\'afficher le calendrier des réservations du matériel'), default=True)
+    allow_external_calendar = models.BooleanField(_(u'Autoriser les externes à voir le calendrier'), help_text=_(u'Permet aux les externes d\'afficher le calendrier des réservations du matériel. Le calendrier doit être visible.'), default=True)
 
     class MetaData:
         list_display = [
