@@ -233,7 +233,7 @@ CS_ACCOUNT_NUMBER = "1020 -"  # Label of account for Credit Suisse
 
 AUTO_RLC_UNIT_PK = 7  # The EPFL "Acces RLC" unit truffe's pk
 AUTO_RLC_TAG = u"[Auto]"  # The tag to identify our accreds
-AUTO_RLC_COMS_ROLES = [1, ]  # The roles used to give access for commissions
+AUTO_RLC_COMS_ROLES = [1, 3]  # The roles used to give access for commissions
 AUTO_RLC_ROOT_ROLES = [1, ]  # The roles used to give access for root unit
 AUTO_RLC_GIVEN_ROLE = 15
 
