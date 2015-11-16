@@ -19,8 +19,8 @@ from app.utils import generate_pdf
 
 def get_statistics(subventions):
     """Given a set of subventions, return statistics about comms and assocs."""
-    assoc = subventions.filter(unit=None).aggregate(Sum('amount_asked'), Sum('amount_given'), Sum('mobility_asked'), Sum('mobility_given'))
-    comms = subventions.exclude(unit=None).aggregate(Sum('amount_asked'), Sum('amount_given'), Sum('mobility_asked'), Sum('mobility_given'))
+    assoc = subventions.filter(unit=None, deleted=False).aggregate(Sum('amount_asked'), Sum('amount_given'), Sum('mobility_asked'), Sum('mobility_given'))
+    comms = subventions.exclude(unit=None).filter(deleted=False).aggregate(Sum('amount_asked'), Sum('amount_given'), Sum('mobility_asked'), Sum('mobility_given'))
 
     return {'asso_amount_asked': assoc['amount_asked__sum'], 'asso_amount_given': assoc['amount_given__sum'],
             'asso_mobility_asked': assoc['mobility_asked__sum'], 'asso_mobility_given': assoc['mobility_given__sum'],
@@ -38,7 +38,7 @@ def export_demands_yearly(request, ypk):
 
     try:
         ay = AccountingYear.objects.get(pk=ypk)
-        subventions = Subvention.objects.filter(accounting_year=ay).order_by('unit__name', 'unit_blank_name')
+        subventions = Subvention.objects.filter(accounting_year=ay, deleted=False).order_by('unit__name', 'unit_blank_name')
         if subventions:
             subventions = list(subventions) + [get_statistics(subventions)]
         subv = [(ay.name, subventions)]
@@ -59,7 +59,7 @@ def export_all_demands(request):
     years = AccountingYear.objects.filter(deleted=False).order_by('start_date')
     subventions = []
     for ay in years:
-        subv = Subvention.objects.filter(accounting_year=ay).order_by('unit__name', 'unit_blank_name')
+        subv = Subvention.objects.filter(accounting_year=ay, deleted=False).order_by('unit__name', 'unit_blank_name')
         if subv:
             subv = list(subv) + [get_statistics(subv)]
         subventions.append((ay.name, subv))
@@ -69,7 +69,7 @@ def export_all_demands(request):
     for unit_name in units:
         line = [unit_name]
         for year in years:
-            year_subv = Subvention.objects.filter(accounting_year=year).filter(Q(unit__name=unit_name) | Q(unit_blank_name=unit_name)).first()
+            year_subv = Subvention.objects.filter(accounting_year=year, deleted=False).filter(Q(unit__name=unit_name) | Q(unit_blank_name=unit_name)).first()
             if year_subv:
                 line += [year_subv.amount_asked, year_subv.amount_given, year_subv.mobility_asked, year_subv.mobility_asked]
             else:
