@@ -294,7 +294,7 @@ class UnitExternalEditableModel(BasicRightModel):
 
         if not get_property(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
             try:
-                return not self.unit_blank_user or self.unit_blank_user == user
+                return not self.unit_blank_user or self.unit_blank_user == user or (self.MetaRightsUnit.unit_ro_access and self.rights_in_root_unit(user)) or self.rights_in_root_unit(user, self.MetaRightsUnit.access)
             except:
                 return True  # Pas d'unité, ni d'users
 
@@ -308,7 +308,7 @@ class UnitExternalEditableModel(BasicRightModel):
 
         if not get_property(self, self.MetaRights.linked_unit_property):  # Pas d'unité. L'user doit être l'user
             try:
-                return not self.unit_blank_user or self.unit_blank_user == user
+                return not self.unit_blank_user or self.unit_blank_user == user or self.rights_in_root_unit(user, self.MetaRightsUnit.access)
             except:
                 return True  # Pas d'unité, ni d'users
 
