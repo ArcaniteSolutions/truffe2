@@ -233,7 +233,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
 
     def can_switch_to(self, user, dest_state):
 
-        if self.status == '0_preparing' and self.accounting_year.subvention_deadline and self.accounting_year.subvention_deadline < now():
+        if self.status == '0_draft' and self.accounting_year.subvention_deadline and self.accounting_year.subvention_deadline < now() and not self.rights_in_root_unit(user, self.MetaRightsUnit.access):
             return (False, _(u'Le délait est dépassé pour les subventions !'))
 
         if self.status == '2_treated' and not user.is_superuser:
