@@ -233,6 +233,9 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
 
     def can_switch_to(self, user, dest_state):
 
+        if self.status == '0_preparing' and self.accounting_year.subvention_deadline and self.accounting_year.subvention_deadline < now():
+            return (False, _(u'Le délait est dépassé pour les subventions !'))
+
         if self.status == '2_treated' and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état traité'))
 
@@ -268,6 +271,13 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
 
     def rights_can_EXPORT(self, user):
         return self.rights_in_root_unit(user)
+
+    def rights_can_EDIT(self, user):
+
+        if self.status[0] != '0' and not self.rights_in_root_unit(user):
+            return False
+
+        return super(_Subvention, self).rights_can_EDIT(user)
 
     def get_real_unit_name(self):
         return self.unit_blank_name or self.unit.name
