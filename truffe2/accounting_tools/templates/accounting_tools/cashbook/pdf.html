@@ -24,6 +24,7 @@
             <td style="width: 23%;"><b>{% trans "Concerne" %}</b></td>
             <td style="width: 17%;"><b>{% trans "Justificatif" %}</b></td>
             <td style="width: 29%;"><b>{% trans "Numéro de compte" %}</b></td>
+            <td style="width: 7%; text-align: center;"><b>{% trans "TVA" %}</b></td>
             <td style="width: 7%; text-align: center;"><b>{% trans "Entrée" %}</b></td>
             <td style="width: 7%; text-align: center;"><b>{% trans "Sortie" %}</b></td>
             <td style="width: 7%; text-align: center;"><b>{% trans "Solde" %}</b></td>
@@ -35,6 +36,7 @@
                 <td valign="top">{{line.label}}</td>
                 <td valign="top">{{line.proof}}</td>
                 <td valign="top">{{line.account}}</td>
+                <td valign="top" style="text-align: right;">{{line.tva|floatformat:"2"}}</td>
                 <td valign="top" style="text-align: right;">{{line.input_amount|intcomma}}</td>
                 <td valign="top" style="text-align: right;">{{line.output_amount|intcomma}}</td>
                 <td valign="top" style="text-align: right;">{{line.sub_total|intcomma}}</td>
