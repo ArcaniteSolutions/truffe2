@@ -193,7 +193,7 @@ def users_profile_picture(request, pk):
         else:
             shutil.copy(os.path.join(settings.MEDIA_ROOT, 'img', 'default_avatar.png'), file_cache)
 
-    return HttpResponseRedirect('{}/cache/users/{}.png'.format(settings.MEDIA_URL, user.pk))
+    return HttpResponseRedirect('{}cache/users/{}.png'.format(settings.MEDIA_URL, user.pk))
 
 
 @login_required
