@@ -237,6 +237,8 @@
                         {% endif %}
                     {% endfor %}
                 {% endfor %}
+
+                setTimeout("$('#form-actions').show();", 2000); //Ugly hack to wait on selects2
             {% else %}
                 {% if form.instance.pk %}
                     $.ajax('{% url 'accounting_main.views.budget_getinfos' form.instance.pk %}').done(function (data) {
@@ -256,9 +258,15 @@
                                 }
                             });
                         });
+
+                        setTimeout("$('#form-actions').show();", 2000); //Ugly hack to wait on selects2
                     });
+                {% else %}
+                    $('#form-actions').show();
                 {% endif %}
             {% endif %}
         }
     </script>
 {% endblock %}
+
+{% block form_actions_tag %} style="display: none;"{% endblock %}

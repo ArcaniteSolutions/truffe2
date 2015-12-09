@@ -282,13 +282,13 @@
 
         {% endif %}
 
-        <div class="form-actions">
+        <div class="form-actions" id="form-actions" {% block form_actions_tag %}{% endblock %}>
             <div class="row">
                 <div class="col-md-12">
                     <a href="{% if form.instance.pk %}{% url show_view form.instance.pk %}{% else %}{% url list_view %}{% endif %}" class="btn btn-default">{% trans "Annuler" %}</a>
-                    <button type="button" class="btn btn-primary" id="save_and_new" onclick="$('#post-save-dest').val('new'); $('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et créer un nouveau" %}</button>
-                    <button type="button" class="btn btn-primary" id="save_and_edit" onclick="$('#post-save-dest').val('continue'); $('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et continuer l'édition" %}</button>
-                    <button type="button" class="btn btn-primary" id="save" onclick="$('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
+                    <button type="button" class="btn btn-primary" id="save_and_new" onclick="$('#form-actions button').attr('disabled', 'disabled'); $('#post-save-dest').val('new'); $('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et créer un nouveau" %}</button>
+                    <button type="button" class="btn btn-primary" id="save_and_edit" onclick="$('#form-actions button').attr('disabled', 'disabled'); $('#post-save-dest').val('continue'); $('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder et continuer l'édition" %}</button>
+                    <button type="button" class="btn btn-primary" id="save" onclick="$('#form-actions button').attr('disabled', 'disabled'); $('#generic_main_form').submit();"><i class="glyphicon glyphicon-floppy-disk"></i> {% trans "Sauvegarder" %}</button>
                 </div>
             </div>
         </div>
