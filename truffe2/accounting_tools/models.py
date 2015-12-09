@@ -258,7 +258,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         """Check that unique_together is fulfiled"""
         from accounting_tools.models import Subvention
 
-        if Subvention.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), unit=get_current_unit(form.truffe_request), unit_blank_name=data['unit_blank_name']).count():
+        if Subvention.objects.exclude(pk=self.pk).filter(accounting_year=get_current_year(form.truffe_request), unit=get_current_unit(form.truffe_request), unit_blank_name=data['unit_blank_name'], deleted=False).count():
             raise forms.ValidationError(_(u'Une demande de subvention pour cette unité existe déjà pour cette année comptable.'))  # Potentiellement parmi les supprimées
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
