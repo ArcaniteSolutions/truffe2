@@ -48,7 +48,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
 
     class Meta:
         abstract = True
-        unique_together = (("unit", "unit_blank_name", "accounting_year"),)
+        # unique_together = (("unit", "unit_blank_name", "accounting_year"),)
 
     class MetaEdit:
         only_if = {
