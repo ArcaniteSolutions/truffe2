@@ -143,6 +143,9 @@ def accreds_renew(request, pk):
 
             AccreditationLog(accreditation=accred, who=request.user, type='renewed').save()
 
+            from notifications.utils import unotify_people
+            unotify_people('Accreds.Warning', accred)
+
         if multi_obj:
             messages.success(request, _(u'Accréditations renouvelées !'))
         else:
@@ -306,9 +309,10 @@ def accreds_validate(request, pk):
 
             AccreditationLog(accreditation=accred, who=request.user, type='validated').save()
 
-            from notifications.utils import notify_people
+            from notifications.utils import notify_people, unotify_people
             dest_users = accred.unit.users_with_access('ACCREDITATION', no_parent=True)
             notify_people(request, 'Accreds.Validated', 'accreds_validated', accred, dest_users)
+            unotify_people('Accreds.ToValidate', accred)
 
         if multi_obj:
             messages.success(request, _(u'Accréditations validées !'))
