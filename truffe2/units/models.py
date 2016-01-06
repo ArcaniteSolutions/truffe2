@@ -388,6 +388,7 @@ class Accreditation(models.Model, UnitEditableModel, SearchableModel):
         self.MetaRights.rights_update({
             'INGORE_PREZ': _(u'Peut supprimer le dernier président'),
             'VALIDATE': _(u'Valider les changements'),
+            'SHOW_ON_PROFILE': _(u'Afficher l\'accrédiation sur le profil de l\'utilisateur'),
         })
 
     def exp_date(self):
@@ -414,6 +415,12 @@ class Accreditation(models.Model, UnitEditableModel, SearchableModel):
             return self.rights_in_root_unit(user, self.MetaRightsUnit.access) and super(Accreditation, self).rights_can_SHOW(user)
         else:
             return super(Accreditation, self).rights_can_SHOW(user)
+
+    def rights_can_SHOW_ON_PROFILE(self, user):
+        if self.hidden_in_truffe:
+            return self.rights_can_SHOW(user)
+
+        return True  # Everone can see others people's accreds
 
     def check_if_validation_needed(self, request):
 
