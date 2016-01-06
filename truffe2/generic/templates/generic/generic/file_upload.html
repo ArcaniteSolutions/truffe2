@@ -38,15 +38,6 @@
                         <span>{% trans "Ajouter un fichier..." %}</span>
                         <input type="file" name="files[]" multiple {% if accepted_mime_types %}accept='{{ accepted_mime_types|join:"," }}' {% endif %}>
                     </span>
-
-                    <button type="button" class="btn btn-danger delete btn-xs">
-                        <i class="glyphicon glyphicon-trash"></i>
-                        <span>{% trans "Supprimer les fichiers sélectionnés" %}</span>
-                    </button>
-                </td>
-
-                <td style="border-top: none;">
-                    <input type="checkbox" class="toggle">
                 </td>
             </tr>
 
@@ -78,9 +69,6 @@
                             <i class="glyphicon glyphicon-trash"></i>
                             <span>{% trans "Supprimer" %}</span>
                         </button>
-                    </td>
-                    <td>
-                        <input type="checkbox" name="delete" value="1" class="toggle">
                     </td>
                 </tr>
             {% endfor %}
@@ -199,10 +187,6 @@
                     <span>{% trans "Annuler" %}</span>
                 </button>
             {{JQ_OPEN}} } {{JQ_CLOSE}}
-        </td>
-
-        <td>
-            <input type="checkbox" name="delete" value="1" class="toggle">
         </td>
     </tr>
 {{JQ_OPEN}} } {{JQ_CLOSE}}

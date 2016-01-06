@@ -379,7 +379,7 @@ class GenericFile(models.Model):
     def is_picture(self):
         type, __ = mimetypes.guess_type(self.file.path)
 
-        return type.startswith('image/')
+        return type and type.startswith('image/')
 
     def is_pdf(self):
         type, __ = mimetypes.guess_type(self.file.path)
