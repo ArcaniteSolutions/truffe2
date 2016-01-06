@@ -3,6 +3,6 @@
 
 {% block bonus_buttons %}
 
-<a href="{% url 'accounting_tools.views.withdrawal_pdf' obj.pk %}{% trans "Retrait Cash" %} {{obj.name}}.pdf" style="margin-left: 3px;" class="btn btn-primary"><i class="fa fa-download"></i>{% trans "Voir le PDF" %}</a>
+<a href="{% url 'accounting_tools.views.withdrawal_pdf' obj.pk %}{% trans "Retrait Cash" %} {{obj.name|urlencode}}.pdf" target="_blank" style="margin-left: 3px;" class="btn btn-primary"><i class="fa fa-download"></i>{% trans "Voir le PDF" %}</a>
 
 {% endblock %}

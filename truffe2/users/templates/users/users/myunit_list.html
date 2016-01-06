@@ -42,12 +42,12 @@
                         <i class="fa fa-download"></i>
                         {% trans "VCARD de l'unité" %}
                     </a>
-                    <a href="{% url 'users.views.users_myunit_pdf' %}" class="btn btn-primary">
+                    <a href="{% url 'users.views.users_myunit_pdf' %}" class="btn btn-primary" target="_blank">
                         <i class="fa fa-file-text"></i>
                         {% trans "PDF de l'unité" %}
                     </a>
 
-                    <a href="{% url 'users.views.users_myunit_pdf' %}?no_display=1" class="btn btn-primary">
+                    <a href="{% url 'users.views.users_myunit_pdf' %}?no_display=1" class="btn btn-primary" target="_blank">
                         <i class="fa fa-file-text"></i>
                         {% trans "PDF de l'unité (sans titres)" %}
                     </a>

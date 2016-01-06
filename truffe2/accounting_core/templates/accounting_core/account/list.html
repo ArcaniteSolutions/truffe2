@@ -3,7 +3,7 @@
 
 {% block extrabuttons %}
     {% ifhasright Model user '!SHOW' %}
-        <a href="{% url 'accounting_core.views.pdf_list_accounts' CURRENT_YEAR_PK %}" class="btn bg-color-teal txt-color-white">
+        <a href="{% url 'accounting_core.views.pdf_list_accounts' CURRENT_YEAR_PK %}" class="btn bg-color-teal txt-color-white" target="_blank">
             <i class="fa fa-download"></i>
             {% trans "Plan comptable" %}
         </a>
