@@ -388,7 +388,7 @@ class Accreditation(models.Model, UnitEditableModel, SearchableModel):
         self.MetaRights.rights_update({
             'INGORE_PREZ': _(u'Peut supprimer le dernier président'),
             'VALIDATE': _(u'Valider les changements'),
-            'SHOW_ON_PROFILE': _(u'Afficher l\'accrédiation sur le profil de l\'utilisateur'),
+            'SHOW_ON_PROFILE': _(u'Afficher l\'accréditation sur le profil de l\'utilisateur'),
         })
 
     def exp_date(self):

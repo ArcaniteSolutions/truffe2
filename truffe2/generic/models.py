@@ -883,7 +883,7 @@ class GenericAccountingStateModel(object):
         if self.status[0] in ['2', '3'] and not self.rights_in_root_unit(user, ['SECRETARIAT', 'TRESORERIE']) and not user.is_superuser:
             return (False, _(u'Seul l\'admin peut valider cet élément pour le moment. Merci de patienter.'))
 
-        if self.status[0] == '1' and not self.rights_in_linked_unit(user, 'TRESORERIE') and not self.rights_in_root_unit(user, ['SECRETARIAT', 'TRESORERIE']):
+        if self.status[0] == '1' and not self.rights_in_linked_unit(user, 'TRESORERIE') and not self.rights_in_root_unit(user, ['SECRETARIAT', 'TRESORERIE']) and not user.is_superuser:
             return (False, _(u'Seul ton trésorier peut valider cet élément pour le moment.'))
 
         if not self.rights_can('EDIT', user):
