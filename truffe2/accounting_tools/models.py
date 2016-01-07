@@ -331,6 +331,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     class MetaData:
         list_display = [
             ('title', _('Titre')),
+            ('get_creation_date', _(u'Date de création')),
             ('status', _('Statut')),
             ('costcenter', _(u'Centre de coût')),
             ('get_reference', _(u'Référence')),
@@ -357,7 +358,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-pencil-square-o'
 
-        default_sort = "[1, 'asc']"  # title
+        default_sort = "[2, 'desc']"  # creation_date (pk)
 
         menu_id = 'menu-compta-invoice'
 
@@ -367,8 +368,11 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
+        trans_sort = {'get_creation_date': 'pk'}
+
         not_sortable_columns = ['get_reference', 'get_bvr_number']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english']
+        datetime_fields = ['get_creation_date']
 
     class MetaEdit:
 
