@@ -103,8 +103,9 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight, SearchableM
         retour = u"""BEGIN:VCARD
 VERSION:3.0%s
 N:%s;%s
+FN:%s
 EMAIL;INTERNET:%s
-""" % (u'\nORG:{}'.format(add_unit) if add_unit else u'', self.last_name, self.first_name, self.email)
+""" % (u'\nORG:{}'.format(add_unit) if add_unit else u'', self.last_name, self.first_name, self.get_full_name(), self.email)
         if UserPrivacy.user_can_access(source_user, self, 'mobile'):
             retour += u"""TEL;CELL:%s
 """ % (self.mobile, )
