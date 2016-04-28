@@ -104,7 +104,7 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight, SearchableM
 VERSION:3.0%s
 N:%s;%s
 EMAIL;INTERNET:%s
-""" % (u'\nORG:{}'.format(add_unit) if add_unit else u'', self.first_name, self.last_name, self.email)
+""" % (u'\nORG:{}'.format(add_unit) if add_unit else u'', self.last_name, self.first_name, self.email)
         if UserPrivacy.user_can_access(source_user, self, 'mobile'):
             retour += u"""TEL;CELL:%s
 """ % (self.mobile, )
