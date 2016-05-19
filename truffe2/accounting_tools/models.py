@@ -331,11 +331,13 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
     delay = models.SmallIntegerField(_(u'Délai de paiement en jours'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délai pour le paiement.'))
     english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
+    reception_date = models.DateField(_(u'Date valeur banque'), help_text=_(u'Date de la réception du payment au niveau de la banque'), blank=True, null=True)
 
     class MetaData:
         list_display = [
             ('title', _('Titre')),
             ('get_creation_date', _(u'Date de création')),
+            ('reception_date', _(u'Date valeur banque')),
             ('status', _('Statut')),
             ('costcenter', _(u'Centre de coût')),
             ('get_reference', _(u'Référence')),
@@ -377,9 +379,11 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         not_sortable_columns = ['get_reference', 'get_bvr_number', 'get_total_display']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english']
-        datetime_fields = ['get_creation_date']
+        datetime_fields = ['get_creation_date', 'reception_date']
 
     class MetaEdit:
+
+        date_fields = ['reception_date']
 
         @staticmethod
         def set_extra_defaults(obj, request):
@@ -387,6 +391,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
             with translation.override('fr'):
                 obj.date_and_place = u'Lausanne, le {}'.format(_date(datetime.datetime.now(), u'd F Y'))
+
+        only_if = {
+            'reception_date': lambda (obj, user): user.is_superuser or obj.rights_in_root_unit(user, access='TRESORERIE'),
+        }
 
     class MetaLines:
         lines_objects = [
@@ -420,6 +428,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             'sign',
             'title',
             'get_bvr_number',
+            'reception_date',
         ]
 
         linked_lines = {
@@ -488,8 +497,21 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         class FormBVR(forms.Form):
             bvr = forms.CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
 
+        def build_form_date(request, obj):
+            class FormDate(forms.Form):
+                date = forms.DateField(label=_('Date valeur banque'), required=False, initial=now())
+
+                def __init__(self, *args, **kwargs):
+
+                    super(FormDate, self).__init__(*args, **kwargs)
+
+                    self.fields['date'].widget.attrs = {'isadate': 'true'}
+
+            return FormDate
+
         states_bonus_form = {
-            '0_preparing': FormBVR
+            '0_preparing': FormBVR,
+            '3_archived': build_form_date
         }
 
     def switch_status_signal(self, request, old_status, dest_status):
@@ -536,6 +558,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         if dest_status == '3_archived':
             unotify_people('%s.sent' % (self.__class__.__name__,), self)
             notify_people(request, '%s.done' % (self.__class__.__name__,), 'invoices_done', self, self.build_group_members_for_editors())
+
+            if request.POST.get('date'):
+                self.reception_date = request.POST['date']
+                self.save()
 
     def may_switch_to(self, user, dest_state):
 
@@ -605,8 +631,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def generate_bvr(self):
 
         F = 4.72
-
-        line_color = (0xED, 0xA7, 0x5F)
 
         ocr_b = ImageFont.truetype(os.path.join(settings.DJANGO_ROOT, 'media/fonts/OCR_BB.TTF'), int(42 * F))
 
