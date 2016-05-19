@@ -13,6 +13,7 @@ from generic.search import SearchableModel
 
 import re
 import time
+from schwifty import IBAN
 
 
 class TruffeUserManager(BaseUserManager):
@@ -169,6 +170,17 @@ EMAIL;INTERNET:%s
             'username',
             'email',
         ]
+
+    def save(self, *args, **kwargs):
+
+        if self.iban_ou_ccp:
+            try:
+                iban = IBAN(self.iban_ou_ccp)
+                self.iban_ou_ccp = iban.formatted
+            except:
+                pass
+
+        super(TruffeUser, self).save(*args, **kwargs)
 
 
 class UserPrivacy(models.Model):
