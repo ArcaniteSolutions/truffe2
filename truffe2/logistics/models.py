@@ -223,6 +223,9 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
             if not self.unit and not data['room'].allow_externals:
                 raise forms.ValidationError(_('Salle non disponible'))
 
+        if 'start_date' in data and 'end_date' in data and data['start_date'] > data['end_date']:
+            raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
+
     def get_room_infos(self):
         """Affiche les infos sur la salle pour une réservation"""
 
@@ -476,6 +479,9 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
             if not self.unit and not data['supply'].allow_externals:
                 raise forms.ValidationError(_(u'Matériel non disponible'))
+
+        if 'start_date' in data and 'end_date' in data and data['start_date'] > data['end_date']:
+            raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
 
     def get_supply_link(self):
         return '<a href="%s">%s</a>' % (reverse('logistics.views.supply_show', args=(self.supply.pk,)), self.supply,)
