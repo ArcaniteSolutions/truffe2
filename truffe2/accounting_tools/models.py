@@ -11,11 +11,15 @@ from django.template.defaultfilters import date as _date
 from django.utils import translation
 from django.utils.timezone import now
 from raven.contrib.django.models import client
+from django.contrib.humanize.templatetags.humanize import intcomma
+from django.template.defaultfilters import floatformat
+
 
 import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
 import os
+
 
 from accounting_core.models import AccountingGroupModels
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -336,6 +340,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('costcenter', _(u'Centre de coût')),
             ('get_reference', _(u'Référence')),
             ('get_bvr_number', _(u'Numéro de BVR')),
+            ('get_total_display', _(u'Total')),
         ]
         details_display = list_display + [
             ('address', _('Adresse')),
@@ -370,7 +375,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         trans_sort = {'get_creation_date': 'pk'}
 
-        not_sortable_columns = ['get_reference', 'get_bvr_number']
+        not_sortable_columns = ['get_reference', 'get_bvr_number', 'get_total_display']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english']
         datetime_fields = ['get_creation_date']
 
@@ -593,6 +598,9 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
     def get_total_ht(self):
         return sum([line.get_total_ht() for line in self.get_lines()])
+
+    def get_total_display(self):
+        return '{} CHF'.format(intcomma(floatformat(self.get_total(), 2)))
 
     def generate_bvr(self):
 
