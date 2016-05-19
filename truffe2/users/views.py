@@ -23,7 +23,6 @@ from users.forms import TruffeUserForm, TruffeCreateUserForm, TruffePasswordRese
 
 import json
 import os
-import phonenumbers
 import re
 import requests
 import shutil
@@ -118,10 +117,6 @@ def users_edit(request, pk):
 
         if form.is_valid():  # If the form is valid
             user = form.save()
-
-            if user.mobile:
-                user.mobile = phonenumbers.format_number(phonenumbers.parse(user.mobile, "CH"), phonenumbers.PhoneNumberFormat.E164)
-                user.save()
 
             for (field, value) in privacy_values.iteritems():
                 # At this point, the object should exist !
