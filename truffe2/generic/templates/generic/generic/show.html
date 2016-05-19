@@ -27,7 +27,11 @@
                                   {% if elem in Model.MetaData.yes_or_no_fields %}
                                       {% with val=obj|get_attr:elem %}{% include "generic/yesorno.html" %}{% endwith %}
                                   {% elif elem in Model.MetaData.datetime_fields %}
-                                      {{obj|get_attr:elem|date:"d.m.Y"}} {{obj|get_attr:elem|time:"H:i:s"|default_if_none:"&nbsp;"}}
+                                      {% if obj|get_attr:elem %}
+                                        {{obj|get_attr:elem|date:"d.m.Y"}} {{obj|get_attr:elem|time:"H:i:s"|default_if_none:"&nbsp;"}}
+                                      {% else %}
+                                        &nbsp;
+                                      {% endif %}
                                   {% elif elem in Model.MetaData.images_fields %}
                                       {% with w=obj|get_attr:elem %}
                                           <a href="{{MEDIA_URL}}{{w}}" class="thumbnail" data-lightbox="image-1" style="width: 110px; margin-top: 5px;"><img src="{% thumbnail w 100x100 crop %}" alt="" /></a>
