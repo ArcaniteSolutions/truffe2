@@ -12,5 +12,6 @@ class ImportForm(forms.Form):
     year = forms.ModelChoiceField(label=_(u'L\'année comptable'), queryset=AccountingYear.objects.filter(deleted=False).exclude(status='3_archived'))
     file = forms.FileField(label=_(u'Le fichier avec la compta'))
     type = forms.ChoiceField(label=_(u'Le type de fichier'), choices=[
+        ('tab_2016', _(u'Format TAB 2016')),
         ('csv_2014', _(u'Format CSV 2014')),
     ])

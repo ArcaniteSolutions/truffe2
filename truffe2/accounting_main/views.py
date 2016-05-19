@@ -307,6 +307,10 @@ def _csv_2014_processor(request, file):
         return False
 
 
+def _tab_2016_processor(request, file):
+    return _csv_2014_processor(request, file)
+
+
 def _diff_generator(request, year, data):
 
     from accounting_main.models import AccountingLine
@@ -405,20 +409,25 @@ def accounting_import_step1(request, key):
                     for chunk in request.FILES['file'].chunks():
                         destination.write(chunk)
 
+                wanted_data = None
+
                 if form.cleaned_data['type'] == 'csv_2014':
                     wanted_data = _csv_2014_processor(request, file_key)
 
-                    if wanted_data:
-                        diff = _diff_generator(request, form.cleaned_data['year'], wanted_data)
+                if form.cleaned_data['type'] == 'tab_2016':
+                    wanted_data = _tab_2016_processor(request, file_key)
 
-                        if diff:
+                if wanted_data:
+                    diff = _diff_generator(request, form.cleaned_data['year'], wanted_data)
 
-                            session_data['data'] = diff
-                            session_data['year'] = form.cleaned_data['year'].pk
-                            session_data['has_data'] = True
+                    if diff:
 
-                            request.session[session_key] = session_data
-                            return redirect('accounting_main.views.accounting_import_step2', key)
+                        session_data['data'] = diff
+                        session_data['year'] = form.cleaned_data['year'].pk
+                        session_data['has_data'] = True
+
+                        request.session[session_key] = session_data
+                        return redirect('accounting_main.views.accounting_import_step2', key)
 
     else:
         form = ImportForm()
