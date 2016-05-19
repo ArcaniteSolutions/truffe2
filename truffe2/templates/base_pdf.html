@@ -132,6 +132,10 @@
                 {% endblock %}
 
                 {% block post_linkedinfo %}{% endblock %}
+
+                {% if object.comment %}
+                    <tr class="tr-info"><td class="td-label" valign="top">{% trans "Commentaires" %}</td><td class="td-large">{{object.comment|linebreaksbr}}</td></tr>
+                {% endif %}
             </table>
 
             <br /><br />
