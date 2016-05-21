@@ -106,11 +106,16 @@ class TruffeUser(AbstractBaseUser, PermissionsMixin, ModelWithRight, SearchableM
 VERSION:3.0%s
 N:%s;%s
 FN:%s
-EMAIL;INTERNET:%s
-""" % (u'\nORG:{}'.format(add_unit) if add_unit else u'', self.last_name, self.first_name, self.get_full_name(), self.email)
+""" % (u'\nORG:{}'.format(add_unit) if add_unit else u'', self.last_name, self.first_name, self.get_full_name())
+
         if UserPrivacy.user_can_access(source_user, self, 'mobile'):
             retour += u"""TEL;CELL:%s
 """ % (self.mobile, )
+
+        if not re.match('\d{6}@epfl\.ch', self.email):
+            retour += u"""EMAIL;INTERNET:%s
+""" % (self.email, )
+
         retour += u"""END:VCARD"""
 
         return retour
