@@ -5,10 +5,6 @@
     </a>
 </li>
 
-{% for key in keys %}
-    <li {% if current_type == key.key %}class="active"{% endif %} id="notifictions_type-{{key.key}}" class="notification_type">
-        <a {% if current_type == key.key %}class="inbox-load"{% endif %} href="#" onclick="switch_type('{{key.key}}'); return false;">
-            {{key.key}} ({{key.nb_unread}})
-        </a>
-    </li>
-{% endfor %}
+{% with tpl="notifications/center/subkeys.html" %}
+    {% include tpl %}
+{% endwith %}

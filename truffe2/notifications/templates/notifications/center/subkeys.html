@@ -1,0 +1,24 @@
+{% for key in keys.level_keys %}
+
+<li {% if current_type == key.key %}class="active"{% endif %} id="notifictions_type-{{key.key}}" class="notification_type">
+    <a {% if current_type == key.key %}class="inbox-load"{% endif %} href="#" onclick="switch_type('{{key.key|escapejs}}'); return false;">
+        {{key.last_key}} ({{key.nb_unread}})
+    </a>
+</li>
+
+{% endfor %}
+
+{% for key, subkey in keys.subkeys.items %}
+
+    <li {% if current_type == subkey.pathkey %}class="active"{% endif %}>
+
+        <a href="#" {% if current_type == subkey.pathkey %}class="inbox-load"{% endif %} onclick="switch_type('{{subkey.pathkey|escapejs}}'); return false;">{{key}} ({{subkey.unread_count}})</a>
+
+        <ul style="margin-left: -20px;">
+            {% with tpl="notifications/center/subkeys.html" keys=subkey %}
+                {% include tpl %}
+            {% endwith %}
+        </ul>
+    </li>
+
+{% endfor %}
