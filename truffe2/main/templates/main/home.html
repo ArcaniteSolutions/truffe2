@@ -31,6 +31,7 @@
                 tolerance: 'pointer',
                 revert: 'invalid',
                 forceHelperSize: true,
+                handle: 'header',
                 stop: function () {
 
                     var list = "";
@@ -38,7 +39,6 @@
                     $('.main-row > div').each(function (_, e) {
                         list += $(e).attr("main_id") + ",";
                     });
-
 
                     $.ajax('{% url 'main.views.set_homepage' %}?data=' + escape(list));
 
