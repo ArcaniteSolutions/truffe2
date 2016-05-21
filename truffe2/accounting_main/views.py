@@ -414,7 +414,7 @@ def accounting_import_step1(request, key):
                 if form.cleaned_data['type'] == 'csv_2014':
                     wanted_data = _csv_2014_processor(request, file_key)
 
-                if form.cleaned_data['type'] == 'tab_2016':
+                elif form.cleaned_data['type'] == 'tab_2016':
                     wanted_data = _tab_2016_processor(request, file_key)
 
                 if wanted_data:

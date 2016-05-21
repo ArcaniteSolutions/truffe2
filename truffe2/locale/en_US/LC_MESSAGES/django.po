@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-19 19:56+0200\n"
-"PO-Revision-Date: 2016-05-19 19:58+0200\n"
+"POT-Creation-Date: 2016-05-21 15:08+0200\n"
+"PO-Revision-Date: 2016-05-21 15:09+0200\n"
 "Last-Translator: Maximilien Cuony <theglu@theglu.org>\n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -474,6 +474,10 @@ msgid "Le type de fichier"
 msgstr ""
 
 #: accounting_main/forms2.py:15
+msgid "Format TAB 2016"
+msgstr ""
+
+#: accounting_main/forms2.py:16
 msgid "Format CSV 2014"
 msgstr ""
 
@@ -1105,7 +1109,7 @@ msgstr ""
 msgid "Session d'importation invalide."
 msgstr ""
 
-#: accounting_main/views.py:486
+#: accounting_main/views.py:495
 msgid "Compta importée ! Si tout est ok, n'oublie pas de notifier les gens."
 msgstr ""
 
@@ -1314,7 +1318,7 @@ msgid ""
 msgstr ""
 
 #: accounting_tools/models.py:323 accounting_tools/models.py:349
-#: accounting_tools/models.py:1155 users/models.py:179
+#: accounting_tools/models.py:1155 users/models.py:195
 #: users/templates/users/users/profile.html:56
 msgid "Adresse"
 msgstr ""
@@ -1410,12 +1414,12 @@ msgid "Date valeur banque"
 msgstr ""
 
 #: accounting_tools/models.py:334
-msgid "Date de la réception du payment au niveau de la banque"
+msgid "Date de la réception du paiement au niveau de la banque"
 msgstr ""
 
 #: accounting_tools/models.py:335 accounting_tools/models.py:360
-msgid "Rajouter \"À l'intention de\""
-msgstr ""
+msgid "Rajouter \"À l'attention de\""
+msgstr "Add \"To the attention of\""
 
 #: accounting_tools/models.py:340
 msgid "Date de création"
@@ -1793,7 +1797,7 @@ msgstr ""
 msgid "Il faut renseigner la date réelle du retrait avant de poursuivre."
 msgstr ""
 
-#: accounting_tools/models.py:1153 users/models.py:39
+#: accounting_tools/models.py:1153 users/models.py:41
 #: users/templates/users/users/list.html:25
 #: users/templates/users/users/myunit_list.html:25
 #: users/templates/users/users/myunit_pdf.html:26
@@ -1801,7 +1805,7 @@ msgstr ""
 msgid "Prénom"
 msgstr ""
 
-#: accounting_tools/models.py:1154 users/models.py:40
+#: accounting_tools/models.py:1154 users/models.py:42
 msgid "Nom de famille"
 msgstr ""
 
@@ -2132,8 +2136,8 @@ msgid "Montant : "
 msgstr ""
 
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:124
-msgid "À l'intention de"
-msgstr "To"
+msgid "À l'attention de"
+msgstr "To the attention of"
 
 #: accounting_tools/templates/accounting_tools/invoice/pdf.html:135
 msgid "N°"
@@ -3294,7 +3298,7 @@ msgid "Message envoyé !"
 msgstr ""
 
 #: logistics/models.py:26 logistics/models.py:39 logistics/models.py:282
-#: logistics/models.py:295 members/models.py:60 users/models.py:43
+#: logistics/models.py:295 members/models.py:60 users/models.py:45
 msgid "Actif"
 msgstr ""
 
@@ -4051,7 +4055,7 @@ msgid "Gestion"
 msgstr ""
 
 #: members/templates/members/memberset/show.html:42 units/models.py:506
-#: units/models.py:512 users/models.py:157
+#: units/models.py:512 users/models.py:159
 msgid "Utilisateur"
 msgstr ""
 
@@ -5636,99 +5640,99 @@ msgstr ""
 msgid "Entrez votre adresse mail"
 msgstr ""
 
-#: users/models.py:38
+#: users/models.py:40
 msgid "Sciper ou username"
 msgstr ""
 
-#: users/models.py:41 users/templates/users/users/myunit_pdf.html:27
+#: users/models.py:43 users/templates/users/users/myunit_pdf.html:27
 msgid "Adresse email"
 msgstr ""
 
-#: users/models.py:42 users/models.py:182
+#: users/models.py:44 users/models.py:198
 msgid "Adresse email privée"
 msgstr ""
 
-#: users/models.py:43
+#: users/models.py:45
 msgid ""
 "Défini si cet utilisateur doit être considéré comme actif. Désactiver ceci "
 "au lieu de supprimer le compte."
 msgstr ""
 
-#: users/models.py:44
+#: users/models.py:46
 msgid "Betatesteur"
 msgstr ""
 
-#: users/models.py:44
+#: users/models.py:46
 msgid "Rend visible les éléments en cours de développement"
 msgstr ""
 
-#: users/models.py:45
+#: users/models.py:47
 msgid "Date d'inscription"
 msgstr ""
 
-#: users/models.py:49
+#: users/models.py:51
 msgid "Pour la poste, mets Postfinance. Sinon, mets le nom de ta banque."
 msgstr ""
 
-#: users/models.py:50
+#: users/models.py:52
 msgid "Pour la poste, mets ton CCP. Sinon, mets ton IBAN"
 msgstr ""
 
-#: users/models.py:55
+#: users/models.py:57
 msgid ""
 "Si pas renseigné, utilise la photo EPFL. Si pas de photo EPFL publique, "
 "utilise un poney."
 msgstr ""
 
-#: users/models.py:63
+#: users/models.py:65
 msgid "User"
 msgstr ""
 
-#: users/models.py:64
+#: users/models.py:66
 msgid "Users"
 msgstr ""
 
-#: users/models.py:73
+#: users/models.py:75
 msgid "Peut créer un nouvel utilisateur"
 msgstr ""
 
-#: users/models.py:74
+#: users/models.py:76
 msgid "Peut editer un utilisateur"
 msgstr ""
 
-#: users/models.py:75
+#: users/models.py:77
 msgid "Peut afficher un utilisateur"
 msgstr ""
 
-#: users/models.py:76
+#: users/models.py:78
 msgid "Peut utiliser la recherche sans filtrage préliminaire"
 msgstr ""
 
-#: users/models.py:178 users/templates/users/users/profile.html:52
+#: users/models.py:194 users/templates/users/users/profile.html:52
 msgid "Mobile"
 msgstr ""
 
-#: users/models.py:180 users/templates/users/users/profile.html:67
+#: users/models.py:196 users/templates/users/users/profile.html:67
 msgid "Nom banque"
 msgstr ""
 
-#: users/models.py:181 users/templates/users/users/profile.html:71
+#: users/models.py:197 users/templates/users/users/profile.html:71
 msgid "IBAN ou CCP"
 msgstr ""
 
-#: users/models.py:188
+#: users/models.py:204
 msgid "Privé"
 msgstr ""
 
-#: users/models.py:189
+#: users/models.py:205
 msgid "Membres de mes groupes"
 msgstr ""
 
-#: users/models.py:190
+#: users/models.py:206
 msgid "Accrédités AGEPoly"
 msgstr ""
 
-#: users/models.py:191
+#: users/models.py:207
 msgid "Public"
 msgstr ""
 
@@ -6038,11 +6042,11 @@ msgstr ""
 msgid "VCard"
 msgstr ""
 
-#: users/views.py:130 users/views.py:245
+#: users/views.py:125 users/views.py:240
 msgid "Profil sauvegardé !"
 msgstr ""
 
-#: users/views.py:225
+#: users/views.py:220
 msgid "Truffe :: Nouveau compte"
 msgstr ""
 

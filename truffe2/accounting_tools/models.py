@@ -331,8 +331,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
     delay = models.SmallIntegerField(_(u'Délai de paiement en jours'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délai pour le paiement.'))
     english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
-    reception_date = models.DateField(_(u'Date valeur banque'), help_text=_(u'Date de la réception du payment au niveau de la banque'), blank=True, null=True)
-    add_to = models.BooleanField(_(u'Rajouter "À l\'intention de"'), default=False)
+    reception_date = models.DateField(_(u'Date valeur banque'), help_text=_(u'Date de la réception du paiement au niveau de la banque'), blank=True, null=True)
+    add_to = models.BooleanField(_(u'Rajouter "À l\'attention de"'), default=False)
 
     class MetaData:
         list_display = [
@@ -357,7 +357,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('sign', _(u'Signature')),
             ('annex', _(u'Annexes')),
             ('english', _(u'Facture en anglais')),
-            ('add_to', _(u'Rajouter "À l\'intention de"')),
+            ('add_to', _(u'Rajouter "À l\'attention de"')),
 
         ]
         filter_fields = ('title', )
@@ -507,7 +507,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
                     super(FormDate, self).__init__(*args, **kwargs)
 
-                    self.fields['date'].widget.attrs = {'isadate': 'true'}
+                    self.fields['date'].widget.attrs = {'is_date': 'true'}
 
             return FormDate
 
