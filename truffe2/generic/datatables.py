@@ -58,13 +58,27 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
 
     def do_filtering(qs):
         sSearch = request.REQUEST.get('sSearch', None)
+
         if sSearch:
-            base = Q(**{filter_fields[0] + '__icontains': sSearch})
 
-            for col in filter_fields[1:]:
-                base = base | Q(**{col + '__icontains': sSearch})
+            general_base = None
 
-            qs = qs.filter(base)
+            for subSearch in sSearch.split(' '):
+
+                if subSearch:
+
+                    base = Q(**{filter_fields[0] + '__icontains': subSearch})
+
+                    for col in filter_fields[1:]:
+                        base = base | Q(**{col + '__icontains': subSearch})
+
+                    if not general_base:
+                        general_base = base
+                    else:
+                        general_base = general_base & base
+
+            if general_base:
+                qs = qs.filter(general_base)
 
         if hasattr(model, 'MetaState') and hasattr(model.MetaState, 'status_col_id'):
             status_search = request.REQUEST.get('sSearch_%s' % (model.MetaState.status_col_id + (0 if not deca_one_status else 0) + (0 if selector_column else 0),), None)
