@@ -47,7 +47,7 @@ def website_news(request):
 
     for news in WebsiteNews.objects.filter(status='2_online').exclude(deleted=True).filter(Q(start_date=None) | Q(start_date__lt=now())).filter(Q(end_date=None) | Q(end_date__gt=now())).order_by('?'):
         if not request.GET.get('only') or request.GET.get('only')[5:] == str(news.pk):
-            retour.append({'id': 'T2V1N{}'.format(news.pk), 'title': news.title, 'content': news.content, 'url': news.url, 'unit': news.unit.__unicode__(), 'date': str(news.start_date or news.last_log().when)})
+            retour.append({'id': 'T2V1N{}'.format(news.pk), 'title_fr': news.title, 'title_end': news.title_en or news.title, 'content_fr': news.content, 'content_en': news.content_en or news.content, 'url': news.url, 'unit': news.unit.__unicode__(), 'date': str(news.start_date or news.last_log().when)})
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 

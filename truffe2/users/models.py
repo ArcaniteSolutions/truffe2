@@ -13,6 +13,8 @@ from generic.search import SearchableModel
 
 import re
 import time
+from schwifty import IBAN
+import phonenumbers
 
 
 class TruffeUserManager(BaseUserManager):
@@ -169,6 +171,20 @@ EMAIL;INTERNET:%s
             'username',
             'email',
         ]
+
+    def save(self, *args, **kwargs):
+
+        if self.iban_ou_ccp:
+            try:
+                iban = IBAN(self.iban_ou_ccp)
+                self.iban_ou_ccp = iban.formatted
+            except:
+                pass
+
+        if self.mobile:
+            self.mobile = phonenumbers.format_number(phonenumbers.parse(self.mobile, "CH"), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+
+        super(TruffeUser, self).save(*args, **kwargs)
 
 
 class UserPrivacy(models.Model):

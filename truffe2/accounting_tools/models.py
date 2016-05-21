@@ -11,11 +11,15 @@ from django.template.defaultfilters import date as _date
 from django.utils import translation
 from django.utils.timezone import now
 from raven.contrib.django.models import client
+from django.contrib.humanize.templatetags.humanize import intcomma
+from django.template.defaultfilters import floatformat
+
 
 import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
 import os
+
 
 from accounting_core.models import AccountingGroupModels
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -327,15 +331,19 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
     delay = models.SmallIntegerField(_(u'Délai de paiement en jours'), default=30, help_text=_(u'Mettre zéro pour cacher le texte. Il s\'agit du nombre de jours de délai pour le paiement.'))
     english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
+    reception_date = models.DateField(_(u'Date valeur banque'), help_text=_(u'Date de la réception du paiement au niveau de la banque'), blank=True, null=True)
+    add_to = models.BooleanField(_(u'Rajouter "À l\'attention de"'), default=False)
 
     class MetaData:
         list_display = [
             ('title', _('Titre')),
             ('get_creation_date', _(u'Date de création')),
+            ('reception_date', _(u'Date valeur banque')),
             ('status', _('Statut')),
             ('costcenter', _(u'Centre de coût')),
             ('get_reference', _(u'Référence')),
             ('get_bvr_number', _(u'Numéro de BVR')),
+            ('get_total_display', _(u'Total')),
         ]
         details_display = list_display + [
             ('address', _('Adresse')),
@@ -349,6 +357,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('sign', _(u'Signature')),
             ('annex', _(u'Annexes')),
             ('english', _(u'Facture en anglais')),
+            ('add_to', _(u'Rajouter "À l\'attention de"')),
 
         ]
         filter_fields = ('title', )
@@ -370,11 +379,13 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         trans_sort = {'get_creation_date': 'pk'}
 
-        not_sortable_columns = ['get_reference', 'get_bvr_number']
+        not_sortable_columns = ['get_reference', 'get_bvr_number', 'get_total_display']
         yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english']
-        datetime_fields = ['get_creation_date']
+        datetime_fields = ['get_creation_date', 'reception_date']
 
     class MetaEdit:
+
+        date_fields = ['reception_date']
 
         @staticmethod
         def set_extra_defaults(obj, request):
@@ -382,6 +393,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
             with translation.override('fr'):
                 obj.date_and_place = u'Lausanne, le {}'.format(_date(datetime.datetime.now(), u'd F Y'))
+
+        only_if = {
+            'reception_date': lambda (obj, user): user.is_superuser or obj.rights_in_root_unit(user, access='TRESORERIE'),
+        }
 
     class MetaLines:
         lines_objects = [
@@ -415,6 +430,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             'sign',
             'title',
             'get_bvr_number',
+            'reception_date',
         ]
 
         linked_lines = {
@@ -483,8 +499,21 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         class FormBVR(forms.Form):
             bvr = forms.CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
 
+        def build_form_date(request, obj):
+            class FormDate(forms.Form):
+                date = forms.DateField(label=_('Date valeur banque'), required=False, initial=now())
+
+                def __init__(self, *args, **kwargs):
+
+                    super(FormDate, self).__init__(*args, **kwargs)
+
+                    self.fields['date'].widget.attrs = {'is_date': 'true'}
+
+            return FormDate
+
         states_bonus_form = {
-            '0_preparing': FormBVR
+            '0_preparing': FormBVR,
+            '3_archived': build_form_date
         }
 
     def switch_status_signal(self, request, old_status, dest_status):
@@ -531,6 +560,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         if dest_status == '3_archived':
             unotify_people('%s.sent' % (self.__class__.__name__,), self)
             notify_people(request, '%s.done' % (self.__class__.__name__,), 'invoices_done', self, self.build_group_members_for_editors())
+
+            if request.POST.get('date'):
+                self.reception_date = request.POST['date']
+                self.save()
 
     def may_switch_to(self, user, dest_state):
 
@@ -594,11 +627,12 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def get_total_ht(self):
         return sum([line.get_total_ht() for line in self.get_lines()])
 
+    def get_total_display(self):
+        return '{} CHF'.format(intcomma(floatformat(self.get_total(), 2)))
+
     def generate_bvr(self):
 
         F = 4.72
-
-        line_color = (0xED, 0xA7, 0x5F)
 
         ocr_b = ImageFont.truetype(os.path.join(settings.DJANGO_ROOT, 'media/fonts/OCR_BB.TTF'), int(42 * F))
 
@@ -1248,7 +1282,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
             # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
 
-        if 'user' in data and data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.is_superuser:
+        if 'user' in data and data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.user.is_superuser:
             form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
             # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
 

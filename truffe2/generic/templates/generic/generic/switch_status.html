@@ -46,6 +46,7 @@
     </div><!-- /.modal-content -->
 
     <script type="text/javascript">
+        $('#switch-status-form input[is_date="true"]').datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
         $('#switch-status-form').ajaxForm({replaceTarget: true, target: '#switch-status-form'});
             {% if done %}
                 {% if from_list %}

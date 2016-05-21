@@ -14,7 +14,9 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
         moderation_access = 'COMMUNICATION'
 
     title = models.CharField(_(u'Titre'), max_length=255)
+    title_en = models.CharField(_(u'Titre anglais'), max_length=255, blank=True, null=True)
     content = models.TextField(_(u'Contenu'))
+    content_en = models.TextField(_(u'Contenu anglais'), blank=True, null=True)
     url = models.URLField(max_length=255)
     unit = FalseFK('units.models.Unit')
 
@@ -28,7 +30,7 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
             ('end_date', _('Date fin')),
             ('status', _('Statut')),
         ]
-        details_display = list_display + [('content', _('Contenu')), ('url', _('URL'))]
+        details_display = list_display + [('content', _('Contenu')), ('url', _('URL')), ('title_en', _('Titre anglais')), ('content_en', _('Contenu anglais'))]
         filter_fields = ('title', 'status')
 
         base_title = _('News AGEPoly')
@@ -57,7 +59,9 @@ Elles sont soumises à modération par le responsable communication de l'AGEPoly
 
         fields = [
             'title',
+            'title_en',
             'content',
+            'content_en',
             'url',
         ]
 
