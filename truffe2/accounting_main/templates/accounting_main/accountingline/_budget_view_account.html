@@ -42,6 +42,19 @@
                     <td class="budget-td-budget budget-td-{{account.pk}}" style="display: none;"></td>
                 </tr>
             {% endfor %}
+            {% if account_.show_total %}
+                <tr class="budget-tr" style="font-weight: bold;">
+                    <td></td>
+                    <td style="text-align: right;">{% trans "Total: " %}</td>
+                    <td>
+                        {% if account_.total < 0 %}
+                            <span class="txt-color-red">{{account_.total|intcomma}}</span>
+                        {% else %}
+                            <span class="txt-color-green">{{account_.total|intcomma}}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
         </table> <br/><br/>
     {% endfor %}
 </div>

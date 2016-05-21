@@ -545,13 +545,22 @@ def accounting_budget_view(request):
                 retour.append((elem, _build_recu_list(elem.get_children_categories()), None))
             else:
                 accouts_with_total = []
+                elem.show_total = False
+                elem.total = 0
                 for account in elem.get_accounts():
                     data = costcenter.accountingline_set.filter(deleted=False, account=account).aggregate(pos=Sum('input'), neg=Sum('output'))
                     if not data['pos']:
                         data['pos'] = 0
                     if not data['neg']:
                         data['neg'] = 0
+
                     data['total'] = data['pos'] - data['neg']
+
+                    elem.total += data['total']
+
+                    if data['pos'] or data['neg']:
+                        elem.show_total = True
+
                     accouts_with_total.append((account, data))
 
                 retour.append((elem, None, accouts_with_total))
