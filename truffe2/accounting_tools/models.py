@@ -1158,7 +1158,7 @@ class LinkedInfo(models.Model):
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
 
 
-class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+class _ExpenseClaim(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les notes de frais (NdF)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -1323,7 +1323,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
 
-class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les journaux de caisse (JdC)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
