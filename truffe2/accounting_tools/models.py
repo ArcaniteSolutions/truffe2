@@ -1177,7 +1177,8 @@ class _ExpenseClaim(GenericModel, GenericTaggableObject, GenericAccountingStateM
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
-            ('get_total', _(u'Total')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
             ('status', _('Statut')),
         ]
 
@@ -1186,7 +1187,7 @@ class _ExpenseClaim(GenericModel, GenericTaggableObject, GenericAccountingStateM
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
-        not_sortable_columns = ['get_total']
+        not_sortable_columns = ['get_total', 'get_total_ht']
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
@@ -1346,7 +1347,8 @@ class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
-            ('get_total', _(u'Total')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
             ('status', _('Statut')),
         ]
 
@@ -1355,7 +1357,7 @@ class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
-        not_sortable_columns = ['get_total']
+        not_sortable_columns = ['get_total', 'get_total_ht']
 
         base_title = _(u'Journaux de caisse')
         list_title = _(u'Liste des journaux de caisse')
