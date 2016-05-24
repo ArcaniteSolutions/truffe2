@@ -378,6 +378,27 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 obj.accounting_year = current_year
 
+            if unit_mode and isinstance(obj, BasicRightModel) and not obj.rights_can('CREATE', request.user) and current_unit:
+                # Try to find a suitable unit, since the user may access
+                # this page without using a create button (who switched the
+                # unit)
+                from units.models import Unit
+                for test_unit in Unit.objects.order_by('?'):
+
+                    if has_property(obj, obj.MetaRights.linked_unit_property):
+                        set_property(obj, obj.MetaRights.linked_unit_property, test_unit)
+                    else:
+                        obj.unit = test_unit
+
+                    if obj.rights_can('CREATE', request.user):
+                        current_unit = test_unit
+
+                # Set the original (or new) unit
+                if has_property(obj, obj.MetaRights.linked_unit_property):
+                    set_property(obj, obj.MetaRights.linked_unit_property, current_unit)
+                else:
+                    obj.unit = current_unit
+
             if isinstance(obj, BasicRightModel) and not obj.rights_can('CREATE', request.user):
                 raise Http404
 
