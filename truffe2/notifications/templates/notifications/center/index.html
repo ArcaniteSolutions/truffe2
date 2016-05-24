@@ -57,24 +57,6 @@
 
     <script type="text/javascript">
 
-        function tableHeightSize() {
-
-            var tableHeight = $(window).height() - 212;
-
-            if (tableHeight < 320) {
-                $('.table-wrap').css('height', 320 + 'px');
-            } else {
-                $('.table-wrap').css('height', tableHeight + 'px');
-            }
-
-        }
-
-        {# tableHeightSize() #}
-
-        $(window).resize(function() {
-            {# tableHeightSize() #}
-        });
-
         var NOTIFICATIONS_CURRENT_TYPE = '';
 
         function load_types() {

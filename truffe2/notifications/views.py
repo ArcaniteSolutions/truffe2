@@ -144,7 +144,7 @@ def notification_keys(request):
                     if not alone_key.get('already_movedup'):
                         alone_key['already_movedup'] = True
                     else:
-                        alone_key['last_key'] = '{}.{}'.format(kindex, alone_key.get('last_key'))
+                        alone_key['last_key'] = u'{}.{}'.format(kindex, alone_key.get('last_key'))
 
                     # Move the key up
                     cindex['level_keys'].append(alone_key)
