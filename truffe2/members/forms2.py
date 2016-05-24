@@ -56,3 +56,7 @@ class MembershipImportForm(forms.Form):
 
         if not group or not group.handle_fees:
             del self.fields['copy_fees_status']
+
+
+class MembershipImportListForm(forms.Form):
+    data = forms.CharField(label=_(u'Liste de scipers, un par ligne'), widget=forms.Textarea)

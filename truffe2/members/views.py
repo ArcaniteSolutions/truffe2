@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from app.ldaputils import get_attrs_of_sciper
 from app.utils import update_current_unit
-from members.forms2 import MembershipAddForm, MembershipImportForm
+from members.forms2 import MembershipAddForm, MembershipImportForm, MembershipImportListForm
 from generic.datatables import generic_list_json
 from users.models import TruffeUser
 
@@ -196,3 +196,53 @@ def import_members(request, pk):
 
     logs.sort(key=lambda x: x[0])
     return render(request, 'members/membership/import.html', {'form': form, 'logs': logs, 'group': memberset, 'display_list_panel': True})
+
+
+@login_required
+def import_members_list(request, pk):
+    from members.models import MemberSet, Membership, MemberSetLogging
+
+    memberset = get_object_or_404(MemberSet, pk=pk)
+    if not memberset.rights_can('EDIT', request.user):
+        raise Http404
+
+    logs = []
+
+    if request.method == 'POST':
+        form = MembershipImportListForm(request.POST, request.FILES)
+
+        if form.is_valid():
+
+            edition_extra_data = {}
+
+            for username in form.cleaned_data['data'].split('\n'):
+                username = username.strip()
+
+                if username:
+
+                    try:
+                        user = TruffeUser.objects.get(username=username)
+                    except TruffeUser.DoesNotExist:
+                        if re.match('^\d{6}$', username):
+                            user = TruffeUser(username=username, is_active=True)
+                            user.last_name, user.first_name, user.email = get_attrs_of_sciper(username)
+                            user.save()
+                        else:
+                            logs.append(('danger', username, _(u'Impossible de créer l\'utilisateur')))
+                            user = None
+
+                    if user:
+                        if memberset.membership_set.filter(user=user).count():
+                            logs.append(('warning', user, _(u'L\'utilisateur est déjà membre de ce groupe')))
+                        else:
+                            Membership(group=memberset, user=user, payed_fees=False).save()
+                            logs.append(('success', user, _(u'Utilisateur ajouté avec succès')))
+                            edition_extra_data[user.get_full_name()] = ["None", "Membre"]
+
+            MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": %s}' % (json.dumps(edition_extra_data),)).save()
+
+    else:
+        form = MembershipImportListForm()
+
+    logs.sort(key=lambda x: x[0])
+    return render(request, 'members/membership/import_list.html', {'form': form, 'logs': logs, 'group': memberset, 'display_list_panel': True})
