@@ -15,7 +15,7 @@ class _Provider(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['LOGISTIQUE', 'SECRETARIAT']
-        world_ro_access = True
+        world_ro_access = False
 
     name = models.CharField(_('Nom'), max_length=255)
     description = models.TextField(_('Description'))
@@ -67,7 +67,7 @@ class _VehicleType(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['LOGISTIQUE', 'SECRETARIAT']
-        world_ro_access = True
+        world_ro_access = False
 
     provider = FalseFK('vehicles.models.Provider', verbose_name=_('Fournisseur'))
     name = models.CharField(_('Nom'), max_length=255)
@@ -171,7 +171,7 @@ class _Location(GenericModel, AgepolyEditableModel, SearchableModel):
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['LOGISTIQUE', 'SECRETARIAT']
-        world_ro_access = True
+        world_ro_access = False
 
     name = models.CharField(_('Nom'), max_length=255)
     description = models.TextField(_('Description'))
