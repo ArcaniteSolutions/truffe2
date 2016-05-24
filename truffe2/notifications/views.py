@@ -184,7 +184,10 @@ def notification_restrictions(request):
 
     key = request.GET.get('current_type')
 
-    notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=request.user, key=key)
+    if Notification.objects.filter(user=request.user, key=key).exists():
+        notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=request.user, key=key)
+    else:
+        notification_restriction = None
 
     return render(request, 'notifications/center/restrictions.html', {'key': key, 'notification_restriction': notification_restriction})
 
@@ -197,6 +200,7 @@ def notification_restrictions_update(request):
     notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=request.user, key=key)
     notification_restriction.no_email = request.GET.get('mail') == 'true'
     notification_restriction.autoread = request.GET.get('mute') == 'true'
+    notification_restriction.no_email_group = request.GET.get('no_group') == 'true'
 
     if notification_restriction.autoread and not notification_restriction.no_email:
 

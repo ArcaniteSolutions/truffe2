@@ -77,9 +77,9 @@
                 function (data) {
                     $('#notification_restrictions').html(data);
 
-                    $('#notifications_mute, #notifications_mail').on('change', function (e) {
+                    $('#notifications_mute, #notifications_mail, #notifications_no_group').on('change', function (e) {
 
-                        $.ajax('{% url 'notifications.views.notification_restrictions_update' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE + '&mail=' + $('#notifications_mail').is(':checked') + '&mute=' + $('#notifications_mute').is(':checked') + '&elem=' + $(e.target).attr('id')).done(function() { load_restrictions(); });
+                        $.ajax('{% url 'notifications.views.notification_restrictions_update' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE + '&mail=' + $('#notifications_mail').is(':checked') + '&mute=' + $('#notifications_mute').is(':checked') + '&no_group=' + $('#notifications_no_group').is(':checked') + '&elem=' + $(e.target).attr('id')).done(function() { load_restrictions(); });
 
 
                     });
