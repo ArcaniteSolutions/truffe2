@@ -2,7 +2,10 @@
 {% load i18n humanize %}
 
 {% block title %}
-    <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">{% trans "Réservation de véhicule" %}</h1>
+    <h1 style="text-align: center; font-size: 32px; padding-top: 1cm;">
+        {% trans "Réservation de véhicule" %}<br />
+        <span style="text-align: center; font-size: 20px;">{{object.title}}</span>
+    </h1>
 {% endblock %}
 
 {% block unit_def %}

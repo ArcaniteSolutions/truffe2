@@ -79,11 +79,89 @@ def notification_keys(request):
         key['nb_unread'] = Notification.objects.filter(user=request.user, seen=False, key=key['key']).count()
         keys.append(key)
 
-    sorted(keys, key=lambda x: x['key'])
+    keys = sorted(keys, key=lambda x: x['key'])
+
+    regrouped_keys = {}
+
+    for key in keys:
+
+        cindex = regrouped_keys
+        subkeys = key['key'].split('.')
+
+        pathkey = ''
+
+        for skey in subkeys:
+
+            if not pathkey:
+                pathkey = skey
+            else:
+                pathkey = u'{}.{}'.format(pathkey, skey)
+
+            if 'subkeys' not in cindex:
+                cindex['subkeys'] = {}
+
+            if 'unread_count' not in cindex:
+                cindex['unread_count'] = 0
+
+            if skey not in cindex['subkeys']:
+                cindex['subkeys'][skey] = {}
+
+            cindex['unread_count'] += key['nb_unread']
+            cindex = cindex['subkeys'][skey]
+            cindex['pathkey'] = pathkey
+
+            if 'unread_count' not in cindex:
+                cindex['unread_count'] = 0
+
+        if 'level_keys' not in cindex:
+            cindex['level_keys'] = []
+
+        key['last_key'] = subkeys[-1]
+        cindex['level_keys'].append(key)
+        cindex['unread_count'] += key['nb_unread']
+
+    def cleanup_keys(cindex, papa=None):
+
+        modif = False
+
+        for ___, subkey in cindex.get('subkeys', {}).items():
+            modif = modif or cleanup_keys(subkey, cindex)
+
+        if papa:
+
+            for kindex, subkey in cindex.get('subkeys', {}).items():
+
+                if subkey.get('subkeys'):  # Clean only if subkey has no subkeys
+                    continue
+
+                if subkey.get('level_keys') and len(subkey['level_keys']) == 1:  # If the subkey has only one key
+
+                    if 'level_keys' not in cindex:
+                        cindex['level_keys'] = []
+
+                    alone_key = subkey['level_keys'][0]
+
+                    if not alone_key.get('already_movedup'):
+                        alone_key['already_movedup'] = True
+                    else:
+                        alone_key['last_key'] = u'{}.{}'.format(kindex, alone_key.get('last_key'))
+
+                    # Move the key up
+                    cindex['level_keys'].append(alone_key)
+
+                    # Remove the subkey
+                    del cindex['subkeys'][kindex]
+
+                    modif = True
+
+        return modif
+
+    while cleanup_keys(regrouped_keys):
+        pass
 
     all_unread = Notification.objects.filter(user=request.user, seen=False).count()
 
-    return render(request, 'notifications/center/keys.html', {'keys': keys, 'current_type': request.GET.get('current_type'), 'all_unread': all_unread})
+    return render(request, 'notifications/center/keys.html', {'keys': regrouped_keys, 'current_type': request.GET.get('current_type'), 'all_unread': all_unread})
 
 
 @login_required
@@ -94,7 +172,7 @@ def notification_json(request):
     current_type = request.GET.get('current_type')
 
     if current_type:
-        bonus_filter = lambda x: x.filter(key=current_type, user=request.user)
+        bonus_filter = lambda x: x.filter(key__startswith=current_type, user=request.user)
     else:
         bonus_filter = lambda x: x.filter(user=request.user)
 
@@ -107,6 +185,7 @@ def notification_restrictions(request):
     key = request.GET.get('current_type')
 
     notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=request.user, key=key)
+
     return render(request, 'notifications/center/restrictions.html', {'key': key, 'notification_restriction': notification_restriction})
 
 

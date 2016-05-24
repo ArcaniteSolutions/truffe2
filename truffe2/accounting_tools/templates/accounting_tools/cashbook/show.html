@@ -6,5 +6,8 @@
 {% endblock %}
 
 {% block post_lines %}
-    <span class="pull-right">{% trans "Total : " %} <b>{{obj.get_total|floatformat:"2"|intcomma}} CHF</b></span>
+    <span class="pull-right">
+        {% trans "Total (HT) : " %} <b>{{obj.get_total_ht|floatformat:"2"|intcomma}} CHF</b><br />
+        {% trans "Total (TTC) : " %} <b>{{obj.get_total|floatformat:"2"|intcomma}} CHF</b>
+    </span>
 {% endblock %}

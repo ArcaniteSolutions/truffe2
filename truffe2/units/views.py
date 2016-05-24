@@ -273,6 +273,10 @@ def accreds_delete(request, pk):
             accred.end_date = now()
             accred.save()
 
+            from notifications.utils import unotify_people
+
+            unotify_people('Accreds.ToValidate', accred)
+
             AccreditationLog(accreditation=accred, who=request.user, type='deleted').save()
 
             accred.user.clear_rights_cache()

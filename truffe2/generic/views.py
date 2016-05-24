@@ -59,6 +59,7 @@ def get_unit_data(model_class, request, allow_blank=True, allow_all_units=False)
 
         if request.POST.get('upk'):
             update_current_unit(request, request.POST.get('upk'))
+
         current_unit = get_current_unit(request, unit_blank, allow_all_units)
 
     if current_unit and current_unit.is_hidden:
@@ -108,7 +109,6 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank, allow_all_units=allow_all_units)
         main_unit = None
-
 
         allow_all_units_ = allow_all_units  # Need a local copy
 

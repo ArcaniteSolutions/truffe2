@@ -380,7 +380,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         trans_sort = {'get_creation_date': 'pk'}
 
         not_sortable_columns = ['get_reference', 'get_bvr_number', 'get_total_display']
-        yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english']
+        yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english', 'add_to']
         datetime_fields = ['get_creation_date', 'reception_date']
 
     class MetaEdit:
@@ -460,7 +460,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states_links = {
             '0_preparing': ['1_need_bvr', '2_sent', '4_canceled'],
             '1_need_bvr': ['0_preparing'],
-            '2_sent': ['3_archived', '4_canceled'],
+            '2_sent': ['0_preparing', '3_archived', '4_canceled'],
             '3_archived': [],
             '4_canceled': [],
         }
@@ -567,12 +567,18 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
     def may_switch_to(self, user, dest_state):
 
+        if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return False
+
         return super(_Invoice, self).rights_can_EDIT(user) and super(_Invoice, self).may_switch_to(user, dest_state)
 
     def can_switch_to(self, user, dest_state):
 
         if not super(_Invoice, self).rights_can_EDIT(user):
             return (False, _('Pas les droits.'))
+
+        if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return (False, _('Seul l\'AGEPoly peut modifier une facture une fois qu\'elle a été envoyée.'))
 
         return super(_Invoice, self).can_switch_to(user, dest_state)
 
@@ -1158,7 +1164,7 @@ class LinkedInfo(models.Model):
     iban_ccp = models.CharField(_(u'IBAN / CCP'), max_length=128)
 
 
-class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+class _ExpenseClaim(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les notes de frais (NdF)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -1177,7 +1183,8 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
-            ('get_total', _(u'Total')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
             ('status', _('Statut')),
         ]
 
@@ -1186,7 +1193,7 @@ class _ExpenseClaim(GenericModel, GenericAccountingStateModel, GenericStateModel
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
-        not_sortable_columns = ['get_total']
+        not_sortable_columns = ['get_total', 'get_total_ht']
 
         base_title = _(u'Notes de frais')
         list_title = _(u'Liste des notes de frais')
@@ -1323,7 +1330,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
 
-class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les journaux de caisse (JdC)"""
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
@@ -1346,7 +1353,8 @@ class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, Ge
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('get_fullname', _(u'Personne')),
-            ('get_total', _(u'Total')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
             ('status', _('Statut')),
         ]
 
@@ -1355,7 +1363,7 @@ class _CashBook(GenericModel, GenericAccountingStateModel, GenericStateModel, Ge
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
-        not_sortable_columns = ['get_total']
+        not_sortable_columns = ['get_total', 'get_total_ht']
 
         base_title = _(u'Journaux de caisse')
         list_title = _(u'Liste des journaux de caisse')

@@ -29,11 +29,8 @@
                     <td>{{account.account_number}}</td>
                     <td>{{account.name}}</td>
                     <td>
-                        {% if data.total < 0 %}
-                            <span class="txt-color-red">{{data.total|intcomma}}</span>
-                        {% else %}
-                            <span class="txt-color-green">{{data.total|intcomma}}</span>
-                        {% endif %}
+
+                        <span class="txt-color-{% if data.total < 0 %}red{% else %}green{% endif %}">{{data.total|intcomma}}</span>
 
                         {% if data.pos and data.neg %}
                             <i class="fa fa-info" title="+{{data.pos}} -{{data.neg}}" rel="tooltip"></i>
@@ -42,6 +39,15 @@
                     <td class="budget-td-budget budget-td-{{account.pk}}" style="display: none;"></td>
                 </tr>
             {% endfor %}
+            {% if account_.show_total %}
+                <tr class="budget-tr" style="font-weight: bold;">
+                    <td></td>
+                    <td style="text-align: right;">{% trans "Total: " %}</td>
+                    <td>
+                        <span class="txt-color-{% if account_.total < 0 %}red{% else %}green{% endif %}">{{account_.total|intcomma}}</span>
+                    </td>
+                </tr>
+            {% endif %}
         </table> <br/><br/>
     {% endfor %}
 </div>
