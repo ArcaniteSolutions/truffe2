@@ -748,6 +748,7 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
     cost_center_from = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_from', verbose_name=_(u'Centre de coûts prélevé'))
     cost_center_to = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_to', verbose_name=_(u'Centre de coûts versé'))
     amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
+    transfert_date = models.DateField(_('Date effective'), blank=True, null=True)
 
     class MetaData:
         list_display = [
@@ -759,7 +760,7 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable')), ]
+        details_display = list_display + [('transfert_date', _('Date effective')), ('description', _(u'Description')), ('accounting_year', _(u'Année comptable')), ]
         filter_fields = ('name', 'status', 'account__name', 'account__account_number', 'amount', 'cost_center_from__name', 'cost_center_from__account_number', 'cost_center_to__name', 'cost_center_to__account_number')
 
         base_title = _(u'Transferts internes')
@@ -772,6 +773,8 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
         help_list = _(u"""Les transferts internes permettent de déplacer de l'argent entre les entitées de l'AGEPoly sur un même compte.
 
 Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un remboursement d'une unité vers l'autre.""")
+
+        datetime_fields = ['transfert_date']
 
     class Meta:
         abstract = True
@@ -789,6 +792,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             'cost_center_from',
             'description',
             'name',
+            'transfert_date',
         ]
 
     class MetaState:
@@ -850,10 +854,28 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             '3_canceled': (0.9, 0.85),
         }
 
+        def build_form_done(request, obj):
+            class FormDone(forms.Form):
+                transfert_date = forms.DateField(label=_('Date effective'), required=True, initial=now().date())
+
+                def __init__(self, *args, **kwargs):
+
+                    super(FormDone, self).__init__(*args, **kwargs)
+                    self.fields['transfert_date'].widget.attrs = {'is_date': 'true'}
+
+            return FormDone
+
+        states_bonus_form = {
+            '3_archived': build_form_done
+        }
+
     class MetaEdit:
-        pass
+        date_fields = ['transfert_date']
 
     def may_switch_to(self, user, dest_state):
+
+        if user.is_superuser:
+            return (True, None)
 
         if self.status[0] == '3' and not user.is_superuser:
             return False
@@ -864,6 +886,9 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         return super(_InternalTransfer, self).may_switch_to(user, dest_state) and super(_InternalTransfer, self).rights_can_EDIT(user)
 
     def can_switch_to(self, user, dest_state):
+
+        if user.is_superuser:
+            return (True, None)
 
         if self.status[0] == '3' and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé/annulé'))
@@ -910,6 +935,10 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
             unotify_people('%s.accountable' % (self.__class__.__name__,), self)
             tresoriers = self.people_in_unit(self.cost_center_from.unit, 'TRESORERIE', no_parent=True) + self.people_in_unit(self.cost_center_to.unit, 'TRESORERIE', no_parent=True)
             notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'accounting_accepted', self, list(set(tresoriers + self.build_group_members_for_editors())))
+
+            if dest_status == '3_archived' and request.POST.get('transfert_date'):
+                self.transfert_date = request.POST.get('transfert_date')
+                self.save()
 
     def __unicode__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
@@ -1052,6 +1081,11 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
             class FormWithdrawn(forms.Form):
                 initial = obj.withdrawn_date if obj.withdrawn_date else now().date()
                 withdrawn_date = forms.DateField(label=_('Date retrait banque'), help_text=_(u'La date de retrait à la banque'), required=True, initial=initial)
+
+                def __init__(self, *args, **kwargs):
+
+                    super(FormWithdrawn, self).__init__(*args, **kwargs)
+                    self.fields['withdrawn_date'].widget.attrs = {'is_date': 'true'}
 
             return FormWithdrawn
 

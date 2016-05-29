@@ -1,6 +1,6 @@
 {% load i18n bootstrap3 generic_extras %}
 
-<div class="modal-content">
+<div class="modal-content" id="modal-budget-view">
 
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
@@ -14,6 +14,13 @@
 
         <div class="row">
 
+            {% if start or end %}
+                <div class="alert alert-info">
+                    <i class="fa fa-info"></i>
+                    {% trans "Filtrage des entrées du " %} {{start|date:"d.m.Y"}} {% trans "au" %} {{end|date:"d.m.Y"}} {% trans "inclus." %}
+                </div>
+            {% endif %}
+
             {% for account, subcategories, subaccounts in data %}
                 <div class="col-md-3 root-acc">
                     {% with level=1 subcategories=subcategories childsaccount=childsaccount subaccounts=subaccounts %}{% include "accounting_main/accountingline/_budget_view_account.html" %}{% endwith %}
@@ -22,16 +29,29 @@
 
         </div>
 
+        <hr />
+
+        <form action="{% url 'accounting_main.views.accounting_budget_view' %}?costcenter={{costcenter.pk}}" method="POST" id="budget_view_form">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+        </form>
+
         <div class="modal-footer">
-        <button type="button" class="btn btn-default" id="modal-graph-cancel" data-dismiss="modal">
-            {% trans "Fermer" %}
-        </button>
+            <button type="button" class="btn btn-primary" id="modal-graph-filter" onclick="$('#budget_view_form').submit()">
+                {% trans "Filter" %}
+            </button>
+            <button type="button" class="btn btn-default" id="modal-graph-cancel" data-dismiss="modal">
+                {% trans "Fermer" %}
+            </button>
         </div>
     </div>
 
 </div><!-- /.modal-content -->
 
 <script type="text/javascript">
+
+    $('#budget_view_form').ajaxForm({replaceTarget: true, target: '#modal-budget-view'});
+
     function process_level(root_elem, level) {
 
         if ($(root_elem).find(".budget-tr[style!='display: none;']").length == 0) {
@@ -64,4 +84,7 @@
         nb_cols = 4;
 
     $('.root-acc').addClass('col-md-' + nb_cols);
+    $('#modal-budget').scrollTop(0);
+
+    $('#budget_view_form input').datepicker({dateFormat: 'yy-mm-dd',  prevText: '<i class="fa fa-chevron-left"></i>', nextText: '<i class="fa fa-chevron-right"></i>',});
 </script>

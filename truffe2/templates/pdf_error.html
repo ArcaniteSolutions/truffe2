@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Erreur de PDF" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Erreur de PDF" %}</h1>
+
+    <div class="alert alert-danger">
+        {% trans "Désolé, mais le PDF n'a pas pu être généré." %}<br /><br />
+
+        {% trans "Un fichier que tu as uploadé n'a pas pu être lu. Assure toi que tous les fichiers liés ne sont pas chiffrés, signés et sont bien au format PDF." %}
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fa fa-info"></i>
+        {% trans "Astuce: Imprime ton fichier au format PDF via un lecteur PDF: Le nouveau fichier fonctionnera probalement mieux !" %}
+    </div>
+
+    {% trans "Le fichier ayant causé l'erreur:" %} <b>{{pdf.name}}</b><br />
+    {% trans "L'erreur exacte:" %} <pre>{{error}}</pre>
+
+    <div class="pull-right">
+        <a href="#" onclick="history.go(-1);" class="btn btn-primary">
+            <i class="fa fa-arrow-left"></i>
+            {% trans "Retour" %}
+        </a>
+    </div>
+
+{% endblock %}

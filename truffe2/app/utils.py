@@ -6,15 +6,16 @@ from django.template.loader import get_template
 from django.template import Context
 from django import http
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
-from django.template import Context
 from django.utils.timezone import now
 from django.contrib.sites.models import get_current_site
+from django.shortcuts import render
+
 
 import cgi
 import ho.pisa as pisa
 import cStringIO as StringIO
 from pyPdf import PdfFileWriter, PdfFileReader
+import traceback
 
 
 def add_current_unit(request):
@@ -68,8 +69,6 @@ def update_current_unit(request, unit_pk):
 
 def add_current_year(request):
     """Template context processor to add current year"""
-
-    from accounting_core.models import AccountingYear
 
     current_year = get_current_year(request)
 
@@ -175,7 +174,10 @@ def generate_pdf(template, request, contexte, extra_pdf_files=None):
         result = StringIO.StringIO()
 
         for pdf_file in extra_pdf_files:
-            append_pdf(PdfFileReader(pdf_file), output)
+            try:
+                append_pdf(PdfFileReader(pdf_file), output)
+            except Exception as e:
+                return render(request, "pdf_error.html", {'pdf': pdf_file, 'error': traceback.format_exc()})
 
         output.write(result)
 

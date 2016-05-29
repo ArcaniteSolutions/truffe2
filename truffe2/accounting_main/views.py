@@ -1,25 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import RequestContext
-from django.core.context_processors import csrf
-from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
-from django.utils.encoding import smart_str
-from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
+from django.http import Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.db import connections
-from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
-from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
-from django.db.models import Q
-from django.utils.html import strip_tags
 from django.db.models import Sum
+
+
+from app.utils import generate_pdf
+from notifications.utils import notify_people
 
 
 import uuid
@@ -27,11 +19,6 @@ import json
 import time
 import collections
 import decimal
-import json
-
-
-from app.utils import generate_pdf
-from notifications.utils import notify_people
 
 
 @login_required
@@ -527,8 +514,23 @@ def accounting_budget_view(request):
 
     from accounting_core.models import CostCenter, AccountCategory
     from accounting_main.models import AccountingLine
+    from .forms2 import BudgetFilterForm
 
     costcenter = get_object_or_404(CostCenter, pk=request.GET.get('costcenter'))
+
+    start_date, end_date = None, None
+
+    if request.method == 'POST':
+        form = BudgetFilterForm(request.POST)
+
+        if form.is_valid():
+            start_date, end_date = form.cleaned_data['start'], form.cleaned_data['end']
+
+    else:
+        form = BudgetFilterForm()
+
+        form.fields['start'].initial = costcenter.accounting_year.start_date.date()
+        form.fields['end'].initial = costcenter.accounting_year.end_date.date()
 
     if not AccountingLine.static_rights_can('LIST', request.user, costcenter.unit, costcenter.accounting_year):
         raise Http404
@@ -548,7 +550,12 @@ def accounting_budget_view(request):
                 elem.show_total = False
                 elem.total = 0
                 for account in elem.get_accounts():
-                    data = costcenter.accountingline_set.filter(deleted=False, account=account).aggregate(pos=Sum('input'), neg=Sum('output'))
+                    data = costcenter.accountingline_set.filter(deleted=False, account=account)
+
+                    if start_date or end_date:
+                        data = data.filter(date__gte=start_date, date__lte=end_date)
+
+                    data = data.aggregate(pos=Sum('input'), neg=Sum('output'))
                     if not data['pos']:
                         data['pos'] = 0
                     if not data['neg']:
@@ -569,4 +576,4 @@ def accounting_budget_view(request):
 
     data = _build_recu_list(root_acs)
 
-    return render(request, 'accounting_main/accountingline/budget_view.html', {'costcenter': costcenter, 'random': str(uuid.uuid4()), 'data': data})
+    return render(request, 'accounting_main/accountingline/budget_view.html', {'costcenter': costcenter, 'random': str(uuid.uuid4()), 'data': data, 'form': form, 'start': start_date, 'end': end_date})
