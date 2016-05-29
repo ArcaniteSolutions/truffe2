@@ -1,0 +1,6 @@
+{% extends "generic/generic/show.html" %}
+{% load i18n generic_extras rights_extras %}
+
+{% block bonus_buttons %}
+    {% ifhasright obj user 'DISPLAY_ACTIVE_USERS' %}<a href="{% url 'units.views.role_userslist' obj.pk %}" style="margin-left: 3px;" class="btn btn-info"><i class="fa fa-user"></i> {% trans "Utilisateurs avec ce rôle" %}</a>{% endifhasright %}
+{% endblock %}

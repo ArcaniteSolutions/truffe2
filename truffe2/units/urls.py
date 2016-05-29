@@ -15,4 +15,6 @@ urlpatterns = patterns(
     url(r'^accreds/(?P<pk>[0-9,]+)/delete$', 'accreds_delete'),
     url(r'^accreds/(?P<pk>[0-9,]+)/validate$', 'accreds_validate'),
     url(r'^accreds/add$', 'accreds_add'),
+
+    url(r'^role/(?P<pk>\d*)/users$', 'role_userslist'),
 )

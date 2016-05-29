@@ -302,6 +302,22 @@ class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
         if self.access:
             return u', '.join(list(self.access))
 
+    def __init__(self, *args, **kwargs):
+
+        super(_Role, self).__init__(*args, **kwargs)
+
+        self.MetaRights = type("MetaRights", (self.MetaRights,), {})
+        self.MetaRights.rights_update({
+            'DISPLAY_ACTIVE_USERS': _(u'Peut afficher la liste des gens posédant l\'accréditation'),
+        })
+
+    def rights_can_DISPLAY_ACTIVE_USERS(self, user):
+
+        if user.is_superuser:
+            return True
+
+        return self.rights_in_root_unit(user, 'INFORMATIQUE')
+
     class MetaData:
         list_display = [
             ('name', _('Nom')),

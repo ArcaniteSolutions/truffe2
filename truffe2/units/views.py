@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import RequestContext
-from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
-from django.utils.encoding import smart_str
+from django.http import Http404
 from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.db import connections
-from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
-from django.core.cache import cache
-from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
@@ -385,3 +376,24 @@ def accreds_add(request):
     validables = Role.objects.filter(deleted=False, need_validation=True)
 
     return render(request, 'units/accreds/add.html', {'form': form, 'done': done, 'unit': unit, 'validables': validables})
+
+
+@login_required
+def role_userslist(request, pk):
+    from units.models import Role
+
+    role = get_object_or_404(Role, pk=pk)
+
+    if not role.rights_can('DISPLAY_ACTIVE_USERS', request.user):
+        raise Http404()
+
+    accreds = role.accreditation_set.filter(end_date=None)
+
+    if not request.user.is_superuser:
+        accreds = accreds.filter(hidden_in_truffe=False, unit__is_hidden=False)
+
+    accreds = accreds.order_by('user__first_name', 'user__last_name')
+
+    roles = Role.objects.filter(deleted=False).order_by('name')
+
+    return render(request, 'units/role/users.html', {'role': role, 'accreds': accreds, 'roles': roles})

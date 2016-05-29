@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Rôles" %} :: {{role}} :: {% trans "Liste des utilisateurs" %}{% endblock %}
+
+{% block ribbon %}
+    {{block.super}}
+    <li><a href="{% url 'units.views.role_list' %}"><i class="{{role.MetaData.base_icon}}"></i> {{role.MetaData.base_title}}</a></li>
+    <li><a href="{% url 'units.views.role_show' role.pk %}"><i class="{{role.MetaData.elem_icon}}"></i> {{obj}}</a></li>
+    <li><i class="fa fa-user"></i> {% trans "Users" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Liste des utilisateurs pour le rôle " %} {{role}}</h1>
+
+    <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-10">
+                {% with w_title="Liste" %}{% include "widget/header.html" %}{% endwith %}
+
+                <table class="table table-striped table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Qui" %}</th>
+                            <th>{% trans "Unité" %}</th>
+                            <th>{% trans "Email" %}</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for accred in accreds %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'users.views.users_profile' accred.user.pk %}">
+                                        {{accred.user}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'units.views.unit_show' accred.unit.pk %}">
+                                        {{accred.unit}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="mailto:{{accred.user.email}}">
+                                        {{accred.user.email}}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% include "widget/footer.html" %}
+            </div>
+
+            <div class="col-sm-12 col-md-2 col-lg-2">
+                {% with w_title="Role" %}{% include "widget/header.html" %}{% endwith %}
+
+                <select id="role_selection" onchange="window.location = '{% url 'units.views.role_userslist' '0000' %}'.replace('0000', $(this).val());">
+                    {% for srole in roles %}
+                        <option value="{{srole.pk}}" {% if srole == role %}selected{% endif %}>{{srole}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </section>
+
+
+    <div class="pull-right">
+        <a href="{% url 'units.views.role_list' %}" class="btn btn-info">
+            <i class="fa fa-list"></i>
+            {% trans "Retourner sur la liste" %}
+        </a>
+
+        <a href="mailto:{% for accred in accreds %}{{accred.user.email}}{% if not forloop.last %},{% endif %}{% endfor %}" class="btn btn-primary">
+            <i class="fa fa-envelope"></i>
+            {% trans "Envoyer un mail" %}
+        </a>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () { $('#role_selection').css('width', '100%').select2(); });
+    </script>
+
+{% endblock %}
+
+{% block menuid %}menu-units-roles{% endblock %}
+
