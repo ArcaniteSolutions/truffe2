@@ -723,8 +723,8 @@ class GenericStateModerable(GenericStateValidableOrModerable):
             '1_asking': _(u'L\'objet est en cours de modération. Il n\'est pas éditable. Sélectionner ce statut pour demander une modération !'),
             '2_online': _(u'L\'objet est publié. Il n\'est pas éditable.'),
             '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
-            '4_deny': _(u'La modération a été refusée.'),
-            '4_canceled': _(u'L\'object a été annulée.'),
+            '4_deny': _(u'L\'objet a été refusé.'),
+            '4_canceled': _(u'L\'objet a été annulé.'),
         }
 
         states_quick_switch = {

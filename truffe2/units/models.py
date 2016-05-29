@@ -308,7 +308,7 @@ class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
 
         self.MetaRights = type("MetaRights", (self.MetaRights,), {})
         self.MetaRights.rights_update({
-            'DISPLAY_ACTIVE_USERS': _(u'Peut afficher la liste des gens posédant l\'accréditation'),
+            'DISPLAY_ACTIVE_USERS': _(u'Peut afficher la liste des gens possédant l\'accréditation'),
         })
 
     def rights_can_DISPLAY_ACTIVE_USERS(self, user):

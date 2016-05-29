@@ -18,5 +18,14 @@ class ImportForm(forms.Form):
 
 
 class BudgetFilterForm(forms.Form):
-    start = forms.DateField(label=_(u'Filter du'))
+    start = forms.DateField(label=_(u'Filtrer du'))
     end = forms.DateField(label=_(u'au'))
+
+    def clean(self):
+
+        cleaned_data = super(BudgetFilterForm, self).clean()
+
+        if 'start' in cleaned_data and 'end' in cleaned_data and cleaned_data['start'] > cleaned_data['end']:
+            raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
+
+        return cleaned_data
