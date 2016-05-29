@@ -1,7 +1,7 @@
 {% load i18n bootstrap3 %}
 
 
-<form id="import-membership-form" method="POST" action="{% url 'members.views.import_members' group.pk %}" enctype="multipart/form-data">
+<form id="import-list-membership-form" method="POST" action="{% url 'members.views.import_members_list' group.pk %}" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="modal-content">
@@ -53,8 +53,8 @@
         </div>
 
     </div><!-- /.modal-content -->
-    
+
   <script type="text/javascript">
-        $('#import-membership-form').ajaxForm({replaceTarget: true, target: '#import-membership-form'});
+        $('#import-list-membership-form').ajaxForm({replaceTarget: true, target: '#import-list-membership-form'});
   </script>
 </form>

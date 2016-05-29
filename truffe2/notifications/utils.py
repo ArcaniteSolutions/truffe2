@@ -29,7 +29,7 @@ def notify_people(request, key, species, obj, users, metadata=None):
             n.save()
 
         if not notification_restriction.no_email and not notification_restriction_all.no_email and Notification.objects.filter(key=key, species=species, object_id=obj.pk, content_type=ContentType.objects.get_for_model(obj), user=user, seen=False).count() == 1:
-            NotificationEmail(user=user, notification=n).save()
+            NotificationEmail(user=user, notification=n, no_email_group=notification_restriction.no_email_group or notification_restriction_all.no_email_group).save()
 
 
 def unotify_people(key, obj):

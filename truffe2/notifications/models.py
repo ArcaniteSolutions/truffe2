@@ -52,6 +52,7 @@ class NotificationRestriction(models.Model):
 
     no_email = models.BooleanField(default=False)
     autoread = models.BooleanField(default=False)
+    no_email_group = models.BooleanField(default=False, help_text=_(u'Ne pas regrouper les notification en un seul mail'))
 
 
 class NotificationEmail(models.Model):
@@ -59,3 +60,4 @@ class NotificationEmail(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     notification = models.ForeignKey(Notification)
+    no_email_group = models.BooleanField(default=False, help_text=_(u'Ne pas regrouper les notification en un seul mail'))

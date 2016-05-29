@@ -74,11 +74,14 @@
                                         {% ifhasright Model user '!CREATE' %}
                                           <a href="#hr1" onclick="disp_import();" data-remote="{% url 'members.views.import_members' obj.pk %}" base-data-remote="{% url 'members.views.import_members' obj.pk %}" id="import-membership-button" class="btn btn-default">
                                             <i class="fa fa-upload"></i>
-                                            {% trans "Importer" %}
+                                            {% trans "Importer (fichier)" %}
                                           </a>
-                                        {% endifhasright %}
 
-                                        {% ifhasright Model user '!CREATE' %}
+                                          <a href="#hr1" onclick="disp_import_list();" data-remote="{% url 'members.views.import_members_list' obj.pk %}" base-data-remote="{% url 'members.views.import_members_list' obj.pk %}" id="import-list-membership-button" class="btn btn-default">
+                                            <i class="fa fa-upload"></i>
+                                            {% trans "Importer (Liste)" %}
+                                          </a>
+
                                           <a href="#hr1" onclick="disp_add();" data-remote="{% url 'members.views.membership_add' obj.pk %}" base-data-remote="{% url 'members.views.membership_add' obj.pk %}" id="add-membership-button" class="btn btn-primary">
                                             <i class="fa fa-plus"></i>
                                             {% trans "Ajouter" %}
@@ -189,6 +192,14 @@
             $('#modal-import-membership').find('.modal-content').html('');
             $('#modal-import-membership').removeData('bs.modal');
             $('#modal-import-membership').modal({remote: $('#import-membership-button').attr('data-remote')});
+        }
+
+        function disp_import_list() {
+            //Allow usage of select2
+            $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+            $('#modal-import-membership').find('.modal-content').html('');
+            $('#modal-import-membership').removeData('bs.modal');
+            $('#modal-import-membership').modal({remote: $('#import-list-membership-button').attr('data-remote')});
         }
 
         function toggle_fees(mship_id) {

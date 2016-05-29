@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 
 from rights.utils import ModelWithRight
 from generic.search import SearchableModel
+from app.ldaputils import get_attrs_of_sciper
 
 import re
 import time
@@ -144,6 +145,22 @@ FN:%s
 
     def username_is_sciper(self):
         return re.match('^\d{6}$', self.username)
+
+    def update_from_ldap(self):
+        """Fetch missing name from LDAP"""
+
+        if not self.first_name or not self.last_name:
+            if self.username_is_sciper():
+                last_name, first_name, email = get_attrs_of_sciper(self.username)
+
+                if last_name:
+                    self.last_name = last_name
+                if first_name:
+                    self.first_name = first_name
+                if email:
+                    self.email = email
+
+                self.save()
 
     def old_accreds(self):
         return self.accreditation_set.exclude(end_date=None).order_by('unit__name', 'role__order', 'start_date', 'end_date')
