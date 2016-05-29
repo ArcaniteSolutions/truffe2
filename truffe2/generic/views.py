@@ -1175,6 +1175,8 @@ def generate_calendar_related_json(module, base_name, model_class):
 
         retour = []
 
+        colors = ['default', 'danger', 'success', 'warning', 'info', 'primary']
+
         for l in liste:
             if l.unit:
                 par = l.unit.name
@@ -1195,10 +1197,12 @@ def generate_calendar_related_json(module, base_name, model_class):
 
             if hasattr(l, 'get_linked_object'):
                 titre = u'{} (Réservé par {})'.format(l.get_linked_object(), par)
+                colored = colors[l.get_linked_object().pk % len(colors)]
             else:
                 titre = u'{} (Réservé par {})'.format(l, par)
+                colored = ""
 
-            retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l)})
+            retour.append({'title': titre, 'start': str(l.start_date), 'end': str(l.end_date), 'className': className, 'icon': icon, 'url': url, 'allDay': False, 'description': str(l), 'colored': colored})
 
         return HttpResponse(json.dumps(retour))
 

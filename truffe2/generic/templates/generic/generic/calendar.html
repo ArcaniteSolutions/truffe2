@@ -120,12 +120,13 @@
 
                 eventRender: function (event, element, icon) {
                     if (!event.description == "") {
-                        element.find('.fc-event-title').append("<br/><span class='ultra-light'>" + event.description +
-                            "</span>");
+                        element.find('.fc-event-title').append("<br/><span class='ultra-light'>" + event.description + "</span>");
                     }
                     if (!event.icon == "") {
-                        element.find('.fc-event-title').append("<i class='air air-top-right fa " + event.icon +
-                            " '></i>");
+                        element.find('.fc-event-title').append("<i class='air air-top-right fa " + event.icon + " '></i>");
+                    }
+                    if (!event.colored == "") {
+                      element.find('.fc-event-title').append("<i class='air air-bottom-right'> <span class='label label-" + event.colored + "'>&nbsp;&nbsp;</span></i>");
                     }
                 },
 
