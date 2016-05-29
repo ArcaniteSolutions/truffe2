@@ -15,3 +15,8 @@ class ImportForm(forms.Form):
         ('tab_2016', _(u'Format TAB 2016')),
         ('csv_2014', _(u'Format CSV 2014')),
     ])
+
+
+class BudgetFilterForm(forms.Form):
+    start = forms.DateField(label=_(u'Filter du'))
+    end = forms.DateField(label=_(u'au'))
