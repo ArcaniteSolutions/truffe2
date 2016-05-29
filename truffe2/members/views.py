@@ -187,7 +187,7 @@ def import_members(request, pk):
                             Membership(group=memberset, user=user, payed_fees=payed_fees).save()
                             logs.append(('success', user, _(u'Utilisateur ajouté avec succès')))
                             edition_extra_data[user.get_full_name()] = ["None", "Membre"]
-                MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": %s}' % (json.dumps(edition_extra_data),)).save()
+                            MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data=json.dumps({'edited': edition_extra_data})).save()
             except ValueError:
                 logs.append(('danger', _(u'ERREUR'), _(u'Le fichier ne peut pas être lu correctement, l\'import a été annulé')))
 
@@ -239,7 +239,7 @@ def import_members_list(request, pk):
                             logs.append(('success', user, _(u'Utilisateur ajouté avec succès')))
                             edition_extra_data[user.get_full_name()] = ["None", "Membre"]
 
-            MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data='{"edited": %s}' % (json.dumps(edition_extra_data),)).save()
+            MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data=json.dumps({'edited': edition_extra_data})).save()
 
     else:
         form = MembershipImportListForm()

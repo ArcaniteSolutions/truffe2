@@ -20,7 +20,7 @@
                         {% for log in logs %}
                             <tr class="text-{{log.0}}">
                                 <td style="min-width: 75px; padding-right: 10px">{{log.1}}</td>
-                                <td><i class="fa fa-{% if log.0 == 'danger' %}times{% elif log.0 == 'warning' %}exclamation{% elif log.0 == 'success' %}check{% else %}question{% endif%}-circle"></i> {{log.2}}</td>
+                                <td><i class="fa fa-{% if log.0 == 'danger' %}times{% elif log.0 == 'warning' %}exclamation{% elif log.0 == 'success' %}check{% else %}question{% endif %}-circle"></i> {{log.2}}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

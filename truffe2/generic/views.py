@@ -392,6 +392,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                     if obj.rights_can('CREATE', request.user):
                         current_unit = test_unit
+                        break
 
                 # Set the original (or new) unit
                 if has_property(obj, obj.MetaRights.linked_unit_property):
