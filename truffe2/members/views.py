@@ -179,7 +179,7 @@ def import_members(request, pk):
                             user = None
 
                     if user:
-                        if memberset.membership_set.filter(user=user).count():
+                        if memberset.membership_set.filter(user=user, end_date=None).exists():
                             logs.append(('warning', user, _(u'L\'utilisateur est déjà membre de ce groupe')))
                         else:
                             # Copy the fees status if asked
@@ -232,10 +232,10 @@ def import_members_list(request, pk):
                             user = None
 
                     if user:
-                        if memberset.membership_set.filter(user=user).count():
+                        if memberset.membership_set.filter(user=user, end_date=None).exists():
                             logs.append(('warning', user, _(u'L\'utilisateur est déjà membre de ce groupe')))
                         else:
-                            Membership(group=memberset, user=user, payed_fees=False).save()
+                            Membership(group=memberset, user=user, payed_fees=form.cleaned_data['fee_status']).save()
                             logs.append(('success', user, _(u'Utilisateur ajouté avec succès')))
                             edition_extra_data[user.get_full_name()] = ["None", "Membre"]
 

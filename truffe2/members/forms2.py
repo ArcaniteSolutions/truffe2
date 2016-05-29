@@ -60,3 +60,4 @@ class MembershipImportForm(forms.Form):
 
 class MembershipImportListForm(forms.Form):
     data = forms.CharField(label=_(u'Liste de scipers, un par ligne'), widget=forms.Textarea)
+    fee_status = forms.BooleanField(label=_(u'Définir les cotisations comme payée ?'), required=False)
