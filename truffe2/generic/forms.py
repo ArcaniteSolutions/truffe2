@@ -31,7 +31,8 @@ class GenericForm(ModelForm):
         if hasattr(self.Meta.model, 'MetaEdit') and hasattr(self.Meta.model.MetaEdit, 'only_if'):
             for key, test in self.Meta.model.MetaEdit.only_if.iteritems():
                 if not test((self.instance, current_user)):
-                    del self.fields[key]
+                    if key in self.fields:
+                        del self.fields[key]
 
         if hasattr(self.instance, 'genericFormExtraInit'):
             self.instance.genericFormExtraInit(self, current_user, *args, **kwargs)
@@ -41,6 +42,9 @@ class GenericForm(ModelForm):
 
         if hasattr(self.instance, 'genericFormExtraClean'):
             self.instance.genericFormExtraClean(cleaned_data, self)
+
+        if hasattr(self.instance, 'genericFormExtraCleanWithLines'):
+            self.instance.genericFormExtraCleanWithLines(cleaned_data, self, self._clean_line_data)
 
         from rights.utils import UnitExternalEditableModel
 

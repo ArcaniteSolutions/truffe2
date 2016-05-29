@@ -1112,20 +1112,25 @@ class GenericDelayValidable(object):
             nb_days = (self.end_date - self.start_date).days
             in_days = (self.start_date - now()).days
 
-            lo = self.get_linked_object()
+            los = self.get_linked_object()
 
-            max_days = lo.max_days if self.unit else lo.max_days_externals
-            min_in_days = lo.minimum_days_before if self.unit else lo.minimum_days_before_externals
-            max_in_days = lo.maximum_days_before if self.unit else lo.maximum_days_before_externals
+            if not isinstance(los, list):
+                los = [los]
 
-            if max_days > 0 and nb_days > max_days:
-                return (False, _(u'La résevation est trop longue ! Maximium %s jours !') % (max_days,))
+            for lo in los:
 
-            if min_in_days > 0 and in_days < min_in_days:
-                return (False, _(u'La résevation est trop proche d\'aujourd\'hui ! Minimum %s jours (%s) !') % (min_in_days, now() + timedelta(days=min_in_days)))
+                max_days = lo.max_days if self.unit else lo.max_days_externals
+                min_in_days = lo.minimum_days_before if self.unit else lo.minimum_days_before_externals
+                max_in_days = lo.maximum_days_before if self.unit else lo.maximum_days_before_externals
 
-            if max_in_days > 0 and in_days > max_in_days:
-                return (False, _(u'La résevation est trop loin d\'aujourd\'hui ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
+                if max_days > 0 and nb_days > max_days:
+                    return (False, _(u'La résevation est trop longue ! Maximium %s jours !') % (max_days,))
+
+                if min_in_days > 0 and in_days < min_in_days:
+                    return (False, _(u'La résevation est trop proche d\'aujourd\'hui ! Minimum %s jours (%s) !') % (min_in_days, now() + timedelta(days=min_in_days)))
+
+                if max_in_days > 0 and in_days > max_in_days:
+                    return (False, _(u'La résevation est trop loin d\'aujourd\'hui ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
 
         return super(GenericDelayValidable, self).can_switch_to(user, dest_state)
 
@@ -1238,7 +1243,7 @@ def index_generator(model_class):
                             os.path.join(settings.MEDIA_ROOT, f.file.name),
                             language='fra',
                         ).decode('utf-8')
-                    except Exception as e:
+                    except Exception:
                         txt = u''
 
                     text += u"{} {}\n".format(f.file.name.split('/')[-1], txt)
