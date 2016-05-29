@@ -524,9 +524,10 @@ class GenericStateValidableOrModerable(object):
         states_links = {
             '0_draft': ['1_asking', '3_archive'],
             '1_asking': ['0_draft', '2_online', '3_archive', '4_deny'],
-            '2_online': ['0_draft', '3_archive'],
+            '2_online': ['0_draft', '3_archive', '4_canceled'],
             '3_archive': [],
             '4_deny': ['1_asking', '3_archive'],
+            '4_canceled': ['1_asking', '3_archive'],
         }
 
         states_colors = {
@@ -535,6 +536,7 @@ class GenericStateValidableOrModerable(object):
             '2_online': 'success',
             '3_archive': 'default',
             '4_deny': 'danger',
+            '4_canceled': 'danger',
         }
 
         states_icons = {
@@ -543,14 +545,16 @@ class GenericStateValidableOrModerable(object):
             '2_online': '',
             '3_archive': '',
             '4_deny': '',
+            '4_canceled': '',
         }
 
         list_quick_switch = {
             '0_draft': [('1_asking', 'fa fa-question', _(u'Demander à modérer')), ],
             '1_asking': [('2_online', 'fa fa-check', _(u'Valider')), ('4_deny', 'fa fa-ban', _(u'Refuser'))],
-            '2_online': [('3_archive', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ],
+            '2_online': [('3_archive', 'glyphicon glyphicon-remove-circle', _(u'Archiver')), ('4_canceled', 'fa fa-ban', _(u'Annuler'))],
             '3_archive': [],
             '4_deny': [],
+            '4_canceled': [],
         }
 
         forced_pos = {
@@ -559,6 +563,7 @@ class GenericStateValidableOrModerable(object):
             '2_online': (0.9, 0.85),
             '3_archive': (0.9, 0.5),
             '4_deny': (0.9, 0.15),
+            '4_canceled': (0.5, 0.85),
         }
 
         states_default_filter = '0_draft,1_asking,2_online'
@@ -676,19 +681,25 @@ class GenericStateValidableOrModerable(object):
         if old_status == '2_online' and dest_status == '0_draft':
             notify_people(request, '%s.drafted' % (self.__class__.__name__,), 'drafted', self, self.build_group_members_for_validators())
 
+        if dest_status == '4_canceled':
+            notify_people(request, '%s.canceled' % (self.__class__.__name__,), 'canceled', self, self.build_group_members_for_cancel())
+
+    def build_group_members_for_cancel(self):
+        people = self.build_group_members_for_validators()
+
+        for user in self.build_group_members_for_editors():
+            if user not in people:
+                people.append(user)
+
+        return people
+
     def delete_signal(self, request):
 
         if hasattr(super(GenericStateValidableOrModerable, self), 'delete_signal'):
             super(GenericStateValidableOrModerable, self).delete_signal(request)
 
         if self.status == '2_online':
-            people = self.build_group_members_for_validators()
-
-            for user in self.build_group_members_for_editors():
-                if user not in people:
-                    people.append(user)
-
-            notify_people(request, '%s.deleted' % (self.__class__.__name__,), 'deleted', self, people)
+            notify_people(request, '%s.deleted' % (self.__class__.__name__,), 'deleted', self, self.build_group_members_for_cancel())
 
 
 class GenericStateModerable(GenericStateValidableOrModerable):
@@ -703,6 +714,7 @@ class GenericStateModerable(GenericStateValidableOrModerable):
             '2_online': _(u'En ligne'),
             '3_archive': _(u'Archivé'),
             '4_deny': _(u'Refusé'),
+            '4_canceled': _(u'Annulé'),
         }
         default = '0_draft'
 
@@ -712,12 +724,13 @@ class GenericStateModerable(GenericStateValidableOrModerable):
             '2_online': _(u'L\'objet est publié. Il n\'est pas éditable.'),
             '3_archive': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
             '4_deny': _(u'La modération a été refusée.'),
+            '4_canceled': _(u'L\'object a été annulée.'),
         }
 
         states_quick_switch = {
             '0_draft': [('1_asking', _(u'Demander à modérer')), ],
             '1_asking': [('2_online', _(u'Mettre en ligne')), ],
-            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
+            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ('4_canceled', _(u'Annuler')), ],
         }
 
 
@@ -733,6 +746,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             '2_online': _(u'Validé'),
             '3_archive': _(u'Archivé'),
             '4_deny': _(u'Refusé'),
+            '4_canceled': _(u'Annulé'),
         }
         default = '0_draft'
 
@@ -742,12 +756,13 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             '2_online': _(u'La résevation est validée. Elle n\'est pas éditable.'),
             '3_archive': _(u'La réservation est archivée. Elle n\'est plus modifiable.'),
             '4_deny': _(u'La modération a été refusée. L\'objet n\'était probablement pas disponible suite à un conflit.'),
+            '4_canceled': _(u'La réservation a été annulée.'),
         }
 
         states_quick_switch = {
             '0_draft': [('1_asking', _(u'Demander à valider')), ],
             '1_asking': [('2_online', _(u'Valider')), ],
-            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ],
+            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ('4_canceled', _(u'Annuler')), ],
         }
 
         status_col_id = 6
