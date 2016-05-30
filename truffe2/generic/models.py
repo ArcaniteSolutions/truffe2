@@ -301,6 +301,8 @@ class GenericModel(models.Model):
                 else:
                     loc = getattr(self, f.name).astimezone(timezone(settings.TIME_ZONE))
                     retour[f.name] = loc.strftime("%Y-%m-%d %H:%M:%S")
+            elif isinstance(f, models.ManyToManyField):
+                retour[f.name] = u', '.join([x.__unicode__() for x in getattr(self, f.name).all()])
 
             else:
                 retour[f.name] = unicode(getattr(self, f.name))

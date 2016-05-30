@@ -465,6 +465,14 @@
         });
     {% endfor %}
 
+    {% for field in Model.MetaEdit.many_to_many_fields %}
+
+        $(function () {
+          $('#id_{{field}}').css('width', '100%').addClass('select2').removeClass('form-control').select2();
+        });
+
+    {% endfor %}
+
 </script>
 
 {% block edit_bonus %}

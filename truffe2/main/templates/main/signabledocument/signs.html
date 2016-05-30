@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Signature de documents" %}{% endblock %}
+
+{% block content %}
+
+   <h1>{% trans "Signature de documents" %}</h1>
+
+   <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-6">
+
+                {% with w_title="Documents à signer" w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+
+                <table class="table table-striped table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Titre" %}</th>
+                            <th>{% trans "Signé ?" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for document in documents %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'main.views.signabledocument_sign' document.pk %}">
+                                        {{document.title}}
+                                    </a>
+                                </td>
+                                <td>
+                                  {% with v=document.user_signed %}
+                                    {% include "yesorno.html" %}
+                                  {% endwith %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'main.views.signabledocument_sign' document.pk %}" class="btn btn-xs btn-primary">
+                                      {% if document.user_signed %}
+                                        {% trans "Voir la signature" %}
+                                      {% else %}
+                                        {% trans "Signer" %}
+                                      {% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+
+                {% include "widget/footer.html" %}
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-6">
+
+                {% with w_title="Signatures" w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+
+
+                <table class="table table-striped table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Titre" %}</th>
+                            <th>{% trans "Valide ?" %}</th>
+                            <th>{% trans "Date" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for signature in signatures %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'main.views.signabledocument_sign' signature.document.pk %}">
+                                        {{signature.document.title}}
+                                    </a>
+                                </td>
+                                <td>
+                                  {% with v=signature.is_valid %}
+                                    {% include "yesorno.html" %}
+                                  {% endwith %}
+                                </td>
+                                <td>
+                                  {{signature.when}}
+                                </td>
+                                <td>
+                                    {% if signature.is_valid %}
+                                      <a href="{% url 'main.views.signabledocument_sign' signature.document.pk %}" class="btn btn-xs btn-primary">
+                                        {% trans "Voir la signature" %}
+                                      </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+  </section>
+
+
+{% endblock %}
+
+{% block menuid %}menu-misc-mydocuments{% endblock %}

@@ -5,7 +5,11 @@ from generic.models import GenericModel, GenericStateModel, FalseFK, SearchableM
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 
+
 from rights.utils import AgepolyEditableModel, UnitEditableModel
+
+
+import hashlib
 
 
 class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel, SearchableModel):
@@ -224,6 +228,106 @@ Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
 
     def rights_can_SHOW_BASE(self, user):
         return self.rights_in_linked_unit(user)
+
+
+class _SignableDocument(GenericModel, AgepolyEditableModel, SearchableModel):
+
+    class MetaRightsUniyt(AgepolyEditableModel.MetaRightsAgepoly):
+        access = ['PRESIDENCE']
+        world_ro_access = False
+
+    title = models.CharField(_(u'Titre'), max_length=255)
+    description = models.TextField(_(u'Description'), blank=True, null=True)
+    file = models.FileField(upload_to='uploads/signable_document/')
+
+    active = models.BooleanField(_(u'Actif'), default=False)
+
+    roles = models.ManyToManyField('units.Role')
+
+    sha = models.CharField(max_length=255)
+
+    class MetaData:
+        list_display = [
+            ('title', _(u'Titre')),
+            ('get_roles_display', _(u'Rôles')),
+        ]
+        details_display = list_display + [
+            ('description', _('Description')),
+            ('get_file_link', _('Fichier')),
+        ]
+        filter_fields = ('title', 'description', 'roles__name')
+        safe_fields = ['get_file_link']
+
+        default_sort = "[1, 'asc']"  # title
+
+        base_title = _('Documents à signer')
+        list_title = _(u'Liste de tous les documents à signer')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-file-text-o'
+
+        menu_id = 'menu-misc-documents'
+
+        help_list = _(u"""Les différents documents à faire signer aux gens en fonction de leurs roles.""")
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        fields = [
+            'title',
+            'description',
+        ]
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        many_to_many_fields = ['roles']
+
+        only_if = {
+            'sha': lambda x: False,
+        }
+
+    def __unicode__(self):
+        return u'{} ({})'.format(self.title, self.get_roles_display())
+
+    def get_file_link(self):
+        return u'<a href="{}">{}</a>'.format(reverse('main.views.signabledocument_download', args=(self.pk,)), self.file)
+
+    def get_roles_display(self):
+        return u', '.join([r.name for r in self.roles.order_by('name').all()])
+
+    def should_sign(self, user):
+        print(user.accreditation_set.filter(role__in=self.roles.all(), end_date=None))
+        return user.accreditation_set.filter(role__in=self.roles.all(), end_date=None).exists()
+
+    def signed(self, user):
+        return self.signature_set.filter(user=user, document_sha=self.sha).first()
+
+    def save(self, *args, **kwargs):
+        super(_SignableDocument, self).save(*args, **kwargs)
+
+        hash_sha = hashlib.sha256()
+
+        with open(self.file.path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_sha.update(chunk)
+
+        self.sha = hash_sha.hexdigest()
+
+        super(_SignableDocument, self).save(*args, **kwargs)
+
+
+class Signature(models.Model):
+
+    user = models.ForeignKey('users.TruffeUser')
+    document = models.ForeignKey('main.SignableDocument')
+    when = models.DateTimeField(auto_now_add=True)
+    ip = models.IPAddressField()
+    useragent = models.CharField(max_length=255)
+    document_sha = models.CharField(max_length=255)
+
+    @property
+    def is_valid(self):
+        return self.document_sha == self.document.sha
 
 
 class _File(GenericModel, AgepolyEditableModel, SearchableModel):

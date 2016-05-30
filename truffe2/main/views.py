@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import RequestContext
-from django.core.context_processors import csrf
-from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
-from django.utils.encoding import smart_str
+from django.http import Http404, HttpResponse
 from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.db import connections
-from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
-from django.core.cache import cache
+from django.core.paginator import InvalidPage, Paginator
+from django.utils.timezone import now
+from django.db import connection
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
-from django.utils.timezone import now
-from django.db import connection
 
 
 from haystack.views import SearchView
@@ -193,6 +185,12 @@ def home(request):
 
     data.update({'boxes_to_show': ordered_boxes_to_show})
 
+    from main.models import SignableDocument
+
+    for document in SignableDocument.objects.filter(deleted=False, active=True):
+        if document.should_sign(request.user) and not document.signed(request.user):
+            return redirect(reverse('main.views.signabledocument_sign', args=(document.pk,)))
+
     return render(request, 'main/home.html', data)
 
 
@@ -358,3 +356,60 @@ def file_download_list(request):
         files = files.filter(access='all')
 
     return render(request, 'main/file/download.html', {'files': files, 'group': group})
+
+
+@login_required
+def signabledocument_download(request, pk):
+
+    from main.models import SignableDocument
+    file = get_object_or_404(SignableDocument, pk=pk, deleted=False)
+
+    if not file.rights_can('SHOW', request.user):
+
+        if not file.should_sign(request.user):
+            if not file.signed(request.user):
+                raise Http404
+
+    return sendfile(request, file.file.path, True)
+
+
+@login_required
+def signabledocument_sign(request, pk):
+
+    from main.models import SignableDocument, Signature
+    file = get_object_or_404(SignableDocument, pk=pk, deleted=False)
+
+    if not file.should_sign(request.user) and not file.signed(request.user):
+        raise Http404
+
+    signed = file.signed(request.user)
+
+    if request.method == 'POST' and not signed:
+
+        Signature(
+            user=request.user,
+            document=file,
+            ip=request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '?')).split(',')[0],
+            useragent=request.META.get('HTTP_USER_AGENT', '?'),
+            document_sha=file.sha
+        ).save()
+
+        messages.success(request, _(u'Document signé !'))
+        return redirect('main.views.signabledocument_signs')
+
+    return render(request, 'main/signabledocument/sign.html', {'file': file, 'signed': signed})
+
+
+@login_required
+def signabledocument_signs(request):
+
+    from main.models import SignableDocument
+
+    signatures = request.user.signature_set.order_by('-when')
+
+    documents = filter(lambda d: d.should_sign(request.user), SignableDocument.objects.filter(deleted=False, active=True))
+
+    for d in documents:
+        d.user_signed = d.signed(request.user)
+
+    return render(request, 'main/signabledocument/signs.html', {'signatures': signatures, 'documents': documents})

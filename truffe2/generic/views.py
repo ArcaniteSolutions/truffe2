@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import RequestContext
-from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
-from django.utils.encoding import smart_str
+from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
-from django.db import connections
-from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
-from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.utils.timezone import now
 from django.db.models import Max, Q
 
 
@@ -496,6 +488,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     return redirect('{}.views.{}_edit'.format(module.__name__, base_name), pk='~' if right == 'CREATE' else obj.pk)
 
                 obj.save()
+                if hasattr(form, 'save_m2m'):
+                    form.save_m2m()
+
                 lines_adds = {}
                 lines_updates = {}
                 lines_deletes = {}
