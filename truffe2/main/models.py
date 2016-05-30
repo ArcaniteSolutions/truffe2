@@ -296,7 +296,6 @@ class _SignableDocument(GenericModel, AgepolyEditableModel, SearchableModel):
         return u', '.join([r.name for r in self.roles.order_by('name').all()])
 
     def should_sign(self, user):
-        print(user.accreditation_set.filter(role__in=self.roles.all(), end_date=None))
         return user.accreditation_set.filter(role__in=self.roles.all(), end_date=None).exists()
 
     def signed(self, user):
