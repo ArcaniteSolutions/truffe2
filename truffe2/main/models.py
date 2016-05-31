@@ -267,7 +267,7 @@ class _SignableDocument(GenericModel, AgepolyEditableModel, SearchableModel):
 
         menu_id = 'menu-misc-documents'
 
-        help_list = _(u"""Les différents documents à faire signer aux gens en fonction de leurs roles.""")
+        help_list = _(u"""Les différents documents à faire signer aux gens en fonction de leurs rôles.""")
 
     class MetaSearch(SearchableModel.MetaSearch):
 

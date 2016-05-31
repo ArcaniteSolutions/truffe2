@@ -302,7 +302,7 @@ class GenericModel(models.Model):
                     loc = getattr(self, f.name).astimezone(timezone(settings.TIME_ZONE))
                     retour[f.name] = loc.strftime("%Y-%m-%d %H:%M:%S")
             elif isinstance(f, models.ManyToManyField):
-                retour[f.name] = u', '.join([x.__unicode__() for x in getattr(self, f.name).all()])
+                retour[f.name] = u', '.join([unicode(x) for x in getattr(self, f.name).all()])
 
             else:
                 retour[f.name] = unicode(getattr(self, f.name))
@@ -1126,13 +1126,13 @@ class GenericDelayValidable(object):
                 max_in_days = lo.maximum_days_before if self.unit else lo.maximum_days_before_externals
 
                 if max_days > 0 and nb_days > max_days:
-                    return (False, _(u'La résevation est trop longue ! Maximium %s jours !') % (max_days,))
+                    return (False, _(u'La résevation pour {} est trop longue ! Maximium {} jours !'.format(lo, max_days)))
 
                 if min_in_days > 0 and in_days < min_in_days:
-                    return (False, _(u'La résevation est trop proche d\'aujourd\'hui ! Minimum %s jours (%s) !') % (min_in_days, now() + timedelta(days=min_in_days)))
+                    return (False, _(u'La résevation pour {} est trop proche d\'aujourd\'hui ! Minimum {} jours ({}) !'.format(lo, min_in_days, now() + timedelta(days=min_in_days))))
 
                 if max_in_days > 0 and in_days > max_in_days:
-                    return (False, _(u'La résevation est trop loin d\'aujourd\'hui ! Maximum %s jours (%s) !') % (max_in_days, now() + timedelta(days=max_in_days)))
+                    return (False, _(u'La résevation pour {} est trop loin d\'aujourd\'hui ! Maximum {} jours ({}) !'.format(lo, max_in_days, now() + timedelta(days=max_in_days))))
 
         return super(GenericDelayValidable, self).can_switch_to(user, dest_state)
 
