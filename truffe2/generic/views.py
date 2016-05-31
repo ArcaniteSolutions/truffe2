@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import RequestContext
-from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
-from django.utils.encoding import smart_str
+from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
-from django.db import connections
-from django.core.paginator import InvalidPage, EmptyPage, Paginator, PageNotAnInteger
-from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.utils.timezone import now
 from django.db.models import Max, Q
 
 
@@ -263,7 +255,7 @@ def generate_list_related_json(module, base_name, model_class):
 
     @login_required
     @csrf_exempt
-    def _generic_list_json(request):
+    def _generate_list_related_json(request):
 
         edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
         show_view = '%s.views.%s_show' % (module.__name__, base_name)
@@ -274,7 +266,10 @@ def generate_list_related_json(module, base_name, model_class):
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
 
         if unit_mode:
-            filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+            if hasattr(model_class.MetaState, 'filter_unit_field'):
+                filter_ = lambda x: x.filter(**{model_class.MetaState.filter_unit_field.replace('.', '__'): current_unit})
+            else:
+                filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter_ = lambda x: x
 
@@ -285,7 +280,10 @@ def generate_list_related_json(module, base_name, model_class):
 
         def filter_object(qs, request):
             if request.POST.get('sSearch_0'):
-                return qs.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.POST.get('sSearch_0'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+                if hasattr(model_class.MetaState, 'filter_unit_field'):
+                    return qs.filter(**{'__'.join(model_class.MetaState.filter_unit_field.split('.')[:-1] + ['pk']): request.POST.get('sSearch_0'), model_class.MetaState.filter_unit_field.replace('.', '__'): current_unit})
+                else:
+                    return qs.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.POST.get('sSearch_0'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
             else:
                 return qs
 
@@ -308,7 +306,7 @@ def generate_list_related_json(module, base_name, model_class):
             selector_column=True,
         )
 
-    return _generic_list_json
+    return _generate_list_related_json
 
 
 def generate_edit(module, base_name, model_class, form_class, log_class, file_class, tag_class):
@@ -428,7 +426,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
         if issubclass(model_class, GenericModelWithLines):
 
-            lines_objects = copy.deepcopy(obj.MetaLines.lines_objects)
+            lines_objects = filter(lambda lo: not hasattr(obj.MetaEdit, 'only_if') or lo['related_name'] not in obj.MetaEdit.only_if or obj.MetaEdit.only_if[lo['related_name']]((obj, request.user)), copy.deepcopy(obj.MetaLines.lines_objects))
 
             for line_data in lines_objects:
                 line_data['form'] = getattr(importlib.import_module('.'.join(line_data['form'].split('.')[:-1])), line_data['form'].split('.')[-1])
@@ -479,6 +477,8 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                         line_data['forms'].append(line_form_data)
 
+            form._clean_line_data = lines_objects
+
             if form.is_valid() and all_forms_valids:  # If the form is valid
 
                 right = 'EDIT' if obj.pk else 'CREATE'
@@ -488,6 +488,9 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     return redirect('{}.views.{}_edit'.format(module.__name__, base_name), pk='~' if right == 'CREATE' else obj.pk)
 
                 obj.save()
+                if hasattr(form, 'save_m2m'):
+                    form.save_m2m()
+
                 lines_adds = {}
                 lines_updates = {}
                 lines_deletes = {}
@@ -1121,7 +1124,12 @@ def generate_calendar_json(module, base_name, model_class):
                 url = ''
 
             if hasattr(l, 'get_linked_object'):
-                titre = u'{} (Géré par {})'.format(l.get_linked_object(), l.get_linked_object().unit)
+                linked_object = l.get_linked_object()
+
+                if isinstance(linked_object, list):
+                    titre = u'{} (Géré par {})'.format(u', '.join([o.__unicode__() for o in linked_object]), linked_object[0].unit)
+                else:
+                    titre = u'{} (Géré par {})'.format(l.get_linked_object(), l.get_linked_object().unit)
             else:
                 titre = u'{}'.format(l)
 
@@ -1147,7 +1155,11 @@ def generate_calendar_related_json(module, base_name, model_class):
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
 
         if unit_mode and model_class.MetaState.unit_field != '!root':
-            filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+            if hasattr(model_class.MetaState, 'filter_unit_field'):
+                filter_ = lambda x: x.filter(**{model_class.MetaState.filter_unit_field.replace('.', '__'): current_unit})
+            else:
+                filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+
         else:
             filter_ = lambda x: x
 
@@ -1157,7 +1169,10 @@ def generate_calendar_related_json(module, base_name, model_class):
             filter__ = filter_
 
         if request.GET.get('filter_object'):
-            filter___ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+            if hasattr(model_class.MetaState, 'filter_unit_field'):
+                filter___ = lambda x: x.filter(**{'__'.join(model_class.MetaState.filter_unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.filter_unit_field.replace('.', '__'): current_unit})
+            else:
+                filter___ = lambda x: x.filter(**{'__'.join(model_class.MetaState.unit_field.split('.')[:-1] + ['pk']): request.GET.get('filter_object'), model_class.MetaState.unit_field.replace('.', '__'): current_unit})
         else:
             filter___ = lambda x: x
 
@@ -1171,7 +1186,7 @@ def generate_calendar_related_json(module, base_name, model_class):
         start = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(start)))
         end = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.fromtimestamp(float(end)))
 
-        liste = filter___(filter__(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online')))).exclude(deleted=True)
+        liste = filter___(filter__(model_class.objects.exclude((Q(start_date__lt=start) & Q(end_date__lt=start)) | (Q(start_date__gt=end) & Q(end_date__gt=end))).filter(Q(status='1_asking') | Q(status='2_online')))).exclude(deleted=True).distinct()
 
         retour = []
 
@@ -1196,8 +1211,13 @@ def generate_calendar_related_json(module, base_name, model_class):
                 url = ''
 
             if hasattr(l, 'get_linked_object'):
-                titre = u'{} (Réservé par {})'.format(l.get_linked_object(), par)
-                colored = colors[l.get_linked_object().pk % len(colors)]
+                lobj = l.get_linked_object()
+                if isinstance(lobj, list):
+                    titre = u'{} (Réservé par {})'.format(u', '.join([o.__unicode__() for o in lobj]), par)
+                    colored = colors[lobj[0].pk % len(colors)]
+                else:
+                    titre = u'{} (Réservé par {})'.format(lobj, par)
+                    colored = colors[lobj.pk % len(colors)]
             else:
                 titre = u'{} (Réservé par {})'.format(l, par)
                 colored = ""

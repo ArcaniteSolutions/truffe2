@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, GenericDelayValidable, GenericDelayValidableInfo, SearchableModel
+from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, GenericDelayValidable, GenericDelayValidableInfo, SearchableModel, ModelUsedAsLine, GenericModelWithLines
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
-from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.core.urlresolvers import reverse
 
 
 from rights.utils import UnitEditableModel, UnitExternalEditableModel
-from generic.templatetags.generic_extras import html_check_and_safe
 
 
 class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo, SearchableModel):
@@ -348,13 +346,24 @@ N'importe quelle unité peut mettre à disposition du matériel et est responsab
         return self.title
 
 
-class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel, SearchableModel):
+class SupplyReservationLine(ModelUsedAsLine):
+
+    supply_reservation = models.ForeignKey('SupplyReservation', related_name='lines')
+    supply = models.ForeignKey('Supply', related_name='reservations')
+    quantity = models.IntegerField(_(u'Quantité'), default=1)
+
+    def __unicode__(self):
+        try:
+            return u'{}{}'.format(u'{} * '.format(self.quantity) if self.quantity > 1 else '', self.supply or '')
+        except:
+            return u'?'
+
+
+class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel, SearchableModel):
 
     class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
         access = 'LOGISTIQUE'
         moderation_access = 'LOGISTIQUE'
-
-    supply = FalseFK('logistics.models.Supply', verbose_name=_(u'Matériel'))
 
     title = models.CharField(_('Titre'), max_length=255)
 
@@ -374,7 +383,7 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
             ('status', _('Statut')),
         ]
 
-        list_display = [list_display_base[0]] + [('supply', _(u'Matériel')), ] + list_display_base[1:]
+        list_display = [list_display_base[0]] + [('get_supplies', _(u'Matériel')), ] + list_display_base[1:]
         list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] + list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
 
         forced_widths = {
@@ -392,8 +401,8 @@ class _SupplyReservation(GenericModel, GenericDelayValidable, GenericGroupsValid
             '7': '80px',
         }
 
-        details_display = list_display_base + [('get_supply_infos', _('Matériel')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
-        filter_fields = ('title', 'status', 'supply__title')
+        details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
+        filter_fields = ('title', 'status', 'lines__supply__title')
 
         base_title = _(u'Réservation de matériel')
         list_title = _(u'Liste de toutes les réservations de matériel')
@@ -435,15 +444,15 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         help_calendar_specific = _(u"""Les réservation d'un type de matériel particulier.""")
 
-        trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'supply__title'}
-        not_sortable_columns = ['get_conflits_list', ]
+        trans_sort = {'get_unit_name': 'unit__name', 'get_supply_link': 'lines__supply__title'}
+        not_sortable_columns = ['get_conflits_list', 'get_supplies', 'supply']
 
     class MetaEdit:
         datetime_fields = ('start_date', 'end_date')
 
         only_if = {
             'remarks': lambda (obj, user): obj.status == '2_online' and obj.rights_can('VALIDATE', user),
-            'supply': lambda (obj, user): obj.status == '0_draft',
+            'lines': lambda (obj, user): obj.status == '0_draft',
         }
 
     class MetaSearch(SearchableModel.MetaSearch):
@@ -451,76 +460,171 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
         extra_text = u""
 
         fields = [
-            'supply',
             'title',
             'reason',
             'remarks',
+            'get_linked_object',
         ]
 
     class Meta:
         abstract = True
 
     class MetaState(GenericStateUnitValidable.MetaState):
-        unit_field = 'supply.unit'
+        unit_field = 'hidden_unit'
+        filter_unit_field = 'lines.supply.unit'
         linked_model = 'logistics.models.Supply'
+
+    def generic_set_dummy_unit(self, unit):
+        self.hidden_unit = unit
+
+    def get_linked_object(self):
+        return [r.supply for r in self.lines.all()]
+
+    class MetaLines:
+
+        lines_objects = [
+            {
+                'title': _(u'Matériel'),
+                'class': 'logistics.models.SupplyReservationLine',
+                'form': 'logistics.forms2.SupplyReservationLineForm',
+                'related_name': 'lines',
+                'field': 'supply_reservation',
+                'sortable': True,
+                'show_list': [
+                ]
+            },
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(_SupplyReservation, self).__init__(*args, **kwargs)
+
+        if self.pk:
+
+            sr = self.lines.first()
+
+            if sr:
+                self.hidden_unit = sr.supply.unit
 
     def __unicode__(self):
         return self.title
 
-    def genericFormExtraClean(self, data, form):
-        """Check if select supply is available"""
-
+    def genericFormExtraCleanWithLines(self, data, form, lines):
+        """Check if selected supplies are available"""
         from django import forms
 
-        if 'supply' in form.fields:
+        if not lines:
+            return
+
+        supply_in_list = []
+        supply_unit = None
+
+        for supply_form in lines[0]['forms']:
+
+            data = supply_form['form'].cleaned_data
 
             if 'supply' not in data or not data['supply'].active or data['supply'].deleted:
                 raise forms.ValidationError(_(u'Matériel non disponible'))
 
             if not self.unit and not data['supply'].allow_externals:
-                raise forms.ValidationError(_(u'Matériel non disponible'))
+                raise forms.ValidationError(_(u'Matériel non disponible ({}), il est réservé aux commissions. Est-ce que tu es bien en train de faire la réservation depuis la bonne unité?'.format(data['supply'])))
+
+            if data['quantity'] < 1:
+                raise forms.ValidationError(_(u'La quantité pour le matériel {} doit être positive et non nulle'.format(data['supply'])))
+            if data['quantity'] > data['supply'].quantity:
+                raise forms.ValidationError(_(u'La quantité pour le matériel {} doit être inférieure à {}'.format(data['supply'], data['supply'].quantity)))
+
+            if data['supply'] in supply_in_list:
+                raise forms.ValidationError(_(u'Le matériel {} est présent plusieurs fois dans la liste'.format(data['supply'])))
+            else:
+                supply_in_list.append(data['supply'])
+
+            if not supply_unit:
+                supply_unit = data['supply'].unit
+            elif data['supply'].unit != supply_unit:
+                raise forms.ValidationError(_(u'Le matériel {} appartient à l\'unité {} alors que d\'autres éléments appartiennent à l\'unité {}. Il faut faire plusieurs réservations si le matériel appartient à des unités différentes.'.format(data['supply'], data['supply'].unit, supply_unit)))
+
+        if not supply_unit:
+            raise forms.ValidationError(_(u'Il faut réserver du matériel !'))
+
+    def genericFormExtraClean(self, data, form):
+
+        from django import forms
 
         if 'start_date' in data and 'end_date' in data and data['start_date'] > data['end_date']:
             raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
 
     def get_supply_link(self):
-        return '<a href="%s">%s</a>' % (reverse('logistics.views.supply_show', args=(self.supply.pk,)), self.supply,)
+        return u' '.join([u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply) for line in self.lines.order_by('order')])
+
+    def get_supplies(self):
+        return u' '.join([u'{}{}'.format(u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply.title) for line in self.lines.order_by('order')])
 
     def get_supply_infos(self):
         """Affiche les infos sur le matériel pour une réserversation"""
 
-        tpl = mark_safe('<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div>' % (escape(self.supply.title), _(u'géré par'), escape(self.supply.unit.name),))
+        matos = ""
+
+        for line in self.lines.order_by('order'):
+            unit = escape(line.supply.unit.name)
+            matos = u"{}{}{}{}".format(matos, u", " if matos else u"", u"{} * ".format(line.quantity) if line.quantity > 1 else u"", escape(line.supply.title))
+
+        tpl = mark_safe(u'<div style="margin-top: 5px;">{}, {} <span class="label label-info">{}</span></div>'.format(matos, _(u'géré par'), unit))
 
         return tpl
 
     def get_conflits(self):
 
-        liste = self.supply.supplyreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
+        from logistics.models import SupplyReservation
 
-        if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
-            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))
-        else:
+        liste_reservation = SupplyReservation.objects.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
-            retour = '<span class="txt-color-red"><i class="fa fa-warning"></i> %s</span><ul>' % (unicode(_(u'Il y a d\'autres réservations en même temps !')),)
+        conflicts = []
 
-            for elem in liste:
-                retour += u'<li><span class="label label-%s"><i class="%s"></i> %s</span> %s pour l\'unité %s  <span data-toggle="tooltip" data-placement="right" title="Du %s au %s"><i class="fa fa-clock-o"></i> </span></li>' % (elem.status_color(), elem.status_icon(), elem.get_status_display(), elem, elem.get_unit_name(), localtime(elem.start_date), localtime(elem.end_date),)
+        for other_reservation in liste_reservation:
+            for supplyline in other_reservation.lines.all():
+                try:
+                    myline = self.lines.get(supply=supplyline.supply)
 
-            retour += '</ul>'
+                    if myline.quantity + supplyline.quantity > supplyline.supply.quantity:
+                        conflicts.append((other_reservation, supplyline.supply))
+                except:
+                    pass
 
-            return retour
+        if not conflicts:
+            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(unicode(_('Pas de conflits !'))))
+
+        retour = u'<span class="txt-color-red"><i class="fa fa-warning"></i> {}</span><ul>'.format(unicode(_(u'Il y a d\'autres réservations en même temps !')))
+
+        for other_reservation, supply in conflicts:
+            retour += u'<li><span class="label label-{}"><i class="{}"></i> {}</span> {} pour l\'unité {}, pas assez de "{}" <span data-toggle="tooltip" data-placement="right" title="Du {} au {}"><i class="fa fa-clock-o"></i> </span></li>'.format(other_reservation.status_color(), other_reservation.status_icon(), other_reservation.get_status_display(), other_reservation, other_reservation.get_unit_name(), supply, localtime(other_reservation.start_date), localtime(other_reservation.end_date))
+
+        retour += '</ul>'
+
+        return retour
 
     def get_conflits_list(self):
+        from logistics.models import SupplyReservation
 
-        liste = self.supply.supplyreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
+        liste_reservation = SupplyReservation.objects.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
-        if len(liste) < self.supply.quantity:  # Futur TODO for quantity > 1
+        conflicts = []
+
+        for other_reservation in liste_reservation:
+            for supplyline in other_reservation.lines.all():
+                try:
+                    myline = self.lines.get(supply=supplyline.supply)
+
+                    if myline.quantity + supplyline.quantity > supplyline.supply.quantity:
+                        conflicts.append((other_reservation, supplyline.supply))
+                except:
+                    pass
+
+        if not conflicts:
             return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
-        else:
 
-            retour = ''
+        retour = u''
 
-            for elem in liste:
-                retour += u'%s, %s, pour %s du %s au %s, ' % (elem, elem.get_status_display(), elem.unit if elem.unit else elem.unit_blank_name, localtime(elem.start_date), localtime(elem.end_date),)
+        for other_reservation, supply in conflicts:
+            retour += u'{}, {}, pour {}, pas assez de {} du {} au {}, '.format(other_reservation, other_reservation.get_status_display(), other_reservation.unit if other_reservation.unit else other_reservation.unit_blank_name, supply, localtime(other_reservation.start_date), localtime(other_reservation.end_date),)
 
-            return '<span class="txt-color-red" title="%s"><i class="fa fa-warning"></i></span><ul>' % (retour[:-2], )
+        return u'<span class="txt-color-red" title="{}"><i class="fa fa-warning"></i></span><ul>'.format(retour[:-2])

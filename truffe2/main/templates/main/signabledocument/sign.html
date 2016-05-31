@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{block.super}} :: {% trans "Signature de document" %} :: {{file.title}} {% endblock %}
+
+{% block content %}
+
+   <h1>{% trans "Signature de document: " %} {{file.title}}</h1>
+
+   <section id="widget-grid" class="">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+
+                {% with w_title="Signature de document" w_no_toggle=True %}{% include "widget/header.html" %}{% endwith %}
+
+
+                {% trans "Tu dois signer le document" %} {{file.title}}
+                {% trans "à cause de tes accréditations." %}
+                <br /><br />
+
+                {{file.description|linebreaks}}
+
+                <br />
+
+                <center>
+
+                  <a href="{% url 'main.views.signabledocument_download' file.pk %}" class="btn btn-info">
+                    <i class="fa fa-download"></i>
+                    {% trans "Télécharger le document" %}
+                  </a>
+
+                </center>
+
+                {% if signed %}
+                  <br />
+                  <br />
+                  <div class="alert alert-success">
+                    {% trans "Tu as signé ce document !" %}
+                  </div>
+                  <dl>
+                    <dt>{% trans "Date" %}</dt>
+                    <dd>{{signed.when}}</td>
+
+                    <dt>{% trans "IP" %}</dt>
+                    <dd>{{signed.ip}}</td>
+
+                    <dt>{% trans "User agent" %}</dt>
+                    <dd>{{signed.useragent}}</td>
+
+                    <dt>{% trans "SHA" %}</dt>
+                    <dd>{{signed.document_sha}}</td>
+
+                  </dl>
+                {% else %}
+
+                  <br /><br />
+
+                  <form action="" method="POST">
+                    {% csrf_token %}
+                    <div class="alert alert-danger">
+                      {% trans "En cliquant sur le bouton suivant (ou en envoyant le formulaire d'une autre manière), tu reconnais avoir lu et accepté le document. L'heure, ton ip, ton user agent ainsi qu'un hash du document sera sauvegardé !" %}
+                    </div>
+
+                    <center>
+                      <button class="btn btn-primary btn-xl">
+                        <i class="fa-thumbs-up fa"></i>
+                        {% trans "Signer" %}
+                      </button>
+                    </center>
+                  </form>
+
+                {% endif %}
+
+                {% include "widget/footer.html" %}
+            </div>
+        </div>
+  </section>
+
+
+{% endblock %}
+
+{% block menuid %}menu-misc-mydocuments{% endblock %}

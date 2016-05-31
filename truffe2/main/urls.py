@@ -20,4 +20,8 @@ urlpatterns = patterns(
 
     url(r'^file/download_list/$', 'file_download_list'),
     url(r'^file/download/(?P<pk>[0-9,]+)$', 'file_download'),
+
+    url(r'^signabledocument/download/(?P<pk>[0-9,]+)$', 'signabledocument_download'),
+    url(r'^signabledocument/sign/(?P<pk>[0-9,]+)$', 'signabledocument_sign'),
+    url(r'^signabledocument/signs/$', 'signabledocument_signs'),
 )
