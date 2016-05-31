@@ -17,6 +17,8 @@ Truffe 2 is licensed under the [BSD](http://opensource.org/licenses/BSD-2-Clause
 ### Contributors
 
 * Cedric Cook (Fixed a typo)
+* Yolan Romailler (Fixed a path)
+* Yann Beaud (Fixed VCARDs)
 
 ## Development
 
