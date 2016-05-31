@@ -204,7 +204,10 @@ FN:%s
                 pass
 
         if self.mobile:
-            self.mobile = phonenumbers.format_number(phonenumbers.parse(self.mobile, "CH"), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+            try:
+                self.mobile = phonenumbers.format_number(phonenumbers.parse(self.mobile, "CH"), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+            except:
+                pass
 
         super(TruffeUser, self).save(*args, **kwargs)
 
