@@ -175,7 +175,7 @@ def notification_restrictions(request):
 
     key = request.GET.get('current_type')
 
-    if Notification.objects.filter(user=request.user, key=key).exists():
+    if not key or Notification.objects.filter(user=request.user, key=key).exists():
         notification_restriction, __ = NotificationRestriction.objects.get_or_create(user=request.user, key=key)
     else:
         notification_restriction = None
