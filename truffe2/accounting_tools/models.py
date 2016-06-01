@@ -1521,6 +1521,9 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     def get_total(self):
         return sum([line.get_line_delta() for line in self.get_lines()])
 
+    def get_total_ht(self):
+        return sum([line.get_line_delta_ht() for line in self.get_lines()])
+
     def total_incomes(self):
         return sum([line.input_amount() for line in self.get_lines()])
 
@@ -1575,6 +1578,15 @@ class CashBookLine(ModelUsedAsLine):
 
     def get_line_delta(self):
         return self.input_amount() - self.output_amount()
+
+    def input_amount_ht(self):
+        return self.value if self.helper[0] in ['0', '2', '6'] else 0
+
+    def output_amount_ht(self):
+        return self.value if self.helper[0] not in ['0', '2', '6'] else 0
+
+    def get_line_delta_ht(self):
+        return self.input_amount_ht() - self.output_amount_ht()
 
     def sub_total(self):
         previous_lines = list(self.cashbook.lines.filter(order__lte=self.order))  # including self
