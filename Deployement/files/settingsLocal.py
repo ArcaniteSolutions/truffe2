@@ -1,3 +1,5 @@
+import raven
+import os
 
 DATABASES = {
     'default': {
@@ -21,6 +23,7 @@ DEBUG = False
 
 RAVEN_CONFIG = {
     'dsn': '%(raven_dsn)s',
+    'release': raven.fetch_git_sha(os.path.join(os.path.dirname(__file__), '..', '..')),
 }
 
 ACTIVATE_RAVEN = True

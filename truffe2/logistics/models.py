@@ -354,7 +354,7 @@ class SupplyReservationLine(ModelUsedAsLine):
 
     def __unicode__(self):
         try:
-            return u'{}{}'.format(u'{} * '.format(self.quantity) if self.quantity > 1 else '', self.supply or '')
+            return u'{}{}'.format(u'{} * '.format(self.quantity) if self.quantity > 1 else u'', self.supply or u'')
         except:
             return u'?'
 

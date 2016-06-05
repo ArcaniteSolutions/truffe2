@@ -1229,7 +1229,10 @@ def index_generator(model_class):
                     if hasattr(attr, '__call__'):
                         attr = attr()
 
-                    text += u"{}\n".format(attr)
+                    try:
+                        text += u"{}\n".format(attr)
+                    except Exception:
+                        pass
 
             if obj.MetaSearch.extra_text:
                 text += u"{}\n".format(obj.MetaSearch.extra_text)
