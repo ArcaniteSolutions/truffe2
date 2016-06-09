@@ -148,44 +148,44 @@
 
 .desktop-detected .line_field_lines_date {
     min-width: 100px;
-	max-width: 120px;
-	width:6%;
+    max-width: 120px;
+    width:6%;
 }
 
 .desktop-detected .line_field_lines_helper {
-	max-width: 150px;
+    max-width: 150px;
 }
 .desktop-detected .line_field_lines_account {
-	max-width: 150px;
-	width: 10%;
+    max-width: 150px;
+    width: 10%;
 }
 
 .desktop-detected .line_field_lines_value {
-	min-width:100px;
-	max-width:120px;
-	width:6%;
+    min-width:100px;
+    max-width:120px;
+    width:6%;
 }
 
 .desktop-detected .line_field_lines_value_ttc {
-	min-width:100px;
-	max-width:120px;  
-	width:6%;
+    min-width:100px;
+    max-width:120px;  
+    width:6%;
 }
 
 .desktop-detected div.select2-drop{
-	min-width: 200px;
+    min-width: 200px;
 }
 
 .desktop-detected .line_field_lines_tva {
-	max-width: 110px;
+    max-width: 110px;
 }
 
 .desktop-detected .line_field_lines_label {
-	min-width:200px;
-	width:28%;
+    min-width:200px;
+    width:28%;
 }
 
 .desktop-detected .line_field_lines_proof {
-	min-width: 150px;
-	width:20%;
+    min-width: 150px;
+    width:20%;
 }
