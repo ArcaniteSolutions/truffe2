@@ -147,7 +147,7 @@
 }
 
 .desktop-detected .line_field_lines_date {
-	min-width: 100px;
+    min-width: 100px;
 	max-width: 120px;
 	width:6%;
 }
