@@ -260,7 +260,7 @@ class _SignableDocument(GenericModel, AgepolyEditableModel, SearchableModel):
 
         default_sort = "[1, 'asc']"  # title
 
-        base_title = _('Documents à signer')
+        base_title = _(u'Documents à signer')
         list_title = _(u'Liste de tous les documents à signer')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-file-text-o'
