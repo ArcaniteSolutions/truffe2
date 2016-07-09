@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.forms import ModelForm, Form, CharField, ChoiceField, Textarea, ValidationError
+from django.forms import ModelForm, Form, CharField, ChoiceField, Textarea, BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -72,6 +72,7 @@ class ContactForm(Form):
 
     subject = CharField(label=_('Sujet'), max_length=100)
     message = CharField(label=_('Message'), widget=Textarea)
+    receive_copy = BooleanField(label=_('Recevoir une copie?'), required=False, default=True)
 
     def __init__(self, keys, *args, **kwargs):
         super(ContactForm, self).__init__(*args, **kwargs)

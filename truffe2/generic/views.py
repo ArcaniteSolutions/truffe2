@@ -1049,6 +1049,9 @@ def generate_contact(module, base_name, model_class, log_class):
 
                 send_templated_mail(request, _('Truffe :: Contact :: %s') % (form.cleaned_data['subject'],), request.user.email, dest, 'generic/generic/mail/contact', context)
 
+                if form.cleaned_data['receive_copy']:
+                    send_templated_mail(request, _('Truffe :: Contact :: %s') % (form.cleaned_data['subject'],), request.user.email, [request.user.email], 'generic/generic/mail/contact', context)
+
                 done = True
                 messages.success(request, _(u'Message envoyé !'))
         else:
