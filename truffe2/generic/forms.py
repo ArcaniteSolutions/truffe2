@@ -72,7 +72,7 @@ class ContactForm(Form):
 
     subject = CharField(label=_('Sujet'), max_length=100)
     message = CharField(label=_('Message'), widget=Textarea)
-    receive_copy = BooleanField(label=_('Recevoir une copie?'), required=False, default=True)
+    receive_copy = BooleanField(label=_('Recevoir une copie?'), required=False, initial=True)
 
     def __init__(self, keys, *args, **kwargs):
         super(ContactForm, self).__init__(*args, **kwargs)
