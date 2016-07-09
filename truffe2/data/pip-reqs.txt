@@ -1,10 +1,11 @@
 django<1.7
 south
 raven
-django-bootstrap3
+Pillow<3
+django-bootstrap3<7
 phonenumbers
 requests
-django-impersonate
+django-impersonate<0.9.3
 pytz
 git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails
