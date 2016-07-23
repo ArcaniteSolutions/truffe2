@@ -64,14 +64,14 @@
                                     {% include "widget/footer.html" %}
 
                                     <div style="float: right;">
-                                        {% ifhasright Model user '!SHOW' %}
+                                        {% ifhasright obj user 'SHOW' %}
                                           <a href="{% url 'members.views.export_members' obj.pk %}" class="btn btn-default">
                                             <i class="fa fa-download"></i>
                                             {% trans "Exporter" %}
                                           </a>
                                         {% endifhasright %}
 
-                                        {% ifhasright Model user '!CREATE' %}
+                                        {% ifhasright obj user 'EDIT' %}
                                           <a href="#hr1" onclick="disp_import();" data-remote="{% url 'members.views.import_members' obj.pk %}" base-data-remote="{% url 'members.views.import_members' obj.pk %}" id="import-membership-button" class="btn btn-default">
                                             <i class="fa fa-upload"></i>
                                             {% trans "Importer (fichier)" %}
@@ -129,6 +129,28 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block bonus_block_infos %}
+
+    {% ifhasright obj user 'EDIT' %}
+
+        <h3  style="margin-bottom: 0px;">{% trans "API pour la gestion d'un groupe de membre" %}</h3>
+        <small>{% trans "Il est possible de gérer avec une API un groupe de membre, pour automatiser certains processus." %}</small>
+
+        <a href="#hr2" onclick="disp_api();" data-remote="{% url 'members.views.memberset_info_api' obj.pk %}" base-data-remote="{% url 'members.views.memberset_info_api' obj.pk %}" id="info-api-button" class="btn btn-default">
+            <i class="fa fa-info"></i>
+            {% trans "Information sur l'API" %}
+        </a>
+
+        <div class="modal fade" id="modal-display-api-info" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" style="width: 900px;">
+                <div class="modal-content">
+                </div>
+            </div>
+        </div>
+    {% endifhasright %}
+
 {% endblock %}
 
 {% block bonus_box %}
@@ -200,6 +222,14 @@
             $('#modal-import-membership').find('.modal-content').html('');
             $('#modal-import-membership').removeData('bs.modal');
             $('#modal-import-membership').modal({remote: $('#import-list-membership-button').attr('data-remote')});
+        }
+
+        function disp_api() {
+            //Allow usage of select2
+            $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+            $('#modal-display-api-info').find('.modal-content').html('');
+            $('#modal-display-api-info').removeData('bs.modal');
+            $('#modal-display-api-info').modal({remote: $('#info-api-button').attr('data-remote')});
         }
 
         function toggle_fees(mship_id) {

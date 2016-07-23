@@ -23,6 +23,8 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
     ldap_visible = models.BooleanField(_(u'Rend les accreds visibles dans l\'annuaire'), default=False)
     handle_fees = models.BooleanField(_(u'Gestion des cotisations'), default=False)
 
+    api_secret_key = models.CharField(_(u'Clé secrette pour l\'API'), max_length=128, blank=True, null=True)
+
     class MetaData:
         list_display = [
             ('name', _('Nom du groupe de membres')),
@@ -110,6 +112,11 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
         fields = [
             'name',
         ]
+
+    class MetaEdit:
+        only_if = {
+            'api_secret_key': lambda (x, user): user.is_superuser
+        }
 
     def genericFormExtraClean(self, data, form):
         """Check if accred corresponds to generation constraints & that unique_together is fulfiled"""
