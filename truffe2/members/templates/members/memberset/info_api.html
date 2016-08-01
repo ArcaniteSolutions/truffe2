@@ -17,22 +17,22 @@
 
             <h3>{% trans "URL de l'API" %}</h3>
             {% trans "L'URL de base de l'API est:" %}<br />
-            <pre>https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            <pre>{{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
             {% trans "Cette url est unique par groupe de membre." %}
 
-            <h3>{% trans "Clé secrette" %}</h3>
-            {% trans "La clé secrette de l'API est:" %}<br />
+            <h3>{% trans "Clé secrète" %}</h3>
+            {% trans "La clé secrète de l'API est:" %}<br />
             <pre>{{obj.api_secret_key|default:"Pas de clé"}}</pre>
             {% trans "Cette clé est unique par groupe de membre. Tu peux la changer avec ce bouton: " %}
             <button type="submit" class="btn btn-danger btn-xs"><i class="fa fa-refresh"></i> {% trans "Générer une nouvelle clé" %}</button>
 
             <h3>{% trans "Usage de la clé" %}</h3>
             {% trans "Pour utiliser la clé, tu peux soit la passer dans l'url (non-recommandé) avec le paramètre key" %} (<pre style="display: inline; padding: 0;">https://[url]?key=[key]</pre>)
-            {% trans "ou la transmètre via l'header HTTP X-Truffe2-Key" %} (<pre style="display: inline; padding: 0;">X-Truffe2-Key: [key]</pre>)
+            {% trans "ou la transmettre via le header HTTP X-Truffe2-Key" %} (<pre style="display: inline; padding: 0;">X-Truffe2-Key: [key]</pre>)
 
             <h3>{% trans "Methode GET" %} <i class="fa fa-list"></i></h3>
-            {% trans "En fesant une requète GET sur l'URL, tu recevera une liste au format JSON avec le sciper des membres, ainsi que l'éventuel status de la cotisation. Exemple:" %}
-            <pre>curl -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            {% trans "En faisant une requête GET sur l'URL, tu recevras une liste au format JSON avec le sciper des membres, ainsi que l'éventuel statut de la cotisation. Exemple:" %}
+            <pre>curl -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{
     "members": [
         {
@@ -50,44 +50,44 @@
             </pre>
 
             <h3>{% trans "Methode PUT" %} <i class="fa fa-plus"></i></h3>
-            {% trans "En fesant une requète PUT sur l'URL, tu peux ajouter un membre et/ou définir le status de sa cotisation. Retourne 3 résultats possibles: 'CREATED' si le membre a été crée, 'UPDATED_FEE' si la cotisation à été mise à jour ou 'ALREADY_OK' si rien n'a changé.  Exemple:" %}
-            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            {% trans "En faisant une requête PUT sur l'URL, tu peux ajouter un membre et/ou définir le statut de sa cotisation. Retourne 3 résultats possibles: 'CREATED' si le membre a été crée, 'UPDATED_FEE' si la cotisation à été mise à jour ou 'ALREADY_OK' si rien n'a changé. Par défault, si rien n'est spécifié, les cotisations sont misent à False. Exemple:" %}
+            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{"result": "CREATED"}</pre>
 
 
             <br />
-            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{"result": "ALREADY_OK"}</pre>
 
 
             <br />
-            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": true } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{"result": "UPDATED_FEE"}</pre>
 
             <br />
             {% trans "Le système peut aussi te retourner une erreur. Par exemple si le sciper n'est pas dans le LDAP de l'EPFL, 'WRONG_SCIPER' sera retourné. Si tu oublies de passer des informations, 'MISSING_MEMBER' ou 'MISSING_SCIPER' sera retourné." %}
-            <pre>curl -X PUT -d '{ "member": { "sciper": "Patric", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            <pre>curl -X PUT -d '{ "member": { "sciper": "Patrick", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{"error": "WRONG_SCIPER"}</pre>
 
             <h3>{% trans "Methode DELETE" %} <i class="fa fa-times"></i></h3>
-            {% trans "En fesant une requète DELETE sur l'URL, tu peux supprimer un membre. Retourne 2 résultats possibles: 'REMOVED' si le membre a été retiré et 'ALREADY_OK' si l'utilisateur n'était pas un membre.  Exemple:" %}
-            <pre>curl -X DELETE -d '{ "member": { "sciper": "110855" } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            {% trans "En faisant une requête DELETE sur l'URL, tu peux supprimer un membre. Retourne 2 résultats possibles: 'REMOVED' si le membre a été retiré et 'ALREADY_OK' si l'utilisateur n'était pas un membre.  Exemple:" %}
+            <pre>curl -X DELETE -d '{ "member": { "sciper": "110855" } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{"result": "REMOVED"}</pre>
 
 
             <br />
-            <pre>curl -X DELETE -d '{ "member": { "sciper": "110855" } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            <pre>curl -X DELETE -d '{ "member": { "sciper": "110855" } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{"result": "ALREADY_OK"}</pre>
 
             <br />
-            {% trans "Le système peut aussi te retourner une erreur. Par exemple, si tu oublies de passer des informations, 'MISSING_MEMBER' ou 'MISSING_SCIPER' sera retourné. Si aucun utilisateur existe avec le sciper envoyé, 'UNKNOW_USER' sera retourné." %}
-            <pre>curl -X DELETE -d '{ "member": { } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            {% trans "Le système peut aussi te retourner une erreur. Par exemple, si tu oublies de passer des informations, 'MISSING_MEMBER' ou 'MISSING_SCIPER' sera retourné. Si aucun utilisateur n'existe dans le LDAP avec le sciper envoyé, 'UNKNOWN_USER' sera retourné." %}
+            <pre>curl -X DELETE -d '{ "member": { } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{"error": "MISSING_SCIPER"}</pre>
 
 
             <h3>{% trans "Methode POST" %} <i class="fa fa-save"></i></h3>
-            {% trans "En fesant une requète POST sur l'URL, tu peux définir une liste de membre. Le système te retourne une liste des modifications appliquées via 5 listes: 'created', la liste des membres ajoutés, 'updated', la listes des membres dont la cotisation à été mise à jour, 'already_ok', la liste des membres sans modifications, 'removed', la liste des membres retirés et 'errors' avec la liste des erreurs.  Exemple:" %}
-            <pre>curl -X POST -d '{ "members": [ { "sciper": "185952" }, { "sciper": "179189", "payed_fees": true }, { "sciper": "Partick" }, { "sciper": "104359" } ] }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"le-jeu"}}" https://truffe2.agepoly.ch{% url 'members.views.memberset_api' obj.pk %}</pre>
+            {% trans "En faisant une requête POST sur l'URL, tu peux définir une liste de membre. Le système te retourne une liste des modifications appliquées via 5 listes: 'created', la liste des membres ajoutés, 'updated', la listes des membres dont la cotisation à été mise à jour, 'already_ok', la liste des membres sans modifications, 'removed', la liste des membres retirés et 'errors' avec la liste des erreurs.  Exemple:" %}
+            <pre>curl -X POST -d '{ "members": [ { "sciper": "185952" }, { "sciper": "179189", "payed_fees": true }, { "sciper": "Partick" }, { "sciper": "104359" } ] }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{
     "created": ["104359"]
     "updated": ["179189"],

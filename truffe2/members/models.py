@@ -23,7 +23,7 @@ class _MemberSet(GenericModel, GenericStateModel, GenericGroupsModel, UnitEditab
     ldap_visible = models.BooleanField(_(u'Rend les accreds visibles dans l\'annuaire'), default=False)
     handle_fees = models.BooleanField(_(u'Gestion des cotisations'), default=False)
 
-    api_secret_key = models.CharField(_(u'Clé secrette pour l\'API'), max_length=128, blank=True, null=True)
+    api_secret_key = models.CharField(_(u'Clé secrète pour l\'API'), max_length=128, blank=True, null=True)
 
     class MetaData:
         list_display = [

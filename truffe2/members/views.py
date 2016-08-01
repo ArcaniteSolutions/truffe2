@@ -268,14 +268,14 @@ def memberset_info_api(request, pk):
         key_changed = True
         MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data=json.dumps({'edited': {'api_secret_key': ['', 'Key changed']}})).save()
 
-    return render(request, 'members/memberset/info_api.html', {'obj': memberset, 'key_changed': key_changed})
+    return render(request, 'members/memberset/info_api.html', {'obj': memberset, 'key_changed': key_changed, 'website_path': settings.WEBSITE_PATH})
 
 
 @csrf_exempt
 def memberset_api(request, pk):
     from members.models import MemberSet, MemberSetLogging, Membership
 
-    key = request.GET.get('key', request.META.get('HTTP_X_TRUFFE2_KEY'))
+    key = request.META.get('HTTP_X_TRUFFE2_KEY', request.GET.get('key'))
 
     if not key:
         raise Http404
@@ -373,7 +373,7 @@ def memberset_api(request, pk):
                     user = TruffeUser.objects.get(username=body_data['member']['sciper'])
                 except TruffeUser.DoesNotExist:
                     user = None
-                    result = {'error': 'UNKNOW_USER'}
+                    result = {'error': 'UNKNOWN_USER'}
 
                 if user:
 

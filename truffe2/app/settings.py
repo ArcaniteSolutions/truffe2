@@ -270,6 +270,8 @@ HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 25
 HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS = 100
 
+WEBSITE_PATH = 'https://truffe2.agepoly.ch'
+
 try:
     from settingsLocal import *
 except ImportError:
