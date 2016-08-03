@@ -135,7 +135,7 @@
 
     {% ifhasright obj user 'EDIT' %}
 
-        <h3  style="margin-bottom: 0px;">{% trans "API pour la gestion d'un groupe de membre" %}</h3>
+        <h3  style="margin-bottom: 0px;">{% trans "API pour la gestion d'un groupe de membres" %}</h3>
         <small>{% trans "Il est possible de gérer avec une API un groupe de membres, pour automatiser certains processus." %}</small>
 
         <a href="#hr2" onclick="disp_api();" data-remote="{% url 'members.views.memberset_info_api' obj.pk %}" base-data-remote="{% url 'members.views.memberset_info_api' obj.pk %}" id="info-api-button" class="btn btn-default">

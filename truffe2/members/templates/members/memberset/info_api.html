@@ -86,7 +86,7 @@
 
 
             <h3>{% trans "Methode POST" %} <i class="fa fa-save"></i></h3>
-            {% trans "En faisant une requête POST sur l'URL, tu peux définir une liste de membre. Le système te retourne une liste des modifications appliquées via 5 listes: 'created', la liste des membres ajoutés, 'updated', la listes des membres dont la cotisation à été mise à jour, 'already_ok', la liste des membres sans modifications, 'removed', la liste des membres retirés et 'errors' avec la liste des erreurs.  Exemple:" %}
+            {% trans "En faisant une requête POST sur l'URL, tu peux définir une liste de membres. Le système te retourne une liste des modifications appliquées via 5 listes: 'created', la liste des membres ajoutés, 'updated', la liste des membres dont la cotisation a été mise à jour, 'already_ok', la liste des membres sans modifications, 'removed', la liste des membres retirés et 'errors' avec la liste des erreurs.  Exemple:" %}
             <pre>curl -X POST -d '{ "members": [ { "sciper": "185952" }, { "sciper": "179189", "payed_fees": true }, { "sciper": "Partick" }, { "sciper": "104359" } ] }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
 <pre>{
     "created": ["104359"]
