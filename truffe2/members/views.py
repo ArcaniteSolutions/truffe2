@@ -7,16 +7,19 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
 
 from app.ldaputils import get_attrs_of_sciper
-from app.utils import update_current_unit
 from members.forms2 import MembershipAddForm, MembershipImportForm, MembershipImportListForm
 from generic.datatables import generic_list_json
 from users.models import TruffeUser
 
+
 import json
 import re
 import string
+import uuid
 
 
 @login_required
@@ -42,7 +45,7 @@ def membership_add(request, pk):
                 user.last_name, user.first_name, user.email = get_attrs_of_sciper(user.username)
                 user.save()
 
-            if memberset.membership_set.filter(user=user).count():
+            if memberset.membership_set.filter(user=user, end_date=None).exists():
                 pass
             else:
                 membership = form.save(commit=False)
@@ -179,6 +182,7 @@ def import_members(request, pk):
                             user = None
 
                     if user:
+
                         if memberset.membership_set.filter(user=user, end_date=None).exists():
                             logs.append(('warning', user, _(u'L\'utilisateur est déjà membre de ce groupe')))
                         else:
@@ -246,3 +250,220 @@ def import_members_list(request, pk):
 
     logs.sort(key=lambda x: x[0])
     return render(request, 'members/membership/import_list.html', {'form': form, 'logs': logs, 'group': memberset, 'display_list_panel': True})
+
+
+@login_required
+def memberset_info_api(request, pk):
+    from members.models import MemberSet, MemberSetLogging
+
+    memberset = get_object_or_404(MemberSet, pk=pk)
+    if not memberset.rights_can('EDIT', request.user):
+        raise Http404
+
+    key_changed = False
+
+    if request.method == 'POST':
+        memberset.api_secret_key = str(uuid.uuid4())
+        memberset.save()
+        key_changed = True
+        MemberSetLogging(who=request.user, what='edited', object=memberset, extra_data=json.dumps({'edited': {'api_secret_key': ['', 'Key changed']}})).save()
+
+    return render(request, 'members/memberset/info_api.html', {'obj': memberset, 'key_changed': key_changed, 'website_path': settings.WEBSITE_PATH})
+
+
+@csrf_exempt
+def memberset_api(request, pk):
+    from members.models import MemberSet, MemberSetLogging, Membership
+
+    key = request.META.get('HTTP_X_TRUFFE2_KEY', request.GET.get('key'))
+
+    if not key:
+        raise Http404
+
+    memberset = get_object_or_404(MemberSet, pk=pk)
+
+    if not memberset.api_secret_key:
+        raise Http404
+
+    if key != memberset.api_secret_key:
+        raise Http404
+
+    system_user = TruffeUser.objects.get(pk=settings.SYSTEM_USER_PK)
+
+    result = {'error': 'WRONG_METHOD'}
+
+    if request.method == 'GET':
+
+        result = []
+
+        for member in memberset.membership_set.filter(end_date=None):
+
+            data = {
+                'sciper': member.user.username,
+                'added_date': str(member.start_date)
+            }
+
+            if memberset.handle_fees:
+                data['payed_fees'] = member.payed_fees
+
+            result.append(data)
+
+        result = {'members': result}
+
+    if request.method in ['PUT', 'POST', 'DELETE']:
+
+        try:
+            body_data = json.loads(request.body)
+        except:
+            r = HttpResponse(json.dumps({'error': 'JSON_PARSE_ERROR'}))
+            r.content_type = 'application/json'
+            return r
+
+    if request.method == 'PUT':
+
+        if 'member' not in body_data:
+            result = {'error': 'MISSING_MEMBER'}
+        else:
+
+            if 'sciper' not in body_data['member']:
+                result = {'error': 'MISSING_SCIPER'}
+            else:
+
+                try:
+                    user = TruffeUser.objects.get(username=body_data['member']['sciper'])
+                except TruffeUser.DoesNotExist:
+                    user = TruffeUser(username=body_data['member']['sciper'], is_active=True)
+                    user.last_name, user.first_name, user.email = get_attrs_of_sciper(user.username)
+                    if not user.email:
+                        result = {'error': 'WRONG_SCIPER'}
+                        user = None
+                    else:
+                        user.save()
+
+                if user:
+
+                    membership, created = Membership.objects.get_or_create(user=user, group=memberset, end_date=None)
+
+                    result = {'result': 'ALREADY_OK'}
+
+                    if memberset.handle_fees and 'payed_fees' in body_data['member'] and membership.payed_fees != body_data['member']['payed_fees']:
+                        membership.payed_fees = body_data['member']['payed_fees']
+                        membership.save()
+                        result = {'result': 'UPDATED_FEE'}
+
+                        if not created:
+                            MemberSetLogging(who=system_user, what='edited', object=memberset,
+                            extra_data='{"edited": {"Cotisation %s": ["%s ", "%s"]}}' % (membership.user.get_full_name(), not membership.payed_fees, membership.payed_fees)).save()
+
+                    if created:
+                        MemberSetLogging(who=system_user, what='edited', object=memberset, extra_data='{"edited": {"%s": ["None", "Membre"]}}' % (user.get_full_name(),)).save()
+                        result = {'result': 'CREATED'}
+
+    if request.method == 'DELETE':
+
+        if 'member' not in body_data:
+            result = {'error': 'MISSING_MEMBER'}
+        else:
+
+            if 'sciper' not in body_data['member']:
+                result = {'error': 'MISSING_SCIPER'}
+            else:
+
+                try:
+                    user = TruffeUser.objects.get(username=body_data['member']['sciper'])
+                except TruffeUser.DoesNotExist:
+                    user = None
+                    result = {'error': 'UNKNOWN_USER'}
+
+                if user:
+
+                    membership = Membership.objects.filter(group=memberset, user=user, end_date=None).first()
+
+                    if membership:
+                        membership.end_date = now()
+                        membership.save()
+
+                        MemberSetLogging(who=system_user, what='edited', object=memberset, extra_data='{"edited": {"%s": ["Membre", "None"]}}' % (membership.user.get_full_name(),)).save()
+
+                        result = {'result': 'REMOVED'}
+                    else:
+                        result = {'result': 'ALREADY_OK'}
+
+    if request.method == 'POST':
+
+        if 'members' not in body_data:
+            result = {'error': 'MISSING_MEMBER'}
+        else:
+
+            added = []
+            updated = []
+            already_ok = []
+            errors = []
+            deleted = []
+
+            members_ok = []
+
+            for member_data in body_data['members']:
+
+                if 'sciper' not in member_data:
+                    errors.append({'sciper': '?', 'error': 'MISSING_SCIPER'})
+                else:
+
+                    try:
+                        user = TruffeUser.objects.get(username=member_data['sciper'])
+                    except TruffeUser.DoesNotExist:
+                        user = TruffeUser(username=member_data['sciper'], is_active=True)
+                        user.last_name, user.first_name, user.email = get_attrs_of_sciper(user.username)
+                        if not user.email:
+                            errors.append({'sciper': member_data['sciper'], 'error': 'WRONG_SCIPER'})
+                            user = None
+                        else:
+                            user.save()
+
+                    if user:
+
+                        membership, created = Membership.objects.get_or_create(user=user, group=memberset, end_date=None)
+
+                        result = 'ALREADY_OK'
+
+                        if memberset.handle_fees and 'payed_fees' in member_data and membership.payed_fees != member_data['payed_fees']:
+                            membership.payed_fees = member_data['payed_fees']
+                            membership.save()
+                            result = 'UPDATED_FEE'
+
+                            if not created:
+                                MemberSetLogging(who=system_user, what='edited', object=memberset,
+                                extra_data='{"edited": {"Cotisation %s": ["%s ", "%s"]}}' % (membership.user.get_full_name(), not membership.payed_fees, membership.payed_fees)).save()
+
+                        if created:
+                            MemberSetLogging(who=system_user, what='edited', object=memberset, extra_data='{"edited": {"%s": ["None", "Membre"]}}' % (user.get_full_name(),)).save()
+                            result = 'CREATED'
+
+                        if result == 'ALREADY_OK':
+                            already_ok.append(member_data['sciper'])
+                        elif result == 'UPDATED_FEE':
+                            updated.append(member_data['sciper'])
+                        elif result == 'CREATED':
+                            added.append(member_data['sciper'])
+
+                        members_ok.append(membership.pk)
+
+            for old_membership in Membership.objects.filter(group=memberset, end_date=None).exclude(pk__in=members_ok):
+                old_membership.end_date = now()
+                old_membership.save()
+
+                MemberSetLogging(who=system_user, what='edited', object=memberset, extra_data='{"edited": {"%s": ["Membre", "None"]}}' % (old_membership.user.get_full_name(),)).save()
+                deleted.append(old_membership.user.username)
+
+            result = {
+                'created': added,
+                'updated': updated,
+                'already_ok': already_ok,
+                'deleted': deleted,
+                'errors': errors,
+            }
+
+    r = HttpResponse(json.dumps(result))
+    r.content_type = 'application/json'
+
+    return r

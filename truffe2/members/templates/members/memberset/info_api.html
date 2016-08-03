@@ -1,0 +1,114 @@
+{% load i18n bootstrap3 %}
+
+
+<form id="info-api-form" method="POST" action="{% url 'members.views.memberset_info_api' obj.pk %}" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">{% trans "Informations sur l'API" %}</h4>
+        </div>
+
+        <div class="modal-body">
+
+            <h3>{% trans "URL de l'API" %}</h3>
+            {% trans "L'URL de base de l'API est:" %}<br />
+            <pre>{{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+            {% trans "Cette url est unique par groupe de membre." %}
+
+            <h3>{% trans "Clé secrète" %}</h3>
+            {% trans "La clé secrète de l'API est:" %}<br />
+            <pre>{{obj.api_secret_key|default:"Pas de clé"}}</pre>
+            {% trans "Cette clé est unique par groupe de membre. Tu peux la changer avec ce bouton: " %}
+            <button type="submit" class="btn btn-danger btn-xs"><i class="fa fa-refresh"></i> {% trans "Générer une nouvelle clé" %}</button>
+
+            <h3>{% trans "Usage de la clé" %}</h3>
+            {% trans "Pour utiliser la clé, tu peux soit la passer dans l'url (non-recommandé) avec le paramètre key" %} (<pre style="display: inline; padding: 0;">https://[url]?key=[key]</pre>)
+            {% trans "ou la transmettre via le header HTTP X-Truffe2-Key" %} (<pre style="display: inline; padding: 0;">X-Truffe2-Key: [key]</pre>)
+
+            <h3>{% trans "Methode GET" %} <i class="fa fa-list"></i></h3>
+            {% trans "En faisant une requête GET sur l'URL, tu recevras une liste au format JSON avec le sciper des membres, ainsi que l'éventuel statut de la cotisation. Exemple:" %}
+            <pre>curl -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{
+    "members": [
+        {
+            "sciper": "179189",
+            "payed_fees": false,
+            "added_date": "2015-06-16 16:43:35+00:00"
+        },
+        {
+            "sciper": "185952",
+            "payed_fees": true,
+            "added_date": "2016-05-29 15:31:45+00:00"
+        }
+    ]
+}
+            </pre>
+
+            <h3>{% trans "Methode PUT" %} <i class="fa fa-plus"></i></h3>
+            {% trans "En faisant une requête PUT sur l'URL, tu peux ajouter un membre et/ou définir le statut de sa cotisation. Retourne 3 résultats possibles: 'CREATED' si le membre a été crée, 'UPDATED_FEE' si la cotisation à été mise à jour ou 'ALREADY_OK' si rien n'a changé. Par défault, si rien n'est spécifié, les cotisations sont misent à False. Exemple:" %}
+            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{"result": "CREATED"}</pre>
+
+
+            <br />
+            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{"result": "ALREADY_OK"}</pre>
+
+
+            <br />
+            <pre>curl -X PUT -d '{ "member": { "sciper": "110855", "payed_fees": true } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{"result": "UPDATED_FEE"}</pre>
+
+            <br />
+            {% trans "Le système peut aussi te retourner une erreur. Par exemple si le sciper n'est pas dans le LDAP de l'EPFL, 'WRONG_SCIPER' sera retourné. Si tu oublies de passer des informations, 'MISSING_MEMBER' ou 'MISSING_SCIPER' sera retourné." %}
+            <pre>curl -X PUT -d '{ "member": { "sciper": "Patrick", "payed_fees": false } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{"error": "WRONG_SCIPER"}</pre>
+
+            <h3>{% trans "Methode DELETE" %} <i class="fa fa-times"></i></h3>
+            {% trans "En faisant une requête DELETE sur l'URL, tu peux supprimer un membre. Retourne 2 résultats possibles: 'REMOVED' si le membre a été retiré et 'ALREADY_OK' si l'utilisateur n'était pas un membre.  Exemple:" %}
+            <pre>curl -X DELETE -d '{ "member": { "sciper": "110855" } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{"result": "REMOVED"}</pre>
+
+
+            <br />
+            <pre>curl -X DELETE -d '{ "member": { "sciper": "110855" } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{"result": "ALREADY_OK"}</pre>
+
+            <br />
+            {% trans "Le système peut aussi te retourner une erreur. Par exemple, si tu oublies de passer des informations, 'MISSING_MEMBER' ou 'MISSING_SCIPER' sera retourné. Si aucun utilisateur n'existe dans le LDAP avec le sciper envoyé, 'UNKNOWN_USER' sera retourné." %}
+            <pre>curl -X DELETE -d '{ "member": { } }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{"error": "MISSING_SCIPER"}</pre>
+
+
+            <h3>{% trans "Methode POST" %} <i class="fa fa-save"></i></h3>
+            {% trans "En faisant une requête POST sur l'URL, tu peux définir une liste de membres. Le système te retourne une liste des modifications appliquées via 5 listes: 'created', la liste des membres ajoutés, 'updated', la liste des membres dont la cotisation a été mise à jour, 'already_ok', la liste des membres sans modifications, 'removed', la liste des membres retirés et 'errors' avec la liste des erreurs.  Exemple:" %}
+            <pre>curl -X POST -d '{ "members": [ { "sciper": "185952" }, { "sciper": "179189", "payed_fees": true }, { "sciper": "Partick" }, { "sciper": "104359" } ] }' -H "X-Truffe2-Key: {{obj.api_secret_key|default:"ta-clé"}}" {{website_path}}{% url 'members.views.memberset_api' obj.pk %}</pre>
+<pre>{
+    "created": ["104359"]
+    "updated": ["179189"],
+    "already_ok": ["185952"],
+    "deleted": ["110855"],
+    "errors": [
+        {"sciper": "Partick", "error": "WRONG_SCIPER"}
+    ],
+}</pre>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    {% trans "Fermer" %}
+                </button>
+            </div>
+        </div>
+
+    </div><!-- /.modal-content -->
+
+  <script type="text/javascript">
+        $('#info-api-form').ajaxForm({replaceTarget: true, target: '#info-api-form'});
+  </script>
+</form>
+

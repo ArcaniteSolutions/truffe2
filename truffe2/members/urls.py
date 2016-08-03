@@ -12,6 +12,9 @@ urlpatterns = patterns(
     url(r'^memberset/(?P<pk>[0-9]+)/json$', 'membership_list_json'),
     url(r'^memberset/(?P<pk>[0-9]+)/add$', 'membership_add'),
 
+    url(r'^memberset/(?P<pk>[0-9]+)/api/v1/info$', 'memberset_info_api'),
+    url(r'^memberset/(?P<pk>[0-9]+)/api/v1/$', 'memberset_api'),
+
     url(r'^membership/(?P<pk>[0-9]+)/delete$', 'membership_delete'),
     url(r'^membership/(?P<pk>[0-9~]+)/toggle_fees$', 'membership_toggle_fees'),
 
