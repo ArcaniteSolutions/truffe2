@@ -1184,7 +1184,11 @@ class LinkedInfoModel(object):
 
     def get_fullname(self):
         infos = self.linked_info()
-        return u"{} {}".format(infos.first_name, infos.last_name)
+
+        if infos:
+            return u"{} {}".format(infos.first_name, infos.last_name)
+
+        return u""
 
 
 def index_generator(model_class):
