@@ -205,9 +205,8 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
                         for acc in access:
                             if acc in accreditation.role.access:
                                 return True
-                        return False
 
-                    if access in accreditation.role.access:
+                    elif access in accreditation.role.access:
                         return True
 
                 # Check valid delegations for this accred
@@ -219,9 +218,8 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
                             for acc in access:
                                 if acc in access_delegation.access:
                                     return True
-                            return False
 
-                        if access in access_delegation.access:
+                        elif access in access_delegation.access:
                             return True
 
         if self.parent_hierarchique and not no_parent:
