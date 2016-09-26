@@ -533,7 +533,7 @@ class _AccessDelegation(GenericModel, UnitEditableModel):
 
         default_sort = "[0, 'asc']"  # id
 
-        filter_fields = ()
+        filter_fields = ('user__first_name', 'user__last_name','user__username', 'role__name', 'access')
         not_sortable_columns = ['get_display_list', ]
 
         base_title = _(u'Délégation d\'accès')
