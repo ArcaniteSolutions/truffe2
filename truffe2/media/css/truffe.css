@@ -168,7 +168,7 @@
 
 .desktop-detected .line_field_lines_value_ttc {
     min-width:100px;
-    max-width:120px;  
+    max-width:120px;
     width:6%;
 }
 
@@ -188,4 +188,17 @@
 .desktop-detected .line_field_lines_proof {
     min-width: 150px;
     width:20%;
+}
+
+.supply-items {
+    padding-left: 10px;
+}
+
+.supply-items li {
+    padding-bottom: 5px;
+}
+
+.supply-items li span {
+    display: block;
+    margin-left: -8px;
 }
