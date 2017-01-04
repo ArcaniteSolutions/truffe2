@@ -12,10 +12,10 @@ bleach
 python-ldap
 pisa
 reportlab<3
-html5lib
+html5lib==1.0b8
 django-jfu
 django-sendfile
-django-haystack
+django-haystack==2.4.1
 whoosh
 pdfminer
 textract
@@ -24,3 +24,4 @@ celery
 pypdf
 wand
 schwifty
+mysql-python
