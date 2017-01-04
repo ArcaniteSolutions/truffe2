@@ -25,3 +25,4 @@ celery
 pypdf
 wand
 schwifty
+mysql-python
