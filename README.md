@@ -24,6 +24,8 @@ Truffe 2 is licensed under the [BSD](http://opensource.org/licenses/BSD-2-Clause
 
 This is a standard django project. Python requirements are stored in `truffe2/data/pip-reqs.txt`.
 
+This projects requires ImageMagick which can be obtained using `brew install freetype imagemagick`
+
 You will need access to tequila (EPFL internal network is enough) to login.
 
 No initial database is provided. To begin, grant yourself admin rights in the database after a first login, and create at least one unit.
