@@ -558,7 +558,7 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         for line in self.lines.order_by('order'):
             line_link_list += '<li><span>'
-            line_link_list += u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), line.supply, u' * {}'.format(line.quantity))
+            line_link_list += u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity), line.supply)
             line_link_list += '</span></li>'
 
         line_link_list += '</ul>'
