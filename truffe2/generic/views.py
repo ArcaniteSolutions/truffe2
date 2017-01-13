@@ -267,11 +267,11 @@ def generate_list_related_json(module, base_name, model_class):
 
         if unit_mode:
             if hasattr(model_class.MetaState, 'filter_unit_field'):
-                filter_ = lambda x: x.filter(**{model_class.MetaState.filter_unit_field.replace('.', '__'): current_unit})
+                filter_ = lambda x: x.filter(**{model_class.MetaState.filter_unit_field.replace('.', '__'): current_unit}).distinct()
             else:
-                filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit})
+                filter_ = lambda x: x.filter(**{model_class.MetaState.unit_field.replace('.', '__'): current_unit}).distinct()
         else:
-            filter_ = lambda x: x
+            filter_ = lambda x: x.distinct()
 
         if year_mode:
             filter__ = lambda x: filter_(x).filter(accounting_year=current_year)
