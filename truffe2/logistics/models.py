@@ -554,7 +554,15 @@ Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
             raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
 
     def get_supply_link(self):
-        return u' '.join([u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply) for line in self.lines.order_by('order')])
+        line_link_list = '<ul class="supply-items">'
+
+        for line in self.lines.order_by('order'):
+            line_link_list += '<li><span>'
+            line_link_list += u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity), line.supply)
+            line_link_list += '</span></li>'
+
+        line_link_list += '</ul>'
+        return u'{}'.format(line_link_list)
 
     def get_supplies(self):
         return u' '.join([u'{}{}'.format(u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply.title) for line in self.lines.order_by('order')])
