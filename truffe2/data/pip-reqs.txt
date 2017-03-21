@@ -4,7 +4,7 @@ raven
 django-bootstrap3<6
 phonenumbers
 requests
-django-impersonate
+django-impersonate<1.0
 pytz
 git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails
