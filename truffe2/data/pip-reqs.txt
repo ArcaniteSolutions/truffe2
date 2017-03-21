@@ -8,7 +8,7 @@ django-impersonate
 pytz
 git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails
-bleach
+bleach<1.5
 python-ldap
 pisa
 reportlab<3
