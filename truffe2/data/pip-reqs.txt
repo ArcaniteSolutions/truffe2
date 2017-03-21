@@ -5,11 +5,11 @@ Pillow<3
 django-bootstrap3<7
 phonenumbers
 requests
-django-impersonate<0.9.3
+django-impersonate<1.0
 pytz
 git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails
-bleach
+bleach<1.5
 python-ldap
 pisa
 reportlab<3
