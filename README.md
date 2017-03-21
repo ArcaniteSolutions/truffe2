@@ -35,3 +35,18 @@ South is used for migrations. Be careful, some models are created dynamically!
 You will need a `truffe2/app/settingsLocal.py` file with your local settings (database, etc.). A template is provided in `truffe2/app/settingsLocal.py.dist`. According to which database driver you choose, install the corresponding python package, e.g. `pip install mysql-python` for MySQL.
 
 Deployment scripts using fabric are located in the `Deployment` folder.
+
+### Example development environment setup
+
+1. Create a virtual Python environment: `virtualenv --python=/usr/bin/python2 venv`
+2. Activate it: `. ./venv/bin/activate`
+3. Install dependencies: `pip install -r ./truffe2/data/pip-reqs.txt`
+4. `cp ./truffe2/app/settingsLocal.py{.dist,}`
+5. Edit `./truffe2/app/settingsLocal.py` and set the database engine to `django.db.backends.sqlite3` and database name to `db.sqlite3`
+6. To be apple to see the mails sent from the application, run a [maildump](https://pypi.python.org/pypi/maildump) instance on port 1025
+7. Go inside the `truffe2` directory for the next steps: `cd truffe2`
+8. Create the database tables not managed by south with `python manage.py syncdb`
+9. Create the database tables managed by south with `python manage.py migrate`
+10. Run the development server with `python manage.py runserver`
+11. Go to `http://localhost:8000/` and log in with Tequila
+12. Give your user superuser rights with `echo "update users_truffeuser set is_superuser=1 where id=1;" | sqlite3 db.sqlite3`
