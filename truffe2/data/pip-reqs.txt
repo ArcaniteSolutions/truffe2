@@ -1,7 +1,7 @@
 django<1.7
 south
 raven
-django-bootstrap3
+django-bootstrap3<6
 phonenumbers
 requests
 django-impersonate
