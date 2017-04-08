@@ -210,7 +210,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
                         return True
 
                 # Check valid delegations for this accred
-                access_delegations = self.accessdelegation_set.filter((Q(user=user) | Q(user=None)) & (Q(role=accreditation.role) | Q(role=None))).all()
+                access_delegations = self.accessdelegation_set.filter((Q(user=user) | Q(user=None)) & (Q(role=accreditation.role) | Q(role=None))).exclude(deleted=True)
 
                 for access_delegation in access_delegations:
                     if not parent_mode or access_delegation.valid_for_sub_units:
