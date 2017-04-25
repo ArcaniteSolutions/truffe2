@@ -570,6 +570,9 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
 
+        if dest_state == '3_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return False
+
         return super(_Invoice, self).rights_can_EDIT(user) and super(_Invoice, self).may_switch_to(user, dest_state)
 
     def can_switch_to(self, user, dest_state):
@@ -579,6 +582,9 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return (False, _('Seul l\'AGEPoly peut modifier une facture une fois qu\'elle a été envoyée.'))
+
+        if dest_state == '3_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return (False, _('Seul l\'AGEPoly peut archiver une facture.'))
 
         return super(_Invoice, self).can_switch_to(user, dest_state)
 
