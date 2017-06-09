@@ -272,6 +272,8 @@ HAYSTACK_MAX_SIMPLE_SEARCH_RESULTS = 100
 
 WEBSITE_PATH = 'https://truffe2.agepoly.ch'
 
+EMAIL_FROM = 'truffe2@epfl.ch'
+
 try:
     from settingsLocal import *
 except ImportError:
