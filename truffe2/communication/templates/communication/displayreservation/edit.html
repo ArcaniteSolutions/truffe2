@@ -1,0 +1,23 @@
+{% extends "generic/generic/edit.html" %}
+{% load i18n %}
+
+{% block edit_bonus %}
+    <script type="text/javascript">
+
+        $(function() {
+
+            if (getUrlParameter('autoobjpk') != '' && $('#lines_tbody_lines .select2-offscreen').length == 0) {
+                var val = getUrlParameter('autoobjpk');
+
+                $('#new_line').click();
+
+                $('#lines_tbody_lines .select2-offscreen option[value="' + val + '"]').attr('selected', 'selected');
+
+                $('#lines_tbody_lines .select2-offscreen').select2('destroy');
+                $('#lines_tbody_lines .select2-offscreen').select2();
+            }
+
+        });
+
+    </script>
+{% endblock %}

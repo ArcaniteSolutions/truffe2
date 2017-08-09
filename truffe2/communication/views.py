@@ -77,3 +77,40 @@ def logo_public_load(request):
             logos.append(logo)
 
     return render(request, 'communication/logo_public_load.html', {'logos': logos, 'unit': unit})
+
+@login_required
+def display_search(request):
+    
+    from communication.models import Display, DisplayReservation
+    
+    q = request.GET.get('q')
+    init = request.GET.get('init')
+    unit_pk = request.GET.get('unit_pk', "-1") or "-1"
+    
+    displays= Display.objects.filter(active=True, deleted=False).order_by('title')
+    
+    if q:
+        displays = displays.filter(title__icontains=q)
+    
+    if init is not None:
+        if not init:
+            return HttpResponse(json.dumps([]))
+        displays = displays.filter(pk=init)
+    
+    if unit_pk == "-1":
+        displays = displays.filter(allow_externals=True)
+    else:
+        # Pas de filtre, mais on check que le dude peut faire une réservation
+        # dans l'unité
+        from units.models import Unit
+        get_object_or_404(Unit, pk=unit_pk)
+        
+        dummy = DisplayReservation()
+        update_current_unit(request, unit_pk)
+        
+        if not dummy.rights_can('CREATE', request.user):
+            raise Http404
+
+    retour = map(lambda display: {'id': display.pk, 'text': display.title, 'description': strip_tags(html_check_and_safe(display.description))[:100] + '...', 'unit': str(display.unit)}, displays)
+    
+    return HttpResponse(json.dumps(retour))

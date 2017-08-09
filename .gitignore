@@ -2,3 +2,7 @@
 .ropeproject
 *.swp
 *.sw?
+
+truffe2/db.sqlite3
+venv/*
+truffe2/.idea/*

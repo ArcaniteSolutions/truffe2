@@ -15,6 +15,6 @@ class SupplyReservationLineForm(ModelForm):
     def __init__(self, *args, **kwargs):
 
         super(SupplyReservationLineForm, self).__init__(*args, **kwargs)
-        self.fields['supply'].queryset = Supply.objects.order_by('unit__name', 'title')
+        self.fields['supply'].queryset = Supply.objects.filter(active=True, deleted=False).order_by('unit__name', 'title')
 
         self.fields['supply'].label_from_instance = lambda obj: mark_safe(u"[{}] {} ({})".format(escape(obj.unit), escape(obj.title), obj.quantity))

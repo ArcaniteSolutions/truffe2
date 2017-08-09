@@ -11,4 +11,5 @@ urlpatterns = patterns(
     url(r'^website_news$', 'website_news'),
     url(r'^logo_public_list$', 'logo_public_list'),
     url(r'^logo_public_load$', 'logo_public_load'),
+    url('display/search', 'display_search'),
 )

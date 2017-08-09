@@ -235,7 +235,7 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
     location = FalseFK('vehicles.models.Location', verbose_name=_(u'Lieu'), blank=True, null=True)
 
     start_date = models.DateTimeField(_(u'Début de la réservation'))
-    end_date = models.DateTimeField(_(u'Fin de la résrvation'))
+    end_date = models.DateTimeField(_(u'Fin de la réservation'))
 
     class MetaData:
         list_display = [
