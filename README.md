@@ -46,7 +46,8 @@ Deployment scripts using fabric are located in the `Deployment` folder.
 6. To be apple to see the mails sent from the application, run a [maildump](https://pypi.python.org/pypi/maildump) instance on port 1025
 7. Go inside the `truffe2` directory for the next steps: `cd truffe2`
 8. Create the database tables not managed by south with `python manage.py syncdb`
-9. Create the database tables managed by south with `python manage.py migrate`
-10. Run the development server with `python manage.py runserver`
-11. Go to `http://localhost:8000/` and log in with Tequila
-12. Give your user superuser rights with `echo "update users_truffeuser set is_superuser=1 where id=1;" | sqlite3 db.sqlite3`
+9. On OSX, if you get `ImportError: MagickWand shared library not found.`, it's probably because Python was not installed using MacPorts, you have to export MAGICK_HOME path. You should try to set the path with `export MAGICK_HOME=/opt/local` and go back to point 8.
+10. Create the database tables managed by south with `python manage.py migrate`
+11. Run the development server with `python manage.py runserver`
+12. Go to `http://localhost:8000/` and log in with Tequila
+13. Give your user superuser rights with `echo "update users_truffeuser set is_superuser=1 where id=1;" | sqlite3 db.sqlite3`

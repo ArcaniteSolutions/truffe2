@@ -3,6 +3,6 @@
 *.swp
 *.sw?
 
-truffe2/.idea/*
 truffe2/db.sqlite3
+truffe2/.idea/*
 venv/*
