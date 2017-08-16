@@ -388,7 +388,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         ]
 
         list_display = [list_display_base[0]] + [('get_supplies', _(u'Matériel')), ] + list_display_base[1:]
-        list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] +  list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
+        list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] + list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
 
         forced_widths = {
             '1': '15%',
