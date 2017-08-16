@@ -275,7 +275,7 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
     unit = FalseFK('units.models.Unit')
 
     quantity = models.PositiveIntegerField(_(u'Quantité'), help_text=_(u'Le nombre de fois que tu as l\'objet à disposition'), default=1)
-    price = models.CharField(_(u'Prix'), max_length=31, help_text=_(u'Le prix en CHF de remplacement du matériel, en cas de casse ou de perte'), default='Non renseigné')
+    price = models.PositiveIntegerField(_(u'Prix'), help_text=_(u'Le prix en CHF de remplacement du matériel, en cas de casse ou de perte'), default=0)
 
     active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver.'), default=True)
 
@@ -297,7 +297,6 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
 
         details_display = list_display + [
             ('quantity', _(u'Quantité')),
-            ('price', _(u'Coût de casse ou perte, en CHF')),
             ('description', _('Description')),
             ('conditions', _('Conditions')),
             ('conditions_externals', _('Conditions pour les externes')),
@@ -388,7 +387,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         ]
 
         list_display = [list_display_base[0]] + [('get_supplies', _(u'Matériel')), ] + list_display_base[1:]
-        list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] +  list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
+        list_display_related = [list_display_base[0]] + [('get_supply_link', _(u'Matériel')), ] + list_display_base[1:] + [('get_conflits_list', _(u'Conflits')), ]
 
         forced_widths = {
             '1': '15%',
