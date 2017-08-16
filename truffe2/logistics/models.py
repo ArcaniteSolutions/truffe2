@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from django.db import models
 from generic.models import GenericModel, GenericStateModel, GenericStateUnitValidable, FalseFK, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, GenericDelayValidable, GenericDelayValidableInfo, SearchableModel, ModelUsedAsLine, GenericModelWithLines
 from django.utils.translation import ugettext_lazy as _
@@ -373,6 +372,8 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
     start_date = models.DateTimeField(_(u'Date de début'))
     end_date = models.DateTimeField(_(u'Date de fin'))
 
+    contact_phone = models.CharField(_(u'Téléphone de contact'), max_length=25)
+
     reason = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
@@ -404,7 +405,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
             '7': '80px',
         }
 
-        details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
+        details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('contact_phone', _(u'Téléphone')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
         filter_fields = ('title', 'status', 'lines__supply__title')
 
         base_title = _(u'Réservation de matériel')
@@ -434,16 +435,16 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         related_name = _(u'Matériel')
 
         help_list = _(u"""Les réservation de matériel.
-
-Les réservations sont soumises à modération par l'unité liée au matériel.
-
-Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une unité externe).""")
+        
+        Les réservations sont soumises à modération par l'unité liée au matériel.
+        
+        Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une unité externe).""")
 
         help_list_related = _(u"""Les réservation du matériel de l'unité.
-
-Les réservations sont soumises à modération par l'unité liée au matériel.
-
-Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
+        
+        Les réservations sont soumises à modération par l'unité liée au matériel.
+        
+        Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         help_calendar_specific = _(u"""Les réservation d'un type de matériel particulier.""")
 
