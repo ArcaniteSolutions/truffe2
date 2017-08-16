@@ -275,6 +275,7 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
     unit = FalseFK('units.models.Unit')
 
     quantity = models.PositiveIntegerField(_(u'Quantité'), help_text=_(u'Le nombre de fois que tu as l\'objet à disposition'), default=1)
+    price = models.CharField(_(u'Prix'), max_length=31, help_text=_(u'Le prix en CHF de remplacement du matériel, en cas de casse ou de perte'), default='Non renseigné')
 
     active = models.BooleanField(_('Actif'), help_text=_(u'Pour désactiver temporairement la posibilité de réserver.'), default=True)
 
@@ -289,12 +290,14 @@ class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayV
     class MetaData:
         list_display = [
             ('title', _('Titre')),
+            ('price', _('Prix')),
             ('active', _('Actif')),
             ('allow_externals', _('Autoriser les externes')),
         ]
 
         details_display = list_display + [
             ('quantity', _(u'Quantité')),
+            ('price', _(u'Coût de casse ou perte, en CHF')),
             ('description', _('Description')),
             ('conditions', _('Conditions')),
             ('conditions_externals', _('Conditions pour les externes')),
@@ -523,26 +526,29 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
             data = supply_form['form'].cleaned_data
 
-            if 'supply' not in data or not data['supply'].active or data['supply'].deleted:
-                raise forms.ValidationError(_(u'Matériel non disponible'))
+            if 'supply' not in data or data['supply'].deleted:
+                raise forms.ValidationError(_(u'\"{}\" n\'est pas disponible'.format(data['supply'].title)))
+
+            if not data['supply'].active:
+                raise forms.ValidationError(_(u'\"{}\" n\'est pas disponible pour le moment, car probablement en réparation'.format(data['supply'].title)))
 
             if not self.unit and not data['supply'].allow_externals:
-                raise forms.ValidationError(_(u'Matériel non disponible ({}), il est réservé aux commissions. Est-ce que tu es bien en train de faire la réservation depuis la bonne unité?'.format(data['supply'])))
+                raise forms.ValidationError(_(u'L\'article \"{}\" est réservé pour les commissions. Est-ce que tu es bien en train de faire la réservation depuis la bonne unité?'.format(data['supply'])))
 
             if data['quantity'] < 1:
-                raise forms.ValidationError(_(u'La quantité pour le matériel {} doit être positive et non nulle'.format(data['supply'])))
+                raise forms.ValidationError(_(u'La quantité de \"{}\" doit être positive et non nulle'.format(data['supply'])))
             if data['quantity'] > data['supply'].quantity:
-                raise forms.ValidationError(_(u'La quantité pour le matériel {} doit être inférieure à {}'.format(data['supply'], data['supply'].quantity)))
+                raise forms.ValidationError(_(u'La quantité de \"{}\" doit être \"{}\" au maximum'.format(data['supply'], data['supply'].quantity)))
 
             if data['supply'] in supply_in_list:
-                raise forms.ValidationError(_(u'Le matériel {} est présent plusieurs fois dans la liste'.format(data['supply'])))
+                raise forms.ValidationError(_(u'Il y a plusieurs fois \"{}\" dans la liste'.format(data['supply'])))
             else:
                 supply_in_list.append(data['supply'])
 
             if not supply_unit:
                 supply_unit = data['supply'].unit
             elif data['supply'].unit != supply_unit:
-                raise forms.ValidationError(_(u'Le matériel {} appartient à l\'unité {} alors que d\'autres éléments appartiennent à l\'unité {}. Il faut faire plusieurs réservations si le matériel appartient à des unités différentes.'.format(data['supply'], data['supply'].unit, supply_unit)))
+                raise forms.ValidationError(_(u'L\'article \"{}\" appartient à l\'unité {} alors que d\'autres éléments appartiennent à l\'unité {}. Il faut faire plusieurs réservations si le matériel appartient à des unités différentes.'.format(data['supply'], data['supply'].unit, supply_unit)))
 
         if not supply_unit:
             raise forms.ValidationError(_(u'Il faut réserver du matériel !'))
