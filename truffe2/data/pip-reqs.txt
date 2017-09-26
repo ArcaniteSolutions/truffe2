@@ -2,7 +2,7 @@ django<1.7
 south
 raven
 Pillow<3
-django-bootstrap3<7
+django-bootstrap3<6
 phonenumbers
 requests
 django-impersonate<1.0
