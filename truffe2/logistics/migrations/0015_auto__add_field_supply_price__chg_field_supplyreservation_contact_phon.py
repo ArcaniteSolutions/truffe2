@@ -10,8 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'Supply.price'
         db.alter_column(u'logistics_supply', 'price',
-                      self.gf('django.db.models.fields.PositiveIntegerField')(default=0),
-                      keep_default=False)
+                      self.gf('django.db.models.fields.PositiveIntegerField')(default=0))
 
 
         # Changing field 'SupplyReservation.contact_phone'
