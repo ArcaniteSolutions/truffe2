@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding field 'Supply.price'
-        db.add_column(u'logistics_supply', 'price',
+        db.alter_column(u'logistics_supply', 'price',
                       self.gf('django.db.models.fields.PositiveIntegerField')(default=0),
                       keep_default=False)
 
@@ -19,7 +19,7 @@ class Migration(SchemaMigration):
 
     def backwards(self, orm):
         # Deleting field 'Supply.price'
-        db.delete_column(u'logistics_supply', 'price')
+        # db.delete_column(u'logistics_supply', 'price')
 
 
         # Changing field 'SupplyReservation.contact_phone'
