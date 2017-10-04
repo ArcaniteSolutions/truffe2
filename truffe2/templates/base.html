@@ -43,8 +43,8 @@
         <header id="header">
             <div id="logo-group">
 
-              <!-- Squares: http://www.thenounproject.com/term/stop/23031/ -->
-              <span id="logo"><a href="/"><img src="{{MEDIA_URL}}img/logo{% if request.META.HTTP_HOST == 'truffe2testing.agepoly.ch' %}_testing{% endif %}.png" alt="Truffe"></a></span>
+                <!-- Squares: http://www.thenounproject.com/term/stop/23031/ -->
+                <span id="logo"><a href="/"><img src="{{MEDIA_URL}}img/logo{% if request.META.HTTP_HOST == 'truffe2testing.agepoly.ch' %}_testing{% endif %}.png" alt="Truffe"></a></span>
                 <!-- END LOGO PLACEHOLDER -->
 
                 <span id="activity" class="activity-dropdown" url="{% url 'notifications.views.dropdown' %}">
@@ -180,6 +180,50 @@
                                     <a href="{% url 'communication.views.agepslide_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "Slides des écrans de l'AGEPoly" %}</a>
                                 </li>
                             {% endifhasright %}
+
+                            {% ifhasright 'communication.models.DisplayReservation' user 'LIST' %}
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-clipboard"></i> {% trans "Affichages" %}</a>
+
+                                    <ul class="subsub-menu">
+
+                                        {% ifhasright 'communication.models.DisplayReservation' user 'LIST' %}
+                                            <li id="menu-communication-display-reservation">
+                                                <a href="{% url 'communication.views.displayreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations d'affichage" %}</a>
+                                            </li>
+                                            <li id="menu-communication-display-reservation-calendar">
+                                                <a href="{% url 'communication.views.displayreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'communication.models.DisplayReservation' user 'CREATE' %}
+                                            <li id="menu-communication-display-reservation-directory">
+                                                <a href="{% url 'communication.views.displayreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des affichages" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'communication.models.Display' user 'LIST' %}
+                                            <li id="menu-communication-display">
+                                                <a href="{% url 'communication.views.display_list' %}"><i class="fa fa-lg fa-fw fa-clipboard"></i> {% trans "Gestion des affichages" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'communication.models.Display' user 'LIST' %}
+                                            <li id="menu-communication-display-reservation-related">
+                                                <a href="{% url 'communication.views.displayreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes affichages" %}</a>
+                                            </li>
+                                            <li id="menu-communication-display-reservation-calendar-related">
+                                                <a href="{% url 'communication.views.displayreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes affichages" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-communication-display" %}
+                                            {% display_links_for_menu "/communication/display/" %}
+                                        {% endcache %}
+                                    </ul>
+                                </li>
+                            {% endifhasright %}
+
                             <li id="menu-communication-logo-public">
                                 <a href="{% url 'communication.views.logo_public_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Logos" %}</a>
                             </li>
@@ -197,6 +241,91 @@
                     <li>
                         <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> <span class="menu-item-parent">{% trans "Logistique" %}</span></a>
                         <ul>
+                            {% ifhasright 'logistics.models.SupplyReservation' user 'LIST' %}
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Matériel" %}</a>
+
+                                    <ul class="subsub-menu">
+
+                                        {% ifhasright 'logistics.models.SupplyReservation' user 'LIST' %}
+                                            <li id="menu-logistics-supply-reservation">
+                                                <a href="{% url 'logistics.views.supplyreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de matériel" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-supply-reservation-calendar">
+                                                <a href="{% url 'logistics.views.supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.SupplyReservation' user 'CREATE' %}
+                                            <li id="menu-logistics-supply-reservation-directory">
+                                                <a href="{% url 'logistics.views.supplyreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste du matériel" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Supply' user 'LIST' %}
+                                            <li id="menu-logistics-supply">
+                                                <a href="{% url 'logistics.views.supply_list' %}"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Gestion du matériel" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Supply' user 'LIST' %}
+                                            <li id="menu-logistics-supply-reservation-related">
+                                                <a href="{% url 'logistics.views.supplyreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mon matériel" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-supply-reservation-calendar-related">
+                                                <a href="{% url 'logistics.views.supplyreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mon matériel" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-logistics-supply" %}
+                                            {% display_links_for_menu "/logistics/supply/" %}
+                                        {% endcache %}
+                                    </ul>
+                                </li>
+                            {% endifhasright %}
+
+                            {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
+                                <li>
+                                    <a href="#"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Salles" %}</a>
+
+                                    <ul class="subsub-menu">
+
+                                        {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
+                                            <li id="menu-logistics-room-reservation">
+                                                <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de salle" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-room-reservation-calendar">
+                                                <a href="{% url 'logistics.views.roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+                                        {% ifhasright 'logistics.models.RoomReservation' user 'CREATE' %}
+                                            <li id="menu-logistics-room-reservation-directory">
+                                                <a href="{% url 'logistics.views.roomreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des salles" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Room' user 'LIST' %}
+                                            <li id="menu-logistics-room">
+                                                <a href="{% url 'logistics.views.room_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des salles" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% ifhasright 'logistics.models.Room' user 'LIST' %}
+                                            <li id="menu-logistics-room-reservation-related">
+                                                <a href="{% url 'logistics.views.roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes salles" %}</a>
+                                            </li>
+                                            <li id="menu-logistics-room-reservation-calendar-related">
+                                                <a href="{% url 'logistics.views.roomreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
+                                            </li>
+                                        {% endifhasright %}
+
+                                        {% cache 900 "leftmenu-links-logistics-rooms" %}
+                                            {% display_links_for_menu "/logistics/rooms/" %}
+                                        {% endcache %}
+                                    </ul>
+                                </li>
+                            {% endifhasright %}
+
                             <li>
                                 <a href="#"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Véhicules" %}</a>
 
@@ -243,90 +372,6 @@
                                     {% endcache %}
                                 </ul>
                             </li>
-                            {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
-                                <li>
-                                    <a href="#"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Salles" %}</a>
-
-                                    <ul class="subsub-menu">
-
-                                        {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
-                                            <li id="menu-logistics-room-reservation">
-                                                <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de salle" %}</a>
-                                            </li>
-                                            <li id="menu-logistics-room-reservation-calendar">
-                                                <a href="{% url 'logistics.views.roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-                                        {% ifhasright 'logistics.models.RoomReservation' user 'CREATE' %}
-                                            <li id="menu-logistics-room-reservation-directory">
-                                                <a href="{% url 'logistics.views.roomreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des salles" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% ifhasright 'logistics.models.Room' user 'LIST' %}
-                                            <li id="menu-logistics-room">
-                                                <a href="{% url 'logistics.views.room_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des salles" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% ifhasright 'logistics.models.Room' user 'LIST' %}
-                                            <li id="menu-logistics-room-reservation-related">
-                                                <a href="{% url 'logistics.views.roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes salles" %}</a>
-                                            </li>
-                                            <li id="menu-logistics-room-reservation-calendar-related">
-                                                <a href="{% url 'logistics.views.roomreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% cache 900 "leftmenu-links-logistics-rooms" %}
-                                            {% display_links_for_menu "/logistics/rooms/" %}
-                                        {% endcache %}
-                                    </ul>
-                                </li>
-                            {% endifhasright %}
-
-                            {% ifhasright 'logistics.models.SupplyReservation' user 'LIST' %}
-                                <li>
-                                    <a href="#"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Matériel" %}</a>
-
-                                    <ul class="subsub-menu">
-
-                                        {% ifhasright 'logistics.models.SupplyReservation' user 'LIST' %}
-                                            <li id="menu-logistics-supply-reservation">
-                                                <a href="{% url 'logistics.views.supplyreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de matériel" %}</a>
-                                            </li>
-                                            <li id="menu-logistics-supply-reservation-calendar">
-                                                <a href="{% url 'logistics.views.supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% ifhasright 'logistics.models.SupplyReservation' user 'CREATE' %}
-                                            <li id="menu-logistics-supply-reservation-directory">
-                                                <a href="{% url 'logistics.views.supplyreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste du matériel" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% ifhasright 'logistics.models.Supply' user 'LIST' %}
-                                            <li id="menu-logistics-supply">
-                                                <a href="{% url 'logistics.views.supply_list' %}"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Gestion du matériel" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% ifhasright 'logistics.models.Supply' user 'LIST' %}
-                                            <li id="menu-logistics-supply-reservation-related">
-                                                <a href="{% url 'logistics.views.supplyreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mon matériel" %}</a>
-                                            </li>
-                                            <li id="menu-logistics-supply-reservation-calendar-related">
-                                                <a href="{% url 'logistics.views.supplyreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mon matériel" %}</a>
-                                            </li>
-                                        {% endifhasright %}
-
-                                        {% cache 900 "leftmenu-links-logistics-supply" %}
-                                            {% display_links_for_menu "/logistics/supply/" %}
-                                        {% endcache %}
-                                    </ul>
-                                </li>
-                            {% endifhasright %}
 
                             {% cache 900 "leftmenu-links-logistics" %}
                                 {% display_links_for_menu "/logistics/" %}
@@ -416,6 +461,7 @@
                                     {% ifhasright 'accounting_main.models.Budget' user 'LIST' %}
                                         <li id="menu-compta-budget">
                                             <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
+                                        </li>
                                     {% endifhasright %}
 
                                     {% cache 900 "leftmenu-links-accounting-tools" %}
@@ -542,9 +588,9 @@
                                 </li>
                             {% endifhasright %}
 
-                                <li id="menu-misc-mydocuments">
-                                    <a href="{% url 'main.views.signabledocument_signs' %}"><i class="fa fa-lg fa-fw fa-thumbs-up"></i> {% trans "Documents à signer" %}</a>
-                                </li>
+                            <li id="menu-misc-mydocuments">
+                                <a href="{% url 'main.views.signabledocument_signs' %}"><i class="fa fa-lg fa-fw fa-thumbs-up"></i> {% trans "Documents à signer" %}</a>
+                            </li>
 
                             {% cache 900 "leftmenu-links-misc" %}
                                 {% display_links_for_menu "/misc/" %}
@@ -579,7 +625,7 @@
                 <!-- breadcrumb -->
                 <ol class="breadcrumb">
                     {% block ribbon %}
-                      <li><a href="{% url 'main.views.home' %}"><i class="fa fa-home"></i> {% trans "Accueil" %}</a></li>
+                        <li><a href="{% url 'main.views.home' %}"><i class="fa fa-home"></i> {% trans "Accueil" %}</a></li>
                     {% endblock %}
                 </ol>
                 <!-- end breadcrumb -->
@@ -690,8 +736,8 @@
 
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
             ga('create', 'UA-685270-4', 'auto');

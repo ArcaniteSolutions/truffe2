@@ -773,7 +773,9 @@ class GenericStateValidable(GenericStateValidableOrModerable):
             remark = CharField(label=_('Remarque'), widget=Textarea, required=False)
 
         states_bonus_form = {
-            '2_online': FormRemark
+            '0_draft': FormRemark,
+            '2_online': FormRemark,
+            '4_deny': FormRemark
         }
 
     def switch_status_signal(self, request, old_status, dest_status):
@@ -783,7 +785,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         if hasattr(s, 'switch_status_signal'):
             s.switch_status_signal(request, old_status, dest_status)
 
-        if dest_status == '2_online':
+        if dest_status == '0_draft' or dest_status == '2_online' or dest_status == '4_deny':
 
             if request.POST.get('remark'):
                 if self.remarks:
