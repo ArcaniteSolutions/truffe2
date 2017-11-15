@@ -192,13 +192,25 @@
 
 .supply-items {
     padding-left: 10px;
-}
-
-.supply-items li {
-    padding-bottom: 5px;
+    margin-bottom: 0;
 }
 
 .supply-items li span {
     display: block;
     margin-left: -8px;
+    line-height: 1;
+    padding-bottom: 5px;
+}
+
+.supply-items li span:last-of-type {
+    padding-bottom: 0px;
+}
+
+.quick-switch-btn {
+    width: 25px;
+    margin-bottom: 3px;
+}
+
+.quick-switch-btn:last-of-type {
+    margin-bottom: 0;
 }

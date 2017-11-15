@@ -148,7 +148,7 @@
                     {% endif %}
                 },
                 "aoColumnDefs": [
-                    {% if force_last_width %}{ "sWidth": "150px", "aTargets": [{{force_last_width}}] }, {% endif %}
+                    {% if force_last_width %}{ "sWidth": "42px", "aTargets": [{{force_last_width}}] }, {% endif %}
                     {% if force_first_width %}{ "sWidth": "10px", "aTargets": [0] }, {% endif %}
                     {% if force_width %}{% for pos, width in force_width.iteritems %}{ "sWidth": "{{width}}", "aTargets": [{{pos}}] }, {% endfor %} {% endif %}
                     {% if exclude_first_and_last %}{ "sClass": "hideprint", "aTargets": [ 0, {{exclude_first_and_last|add:"1"}} ] }, {% endif %}

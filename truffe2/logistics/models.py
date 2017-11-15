@@ -398,10 +398,12 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
         forced_widths_related = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
-            '7': '80px',
+            '2': '25%',
+            '4': '90px', #start date on two lines
+            '5': '90px', #end date on two lines
+            # '6': '150px',
+            '7': '50px', #conflicts in small column
+            # '8': '25px',
         }
 
         details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('contact_phone', _(u'Téléphone')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -416,9 +418,10 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-umbrella'
 
-        safe_fields = ['get_unit_name', 'get_supply_link', 'get_conflits_list']
+        safe_fields = ['get_unit_name', 'get_supply_link', 'get_conflits_list', 'get_supplies']
 
-        default_sort = "[4, 'desc']"  # end_date
+        # default_sort = "[4, 'desc']"  # end_date
+        default_sort = "[3, 'asc']"
 
         menu_id = 'menu-logistics-supply-reservation'
         menu_id_related = 'menu-logistics-supply-reservation-related'
@@ -571,20 +574,34 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         return u'{}'.format(line_link_list)
 
     def get_supplies(self):
-        return u' '.join([u'{}{}'.format(u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply.title) for line in self.lines.order_by('order')])
+        line_link_list = '<ul class="supply-items">'
+
+        for line in self.lines.order_by('order'):
+            line_link_list += '<li><span>'
+            line_link_list += u'{} * {}'.format(line.quantity, escape(line.supply.title))
+            line_link_list += '</span></li>'
+
+        line_link_list += '</ul>'
+
+        return mark_safe(u'{}'.format(line_link_list))
+        # return u' '.join([u'{}{}'.format(u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply.title) for line in self.lines.order_by('order')])
 
     def get_supply_infos(self):
         """Affiche les infos sur le matériel pour une réserversation"""
 
         matos = ""
 
+        line_link_list = '<ul class="supply-items">'
+
         for line in self.lines.order_by('order'):
-            unit = escape(line.supply.unit.name)
-            matos = u"{}{}{}{}".format(matos, u", " if matos else u"", u"{} * ".format(line.quantity) if line.quantity > 1 else u"", escape(line.supply.title))
+            unit = u'{} <span class="label label-info">{}</span>'.format(_(u'géré par'), escape(line.supply.unit.name))
+            line_link_list += '<li><span>'
+            line_link_list += u'{} * {}'.format(line.quantity, escape(line.supply.title))
+            line_link_list += '</span></li>'
 
-        tpl = mark_safe(u'<div style="margin-top: 5px;">{}, {} <span class="label label-info">{}</span></div>'.format(matos, _(u'géré par'), unit))
+        line_link_list += '</ul>'
 
-        return tpl
+        return mark_safe(u'{}{}'.format(line_link_list, unit))
 
     def get_conflits(self):
 

@@ -3,6 +3,6 @@
 {% get_list_quick_switch elem as qsdata %}
 {% if qsdata %}
     {% for status, icon, title in qsdata %}
-        <a class=\"btn btn-xs btn-{{elem.MetaState.states_colors|get_attr:status}}\" style=\"margin-left: 3px;\" title=\"{{title}}\" rel=\"tooltip\" onclick=\"disp_switch('{{elem.pk}}', '{{status}}'); return false;\"  multido_action=\"disp_switch('9999429999', '{{status}}');\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-{{elem.MetaState.states_colors|get_attr:status}}'><i class='{{icon}}'></i> {{title}}</a>\"><i class=\"{{icon}}\"></i></a>
+        <a class=\"btn btn-xs btn-{{elem.MetaState.states_colors|get_attr:status}} quick-switch-btn\" title=\"{{title}}\" rel=\"tooltip\" data-placement=\"left\" onclick=\"disp_switch('{{elem.pk}}', '{{status}}'); return false;\"  multido_action=\"disp_switch('9999429999', '{{status}}');\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-{{elem.MetaState.states_colors|get_attr:status}}'><i class='{{icon}}'></i> {{title}}</a>\"><i class=\"{{icon}}\"></i></a>
     {% endfor %}
 {% endif %}
