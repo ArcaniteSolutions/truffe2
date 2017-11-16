@@ -424,8 +424,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
         safe_fields = ['get_unit_name', 'get_supply_link', 'get_conflits_list', 'get_supplies']
 
-        # default_sort = "[4, 'desc']"  # end_date
-        default_sort = "[3, 'asc']"
+        default_sort = "[4, 'asc']"
 
         menu_id = 'menu-logistics-supply-reservation'
         menu_id_related = 'menu-logistics-supply-reservation-related'
