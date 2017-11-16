@@ -393,19 +393,16 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
         forced_widths = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
+            '2': '30%',
+            '4': '90px',
+            '5': '90px',
         }
 
         forced_widths_related = {
             '1': '15%',
-            '2': '25%',
+            '2': '30%',
             '4': '90px', #start date on two lines
             '5': '90px', #end date on two lines
-            # '6': '150px',
-            '7': '50px', #conflicts in small column
-            # '8': '25px',
         }
 
         details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('contact_phone', _(u'Téléphone')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -572,7 +569,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
         for line in self.lines.order_by('order'):
             line_link_list += '<li><span>'
-            line_link_list += u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity), line.supply)
+            line_link_list += u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity), escape(line.supply))
             line_link_list += '</span></li>'
 
         line_link_list += '</ul>'
@@ -665,9 +662,16 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         if not conflicts:
             return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
 
-        retour = u''
+        retour = u'<ul>'
 
         for other_reservation, supply in conflicts:
-            retour += u'{}, {}, pour {}, pas assez de {} du {} au {}, '.format(other_reservation, other_reservation.get_status_display(), other_reservation.unit if other_reservation.unit else other_reservation.unit_blank_name, supply, localtime(other_reservation.start_date), localtime(other_reservation.end_date),)
+            retour += u'<li><span>'
+            retour += u'{} ({}) [{}]'.format(escape(other_reservation), escape(other_reservation.unit) if other_reservation.unit else escape(other_reservation.unit_blank_name), other_reservation.get_status_display())
+            retour += u'<br>'
+            retour += u'{} {}<br>'.format(_(u'Pas assez de'), escape(supply))
+            retour += u'du {}<br>au {}'.format(localtime(other_reservation.start_date), localtime(other_reservation.end_date))
+            retour += u'</li></span>'
 
-        return u'<span class="txt-color-red" title="{}"><i class="fa fa-warning"></i></span><ul>'.format(retour[:-2])
+        retour += u'</ul>'
+
+        return u'<span class="txt-color-red conflicts-tooltip-parent" rel="tooltip" data-placement="bottom" data-html="true" title="{}"><i class="fa fa-warning"></i></span><ul>'.format(retour)
