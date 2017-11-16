@@ -266,15 +266,17 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
 
         forced_widths = {
             '1': '25%',
-            '2': '90px',
-            '3': '90px',
+            '2': '140px', #start date
+            '3': '140px', #end date
+            '6': '130px', #harmonise status column
         }
 
         forced_widths_related = {
             '1': '15%',
             '2': '25%',
-            '4': '90px', #start date on two lines
-            '5': '90px', #end date on two lines
+            '4': '150px', #start date
+            '5': '150px', #end date
+            '6': '130px', #harmonise status column
         }
 
         menu_id = 'menu-vehicles-booking'
