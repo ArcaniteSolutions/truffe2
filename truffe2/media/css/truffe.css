@@ -199,18 +199,40 @@
     display: block;
     margin-left: -8px;
     line-height: 1;
-    padding-bottom: 5px;
+    padding-bottom: 3px;
 }
 
-.supply-items li span:last-of-type {
+.supply-items li:first-of-type span {
+    padding-top: 5px;
+}
+
+.supply-items li:last-of-type span {
     padding-bottom: 0px;
 }
 
 .quick-switch-btn {
     width: 25px;
-    margin-bottom: 3px;
+    height: 25px;
+    margin-bottom: 5px;
 }
 
-.quick-switch-btn:last-of-type {
+.quick-switch-btn:nth-of-type(2n) {
+    margin-left: 5px;
+}
+
+/* select tooltip belonging to the originating element */
+.conflicts-tooltip-parent + .tooltip .tooltip-inner {
+    max-width: 300px;
+}
+
+/* select tooltip belonging to the originating element */
+.conflicts-tooltip-parent + .tooltip .tooltip-inner ul {
+    padding-left: 15px;
     margin-bottom: 0;
 }
+
+/* select tooltip belonging to the originating element */
+.conflicts-tooltip-parent + .tooltip .tooltip-inner ul li {
+    padding-bottom: 5px;
+}
+
