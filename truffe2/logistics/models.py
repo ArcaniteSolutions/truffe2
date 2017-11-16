@@ -119,17 +119,19 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
 
         forced_widths = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
+            '2': '25%',
+            '4': '150px', #start date
+            '5': '150px', #end date
+            '6': '130px', #harmonise status column
         }
 
         forced_widths_related = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
-            '7': '80px',
+            '2': '25%',
+            '4': '90px', #start date on two lines
+            '5': '90px', #end date on two lines
+            '6': '130px', #harmonise status column
+            '7': '80px', #conflicts list nicely wide
         }
 
         details_display = list_display_base + [('get_room_infos', _('Salle')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -392,8 +394,9 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         forced_widths = {
             '1': '15%',
             '2': '30%',
-            '4': '90px',
-            '5': '90px',
+            '4': '90px', #start date on two lines
+            '5': '90px', #end date on two lines
+            '6': '130px', #harmonise status column
         }
 
         forced_widths_related = {
@@ -401,6 +404,8 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
             '2': '30%',
             '4': '90px', #start date on two lines
             '5': '90px', #end date on two lines
+            '6': '130px', #harmonise status column
+            '7': '80px', #conflicts list nicely wide
         }
 
         details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('contact_phone', _(u'Téléphone')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
