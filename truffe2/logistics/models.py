@@ -122,18 +122,16 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
         forced_widths = {
             '1': '15%',
             '2': '25%',
-            '4': '150px', #start date
-            '5': '150px', #end date
-            '6': '130px', #harmonise status column
+            '4': '150px',  # start date
+            '5': '150px',  # end date
         }
 
         forced_widths_related = {
             '1': '15%',
             '2': '25%',
-            '4': '90px', #start date on two lines
-            '5': '90px', #end date on two lines
-            '6': '130px', #harmonise status column
-            '7': '80px', #conflicts list nicely wide
+            '4': '90px',  # start date on two lines
+            '5': '90px',  # end date on two lines
+            '7': '80px',  # conflicts list nicely wide
         }
 
         details_display = list_display_base + [('get_room_infos', _('Salle')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -396,18 +394,16 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         forced_widths = {
             '1': '15%',
             '2': '30%',
-            '4': '90px', #start date on two lines
-            '5': '90px', #end date on two lines
-            '6': '130px', #harmonise status column
+            '4': '90px',  # start date on two lines
+            '5': '90px',  # end date on two lines
         }
 
         forced_widths_related = {
             '1': '15%',
-            '2': '30%',
-            '4': '90px', #start date on two lines
-            '5': '90px', #end date on two lines
-            '6': '130px', #harmonise status column
-            '7': '80px', #conflicts list nicely wide
+            '2': '25%',
+            '4': '90px',  # start date on two lines
+            '5': '90px',  # end date on two lines
+            '7': '70px',  # conflicts list nicely wide
         }
 
         details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('contact_phone', _(u'Téléphone')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -569,28 +565,23 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
             raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
 
     def get_supply_link(self):
-        line_link_list = '<ul class="supply-items">'
+        line_link_list = u'<ul class="supply-items">'
 
         for line in self.lines.order_by('order'):
-            line_link_list += '<li><span>'
-            line_link_list += u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity), escape(line.supply))
-            line_link_list += '</span></li>'
+            line_link_list += u'<li><span><a href="{}">{}{}</a></span></li>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity), escape(line.supply))
 
-        line_link_list += '</ul>'
+        line_link_list += u'</ul>'
         return u'{}'.format(line_link_list)
 
     def get_supplies(self):
-        line_link_list = '<ul class="supply-items">'
+        line_link_list = u'<ul class="supply-items">'
 
         for line in self.lines.order_by('order'):
-            line_link_list += '<li><span>'
-            line_link_list += u'{} * {}'.format(line.quantity, escape(line.supply.title))
-            line_link_list += '</span></li>'
+            line_link_list += u'<li><span>{} * {}</span></li>'.format(line.quantity, escape(line.supply.title))
 
-        line_link_list += '</ul>'
+        line_link_list += u'</ul>'
 
         return mark_safe(u'{}'.format(line_link_list))
-        # return u' '.join([u'{}{}'.format(u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply.title) for line in self.lines.order_by('order')])
 
     def get_lines(self):
         return self.lines.order_by('order').all()
@@ -604,15 +595,13 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
         matos = ""
 
-        line_link_list = '<ul class="supply-items">'
+        line_link_list = u'<ul class="supply-items">'
 
         for line in self.lines.order_by('order'):
             unit = u'{} <span class="label label-info">{}</span>'.format(_(u'géré par'), escape(line.supply.unit.name))
-            line_link_list += '<li><span>'
-            line_link_list += u'{} * {}'.format(line.quantity, escape(line.supply.title))
-            line_link_list += '</span></li>'
+            line_link_list += u'<li><span>{} * {}</span></li>'.format(line.quantity, escape(line.supply.title))
 
-        line_link_list += '</ul>'
+        line_link_list += u'</ul>'
 
         return mark_safe(u'{}{}'.format(line_link_list, unit))
 
@@ -635,14 +624,14 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
                     pass
 
         if not conflicts:
-            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(unicode(_('Pas de conflits !'))))
+            return mark_safe(u'<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(unicode(_('Pas de conflits !'))))
 
         retour = u'<span class="txt-color-red"><i class="fa fa-warning"></i> {}</span><ul>'.format(unicode(_(u'Il y a d\'autres réservations en même temps !')))
 
         for other_reservation, supply in conflicts:
             retour += u'<li><span class="label label-{}"><i class="{}"></i> {}</span> {} pour l\'unité {}, pas assez de "{}" <span data-toggle="tooltip" data-placement="right" title="Du {} au {}"><i class="fa fa-clock-o"></i> </span></li>'.format(other_reservation.status_color(), other_reservation.status_icon(), other_reservation.get_status_display(), other_reservation, other_reservation.get_unit_name(), supply, localtime(other_reservation.start_date), localtime(other_reservation.end_date))
 
-        retour += '</ul>'
+        retour += u'</ul>'
 
         return retour
 
@@ -664,17 +653,13 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
                     pass
 
         if not conflicts:
-            return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
+            return u'<span class="txt-color-green"><i class="fa fa-check"></i></span>'
 
         retour = u'<ul>'
 
         for other_reservation, supply in conflicts:
-            retour += u'<li><span>'
-            retour += u'{} ({}) [{}]'.format(escape(other_reservation), escape(other_reservation.unit) if other_reservation.unit else escape(other_reservation.unit_blank_name), other_reservation.get_status_display())
-            retour += u'<br>'
-            retour += u'{} {}<br>'.format(_(u'Pas assez de'), escape(supply))
-            retour += u'du {}<br>au {}'.format(localtime(other_reservation.start_date), localtime(other_reservation.end_date))
-            retour += u'</li></span>'
+            retour += u'<li><span>{} ({}) [{}]<br>'.format(escape(other_reservation), escape(other_reservation.unit) if other_reservation.unit else escape(other_reservation.unit_blank_name), other_reservation.get_status_display())
+            retour += u'{} {}<br>du {}<br>au {}</span></li>'.format(_(u'Pas assez de'), escape(supply), localtime(other_reservation.start_date), localtime(other_reservation.end_date))
 
         retour += u'</ul>'
 

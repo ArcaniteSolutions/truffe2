@@ -24,7 +24,11 @@
                 {{elem|get_attr:field|date:"d.m.Y"|force_escape|escapejs}} {{elem|get_attr:field|time:"H:i:s"|force_escape|escapejs}}
             {% else %}
                 {% if field == 'status' and elem.MetaState.states %}
-                    <span class='label label-{{elem.status_color}}'><i class='{{elem.status_icon}}'></i> {{elem.get_status_display|force_escape|escapejs}}</span>
+                    {% if elem.status_icon %}
+                        <span class='label label-{{elem.status_color}} label-crlf'><i class='{{elem.status_icon}}'></i> {{elem.get_status_display|force_escape|escapejs}}</span>
+                    {% else %}
+                        <span class='label label-{{elem.status_color}} label-crlf'>{{elem.get_status_display|force_escape|escapejs}}</span>
+                    {% endif %}
                 {% else %}
                     {% if field in Model.MetaData.safe_fields %}
                         {{elem|get_attr:field|escapejs}}
