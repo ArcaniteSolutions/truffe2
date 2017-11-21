@@ -303,14 +303,12 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
             '1': '20%',
             '4': '150px',
             '5': '150px',
-            '6': '150px',
         }
 
         forced_widths_related = {
             '1': '20%',
             '4': '90px',
             '5': '90px',
-            '6': '150px',
             '7': '80px',
         }
 

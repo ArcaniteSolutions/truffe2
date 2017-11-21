@@ -128,6 +128,11 @@
     border-right: 1px #eee solid;
 }
 
+.dt-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100%;
+}
 
 .label-crlf {
     white-space: pre-wrap;
@@ -213,11 +218,8 @@
 .quick-switch-btn {
     width: 25px;
     height: 25px;
-    margin-bottom: 5px;
-}
-
-.quick-switch-btn:nth-of-type(2n) {
-    margin-left: 5px;
+    margin-left: 3px;
+    margin-bottom: 2px;
 }
 
 /* select tooltip belonging to the originating element */
