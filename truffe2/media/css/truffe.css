@@ -128,6 +128,11 @@
     border-right: 1px #eee solid;
 }
 
+.dt-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100%;
+}
 
 .label-crlf {
     white-space: pre-wrap;
@@ -192,13 +197,44 @@
 
 .supply-items {
     padding-left: 10px;
-}
-
-.supply-items li {
-    padding-bottom: 5px;
+    margin-bottom: 0;
 }
 
 .supply-items li span {
     display: block;
     margin-left: -8px;
+    line-height: 1;
+    padding-bottom: 3px;
 }
+
+.supply-items li:first-of-type span {
+    padding-top: 5px;
+}
+
+.supply-items li:last-of-type span {
+    padding-bottom: 0px;
+}
+
+.quick-switch-btn {
+    width: 25px;
+    height: 25px;
+    margin-left: 3px;
+    margin-bottom: 2px;
+}
+
+/* select tooltip belonging to the originating element */
+.conflicts-tooltip-parent + .tooltip .tooltip-inner {
+    max-width: 300px;
+}
+
+/* select tooltip belonging to the originating element */
+.conflicts-tooltip-parent + .tooltip .tooltip-inner ul {
+    padding-left: 15px;
+    margin-bottom: 0;
+}
+
+/* select tooltip belonging to the originating element */
+.conflicts-tooltip-parent + .tooltip .tooltip-inner ul li {
+    padding-bottom: 5px;
+}
+

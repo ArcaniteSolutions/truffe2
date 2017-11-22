@@ -119,17 +119,17 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
 
         forced_widths = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
+            '2': '25%',
+            '4': '150px',  # start date
+            '5': '150px',  # end date
         }
 
         forced_widths_related = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
-            '7': '80px',
+            '2': '25%',
+            '4': '90px',  # start date on two lines
+            '5': '90px',  # end date on two lines
+            '7': '80px',  # conflicts list nicely wide
         }
 
         details_display = list_display_base + [('get_room_infos', _('Salle')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -226,7 +226,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
     def get_room_infos(self):
         """Affiche les infos sur la salle pour une réservation"""
 
-        tpl = mark_safe('<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div>' % (escape(self.room.title), _(u'gérée par'), escape(self.room.unit.name),))
+        tpl = mark_safe(u'<div style="margin-top: 5px;">{}, {} <span class="label label-info">{}</span></div>'.format(escape(self.room.title), _(u'gérée par'), escape(self.room.unit.name)))
 
         return tpl
 
@@ -235,35 +235,41 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
         liste = self.room.roomreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
         if not liste:
-            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (unicode(_('Pas de conflits !')),))
+            return mark_safe(u'<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(_(u'Pas de conflits !')))
         else:
-            retour = '<span class="txt-color-red"><i class="fa fa-warning"></i> %s</span><ul>' % (unicode(_(u'Il y a d\'autres réservations en même temps !')),)
+            retour = u'<span class="txt-color-red"><i class="fa fa-warning"></i> {}</span><ul>'.format(_(u'Il y a d\'autres réservations en même temps !'))
 
             for elem in liste:
-                retour += u'<li><span class="label label-%s"><i class="%s"></i> %s</span> %s pour l\'unité %s  <span data-toggle="tooltip" data-placement="right" title="Du %s au %s"><i class="fa fa-clock-o"></i> </span></li>' % (elem.status_color(), elem.status_icon(), elem.get_status_display(), elem, elem.get_unit_name(), localtime(elem.start_date), localtime(elem.end_date),)
+                retour = u'{}<li><span class="label label-{}"><i class="{}"></i>'.format(retour, elem.status_color(), elem.status_icon())
+                retour = u'{} {}</span> {} pour l\'unité {}'.format(retour, elem.get_status_display(), elem, elem.get_unit_name())
+                retour = u'{}<span data-toggle="tooltip" data-placement="right" title="Du {} au {}"> <i class="fa fa-clock-o"></i></span></li>'.format(retour, localtime(elem.start_date), localtime(elem.end_date))
 
-            retour += '</ul>'
+            retour = u'{}</ul>'.format(retour)
 
             return retour
 
     def get_room_link(self):
-        return '<a href="%s">%s</a>' % (reverse('logistics.views.room_show', args=(self.room.pk,)), self.room,)
+        return u'<a href="{}">{}</a>'.format(reverse('logistics.views.room_show', args=(self.room.pk,)), self.room)
 
     def get_conflits_list(self):
 
         liste = self.room.roomreservation_set.exclude(pk=self.pk).exclude(deleted=True).filter(status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
         if not liste:
-            return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
+            return u'<span class="txt-color-green"><i class="fa fa-check"></i></span>'
         else:
 
-            retour = ''
+            retour = u'<ul>'
 
             for elem in liste:
-                retour += u'%s, %s, pour %s du %s au %s, ' % (elem, elem.get_status_display(), elem.unit if elem.unit else elem.unit_blank_name, localtime(elem.start_date), localtime(elem.end_date),)
+                unit = escape(elem.unit) if elem.unit else escape(elem.unit_blank_name)
 
-            return '<span class="txt-color-red" title="%s"><i class="fa fa-warning"></i></span><ul>' % (retour[:-2], )
+                retour = u'{}<li><span>{} ({}) [{}]<br>'.format(retour, escape(elem), unit, elem.get_status_display())
+                retour = u'{}du {}<br>au {}</span></li>'.format(retour, localtime(elem.start_date), localtime(elem.end_date))
 
+            retour = u'{}</ul>'.format(retour)
+
+            return u'<span class="txt-color-red conflicts-tooltip-parent" rel="tooltip" data-html="true" title="{}"><i class="fa fa-warning"></i></span>'.format(retour)
 
 class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo, SearchableModel):
 
@@ -391,17 +397,17 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
         forced_widths = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
+            '2': '30%',
+            '4': '90px',  # start date on two lines
+            '5': '90px',  # end date on two lines
         }
 
         forced_widths_related = {
             '1': '15%',
-            '4': '150px',
-            '5': '150px',
-            '6': '150px',
-            '7': '80px',
+            '2': '25%',
+            '4': '90px',  # start date on two lines
+            '5': '90px',  # end date on two lines
+            '7': '70px',  # conflicts list nicely wide
         }
 
         details_display = list_display_base + [('get_supply_infos', _(u'Matériel')), ('contact_phone', _(u'Téléphone')), ('reason', _('Raison')), ('remarks', _('Remarques')), ('get_conflits', _('Conflits'))]
@@ -416,9 +422,9 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-umbrella'
 
-        safe_fields = ['get_unit_name', 'get_supply_link', 'get_conflits_list']
+        safe_fields = ['get_unit_name', 'get_supply_link', 'get_conflits_list', 'get_supplies']
 
-        default_sort = "[4, 'desc']"  # end_date
+        default_sort = "[4, 'asc']"
 
         menu_id = 'menu-logistics-supply-reservation'
         menu_id_related = 'menu-logistics-supply-reservation-related'
@@ -560,31 +566,33 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
             raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
 
     def get_supply_link(self):
-        line_link_list = '<ul class="supply-items">'
+        line_link_list = u'<ul class="supply-items">'
 
         for line in self.lines.order_by('order'):
-            line_link_list += '<li><span>'
-            line_link_list += u'<a href="{}">{}{}</a>'.format(reverse('logistics.views.supply_show', args=(line.supply.pk,)), u'{} * '.format(line.quantity), line.supply)
-            line_link_list += '</span></li>'
+            link = reverse('logistics.views.supply_show', args=(line.supply.pk,))
+            line_link_list = u'{}<li><span><a href="{}">{} * {}</a></span></li>'.format(line_link_list, link, line.quantity, escape(line.supply))
 
-        line_link_list += '</ul>'
+        line_link_list = u'{}</ul>'.format(line_link_list)
+
         return u'{}'.format(line_link_list)
 
     def get_supplies(self):
-        return u' '.join([u'{}{}'.format(u'{} * '.format(line.quantity) if line.quantity > 1 else '', line.supply.title) for line in self.lines.order_by('order')])
+        line_list = u'<ul class="supply-items">{}</ul>'.format(''.join(['<li><span>{} * {}</span></li>'.format(line.quantity, escape(line.supply.title)) for line in self.lines.order_by('order')]))
+
+        return mark_safe(u'{}'.format(line_list))
 
     def get_supply_infos(self):
         """Affiche les infos sur le matériel pour une réserversation"""
 
-        matos = ""
+        line_list = u'<ul class="supply-items">'
 
         for line in self.lines.order_by('order'):
-            unit = escape(line.supply.unit.name)
-            matos = u"{}{}{}{}".format(matos, u", " if matos else u"", u"{} * ".format(line.quantity) if line.quantity > 1 else u"", escape(line.supply.title))
+            unit = u'{} <span class="label label-info">{}</span>'.format(_(u'géré par'), escape(line.supply.unit.name))
+            line_list = u'{}<li><span>{} * {}</span></li>'.format(line_list, line.quantity, escape(line.supply.title))
 
-        tpl = mark_safe(u'<div style="margin-top: 5px;">{}, {} <span class="label label-info">{}</span></div>'.format(matos, _(u'géré par'), unit))
+        line_list = u'{}</ul>'.format(line_list)
 
-        return tpl
+        return mark_safe(u'{}{}'.format(line_list, unit))
 
     def get_conflits(self):
 
@@ -605,14 +613,17 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
                     pass
 
         if not conflicts:
-            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(unicode(_('Pas de conflits !'))))
+            return mark_safe(u'<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(unicode(_('Pas de conflits !'))))
 
         retour = u'<span class="txt-color-red"><i class="fa fa-warning"></i> {}</span><ul>'.format(unicode(_(u'Il y a d\'autres réservations en même temps !')))
 
         for other_reservation, supply in conflicts:
-            retour += u'<li><span class="label label-{}"><i class="{}"></i> {}</span> {} pour l\'unité {}, pas assez de "{}" <span data-toggle="tooltip" data-placement="right" title="Du {} au {}"><i class="fa fa-clock-o"></i> </span></li>'.format(other_reservation.status_color(), other_reservation.status_icon(), other_reservation.get_status_display(), other_reservation, other_reservation.get_unit_name(), supply, localtime(other_reservation.start_date), localtime(other_reservation.end_date))
+            retour = u'{}<li><span class="label label-{}"><i class="{}"></i> {}</span>'.format(retour, other_reservation.status_color(), other_reservation.status_icon(), other_reservation.get_status_display())
+            retour = u'{} {} pour l\'unité {}, pas assez de "{}"'.format(retour, other_reservation, other_reservation.get_unit_name(), supply)
+            retour = u'{}<span data-toggle="tooltip" data-placement="right" title="Du {} au {}">'.format(retour, localtime(other_reservation.start_date), localtime(other_reservation.end_date))
+            retour = u'{} <i class="fa fa-clock-o"></i></span></li>'.format(retour)
 
-        retour += '</ul>'
+        retour = u'{}</ul>'.format(retour)
 
         return retour
 
@@ -634,11 +645,17 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
                     pass
 
         if not conflicts:
-            return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
+            return u'<span class="txt-color-green"><i class="fa fa-check"></i></span>'
 
-        retour = u''
+        retour = u'<ul>'
 
         for other_reservation, supply in conflicts:
-            retour += u'{}, {}, pour {}, pas assez de {} du {} au {}, '.format(other_reservation, other_reservation.get_status_display(), other_reservation.unit if other_reservation.unit else other_reservation.unit_blank_name, supply, localtime(other_reservation.start_date), localtime(other_reservation.end_date),)
+            unit = escape(other_reservation.unit) if other_reservation.unit else escape(other_reservation.unit_blank_name)
 
-        return u'<span class="txt-color-red" title="{}"><i class="fa fa-warning"></i></span><ul>'.format(retour[:-2])
+            retour = u'{}<li><span>{} ({}) [{}]<br>'.format(retour, escape(other_reservation), unit, other_reservation.get_status_display())
+            retour = u'{}{} {}<br>'.format(retour, _(u'Pas assez de'), escape(supply))
+            retour = u'{}du {}<br>au {}</span></li>'.format(retour, localtime(other_reservation.start_date), localtime(other_reservation.end_date))
+
+        retour = u'{}</ul>'.format(retour)
+
+        return u'<span class="txt-color-red conflicts-tooltip-parent" rel="tooltip" data-placement="bottom" data-html="true" title="{}"><i class="fa fa-warning"></i></span>'.format(retour)

@@ -264,6 +264,19 @@ class _Booking(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, Ge
 
         default_sort = "[3, 'desc']"  # end_date
 
+        forced_widths = {
+            '1': '25%',
+            '2': '140px',  # start date
+            '3': '140px',  # end date
+        }
+
+        forced_widths_related = {
+            '1': '15%',
+            '2': '25%',
+            '4': '150px',  # start date
+            '5': '150px',  # end date
+        }
+
         menu_id = 'menu-vehicles-booking'
         menu_id_calendar = 'menu-vehicles-booking-calendar'
         menu_id_calendar_related = 'menu-vehicles-booking-calendar-related'
