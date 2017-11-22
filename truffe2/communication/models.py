@@ -398,7 +398,7 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
     def get_display_infos(self):
         """Affiche les infos sur les affichages pour une réserversation"""
 
-        tpl = mark_safe(u'<div style="margin-top: 5px;">%s, %s <span class="label label-info">%s</span></div>' % (escape(self.display.title), _(u'gérée par'), escape(self.display.unit.name),))
+        tpl = mark_safe(u'<div style="margin-top: 5px;">{}, {} <span class="label label-info">{}</span></div>'.format(escape(self.display.title), _(u'gérée par'), escape(self.display.unit.name)))
 
         return tpl
 
@@ -408,23 +408,21 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
             status__in=['1_asking', '2_online'], end_date__gt=self.start_date, start_date__lt=self.end_date)
 
         if not liste:
-            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> %s</span>' % (
-            unicode(_('Pas de conflits !')),))
+            return mark_safe('<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(_('Pas de conflits !')))
         else:
-            retour = '<span class="txt-color-red"><i class="fa fa-warning"></i> %s</span><ul>' % (
-            unicode(_(u'Il y a d\'autres réservations en même temps !')),)
+            retour = u'<span class="txt-color-red"><i class="fa fa-warning"></i> {}</span><ul>'.format(_(u'Il y a d\'autres réservations en même temps !'))
 
             for elem in liste:
-                retour += u'<li><span class="label label-%s"><i class="%s"></i> %s</span> %s pour l\'unité %s  <span data-toggle="tooltip" data-placement="right" title="Du %s au %s"><i class="fa fa-clock-o"></i> </span></li>' % (
-                elem.status_color(), elem.status_icon(), elem.get_status_display(), elem, elem.get_unit_name(),
-                localtime(elem.start_date), localtime(elem.end_date),)
+                retour = u'{}<li><span class="label label-{}"><i class="{}"></i> {}</span>'.format(retour, elem.status_color(), elem.status_icon(), elem.get_status_display())
+                retour = u'{} {} pour l\'unité {}'.format(retour, elem, elem.get_unit_name())
+                retour = u'{} <span data-toggle="tooltip" data-placement="right" title="Du {} au {}"><i class="fa fa-clock-o"></i></span></li>'.format(retour, localtime(elem.start_date), localtime(elem.end_date))
 
-            retour += '</ul>'
+            retour = u'{}</ul>'.format(retour)
 
             return retour
 
     def get_display_link(self):
-        return '<a href="%s">%s</a>' % (reverse('communication.views.display_show', args=(self.display.pk,)), self.display,)
+        return '<a href="{}">{}</a>'.format(reverse('communication.views.display_show', args=(self.display.pk,)), self.display)
 
     def get_conflits_list(self):
 
@@ -435,11 +433,14 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
             return '<span class="txt-color-green"><i class="fa fa-check"></i></span>'
         else:
 
-            retour = ''
+            retour = u'<ul>'
 
             for elem in liste:
-                retour += u'%s, %s, pour %s du %s au %s, ' % (
-                elem, elem.get_status_display(), elem.unit if elem.unit else elem.unit_blank_name,
-                localtime(elem.start_date), localtime(elem.end_date),)
+                unit = escape(elem.unit) if elem.unit else escape(elem.unit_blank_name)
 
-            return '<span class="txt-color-red" title="%s"><i class="fa fa-warning"></i></span><ul>' % (retour[:-2],)
+                retour = u'{}<li><span>{} ({}) [{}]<br>'.format(retour, escape(elem), unit, elem.get_status_display())
+                retour = u'{}du {}<br>au {}</span></li>'.format(retour, localtime(elem.start_date), localtime(elem.end_date))
+
+            retour = u'{}</ul>'.format(retour)
+
+            return u'<span class="txt-color-red conflicts-tooltip-parent" rel="tooltip" data-placement="bottom" data-html="true" title="{}"><i class="fa fa-warning"></i></span>'.format(retour)            
