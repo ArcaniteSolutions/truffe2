@@ -440,15 +440,15 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         related_name = _(u'Matériel')
 
         help_list = _(u"""Les réservation de matériel.
-        
+
         Les réservations sont soumises à modération par l'unité liée au matériel.
-        
+
         Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une unité externe).""")
 
         help_list_related = _(u"""Les réservation du matériel de l'unité.
-        
+
         Les réservations sont soumises à modération par l'unité liée au matériel.
-        
+
         Tu peux gérer ici la liste de réservation du matériel de l'unité active.""")
 
         help_calendar_specific = _(u"""Les réservation d'un type de matériel particulier.""")
@@ -577,7 +577,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         return u'{}'.format(line_link_list)
 
     def get_supplies(self):
-        line_list = u'<ul class="supply-items">{}</ul>'.format(''.join(['<li><span>{} * {}</span></li>'.format(line.quantity, escape(line.supply.title)) for line in self.lines.order_by('order')]))
+        line_list = u'<ul class="supply-items">{}</ul>'.format(''.join([u'<li><span>{} * {}</span></li>'.format(line.quantity, escape(line.supply.title)) for line in self.lines.order_by('order')]))
 
         return mark_safe(u'{}'.format(line_list))
 
