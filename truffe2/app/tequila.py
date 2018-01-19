@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login, authenticate
 from django.conf import settings
+from django.utils.http import is_safe_url
 
 
 User = get_user_model()
@@ -88,6 +89,9 @@ def login(request):
                     else:
                         goTo = settings.LOGIN_REDIRECT_URL
                 else:
+                    goTo = settings.LOGIN_REDIRECT_URL
+
+                if not is_safe_url(goTo):
                     goTo = settings.LOGIN_REDIRECT_URL
 
                 return HttpResponseRedirect(goTo)
