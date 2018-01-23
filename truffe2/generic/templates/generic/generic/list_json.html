@@ -24,7 +24,11 @@
                 {{elem|get_attr:field|date:"d.m.Y"|force_escape|escapejs}} {{elem|get_attr:field|time:"H:i:s"|force_escape|escapejs}}
             {% else %}
                 {% if field == 'status' and elem.MetaState.states %}
-                    <span class='label label-{{elem.status_color}}'><i class='{{elem.status_icon}}'></i> {{elem.get_status_display|force_escape|escapejs}}</span>
+                    {% if elem.status_icon %}
+                        <span class='label label-{{elem.status_color}} label-crlf'><i class='{{elem.status_icon}}'></i> {{elem.get_status_display|force_escape|escapejs}}</span>
+                    {% else %}
+                        <span class='label label-{{elem.status_color}} label-crlf'>{{elem.get_status_display|force_escape|escapejs}}</span>
+                    {% endif %}
                 {% else %}
                     {% if field in Model.MetaData.safe_fields %}
                         {{elem|get_attr:field|escapejs}}
@@ -40,10 +44,10 @@
       {% endfor %}
       "{% spaceless %}
           {% ifhasright elem user 'DELETE' %}
-              <a href=\"{% url delete_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-danger\" title=\"{% trans "Supprimer" %}\" rel=\"tooltip\" multido_action=\"window.location = '{% url delete_view 9999429999 %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}';\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-danger'><i class='fa fa-times'></i> {% trans "Supprimer" %}</a>\"><i class=\"fa fa-times\"></i></a>
+              <a href=\"{% url delete_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-danger quick-switch-btn\" title=\"{% trans "Supprimer" %}\" rel=\"tooltip\" data-placement=\"left\" multido_action=\"window.location = '{% url delete_view 9999429999 %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}';\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-danger'><i class='fa fa-times'></i> {% trans "Supprimer" %}</a>\"><i class=\"fa fa-times\"></i></a>
           {% endifhasright %}
           {% ifhasright elem user 'EDIT' %}
-              <a href=\"{% url edit_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-default\" title=\"{% trans "Editer" %}\" rel=\"tooltip\"><i class=\"fa fa-pencil\"></i></a>
+              <a href=\"{% url edit_view elem.pk %}?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" class=\"btn btn-xs btn-default quick-switch-btn\" title=\"{% trans "Editer" %}\" rel=\"tooltip\" data-placement=\"left\"><i class=\"fa fa-pencil\"></i></a>
           {% endifhasright %}
           {% if elem.MetaState.list_quick_switch %}
               {% include "generic/generic/list_json_quick_switch.html" %}

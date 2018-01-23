@@ -5,7 +5,7 @@ Pillow<3
 django-bootstrap3<6
 phonenumbers
 requests
-django-impersonate<1.0
+django-impersonate<1
 pytz
 git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails
