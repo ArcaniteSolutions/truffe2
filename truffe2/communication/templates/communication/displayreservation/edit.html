@@ -4,19 +4,51 @@
 {% block edit_bonus %}
     <script type="text/javascript">
 
+        // Move display up
+        var display = $('#id_display').parent().parent().remove();
+        $('#id_title').parent().parent().after(display);
+
         $(function() {
+            var papa = $('#id_display').parent();
+            var val = $('#id_display').val();
+            var old_id = $('#id_display').attr('name');
+            $('#id_display').remove();
 
-            if (getUrlParameter('autoobjpk') != '' && $('#lines_tbody_lines .select2-offscreen').length == 0) {
-                var val = getUrlParameter('autoobjpk');
-
-                $('#new_line').click();
-
-                $('#lines_tbody_lines .select2-offscreen option[value="' + val + '"]').attr('selected', 'selected');
-
-                $('#lines_tbody_lines .select2-offscreen').select2('destroy');
-                $('#lines_tbody_lines .select2-offscreen').select2();
+            if (getUrlParameter('autoobjpk') != '' && val == '') {
+                val = getUrlParameter('autoobjpk');
             }
 
+            $(papa).append("<input id='id_display' name='" + old_id + "' value='" + val + "' type='text'>");
+
+            $('#id_display').width('92%').select2({
+                minimumInputLength: 0,
+                ajax: {
+                    url: "{% url 'communication.views.display_search' %}",
+                    dataType: 'json',
+                    data: function (term, page) {
+                        return {
+                            q: term,
+                            unit_pk: $('#input_upk').val()
+                        }
+                    },
+                    results: function (data, page) {
+                        return { results: data };
+                    },
+                },
+                initSelection : function (element, callback) {
+                    $.ajax("{% url 'communication.views.display_search' %}?init=" + $(element).val() + '&unit_pk=' + $('#input_upk').val(), {'dataType': 'json'}).success(function (data) {
+                        callback(data[0]);
+                    });
+                },
+                formatResult: function(result, container, query, escapeMarkup) {
+                    return escapeMarkup(result.text) + ' <small class="label label-info">' + escapeMarkup(result.unit) + '</small><br /><small>' + escapeMarkup(result.description) + "</small>";
+                },
+                formatSelection: function(result, container, escapeMarkup) {
+                    return escapeMarkup(result.text) + ' <small class="label label-info">' + escapeMarkup(result.unit) + '</small>';
+                },
+            }).on('change', function(e) {
+                $('#id_display').val(e.val);
+            });
         });
 
     </script>

@@ -18,9 +18,12 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db.models import Q
+from django.utils.html import strip_tags
 
 import json
 
+from app.utils import update_current_unit
+from generic.templatetags.generic_extras import html_check_and_safe
 
 def ecrans(request):
     """View to display the ecran page"""

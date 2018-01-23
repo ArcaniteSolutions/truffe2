@@ -5,51 +5,43 @@
     <div class="col-sm-12 col-md-12 col-lg-6 popover-no-padding">
         {% with w_title="Détails sur l'affiche'" %}{% include "widget/header.html" %}{% endwith %}
 
-        {% for line in obj.lines.all %}
+        <h3 style="margin-top: 0px;">{% trans "Description" %}</h3>
+        {{line.display.description|html_check_and_safe}}
 
-            <h2 style="margin-top: 0px;">{{display}}</h2>
+        <h3>{% trans "Conditions de réservation" %}</h3>
 
-            <h3 style="margin-top: 0px;">{% trans "Description" %}</h3>
-            {{line.display.description|html_check_and_safe}}
+        {% if forloop.first %}
+            <div class="alert alert-warning" style="margin-top: -15px; margin-bottom: 5px;">{% trans "La personne effectuant la réservation s'engage à respecter les conditions en demandant une validation de la réservation !" %}</div>
+        {% endif %}
 
-            <h3>{% trans "Conditions de réservation" %}</h3>
-
-            {% if forloop.first %}
-                <div class="alert alert-warning" style="margin-top: -15px; margin-bottom: 5px;">{% trans "La personne effectuant la réservation s'engage à respecter les conditions en demandant une validation de la réservation !" %}</div>
+        {% if obj.unit %}
+            {% if line.display.max_days %}
+                <b>{% trans "La réservation ne peut pas durer plus de" %} {{line.display.max_days}} {% trans "jour(s)" %}.</b><br />
+            {% endif %}
+            {% if line.display.minimum_days_before %}
+                <b>{% trans "La réservation doit être faite au moins" %} {{line.display.minimum_days_before}} {% trans "jour(s) à l'avance" %}.</b><br />
+            {% endif %}
+            {% if line.display.maximum_days_before %}
+                <b>{% trans "La réservation doit être faite au plus" %} {{line.display.maximum_days_before}} {% trans "jour(s) à l'avance" %}.</b><br />
+            {% endif %}
+        {% else %}
+            {% if line.display.max_days_externals %}
+                <b>{% trans "La réservation ne peut pas durer plus de" %} {{line.display.max_days_externals}} {% trans "jour(s)" %}.</b><br />
+            {% endif %}
+            {% if line.display.minimum_days_before_externals %}
+                <b>{% trans "La réservation doit être faite au moins" %} {{line.display.minimum_days_before_externals}} {% trans "jour(s) à l'avance" %}.</b><br />
+            {% endif %}
+            {% if line.display.maximum_days_before_externals %}
+                <b>{% trans "La réservation doit être faite au plus" %} {{line.display.maximum_days_before_externals}} {% trans "jour(s) à l'avance" %}.</b><br />
             {% endif %}
 
-            {% if obj.unit %}
-                {% if line.display.max_days %}
-                    <b>{% trans "La réservation ne peut pas durer plus de" %} {{line.display.max_days}} {% trans "jour(s)" %}.</b><br />
-                {% endif %}
-                {% if line.display.minimum_days_before %}
-                    <b>{% trans "La réservation doit être faite au moins" %} {{line.display.minimum_days_before}} {% trans "jour(s) à l'avance" %}.</b><br />
-                {% endif %}
-                {% if line.display.maximum_days_before %}
-                    <b>{% trans "La réservation doit être faite au plus" %} {{line.display.maximum_days_before}} {% trans "jour(s) à l'avance" %}.</b><br />
-                {% endif %}
-            {% else %}
-                {% if line.display.max_days_externals %}
-                    <b>{% trans "La réservation ne peut pas durer plus de" %} {{line.display.max_days_externals}} {% trans "jour(s)" %}.</b><br />
-                {% endif %}
-                {% if line.display.minimum_days_before_externals %}
-                    <b>{% trans "La réservation doit être faite au moins" %} {{line.display.minimum_days_before_externals}} {% trans "jour(s) à l'avance" %}.</b><br />
-                {% endif %}
-                {% if line.display.maximum_days_before_externals %}
-                    <b>{% trans "La réservation doit être faite au plus" %} {{line.display.maximum_days_before_externals}} {% trans "jour(s) à l'avance" %}.</b><br />
-                {% endif %}
+        {% endif %}
 
-            {% endif %}
-
-            {% if obj.unit or not line.display.conditions_externals %}
-                {{line.display.conditions|html_check_and_safe|default:"<i>Pas de conditions</i>"}}
-            {% else %}
-                {{line.display.conditions_externals|html_check_and_safe}}
-            {% endif %}
-
-            <br /><br />
-
-        {% endfor %}
+        {% if obj.unit or not line.display.conditions_externals %}
+            {{line.display.conditions|html_check_and_safe|default:"<i>Pas de conditions</i>"}}
+        {% else %}
+            {{line.display.conditions_externals|html_check_and_safe}}
+        {% endif %}
 
         {% include "widget/footer.html" %}
     </div>
