@@ -393,6 +393,8 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
 
             if not self.unit and not data['display'].allow_externals:
                 raise forms.ValidationError(_('Affichage non disponible pour les externes'))
+        else:
+            raise forms.ValidationError(_(u'Il ne faut pas laisser de ligne vide !'))
 
         if 'start_date' in data and 'end_date' in data and data['start_date'] > data['end_date']:
             raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
