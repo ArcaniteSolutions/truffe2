@@ -531,7 +531,10 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
 
             data = supply_form['form'].cleaned_data
 
-            if 'supply' not in data or data['supply'].deleted:
+            if 'supply' not in data:
+                raise forms.ValidationError(_(u'Il ne faut pas laisser de ligne vide !'))
+            
+            if data['supply'].deleted:
                 raise forms.ValidationError(_(u'\"{}\" n\'est pas disponible'.format(data['supply'].title)))
 
             if not data['supply'].active:
