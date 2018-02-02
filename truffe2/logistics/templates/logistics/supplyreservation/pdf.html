@@ -1,0 +1,230 @@
+{% extends "base_pdf.html" %}
+{% load i18n humanize %}
+
+{% block bonus_css_pdf %}
+    @page {
+        size: a4 portrait;
+        margin: 1cm;
+        margin-bottom: 2cm;
+        margin-top: 4cm;
+
+        @frame footer {
+            -pdf-frame-content: footerContent;
+            bottom: 0cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            height: 1cm;
+        }
+
+        @frame logoFrame {
+            -pdf-frame-content: logoFrameContent;
+            top: 1.0cm;
+            right: 1.2cm;
+            width: 35%;
+        }
+
+        @frame headerFrame {
+            -pdf-frame-content: headerFrameContent;
+            top: 1.1cm;
+            left: 1.2cm;
+            width: 50%;
+        }
+    }
+
+    .maintable tr:nth-child(odd) {
+        background-color: black;
+    }
+    
+    .maintable td {
+        border-right: 1px solid black;
+        padding-top: 3px;
+        padding-left: 3px;
+    }
+
+    .maintable td:first-child {
+        text-align:center;
+    }
+    
+    .maintable td:last-child {
+        border-right: none;
+        text-align:center;
+    }
+
+    .tr-header {
+        border-bottom: 2px solid black;
+        font-weight: bold;
+        padding-top: none;
+        text-align: center;
+    }
+
+    .headertable {
+        -pdf-keep-in-frame-mode: none;
+        width: 100%;
+        height: 100%;
+        display: block;
+        font-size: 10px;
+    }
+
+    .headertable td {
+        line-height: 2px;
+    }
+
+    .signatures td {
+        padding-left: 3px;
+        padding-top: 3px;
+    }
+
+    .caution td {
+        padding-top: 15px;
+    }
+
+    .blank {
+        border-bottom: 1px black dashed
+    }
+
+    body {
+        font-size: 12px;
+    }
+{% endblock %}
+
+{% block content %}
+    <div id="headerFrameContent">
+
+        <table class="headertable" width="100%">
+            <tr>
+                <td><b>A</b>ssociation</td>
+                <td width="13%">Tél. :</td>
+                <td>+41 21 693 2095</td>
+            </tr>
+            <tr>
+                <td><b>G</b>énérale des</td>
+                <td>Fax :</td>
+                <td>+41 21 693 2097</td>
+            </tr>
+            <tr>
+                <td><b>E</b>tudiants de l’école</td>
+                <td>Email :</td>
+                <td>agepoly@epfl.ch</td>
+            </tr>
+            <tr>
+                <td><b>Poly</b>technique Fédérale</td>
+                <td>Web :</td>
+                <td>http://agepoly.epfl.ch</td>
+            </tr>
+            <tr>
+                <td>de Lausanne</td>
+                <td>Banque :</td>
+                <td>Credit Suisse - Zürich</td>
+            </tr>
+            <tr>
+                <td>CASE POSTALE 16</td>
+                <td>Compte :</td>
+                <td>0425-287897-71</td>
+            </tr>
+            <tr>
+                <td>CH - 1015 LAUSANNE EPFL</td>
+                <td>TVA :</td>
+                <td>CHE-113.397.612</td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="logoFrameContent">
+        <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;" width="260">
+    </div>
+    
+    <h3 style="text-align: center; font-size: 14px;">{% trans "CONVENTION DE PRÊT DE MATÉRIEL" %}</h3>
+
+    <h4 style="text-align: center; font-size: 11px;">{% trans "entre l’AGEPoly, ci-après le propriétaire, et " %}<br/>{% if supplyreservation.unit %}{{supplyreservation.unit|safe}}{% else %}{{supplyreservation.unit_blank_name|safe}}{% endif %}{% trans ", ci-après l’emprunteur," %}<br/>{% trans "pour l'événement : " %}{{supplyreservation.title|safe}}</h4>
+
+    <h6>{% trans "Durée du prêt" %}</h6>
+    <hr/>
+    <p>{% trans "Le présent prêt de matériel est consenti gracieusement à titre non commercial pour une durée de <b><u>" %}{{supplyreservation.get_duration}}{% if supplyreservation.get_duration <= 1 %}{% trans " jour" %}{% else %}{% trans " jours" %}{% endif %}{% trans "</u></b> à compter du <b><u>" %}{{supplyreservation.start_date|date:"l j F Y \à H\hi"}}{% trans "</u></b> jusqu’au <b><u>"%}{{supplyreservation.end_date|date:"l j F Y \à H\hi"}}{% trans "</u></b>." %}</p>
+    </br>
+
+    <h6>{% trans "Conditions générales et responsabilités" %}</h6>
+    <hr/>
+    <p>{% trans "L’emprunteur devra prendre rendez-vous avec le propriétaire du matériel pour la prise de possession. Le matériel devra être testé en présence des deux parties pour vérifier son bon état de fonctionnement. Cela implique que l’emprunteur accepte le parfait état de fonctionnement de celui-ci. Quelles que soient les modalités de transport et/ou de montage, l’emprunteur est responsable du matériel dès que celui-ci quitte le propriétaire. L’emprunteur qui transporte le matériel lui-même s'engage à le faire dans les meilleures conditions." %}</p>
+    <p>{% trans "L’emprunteur reconnaît expressément être le seul gardien du matériel prêté durant l'intégralité du contrat et, le cas échéant, au-delà, jusqu'à la restitution effective du matériel. Il s'engage à ce titre à exercer un contrôle effectif et exclusif sur le matériel. Il est donc conseillé à l’emprunteur de placer le matériel en sécurité afin d’éviter tous risques de vol, vandalisme, catastrophes naturelles, dégâts corporels et matériels, etc. Par ailleurs, l’emprunteur ne pourra ni céder, ni sous-louer, ni prêter le matériel à un tiers sans l’accord du propriétaire. L’emprunteur s’engage à ne donner au matériel aucune destination illégale ou contraire au bon sens moral." %}</p>
+    <p>{% trans "L’emprunteur déclare et est réputé disposer de toutes les informations concernant les précautions et règles de sécurité liées à l’utilisation du matériel et posséder les aptitudes, habilitations, permis, capacité juridique et légale nécessaires à la détention et à l'utilisation adéquate et prudente du matériel. Il lui appartient de compléter si nécessaire son information. L’emprunteur sera donc tenu responsable de tout mauvais emploi. En aucun cas le propriétaire ne pourra être tenu pour responsable de tous dommages corporels ou matériels résultant de l'utilisation de son matériel par l’emprunteur ayant accepté le parfait état de fonctionnement du matériel par la signature du présent contrat." %}</p>
+    <p>{% trans "Le matériel restitué sera testé par le propriétaire. Toute défectuosité, irrégularité, ou usure exagérée par rapport à l'utilisation spécifiée, constatées lors de ce contrôle sont à la charge de l’emprunteur. Sa responsabilité ne peut excéder la valeur résiduelle éventuelle du matériel telle que définie de bonne foi." %}</p>
+    <p>{% trans "Le matériel manquant au retour sera facturé en fonction de la valeur de remplacement du matériel. Des frais de nettoyage seront en outre appliqués si le matériel est rendu sans avoir été suffisamment nettoyé." %}</p>
+    <p>{% trans "Une caution d’au minimum 100.- sera demandée aux unités externes à l’AGEPoly lors de la prise du matériel et sera restituée une fois ce dernier retourné complet, propre, sec et en bon état." %}</p>
+    <p>{% trans "Le matériel est prêté à bien plaire, cependant toute contrepartie sera bienvenue." %}</p>
+
+    <pdf:nextpage/>
+    
+    <h3 style="text-align: center; font-size: 20px;">{% trans "ÉTAT DES LIEUX DU MATÉRIEL" %}</h3>
+
+    <table class="maintable">
+        <tr class="tr-header">
+            <td width="7%">{% trans "Nb.<br/>Prêt" %}</td>
+            <td width="36%">{% trans "Article" %}</td>
+            <td width="50%">{% trans "Information et état" %}</td>
+            <td width="7%">{% trans "Nb.<br/>Ret." %}</td>
+        </tr>
+
+        {% for line in supplyreservation.get_lines %}
+            <tr class="tr-body">
+                <td>{{line.quantity}}</td>
+                <td>{{line.supply.title}}</td>
+                <td>{{line.supply.information|default:''}}</td>
+                <td>{% trans " " %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    
+    <br/>
+    
+    <h6>{% trans "Observations :" %}<br/><br/><br/><br/><br/><br/></h6>
+    
+    <table class="signatures" repeat="1">
+        <tr class="tr-header">
+            <td colspan="2">{% trans "Signatures" %}</td>
+        </tr>
+        <tr class="tr-body">
+            <td>
+                <center>{% trans "Pour le propriétaire" %}</center>
+                {% trans "Nom :" %}<br/>
+                {% trans "Fonction :" %}<br/>
+                {% trans "N° tél. :" %}<br/>
+                {% trans "Matériel rendu le :" %}<br/><br/>
+                {% trans "Signature :" %}<br/>
+            </td>
+            <td style="border-left:1px solid black">
+                <center>{% trans "Pour l'emprunteur" %}</center>
+                {% trans "Nom : " %}<br/>
+                {% trans "Fonction : " %}<br/>
+                {% trans "N° tél. : " %}{{supplyreservation.contact_phone}}<br/>
+                {% trans "Matériel prêté le :" %}<br/><br/>
+                {% trans "Signature : " %}<br/>
+            </td>
+        </tr>
+    </table>
+
+    {%if not supplyreservation.unit%}
+        <table class="caution" repeat="2">
+            <tr class="tr-header">
+                <td colspan="7">{% trans "Caution" %}</td>
+            </tr>
+            <tr class="tr-body">
+                <td width="140px">{% trans "L'emprunteur a donné" %}</td>
+                <td width="50px" class="blank"></td>
+                <td width="45px">{% trans "CHF, le" %}</td>
+                <td width="120px" class="blank"></td>
+                <td width="20px"></td>
+                <td width="170px">{% trans "Signature du propriétaire :" %}</td>
+                <td class="blank"></td>
+            </tr>
+            <tr class="tr-body">
+                <td>{% trans "Le propriétaire a rendu" %}</td>
+                <td class="blank"></td>
+                <td>{% trans "CHF, le" %}</td>
+                <td class="blank"></td>
+                <td></td>
+                <td>{% trans "Signature de l'emprunteur :" %}</td>
+                <td class="blank"></td>
+            </tr>
+        </table>
+    {% endif %}
+{% endblock %}
