@@ -10,7 +10,6 @@ from django.core.urlresolvers import reverse
 
 from rights.utils import UnitEditableModel, UnitExternalEditableModel
 from datetime import timedelta
-from app.utils import get_current_unit
 
 
 class _Room(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo, SearchableModel):
@@ -103,7 +102,7 @@ class _RoomReservation(GenericModel, GenericDelayValidable, GenericGroupsValidab
     start_date = models.DateTimeField(_(u'Date de début'))
     end_date = models.DateTimeField(_(u'Date de fin'))
 
-    reason = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
+    reason = models.TextField(_('Raison'), help_text=_(u'Explique brièvement ce que tu vas faire'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     class MetaData:
@@ -374,14 +373,14 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         access = 'LOGISTIQUE'
         moderation_access = 'LOGISTIQUE'
 
-    title = models.CharField(_('Titre'), max_length=255)
+    title = models.CharField(_(u'Nom de la réservation'), max_length=255, help_text=_(u'Par exemple le nom de ton événement'))
 
-    start_date = models.DateTimeField(_(u'Date de début'))
-    end_date = models.DateTimeField(_(u'Date de fin'))
+    start_date = models.DateTimeField(_(u'Date de début'), help_text=_(u'Date et heure souhaitées pour la prise du matériel'))
+    end_date = models.DateTimeField(_(u'Date de fin'), help_text=_(u'Date et heure souhaitées pour le retour du matériel'))
 
     contact_phone = models.CharField(_(u'Téléphone de contact'), max_length=25)
 
-    reason = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
+    reason = models.TextField(_('Raison'), help_text=_(u'Explique brièvement ce que tu vas faire'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     class MetaData:

@@ -34,7 +34,7 @@
     .maintable tr:nth-child(odd) {
         background-color: black;
     }
-    
+
     .maintable td {
         border-right: 1px solid black;
         padding-top: 3px;
@@ -44,7 +44,7 @@
     .maintable td:first-child {
         text-align:center;
     }
-    
+
     .maintable td:last-child {
         border-right: none;
         text-align:center;
@@ -132,7 +132,7 @@
     <div id="logoFrameContent">
         <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;" width="260">
     </div>
-    
+
     <h3 style="text-align: center; font-size: 14px;">{% trans "CONVENTION DE PRÊT DE MATÉRIEL" %}</h3>
 
     <h4 style="text-align: center; font-size: 11px;">{% trans "entre l’AGEPoly, ci-après le propriétaire, et " %}<br/>{% if supplyreservation.unit %}{{supplyreservation.unit|safe}}{% else %}{{supplyreservation.unit_blank_name|safe}}{% endif %}{% trans ", ci-après l’emprunteur," %}<br/>{% trans "pour l'événement : " %}{{supplyreservation.title|safe}}</h4>
@@ -153,7 +153,7 @@
     <p>{% trans "Le matériel est prêté à bien plaire, cependant toute contrepartie sera bienvenue." %}</p>
 
     <pdf:nextpage/>
-    
+
     <h3 style="text-align: center; font-size: 20px;">{% trans "ÉTAT DES LIEUX DU MATÉRIEL" %}</h3>
 
     <table class="maintable">
@@ -173,11 +173,11 @@
             </tr>
         {% endfor %}
     </table>
-    
+
     <br/>
-    
+
     <h6>{% trans "Observations :" %}<br/><br/><br/><br/><br/><br/></h6>
-    
+
     <table class="signatures" repeat="1">
         <tr class="tr-header">
             <td colspan="2">{% trans "Signatures" %}</td>
@@ -202,7 +202,7 @@
         </tr>
     </table>
 
-    {%if not supplyreservation.unit%}
+    {% if not supplyreservation.unit %}
         <table class="caution" repeat="2">
             <tr class="tr-header">
                 <td colspan="7">{% trans "Caution" %}</td>

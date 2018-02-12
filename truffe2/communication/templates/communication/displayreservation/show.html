@@ -10,9 +10,7 @@
 
         <h3>{% trans "Conditions de réservation" %}</h3>
 
-        {% if forloop.first %}
-            <div class="alert alert-warning" style="margin-top: -15px; margin-bottom: 5px;">{% trans "La personne effectuant la réservation s'engage à respecter les conditions en demandant une validation de la réservation !" %}</div>
-        {% endif %}
+        <div class="alert alert-warning" style="margin-top: -15px; margin-bottom: 5px;">{% trans "La personne effectuant la réservation s'engage à respecter les conditions en demandant une validation de la réservation !" %}</div>
 
         {% if obj.unit %}
             {% if line.display.max_days %}

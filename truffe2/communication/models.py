@@ -283,7 +283,7 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
     start_date = models.DateTimeField(_(u'Date de début'))
     end_date = models.DateTimeField(_(u'Date de fin'))
 
-    reason = models.TextField(help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
+    reason = models.TextField(_(u'Raison'), help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
     remarks = models.TextField(_('Remarques'), blank=True, null=True)
 
     class MetaData:

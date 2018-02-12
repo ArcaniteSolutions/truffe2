@@ -60,10 +60,11 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         }
 
         files_title = _(u'Fichiers')
-        files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention.<br />
+        files_help = _(u"""Envoie les fichiers nécessaires pour ta demande de subvention, les demandes incomplètes ne seront pas considérées.<br />
+En cas de question, merci de contacter <a href="mailto:administration@agepoly.ch">administration@agepoly.ch</a>.<br /><br />
 Vous devez inclure dans votre demande au moins :
 <ul>
-                       <li>Budget du projet. Merci d'utiliser le système de budgets dans le menu latéral, ou <a href="/file/download_list/?group=accounting" target="_blank">ce modèle</a> pour les externes à l'AGEPoly. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
+                       <li>Budget du projet. Un document complémentaire détaillant et expliquant le budget est vivement recommandé.</li>
     <li>Bilans et comptes des d'activité des années précédentes</li>
     <li>Documents officiels (pour les Association hors AGEPoly) : statuts, liste des membres du comité, PV de la dernière AG</li>
 </ul>

@@ -4,11 +4,11 @@
 {% block edit_bonus %}
     <script type="text/javascript">
 
-        // Move room up
-        var room = $('#id_room').parent().parent().remove();
-        $('#id_title').parent().parent().after(room);
-
         $(function() {
+            // Move room up
+            var room = $('#id_room').parent().parent().remove();
+            $('#id_title').parent().parent().after(room);
+
             var papa = $('#id_room').parent();
             var val = $('#id_room').val();
             var old_id = $('#id_room').attr('name');

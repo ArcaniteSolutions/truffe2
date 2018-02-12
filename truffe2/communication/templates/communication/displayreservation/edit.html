@@ -4,11 +4,11 @@
 {% block edit_bonus %}
     <script type="text/javascript">
 
-        // Move display up
-        var display = $('#id_display').parent().parent().remove();
-        $('#id_title').parent().parent().after(display);
-
         $(function() {
+            // Move display up
+            var display = $('#id_display').parent().parent().remove();
+            $('#id_title').parent().parent().after(display);
+
             var papa = $('#id_display').parent();
             var val = $('#id_display').val();
             var old_id = $('#id_display').attr('name');
