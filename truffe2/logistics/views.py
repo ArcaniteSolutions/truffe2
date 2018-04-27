@@ -22,6 +22,7 @@ from django.utils.html import strip_tags
 
 import json
 
+from app.utils import generate_pdf
 from app.utils import update_current_unit
 from generic.templatetags.generic_extras import html_check_and_safe
 
@@ -100,3 +101,15 @@ def supply_search(request):
     retour = map(lambda supply: {'id': supply.pk, 'text': supply.title, 'description': strip_tags(html_check_and_safe(supply.description))[:100] + '...', 'unit': str(supply.unit)}, supplies)
 
     return HttpResponse(json.dumps(retour))
+
+@login_required
+def loanagreement_pdf(request, pk):
+
+    from logistics.models import SupplyReservation
+
+    reservation = get_object_or_404(SupplyReservation, pk=pk, deleted=False)
+
+    if not reservation.rights_can('SHOW', request.user):
+        raise Http404
+
+    return generate_pdf("logistics/supplyreservation/pdf.html", request, {'supplyreservation': reservation})
