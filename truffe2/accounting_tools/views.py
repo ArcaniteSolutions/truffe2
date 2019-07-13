@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
@@ -142,6 +142,36 @@ def internaltransfer_pdf(request, pk):
     else:
         return generate_pdf("accounting_tools/internaltransfer/multiple_pdf.html", request, {'objects': transfers})
 
+@login_required
+def internaltransfer_csv(request, pk):
+    from accounting_tools.models import InternalTransfer
+    from accounting_core.models import TVA
+    import datetime
+
+    transfers = [get_object_or_404(InternalTransfer, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
+    transfers = filter(lambda tr: tr.rights_can('SHOW', request.user), transfers)
+    
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    if len(transfers) == 1:
+        response['Content-Disposition'] = 'attachment; filename="'+slugify(transfers[0].name)+'.csv"'
+    else:
+        response['Content-Disposition'] = 'attachment; filename="internal_transfers_'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
+    #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
+    #We still need to add costcenters (and modify the sage import interface)
+    writer = UnicodeCSVWriter(response)
+    
+    for transfer in transfers:
+        try: 
+            tva = TVA.objects.get(value=0)
+        except:
+            tva = TVA()
+            tva.code = ''
+            tva.value = 0
+        header_row = [u'0',transfer.pk,'','',transfer.name, transfer.amount, transfer.amount, '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'INT_TF#'+unicode(transfer.pk)]
+        debit_row  = [u'1','','','','','','','','','','','',u'1',transfer.pk,transfer.account.account_number,u'CHF',transfer.name+u' - Débit',transfer.amount, tva.code, tva.value, '', u'Non Soumis à la TVA' , u'Débit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk)] #need to put transfer.cost_center_from.account_number somewhere
+        credit_row = [u'2','','','','','','','','','','','',u'2',transfer.pk,transfer.account.account_number,u'CHF',transfer.name+u' - Crédit',transfer.amount, tva.code, tva.value, '', u'Non Soumis à la TVA' , u'Crédit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk)]  #need to put transfer.cost_center_to.account_number somewhere
+        writer.writerows([header_row, debit_row, credit_row])
+    return response
 
 @login_required
 def expenseclaim_pdf(request, pk):
