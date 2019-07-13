@@ -1,14 +1,16 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import Http404, HttpResponse
 from django.utils.timezone import now
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 
+import csv, codecs, cStringIO
 import os
 import json
 from PIL import Image
@@ -164,6 +166,78 @@ def cashbook_pdf(request, pk):
 
     return generate_pdf("accounting_tools/cashbook/pdf.html", request, {'object': cashbook}, [f.file for f in cashbook.get_pdf_files()])
 
+@login_required
+def cashbook_csv(request, pk):
+    from accounting_tools.models import CashBook
+    from accounting_tools.models import CashBookLine
+    from accounting_core.models import TVA
+
+    cashbook = get_object_or_404(CashBook, pk=pk, deleted=False)
+
+    if not cashbook.rights_can('SHOW', request.user):
+        raise Http404
+    if not cashbook.status[0] == '3':
+        raise Http404(u'cashbook_not_accountable')
+    if not cashbook.total_incomes() == cashbook.total_outcomes():
+        raise Http404(u'Cashbook pas a 0, merci de le mettre a 0')    
+    
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="'+slugify(cashbook.name)+'.csv"'
+
+    #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
+    writer = UnicodeCSVWriter(response)
+    writer.writerow([0,cashbook.pk,'','',cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#'+unicode(cashbook.pk)])
+    first = True
+    line_count = 1
+    firstline = CashBookLine()
+    for line in cashbook.get_lines(): 
+        if first: #
+            firstline = line
+            first = False
+            continue
+        line_count = line_count + cashbook_line_write(writer, cashbook, line, line_count, False)
+    line_count = line_count + cashbook_line_write(writer, cashbook, firstline, line_count, True)
+    return response
+
+def cashbook_line_write(writer, cashbook, line, line_number, last_line):
+    from accounting_tools.models import CashBook
+    from accounting_tools.models import CashBookLine
+    from accounting_core.models import TVA
+    initial_line_number = line_number
+    try: 
+        tva = TVA.objects.get(value=line.tva)
+    except TVA.DoesNotExist: 
+        raise Exception(u'TVA '+str(line.tva)+u' Not found - Impossible d\'exporter des lignes avec TVA speciales')
+    if line.is_output(): 
+        type = u'Débit' 
+    else: 
+        type = u'Crédit'
+        
+    if tva.value == 0.0:
+        tva_string = u'Non soumis à la TVA'
+        is_tva = False
+    else: 
+         tva_string = u'Soumis à la TVA'
+         is_tva = True
+    
+    row = [u'1','','','','','','','','','','','',line_number,cashbook.pk,line.account.account_number,u'CHF',line.label,line.value, tva.code, tva.value, '', tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value,line.value,0,u'CASHBOOK#'+unicode(cashbook.pk)]
+    line_number = line_number + 1
+    
+    if is_tva: #on génère la ligne correspondante de tva si besoin
+        tva_row = [u'1','','','','','','','','','','','',line_number,cashbook.pk,tva.account.account_number,u'CHF',line.label+u' - TVA',line.value_ttc-line.value, tva.code , tva.value, line_number-1 ,u'Montant TVA', type,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc-line.value,line.value_ttc-line.value,0,u'CASHBOOK#'+unicode(cashbook.pk)]
+        line_number = line_number + 1
+    
+    if last_line == True: #la dernière écriture doit être de type 2
+        if is_tva:
+            tva_row[0] = u'2'
+        else:
+            row[0]=u'2'
+    
+    writer.writerow(row)
+    if is_tva: 
+        writer.writerow(tva_row)
+        
+    return line_number - initial_line_number #number of line written
 
 @login_required
 def get_withdrawal_infos(request, pk):
@@ -199,3 +273,24 @@ def withdrawal_available_list(request):
     retour = {'data': [{'pk': withdrawal.pk, 'name': withdrawal.__unicode__(), 'used': withdrawal.status == '3_used'} for withdrawal in withdrawals]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
+    
+class UnicodeCSVWriter:
+    """
+    A CSV writer which will write rows to CSV file "f",
+    which is encoded in the given encoding.
+    """
+
+    def __init__(self, f):
+        self.stream = f
+
+    def writerow(self, row):
+        for s in row: 
+            if not isinstance(s, unicode):
+                unicode(s).encode("utf-8")
+            self.stream.write(s)
+            self.stream.write(u'; ')
+        self.stream.write(u'\r\n')
+        
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)  

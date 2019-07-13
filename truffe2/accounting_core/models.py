@@ -426,6 +426,9 @@ class _TVA(GenericModel, AgepolyEditableModel, SearchableModel):
     name = models.CharField(_(u'Nom de la TVA'), max_length=255)
     value = models.DecimalField(_('Valeur (%)'), max_digits=20, decimal_places=2)
     agepoly_only = models.BooleanField(_(u'Limiter l\'usage au comité de l\'AGEPoly'), default=False)
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte de TVA'))
+    code = models.CharField(verbose_name=_('Code de TVA'), max_length=255)
+
 
     class Meta:
         abstract = True
