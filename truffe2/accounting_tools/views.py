@@ -150,11 +150,11 @@ def internaltransfer_csv(request, pk):
     transfers = [get_object_or_404(InternalTransfer, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
     transfers = filter(lambda tr: tr.rights_can('SHOW', request.user), transfers)
     
-    response = HttpResponse(content_type='text/csv; charset=WINDOWS-1252')
+    response = HttpResponse(content_type='text/csv; charset=cp1252')
     if len(transfers) == 1:
-        response['Content-Disposition'] = 'attachment; filename="'+slugify(transfers[0].name)+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="Transfert Interne'+slugify(transfers[0].name)+'.csv"'
     else:
-        response['Content-Disposition'] = 'attachment; filename="internal_transfers_'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="transfers_internes_'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
     #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
     #We still need to add costcenters (and modify the sage import interface)
     writer = UnicodeCSVWriter(response)
@@ -201,11 +201,11 @@ def cashbook_csv(request, pk):
     
     cashbooks = [get_object_or_404(CashBook, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
     
-    response = HttpResponse(content_type='text/csv; charset=WINDOWS-1252')
+    response = HttpResponse(content_type='text/csv; charset=cp1252')
     if len(cashbooks) == 1:
-        response['Content-Disposition'] = 'attachment; filename="'+slugify(cashbooks[0].name)+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="JDC - '+slugify(cashbooks[0].name)+'.csv"'
     else:
-        response['Content-Disposition'] = 'attachment; filename="cashbook_'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="journaux_de_caisse'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
 
     #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
     
@@ -216,9 +216,9 @@ def cashbook_csv(request, pk):
         if not cashbook.rights_can('SHOW', request.user):
             raise Http404
         if not cashbook.status[0] == '3':
-            raise Exception(u'Cashbook '+unicode(cashbook.pk)+u' pas à l\'état à comptabiliser')
+            raise Exception(u'JDC '+unicode(cashbook)+u' pas à l\'état à comptabiliser')
         if not cashbook.total_incomes() == cashbook.total_outcomes():
-            raise Exception(u'Cashbook '+unicode(cashbook.pk)+u' pas a 0, merci de le mettre a 0')
+            raise Exception(u'JDC '+unicode(cashbook)+u' pas a 0, merci de le mettre a 0')
         writer.writerow([0,cashbook_count,cashbook.get_lines()[0].date.strftime(u"%d.%m.%Y"),200000+cashbook.pk,cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', u'CHF' ,0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#'+unicode(cashbook.pk)])
         first = True
         line_count = 1
@@ -331,7 +331,7 @@ class UnicodeCSVWriter:
         for s in row: 
             if not isinstance(s, unicode):
                 s = unicode(s)
-            s = s.encode("WINDOWS-1252")
+            s = s.encode("cp1252")
             self.stream.write(s)
             self.stream.write(u';')
         self.stream.write(u'\r\n')
