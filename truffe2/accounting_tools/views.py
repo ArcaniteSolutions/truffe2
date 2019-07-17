@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 
-import csv, codecs, cStringIO
+import csv, codecs, cStringIO, datetime
 import os
 import json
 from PIL import Image
@@ -146,12 +146,11 @@ def internaltransfer_pdf(request, pk):
 def internaltransfer_csv(request, pk):
     from accounting_tools.models import InternalTransfer
     from accounting_core.models import TVA
-    import datetime
 
     transfers = [get_object_or_404(InternalTransfer, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
     transfers = filter(lambda tr: tr.rights_can('SHOW', request.user), transfers)
     
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response = HttpResponse(content_type='text/csv; charset=WINDOWS-1252')
     if len(transfers) == 1:
         response['Content-Disposition'] = 'attachment; filename="'+slugify(transfers[0].name)+'.csv"'
     else:
@@ -159,18 +158,13 @@ def internaltransfer_csv(request, pk):
     #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
     #We still need to add costcenters (and modify the sage import interface)
     writer = UnicodeCSVWriter(response)
-    
+    line_number = 1
     for transfer in transfers:
-        try: 
-            tva = TVA.objects.get(value=0)
-        except:
-            tva = TVA()
-            tva.code = ''
-            tva.value = 0
-        header_row = [u'0',transfer.pk,'','',transfer.name, transfer.amount, transfer.amount, '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'INT_TF#'+unicode(transfer.pk)]
-        debit_row  = [u'1','','','','','','','','','','','',u'1',transfer.pk,transfer.account.account_number,u'CHF',transfer.name+u' - Débit',transfer.amount, tva.code, tva.value, '', u'Non Soumis à la TVA' , u'Débit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk)] #need to put transfer.cost_center_from.account_number somewhere
-        credit_row = [u'2','','','','','','','','','','','',u'2',transfer.pk,transfer.account.account_number,u'CHF',transfer.name+u' - Crédit',transfer.amount, tva.code, tva.value, '', u'Non Soumis à la TVA' , u'Crédit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk)]  #need to put transfer.cost_center_to.account_number somewhere
+        header_row = [u'0',line_number,transfer.transfert_date.strftime(u"%d.%m.%Y"),100000+transfer.pk,transfer.name, transfer.amount, transfer.amount, '', '', u'CHF', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'INT_TF#'+unicode(transfer.pk), '']
+        debit_row  = [u'1','','','','','','','','','','','',u'1',line_number,transfer.account.account_number,u'CHF',transfer.name+u' - Débit',transfer.amount, '', 0, '', u'Non Soumis à la TVA' , u'Débit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk),  transfer.cost_center_from.account_number] 
+        credit_row = [u'2','','','','','','','','','','','',u'2',line_number,transfer.account.account_number,u'CHF',transfer.name+u' - Crédit',transfer.amount, '', 0, '', u'Non Soumis à la TVA' , u'Crédit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk),  transfer.cost_center_to.account_number] 
         writer.writerows([header_row, debit_row, credit_row])
+        line_number = line_number + 1
     return response
 
 @login_required
@@ -202,61 +196,82 @@ def cashbook_csv(request, pk):
     from accounting_tools.models import CashBookLine
     from accounting_core.models import TVA
 
-    cashbook = get_object_or_404(CashBook, pk=pk, deleted=False)
 
-    if not cashbook.rights_can('SHOW', request.user):
-        raise Http404
-    if not cashbook.status[0] == '3':
-        raise Http404(u'cashbook_not_accountable')
-    if not cashbook.total_incomes() == cashbook.total_outcomes():
-        raise Http404(u'Cashbook pas a 0, merci de le mettre a 0')    
+     
     
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = 'attachment; filename="'+slugify(cashbook.name)+'.csv"'
+    cashbooks = [get_object_or_404(CashBook, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
+    
+    response = HttpResponse(content_type='text/csv; charset=WINDOWS-1252')
+    if len(cashbooks) == 1:
+        response['Content-Disposition'] = 'attachment; filename="'+slugify(cashbooks[0].name)+'.csv"'
+    else:
+        response['Content-Disposition'] = 'attachment; filename="cashbook_'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
 
     #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
+    
     writer = UnicodeCSVWriter(response)
-    writer.writerow([0,cashbook.pk,'','',cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#'+unicode(cashbook.pk)])
-    first = True
-    line_count = 1
-    firstline = CashBookLine()
-    for line in cashbook.get_lines(): 
-        if first: #
-            firstline = line
-            first = False
-            continue
-        line_count = line_count + cashbook_line_write(writer, cashbook, line, line_count, False)
-    line_count = line_count + cashbook_line_write(writer, cashbook, firstline, line_count, True)
+    
+    cashbook_count = 1
+    for cashbook in cashbooks:
+        if not cashbook.rights_can('SHOW', request.user):
+            raise Http404
+        if not cashbook.status[0] == '3':
+            raise Exception(u'Cashbook '+unicode(cashbook.pk)+u' pas à l\'état à comptabiliser')
+        if not cashbook.total_incomes() == cashbook.total_outcomes():
+            raise Exception(u'Cashbook '+unicode(cashbook.pk)+u' pas a 0, merci de le mettre a 0')
+        writer.writerow([0,cashbook_count,cashbook.get_lines()[0].date.strftime(u"%d.%m.%Y"),200000+cashbook.pk,cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', u'CHF' ,0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#'+unicode(cashbook.pk)])
+        first = True
+        line_count = 1
+        firstline = CashBookLine()
+        for line in cashbook.get_lines(): 
+            if first: #
+                firstline = line
+                first = False
+                continue
+            line_count = line_count + cashbook_line_write(writer, cashbook, line, line_count, False, cashbook_count)
+        line_count = line_count + cashbook_line_write(writer, cashbook, firstline, line_count, True, cashbook_count)
+        cashbook_count = cashbook_count + 1
     return response
 
-def cashbook_line_write(writer, cashbook, line, line_number, last_line):
+def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook_number):
     from accounting_tools.models import CashBook
     from accounting_tools.models import CashBookLine
     from accounting_core.models import TVA
+    
     initial_line_number = line_number
+    
     try: 
         tva = TVA.objects.get(value=line.tva)
     except TVA.DoesNotExist: 
         raise Exception(u'TVA '+str(line.tva)+u' Not found - Impossible d\'exporter des lignes avec TVA speciales')
+        
+
     if line.is_output(): 
         type = u'Débit' 
     else: 
         type = u'Crédit'
-        
+
     if tva.value == 0.0:
         tva_string = u'Non soumis à la TVA'
+        tva.code = ''
         is_tva = False
     else: 
          tva_string = u'Soumis à la TVA'
          is_tva = True
-    
-    row = [u'1','','','','','','','','','','','',line_number,cashbook.pk,line.account.account_number,u'CHF',line.label,line.value, tva.code, tva.value, '', tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value,line.value,0,u'CASHBOOK#'+unicode(cashbook.pk)]
+         
+
+    if line.account.account_number[0] == '3' or line.account.account_number[0] == '4': #may be better to use AccountCategory
+        cost_center = cashbook.costcenter.account_number
+    else:
+        cost_center = ''
+
+    row = [u'1','','','','','','','','','','','',line_number,cashbook_number,line.account.account_number,u'CHF',cashbook.name+u' '+line.label,line.value, tva.code, tva.value, '', tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value,line.value,0,u'CASHBOOK#'+unicode(cashbook.pk), cost_center]
     line_number = line_number + 1
-    
+
     if is_tva: #on génère la ligne correspondante de tva si besoin
-        tva_row = [u'1','','','','','','','','','','','',line_number,cashbook.pk,tva.account.account_number,u'CHF',line.label+u' - TVA',line.value_ttc-line.value, tva.code , tva.value, line_number-1 ,u'Montant TVA', type,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc-line.value,line.value_ttc-line.value,0,u'CASHBOOK#'+unicode(cashbook.pk)]
+        tva_row = [u'1','','','','','','','','','','','',line_number,cashbook_number,tva.account.account_number,u'CHF',cashbook.name+u' '+line.label+u' - TVA',line.value_ttc-line.value, tva.code , tva.value, line_number-1 ,u'Montant TVA', type,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc-line.value,line.value_ttc-line.value,0,u'CASHBOOK#'+unicode(cashbook.pk)]
         line_number = line_number + 1
-    
+
     if last_line == True: #la dernière écriture doit être de type 2
         if is_tva:
             tva_row[0] = u'2'
@@ -306,8 +321,7 @@ def withdrawal_available_list(request):
     
 class UnicodeCSVWriter:
     """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
+    A CSV writer which will write rows to CSV stream "f", (formatted for sage import)
     """
 
     def __init__(self, f):
@@ -316,9 +330,10 @@ class UnicodeCSVWriter:
     def writerow(self, row):
         for s in row: 
             if not isinstance(s, unicode):
-                unicode(s).encode("utf-8")
+                s = unicode(s)
+            s = s.encode("WINDOWS-1252")
             self.stream.write(s)
-            self.stream.write(u'; ')
+            self.stream.write(u';')
         self.stream.write(u'\r\n')
         
     def writerows(self, rows):

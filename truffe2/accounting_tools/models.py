@@ -1581,13 +1581,13 @@ class CashBookLine(ModelUsedAsLine):
        if self.helper[0] in ['0', '2', '6']:
          return self.value_ttc
        else:
-            0
+         return 0
 
     def output_amount(self):
         if self.helper[0] not in ['0', '2', '6']:   
             return self.value_ttc
         else:
-            0
+            return 0
 
     def get_line_delta(self):
         return self.input_amount() - self.output_amount()
