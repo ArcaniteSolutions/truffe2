@@ -146,13 +146,14 @@ def internaltransfer_pdf(request, pk):
 def internaltransfer_csv(request, pk):
     from accounting_tools.models import InternalTransfer
     from accounting_core.models import TVA
+    from app.utils import UnicodeCSVWriter
 
     transfers = [get_object_or_404(InternalTransfer, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
     transfers = filter(lambda tr: tr.rights_can('SHOW', request.user), transfers)
     
     response = HttpResponse(content_type='text/csv; charset=cp1252')
     if len(transfers) == 1:
-        response['Content-Disposition'] = 'attachment; filename="Transfert Interne'+slugify(transfers[0].name)+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="Transfert Interne'+slugify(unicode(transfers[0]))+'.csv"'
     else:
         response['Content-Disposition'] = 'attachment; filename="transfers_internes_'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
     #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
@@ -178,6 +179,92 @@ def expenseclaim_pdf(request, pk):
 
     return generate_pdf("accounting_tools/expenseclaim/pdf.html", request, {'object': expenseclaim}, [f.file for f in expenseclaim.get_pdf_files()])
 
+@login_required
+def expenseclaim_csv(request, pk):
+    from accounting_tools.models import ExpenseClaim
+    from accounting_tools.models import ExpenseClaimLine
+    from accounting_core.models import TVA
+    from app.utils import UnicodeCSVWriter
+    import re
+
+    expenseclaims = [get_object_or_404(ExpenseClaim, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
+    
+    response = HttpResponse(content_type='text/csv; charset=cp1252')
+    if len(expenseclaims) == 1:
+        response['Content-Disposition'] = 'attachment; filename="NDF - '+slugify(unicode(expenseclaims[0]))+'.csv"'
+    else:
+        response['Content-Disposition'] = 'attachment; filename="notes_de_frais'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
+
+    #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
+    
+    provider_to_export = []
+    writer = UnicodeCSVWriter(response)
+    
+    expenseclaim_count = 1
+    for expenseclaim in expenseclaims:
+        if not expenseclaim.rights_can('SHOW', request.user):
+            raise Http404
+        if not expenseclaim.status[0] == '3':
+            raise Exception(u'NDF '+unicode(expenseclaim)+u' pas à l\'état à comptabiliser')
+        writer.writerow([u'0',expenseclaim_count,u'Crédit', 300000+expenseclaim.pk,  expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), expenseclaim.user.username, u'CHF', 0, u'2000', u'NDF - '+unicode(expenseclaim), expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), '', '', '', '', '', '', '', '', u'NDF#'+unicode(expenseclaim.pk)])
+        provider_to_export.append(expenseclaim.user) 
+        first = True
+        line_count = 1
+        firstline = ExpenseClaimLine()
+        for line in expenseclaim.get_lines(): 
+            if first: 
+                firstline = line
+                first = False
+                continue
+            line_count = line_count + expenseclaim_line_write(writer, expenseclaim, line, line_count, False, expenseclaim_count)
+        line_count = line_count + expenseclaim_line_write(writer, expenseclaim, firstline, line_count, True, expenseclaim_count)
+        expenseclaim_count = expenseclaim_count + 1
+        
+        provider_count = 0
+        for provider in provider_to_export:
+            address_lines = unicode.splitlines(provider.adresse)
+            if len(address_lines) > 1:
+                zip = re.match('.*([0-9]*).*', address_lines[1]).expand('\1')
+                city = re.match('(.*)([0-9]*)(.*)', address_lines[1]).expand('\1\3')
+            else:
+                zip = u'1015'
+                city = u'Lausanne'
+            
+            writer.writerow([provider.first_name, provider.last_name, address_lines[0], city, zip, provider.username, provider.email, provider.nom_banque, provider.iban_ou_ccp]); 
+    return response
+
+def expenseclaim_line_write(writer, expenseclaim, line, line_number, last_line, expenseclaim_number):
+    from accounting_tools.models import ExpenseClaim
+    from accounting_tools.models import ExpenseClaimLine
+    from accounting_core.models import TVA
+    from app.utils import UnicodeCSVWriter
+
+    
+    
+    try: 
+        tva = TVA.objects.get(value=line.tva)
+    except TVA.DoesNotExist: 
+        tva = TVA()
+        tva.value = line.tva
+        tva.code = ''
+
+    if tva.value == 0.0:
+        tva.code = ''
+        is_tva = False
+    else: 
+         tva_string = u'Soumis à la TVA'
+         is_tva = True
+         
+
+    row = [u'1','','','','','','','','','','', expenseclaim_number*10+line_number, line_number, line.value, u'NDF - '+unicode(expenseclaim)+u' - '+line.label, line.account.account_number, tva.code, tva.value, u'OK', u'NDF#'+unicode(expenseclaim.pk), expenseclaim.costcenter.account_number]
+
+    if last_line == True: #la dernière écriture doit être de type 2
+        row[0]=u'2'
+    
+    writer.writerow(row)
+
+    return 1 #number of line written
+
 
 @login_required
 def cashbook_pdf(request, pk):
@@ -195,6 +282,7 @@ def cashbook_csv(request, pk):
     from accounting_tools.models import CashBook
     from accounting_tools.models import CashBookLine
     from accounting_core.models import TVA
+    from app.utils import UnicodeCSVWriter
 
 
      
@@ -203,7 +291,7 @@ def cashbook_csv(request, pk):
     
     response = HttpResponse(content_type='text/csv; charset=cp1252')
     if len(cashbooks) == 1:
-        response['Content-Disposition'] = 'attachment; filename="JDC - '+slugify(cashbooks[0].name)+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="JDC - '+slugify(unicode(cashbooks[0]))+'.csv"'
     else:
         response['Content-Disposition'] = 'attachment; filename="journaux_de_caisse'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
 
@@ -219,7 +307,7 @@ def cashbook_csv(request, pk):
             raise Exception(u'JDC '+unicode(cashbook)+u' pas à l\'état à comptabiliser')
         if not cashbook.total_incomes() == cashbook.total_outcomes():
             raise Exception(u'JDC '+unicode(cashbook)+u' pas a 0, merci de le mettre a 0')
-        writer.writerow([0,cashbook_count,cashbook.get_lines()[0].date.strftime(u"%d.%m.%Y"),200000+cashbook.pk,cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', u'CHF' ,0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#'+unicode(cashbook.pk)])
+        writer.writerow([u'0',cashbook_count,cashbook.get_lines()[0].date.strftime(u"%d.%m.%Y"),200000+cashbook.pk,cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', u'CHF' ,0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#'+unicode(cashbook.pk)])
         first = True
         line_count = 1
         firstline = CashBookLine()
@@ -237,6 +325,8 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
     from accounting_tools.models import CashBook
     from accounting_tools.models import CashBookLine
     from accounting_core.models import TVA
+    from app.utils import UnicodeCSVWriter
+
     
     initial_line_number = line_number
     
@@ -318,24 +408,3 @@ def withdrawal_available_list(request):
     retour = {'data': [{'pk': withdrawal.pk, 'name': withdrawal.__unicode__(), 'used': withdrawal.status == '3_used'} for withdrawal in withdrawals]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
-    
-class UnicodeCSVWriter:
-    """
-    A CSV writer which will write rows to CSV stream "f", (formatted for sage import)
-    """
-
-    def __init__(self, f):
-        self.stream = f
-
-    def writerow(self, row):
-        for s in row: 
-            if not isinstance(s, unicode):
-                s = unicode(s)
-            s = s.encode("cp1252")
-            self.stream.write(s)
-            self.stream.write(u';')
-        self.stream.write(u'\r\n')
-        
-    def writerows(self, rows):
-        for row in rows:
-            self.writerow(row)  

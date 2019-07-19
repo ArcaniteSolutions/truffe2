@@ -3,4 +3,5 @@
 
 {% block bonus_buttons %}
 	<a href=\"{% url 'accounting_tools.views.expenseclaim_pdf' elem.pk %}{% trans "Note de frais" %} - {{elem.name|urlencode}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-primary\" title=\"{% trans "PDF" %}\" target=\"_blank\" rel=\"tooltip\"><i class=\"fa fa-download\"></i></a>
+	<a href=\"{% url 'accounting_tools.views.expenseclaim_csv' elem.pk %}{% trans "Note de frais" %} - {{elem.name|urlencode}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-warning\" title=\"{% trans "CSV" %}\" target=\"_blank\" rel=\"tooltip\"><i class=\"fa fa-download\">multido_action=\"window.location = '{% url "accounting_tools.views.expenseclaim_csv" 9999429999 %}';\" multido_pkreplace=\"9999429999\" multido_button=\"<a href='#' class='btn btn-warning'><i class='fa fa-download'></i> {% trans "CSV" %}</a>\"></i></a>
 {% endblock %}
