@@ -223,14 +223,18 @@ def expenseclaim_csv(request, pk):
         provider_count = 0
         for provider in provider_to_export:
             address_lines = unicode.splitlines(provider.adresse)
-            if len(address_lines) > 1:
-                zip = re.match('.*([0-9]*).*', address_lines[1]).expand('\1')
-                city = re.match('(.*)([0-9]*)(.*)', address_lines[1]).expand('\1\3')
-            else:
+            try:
+                city = address_lines[1] #to be improved
+                zip = address_lines[1] 
+            except:
                 zip = u'1015'
                 city = u'Lausanne'
             
-            writer.writerow([provider.first_name, provider.last_name, address_lines[0], city, zip, provider.username, provider.email, provider.nom_banque, provider.iban_ou_ccp]); 
+            address_complete = u''
+            for adr in address_lines:
+                address_complete = address_complete + adr + u', '
+            
+            writer.writerow([provider.first_name, provider.last_name, address_lines[0], city, zip, provider.username, provider.email, provider.nom_banque, provider.iban_ou_ccp, address_complete]); 
     return response
 
 def expenseclaim_line_write(writer, expenseclaim, line, line_number, last_line, expenseclaim_number):
