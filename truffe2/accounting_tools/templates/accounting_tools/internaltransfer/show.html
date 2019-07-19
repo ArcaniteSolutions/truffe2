@@ -3,4 +3,5 @@
 
 {% block bonus_buttons %}
 	<a href="{% url 'accounting_tools.views.internaltransfer_pdf' obj.pk %}{% trans "Transfert" %} {{obj.name|urlencode}}.pdf" target="_blank" style="margin-left: 3px;" class="btn btn-primary"><i class="fa fa-download"></i>{% trans "Voir le PDF" %}</a>
+	<a href="{% url 'accounting_tools.views.internaltransfer_csv' obj.pk %}{% trans "Transfert" %} {{obj.name|urlencode}}.csv" target="_blank" style="margin-left: 3px;" class="btn btn-warning"><i class="fa fa-download"></i>{% trans "Export CSV" %}</a>
 {% endblock %}
