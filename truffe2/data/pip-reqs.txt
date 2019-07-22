@@ -8,7 +8,7 @@ requests
 django-impersonate<1
 pytz
 git+https://github.com/goinnn/django-multiselectfield
-easy_thumbnails
+easy_thumbnails<=2.5
 bleach<1.5
 python-ldap
 pisa
