@@ -334,10 +334,11 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
     
     initial_line_number = line_number
     
-    try: 
-        tva = TVA.objects.get(value=line.tva)
-    except TVA.DoesNotExist: 
-        raise Exception(u'TVA '+str(line.tva)+u' Not found - Impossible d\'exporter des lignes avec TVA speciales')
+    # tva export
+    # try: 
+        # tva = TVA.objects.get(value=line.tva)
+    # except TVA.DoesNotExist: 
+        # raise Exception(u'TVA '+str(line.tva)+u' Not found - Impossible d\'exporter des lignes avec TVA speciales')
         
 
     if line.is_output(): 
@@ -345,36 +346,46 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
     else: 
         type = u'Crédit'
 
-    if tva.value == 0.0:
+    tva = TVA() #remove for tva export
+    tva.value = line.tva #remove for tva export
+    
+    if tva.value == 0.0: 
         tva_string = u'Non soumis à la TVA'
         tva.code = ''
         is_tva = False
     else: 
          tva_string = u'Soumis à la TVA'
+         tva.code = 'TVA_TO_SET' #remove for tva export
          is_tva = True
          
-
+    
+    
     if line.account.account_number[0] == '3' or line.account.account_number[0] == '4': #may be better to use AccountCategory
         cost_center = cashbook.costcenter.account_number
     else:
         cost_center = ''
 
-    row = [u'1','','','','','','','','','','','',line_number,cashbook_number,line.account.account_number,u'CHF',cashbook.name+u' '+line.label,line.value, tva.code, tva.value, '', tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value,line.value,0,u'CASHBOOK#'+unicode(cashbook.pk), cost_center]
+    row = [u'1','','','','','','','','','','','',line_number,cashbook_number,line.account.account_number,u'CHF',cashbook.name+u' '+line.label,line.value,tva.code,tva.value,'', tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value,line.value, 100 ,u'CASHBOOK#'+unicode(cashbook.pk), cost_center]
+    
     line_number = line_number + 1
 
-    if is_tva: #on génère la ligne correspondante de tva si besoin
-        tva_row = [u'1','','','','','','','','','','','',line_number,cashbook_number,tva.account.account_number,u'CHF',cashbook.name+u' '+line.label+u' - TVA',line.value_ttc-line.value, tva.code , tva.value, line_number-1 ,u'Montant TVA', type,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc-line.value,line.value_ttc-line.value,0,u'CASHBOOK#'+unicode(cashbook.pk)]
-        line_number = line_number + 1
+    # tva export
+    # if is_tva: #on génère la ligne correspondante de tva si besoin
+        # tva_row = [u'1','','','','','','','','','','','',line_number,cashbook_number,tva.account.account_number,u'CHF',cashbook.name+u' '+line.label+u' - TVA',line.value_ttc-line.value, tva.code , tva.value, line_number-1 ,u'Montant TVA', type,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc-line.value,line.value_ttc-line.value, 100 ,u'CASHBOOK#'+unicode(cashbook.pk)]
+        # line_number = line_number + 1
 
     if last_line == True: #la dernière écriture doit être de type 2
-        if is_tva:
-            tva_row[0] = u'2'
-        else:
-            row[0]=u'2'
+        # tva export
+        # if is_tva:
+            # tva_row[0] = u'2'
+        # else:
+            # row[0]=u'2'
+        row[0]=u'2'
     
     writer.writerow(row)
-    if is_tva: 
-        writer.writerow(tva_row)
+    # tva export
+    # if is_tva:
+        # writer.writerow(tva_row)
         
     return line_number - initial_line_number #number of line written
 
