@@ -354,8 +354,8 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
         tva.code = ''
         is_tva = False
     else: 
-         tva_string = u'Soumis à la TVA'
-         tva.code = 'TVA_TO_SET' #remove for tva export
+         tva_string = u'Soumis'
+         tva.code = 'TOSET' #remove for tva export
          is_tva = True
          
     
@@ -365,7 +365,7 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
     else:
         cost_center = ''
 
-    row = [u'1','','','','','','','','','','','',line_number,cashbook_number,line.account.account_number,u'CHF',cashbook.name+u' '+line.label,line.value,tva.code,tva.value,'', tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value,line.value, 100 ,u'CASHBOOK#'+unicode(cashbook.pk), cost_center]
+    row = [u'1','','','','','','','','','','','',line_number,cashbook_number,line.account.account_number,u'CHF',cashbook.name+u' '+line.label , line.value_ttc, tva.code, tva.value , '' , tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc,line.value_ttc, 100 ,u'CASHBOOK#'+unicode(cashbook.pk), cost_center]
     
     line_number = line_number + 1
 
