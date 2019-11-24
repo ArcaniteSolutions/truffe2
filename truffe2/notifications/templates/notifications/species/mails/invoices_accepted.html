@@ -1,0 +1,5 @@
+{% load i18n humanize %}
+
+{% trans 'La facture "' %}{{notification.linked_object}}{% trans '" a été acceptée.' %}
+{% trans 'Facture' %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})</li>
+{% trans "Il faut l'envoyez !" %}</li>

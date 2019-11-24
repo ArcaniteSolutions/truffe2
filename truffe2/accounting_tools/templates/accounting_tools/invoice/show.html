@@ -2,7 +2,9 @@
 {% load i18n humanize %}
 
 {% block bonus_buttons %}
-    <a href="{% url 'accounting_tools.views.invoice_pdf' obj.pk %}{% trans "Facture" %} {{obj.title|urlencode}} - {{obj.get_reference}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i> PDF</a>
+   {% if obj.status != '0_preparing' and obj.status != '0_correct' and obj.status != '1_need_bvr' and obj.status != '2_ask_accord' and obj.status != '5_cancelled' %}
+   <a href="{% url 'accounting_tools.views.invoice_pdf' obj.pk %}{% trans "Facture" %} {{obj.title|urlencode}} - {{obj.get_reference}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i> PDF</a>
+   {% endif %}
 {% endblock %}
 
 {% block post_lines %}

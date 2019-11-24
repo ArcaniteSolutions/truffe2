@@ -1,0 +1,22 @@
+{% load i18n %}
+<em class="badge padding-5 no-border-radius bg-color-greenLight pull-left margin-right-5">
+    <i class="fa fa-warning fa-fw fa-2x"></i>
+</em>
+
+<span>
+    {% trans "La facture contient des erreurs à corrigée" %}: <span class="text-primary">{{notification.linked_object}}</span>!
+
+    <br />
+    <span class="pull-right">
+        <button onclick="notification_ignore({{notification.pk}});" class="btn btn-xs btn-warning margin-top-5">
+            <i class="fa fa-times"></i> {% trans "Ignorer" %}
+        </button>
+        <button onclick="window.location = '{% url 'notifications.views.goto' notification.pk %}?next={{notification.linked_object.display_url}}';" class="btn btn-xs btn-primary margin-top-5">
+            <i class="fa fa-eye"></i> {% trans "Détails" %}
+        </button>
+    </span>
+
+    <br>
+    <br>
+    <span class="pull-right font-xs text-muted"><i>{{notification.creation_date|timesince}}</i></span>
+</span>

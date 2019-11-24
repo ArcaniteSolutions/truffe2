@@ -1,0 +1,6 @@
+{% load i18n humanize %}
+
+{% trans 'La Facture "' %}<span class="text-primary">{{notification.linked_object}}</span>{% trans '" a été validée.' %}
+{% trans 'Facture' %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})
+{% trans "Il faut l'envoyez !" %}</li>
+

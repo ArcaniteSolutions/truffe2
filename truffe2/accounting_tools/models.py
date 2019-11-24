@@ -442,59 +442,91 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         states = {
             '0_preparing': _(u'En préparation'),
+            '0_correct': _(u'Corrections nécessaires'),
             '1_need_bvr': _(u'En attente d\'un numéro BVR'),
-            '2_sent': _(u'Envoyée / paiement en attente'),
-            '3_archived': _(u'Archivée / Paiement reçu'),
-            '4_canceled': _(u'Annulée'),
+            '2_ask_accord': _(u'Attente Accord AGEPoly'),
+            '2_accord': _(u'Attente Envoi'),
+            '3_sent': _(u'Envoyée / paiement en attente'),
+            '4_archived': _(u'Archivée / Paiement reçu'),
+            '5_canceled': _(u'Annulée'),
         }
 
         default = '0_preparing'
 
         states_texts = {
             '0_preparing': _(u'La facture est en cours de rédaction'),
+            '0_correct': _(u'La facture doit être corrigée'),
             '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
-            '2_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
-            '3_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
-            '4_canceled': _(u'La facture a été annulée'),
+            '2_ask_accord': _(u'Il faut attendre l\'accord de l\'AGEPoly'),
+            '2_accord': _(u'Il faut envoyez la facture'),
+            '3_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
+            '4_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
+            '5_canceled': _(u'La facture a été annulée'),
         }
 
         states_links = {
-            '0_preparing': ['1_need_bvr', '2_sent', '4_canceled'],
-            '1_need_bvr': ['0_preparing'],
-            '2_sent': ['0_preparing', '3_archived', '4_canceled'],
-            '3_archived': [],
-            '4_canceled': [],
+            '0_preparing': ['1_need_bvr', '2_ask_accord', '5_canceled'],
+            '0_correct': ['1_need_bvr', '2_ask_accord', '5_canceled'],
+	    '1_need_bvr': ['0_correct'],
+            '2_ask_accord': ['0_correct', '2_accord', '5_canceled'],
+            '2_accord': ['0_correct', '3_sent', '4_archived', '5_canceled'],
+            '3_sent': ['0_correct', '4_archived', '5_canceled'],
+            '4_archived': [],
+            '5_canceled': [],
         }
 
         states_colors = {
             '0_preparing': 'primary',
+            '0_correct': 'danger',
             '1_need_bvr': 'danger',
-            '2_sent': 'warning',
-            '3_archived': 'success',
-            '4_canceled': 'default',
+            '2_ask_accord': 'primary',
+            '2_accord': 'info',
+            '3_sent': 'warning',
+            '4_archived': 'success',
+            '5_canceled': 'default',
         }
 
         states_icons = {
         }
 
         list_quick_switch = {
-            '0_preparing': [('2_sent', 'fa fa-check', _(u'Marquer comme envoyée')), ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR')), ],
+            '0_preparing':[('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')), 
+                           ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
+            '0_correct':  [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')), 
+                           ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
             '1_need_bvr': [],
-            '2_sent': [('3_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
-            '3_archived': [],
-            '4_canceled': [],
+            '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donnez l\'accord')),],
+            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée')),],
+            '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
+            '4_archived': [],
+            '5_canceled': [],
         }
 
-        states_default_filter = '0_preparing,1_need_bvr,2_sent'
-        states_default_filter_related = '0_preparing,1_need_bvr,2_sent'
+        states_quick_switch = {
+            '0_preparing':[('2_ask_accord', _(u'Demande accord AGEPoly')), 
+                           ('1_need_bvr', _(u'Demander un BVR'))],
+            '0_correct':  [('2_ask_accord',  _(u'Demande accord AGEPoly')), 
+                           ('1_need_bvr',  _(u'Demander un BVR'))],
+            '1_need_bvr': [],
+            '2_ask_accord': [('2_accord',  _(u'Donnez l\'accord')),],
+            '2_accord': [('3_sent', _(u'Marquer comme envoyée')),],
+            '3_sent': [('4_archived', _(u'Marquer comme terminée')), ],
+            '4_archived': [],
+            '5_canceled': [],
+        }
+        states_default_filter = '0_preparing,1_need_bvr,2_ask_accord,2_accord,3_sent'
+        states_default_filter_related = '0_preparing,1_need_bvr,2_ask_accord,2_accord,3_sent'
         status_col_id = 1
 
         forced_pos = {
-            '0_preparing': (0.2, 0.15),
-            '1_need_bvr': (0.2, 0.85),
-            '2_sent': (0.5, 0.15),
-            '3_archived': (0.8, 0.15),
-            '4_canceled': (0.8, 0.85),
+            '0_preparing': (0.1, 0.15),
+            '0_correct': (0.5, 0.85),
+            '1_need_bvr': (0.1, 0.85),
+            '2_ask_accord': (0.26, 0.15),
+            '2_accord': (0.5, 0.15),
+            '3_sent': (0.7, 0.35),
+            '4_archived': (0.9, 0.15),
+            '5_canceled': (0.9, 0.85),
         }
 
         class FormBVR(forms.Form):
@@ -555,10 +587,19 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
                     unotify_people('%s.need_bvr' % (self.__class__.__name__,), self)
                     notify_people(request, '%s.bvr_set' % (self.__class__.__name__,), 'invoices_bvr_set', self, self.build_group_members_for_editors())
 
-        if dest_status == '2_sent':
-            notify_people(request, '%s.sent' % (self.__class__.__name__,), 'invoices_sent', self, self.people_in_root_unit('SECRETARIAT'))
+        if dest_status == '0_correct':
+            notify_people(request, '%s.to_correct' % (self.__class__.__name__,), 'invoices_to_correct', self, self.build_group_members_for_editors())
 
-        if dest_status == '3_archived':
+        if dest_status == '2_ask_accord':
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(['TRESORERIE', 'SECRETARIAT']))
+        
+        if dest_status == '2_accord':
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'invoices_accepted', self, self.build_group_members_for_editors())
+
+        if dest_status == '3_sent':
+            notify_people(request, '%s.sent' % (self.__class__.__name__,), 'invoices_sent', self, self.build_group_members_for_editors())
+
+        if dest_status == '4_archived':
             unotify_people('%s.sent' % (self.__class__.__name__,), self)
             notify_people(request, '%s.done' % (self.__class__.__name__,), 'invoices_done', self, self.build_group_members_for_editors())
 
@@ -568,10 +609,13 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
     def may_switch_to(self, user, dest_state):
 
-        if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return False
+        
+        if dest_state == '2_accord' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
 
-        if dest_state == '3_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if dest_state == '4_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
 
         return super(_Invoice, self).rights_can_EDIT(user) and super(_Invoice, self).may_switch_to(user, dest_state)
@@ -581,10 +625,13 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         if not super(_Invoice, self).rights_can_EDIT(user):
             return (False, _('Pas les droits.'))
 
-        if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if self.status == '3_sent' and dest_state[0] == '0' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return (False, _('Seul l\'AGEPoly peut modifier une facture une fois qu\'elle a été envoyée.'))
 
-        if dest_state == '3_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if dest_state == '2_accord' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return (False, _('Seul l\'AGEPoly peut valider une facture.'))
+
+        if dest_state == '4_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return (False, _('Seul l\'AGEPoly peut archiver une facture.'))
 
         return super(_Invoice, self).can_switch_to(user, dest_state)
@@ -592,7 +639,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def rights_can_EDIT(self, user):
         # On ne peut pas éditer les factures envoyés/reçues
 
-        if self.status in ['0_preparing', '1_need_bvr']:
+        if self.status == '2_accord' and (user.is_superuser or self.rights_in_root_unit(user, 'SECRETARIAT')):
+            return True
+        
+        if self.status in ['0_preparing', '0_correct', '1_need_bvr']:
             return super(_Invoice, self).rights_can_EDIT(user)
 
         return False
