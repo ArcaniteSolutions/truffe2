@@ -7,13 +7,14 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+#this migration is a strange ghost, job is done in 0009, this is here for compat with old datas
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        db.add_column('accounting_tools_subventionline', 'order', self.gf('django.db.models.fields.SmallIntegerField')(4=0), 6=False)
+        pass
 
     def backwards(self, orm):
-        db.delete_column('accounting_tools_subventionline', 'order')
+        pass 
 
     models = {'accounting_core.accountingyear': {'Meta': {'object_name': 'AccountingYear'}, 'deleted': (
                                                     'django.db.models.fields.BooleanField', [], {'default': 'False'}), 

@@ -7,24 +7,14 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+#this migration is a strange ghost, job is done in 0009, this is here for compat with old datas
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        db.create_table('accounting_tools_subventionfile', (
-         (
-          'id', self.gf('django.db.models.fields.AutoField')(4=True)),
-         (
-          'upload_date', self.gf('django.db.models.fields.DateTimeField')(7=True, 8=True)),
-         (
-          'uploader', self.gf('django.db.models.fields.related.ForeignKey')(11=orm['users.TruffeUser'])),
-         (
-          'object', self.gf('django.db.models.fields.related.ForeignKey')(8=True, 14='files', 16=True, 11=orm['accounting_tools.Subvention'])),
-         (
-          'file', self.gf('django.db.models.fields.files.FileField')(20=100))))
-        db.send_create_signal('accounting_tools', ['SubventionFile'])
+       pass
 
     def backwards(self, orm):
-        db.delete_table('accounting_tools_subventionfile')
+       pass
 
     models = {'accounting_core.accountingyear': {'Meta': {'object_name': 'AccountingYear'}, 'deleted': (
                                                     'django.db.models.fields.BooleanField', [], {'default': 'False'}), 
@@ -184,5 +174,4 @@ class Migration(SchemaMigration):
                                                'django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': "orm['auth.Permission']"}), 
                             'username': (
                                        'django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})}}
-    complete_apps = [
-     'accounting_tools']
+    complete_apps = ['accounting_tools']
