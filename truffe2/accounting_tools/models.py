@@ -546,7 +546,8 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         states_bonus_form = {
             '0_preparing': FormBVR,
-            '3_archived': build_form_date
+            '0_correct': FormBVR,
+            '4_archived': build_form_date
         }
 
     def switch_status_signal(self, request, old_status, dest_status):

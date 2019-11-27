@@ -5,8 +5,15 @@
         <table class="table table-condensed table-hover table-striped">
             {% for invoice in invoices_need_bvr %}
                 <tr>
-                    <td colspan="2"><a href="{{invoice.display_url}}">{% if invoice|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{invoice}}</a></td>
+                    <td colspan="2"><a href="{{invoice.display_url}}">{% if invoice|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{invoice}}<a><td>
                     <td><span class="label label-danger">{% trans "Besoin d'un BVR !" %}</span></tr>
+                </tr>
+            {% endfor %}
+	    {% for invoice in invoices_attente_accord %}
+                <tr>
+                    <td><a href="{{invoice.display_url}}">{% if invoice|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{invoice}}</a></td>
+                    <td>{{invoice.get_total|floatformat:"2"|intcomma}} CHF</td>
+                    <td><span class="label label-primary">{{invoice.get_bvr_number}}</span></td>
                 </tr>
             {% endfor %}
             {% for invoice in invoices_waiting %}
@@ -17,7 +24,7 @@
                 </tr>
             {% endfor %}
 
-            {% if not invoices_need_bvr and not invoices_waiting %}
+            {% if not invoices_need_bvr and not invoices_waiting and not invoices_attente_accord %}
                 <tr>
                     <td colspan="3" class="success"><i class="fa fa-check"></i> {% trans "Aucune facture en attente !" %}</td>
                 </tr>
