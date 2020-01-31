@@ -62,4 +62,4 @@ class Command(BaseCommand):
 
                         writer.writerow([mship.user.username.strip(), u.id_epfl, role_id, "True" if mset.ldap_visible else "False", smart_str(mship.user.first_name), smart_str(mship.user.last_name), smart_str(u.name), smart_str(mset.generated_accred_type.name), 'Membre'])
 
-        os.system("scp /tmp/generateListAccredsForDIT collecte@cadibatch.epfl.ch:agepoly/")
+        os.system("echo put /tmp/generateListAccredsForDIT | sftp collecte@cadibatch.epfl.ch:agepoly/")
