@@ -8,6 +8,20 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'ProviderInvoice'
+        db.create_table(u'accounting_tools_providerinvoice', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('comment', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
+            ('status', self.gf('django.db.models.fields.CharField')(default='0_draft', max_length=255)),
+            ('accounting_year', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.AccountingYear'])),
+            ('costcenter', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.CostCenter'])),
+            ('provider', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_tools.FinancialProvider'])),
+        ))
+        db.send_create_signal(u'accounting_tools', ['ProviderInvoice'])
+
         # Adding model 'FinancialProvider'
         db.create_table(u'accounting_tools_financialprovider', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -80,19 +94,6 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'accounting_tools', ['ProviderInvoiceViews'])
 
-        # Adding model 'ProviderInvoice'
-        db.create_table(u'accounting_tools_providerinvoice', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('comment', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='0_draft', max_length=255)),
-            ('accounting_year', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.AccountingYear'])),
-            ('costcenter', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_core.CostCenter'])),
-            ('provider', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounting_tools.FinancialProvider'])),
-        ))
-        db.send_create_signal(u'accounting_tools', ['ProviderInvoice'])
-
         # Adding model 'FinancialProviderLogging'
         db.create_table(u'accounting_tools_financialproviderlogging', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -106,6 +107,9 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting model 'ProviderInvoice'
+        db.delete_table(u'accounting_tools_providerinvoice')
+
         # Deleting model 'FinancialProvider'
         db.delete_table(u'accounting_tools_financialprovider')
 
@@ -126,9 +130,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'ProviderInvoiceViews'
         db.delete_table(u'accounting_tools_providerinvoiceviews')
-
-        # Deleting model 'ProviderInvoice'
-        db.delete_table(u'accounting_tools_providerinvoice')
 
         # Deleting model 'FinancialProviderLogging'
         db.delete_table(u'accounting_tools_financialproviderlogging')
@@ -439,7 +440,8 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'provider': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounting_tools.FinancialProvider']"}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'0_draft'", 'max_length': '255'})
+            'status': ('django.db.models.fields.CharField', [], {'default': "'0_draft'", 'max_length': '255'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
         },
         u'accounting_tools.providerinvoicefile': {
             'Meta': {'object_name': 'ProviderInvoiceFile'},
