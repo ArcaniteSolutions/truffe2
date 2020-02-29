@@ -403,3 +403,25 @@ def withdrawal_available_list(request):
     retour = {'data': [{'pk': withdrawal.pk, 'name': withdrawal.__unicode__(), 'used': withdrawal.status == '3_used'} for withdrawal in withdrawals]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
+
+@login_required
+def provider_available_list(request):
+    """Return the list of available accounts for a given year"""
+    from accounting_tools.models import FinancialProvider
+
+    providers = FinancialProvider.objects.filter(deleted=False).order_by('name')
+
+    retour = {'data': [{'pk': provider.pk, 'name': provider.name, 'tva': provider.tva_number} for provider in providers]}
+
+    return HttpResponse(json.dumps(retour), content_type='application/json')
+
+@login_required
+def provider_invoice_pdf(request, pk):
+    from accounting_tools.models import ProviderInvoice
+
+    invoice = get_object_or_404(ProviderInvoice, pk=pk, deleted=False)
+
+    if not invoice.rights_can('SHOW', request.user):
+        raise Http404
+
+    return generate_pdf("accounting_tools/providerinvoice/pdf.html", request, {'object': invoice}, [f.file for f in invoice.get_pdf_files()])

@@ -152,7 +152,7 @@
         {% endblock %} <!-- block content -->
 
         {% block footer %}
-            <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe2.agepoly.ch - {% trans "par" %} {{user}}</div>
+            <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} {% trans "avec Truffe2" %} - https://truffe2.agepoly.ch - {% trans "par" %} {{user}} - {% trans "Identifiant de l'objet : " %}{{ object.pk }}</div>
         {% endblock %}
     </body>
 </html>

@@ -152,7 +152,6 @@ INSTALLED_APPS = (
     'vehicles',
 
     'generic',
-
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

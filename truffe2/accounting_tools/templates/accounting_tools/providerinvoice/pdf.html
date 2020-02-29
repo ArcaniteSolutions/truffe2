@@ -1,0 +1,53 @@
+{% extends "base_pdf.html" %}
+{% load i18n humanize %}
+
+{% block title %}
+    <h1 style="text-align: center; font-size: 30px; margin-top:-150px;">{% trans "Facture Fournisseur" %}</h1>
+{% endblock %}
+
+{% block pre_linkedinfo %}
+    <tr class="tr-info"><td class="td-label">{% trans "Titre de la facture fournisseur : " %}</td><td class="td-large">{{object.name}}</td></tr>
+{% endblock %}
+
+{% block detail_table %}
+    <table>
+        <tr>
+            <td style="width: 38%;"><b>{% trans "Concerne" %}</b></td>
+            <td style="width: 30%;"><b>{% trans "Numéro de compte" %}</b></td>
+            <td style="width: 12%; text-align: right;"><b>{% trans "Montant HT" %}</b></td>
+            <td style="width: 7%; text-align: center;"><b>{% trans "TVA" %}</b></td>
+            <td style="width: 12%; text-align: right;"><b>{% trans "Montant TTC" %}</b></td>
+        </tr>
+
+        {% for line in object.get_lines %}
+            <tr class="tr-line">
+                 <td valign="top">{{line.label}}</td>
+                 <td valign="top">{{line.account}}</td>
+                 <td valign="top" style="text-align: right;">{{line.value_ht|intcomma}}</td>
+                 <td valign="top" style="text-align: right;">{{line.tva|floatformat:"2"}}</td>
+                 <td valign="top" style="text-align: right;">{{line.value_ttc|intcomma}}</td>
+            </tr>
+         {% endfor %}
+
+         <tr><td colspan="5">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr>
+
+        <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+    </table>
+
+{% endblock %}
+
+{% block linkedinfo_basics %}
+                    <tr class="tr-info"><td class="td-label">{% trans "Fournisseur : " %}</td><td class="td-large">{{object.provider.name|upper}}</td></tr>
+                    <tr class="tr-info"><td class="td-label">{% trans "Adresse : " %}</td><td class="td-large">{{object.provider.address}}</td></tr>
+                    <tr class="tr-info"><td class="td-label">{% trans "TVA - ID : " %}</td><td class="td-large">{{object.provider.tva_number}}</td></tr>
+	            <tr class="tr-info"><td class="td-label">{% trans "IBAN / CCP : " %}</td><td class="td-large">{{object.provider.iban_ccp}}</td></tr>
+        	    <tr class="tr-info"><td class="td-label">{% trans "BIC / SWIFT" %}</td><td class="td-large">{{object.provider.bic}}</td></tr>
+
+{% endblock %}
+
+{% block linkedinfo_advanced %}
+            
+{% endblock %}

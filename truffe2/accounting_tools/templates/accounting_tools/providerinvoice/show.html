@@ -1,0 +1,13 @@
+{% extends "generic/generic/show.html" %}
+{% load i18n humanize %}
+
+{% block bonus_buttons %}
+    <a href="{% url 'accounting_tools.views.provider_invoice_pdf' obj.pk %}{% trans "" %} {{obj.name|urlencode}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
+{% endblock %}
+
+{% block post_lines %}
+    <span class="pull-right">
+        {% trans "Total (HT) : " %} <b>{{obj.get_total_ht|floatformat:"2"|intcomma}} CHF</b><br />
+        {% trans "Total (TTC) : " %} <b>{{obj.get_total|floatformat:"2"|intcomma}} CHF</b>
+    </span>
+{% endblock %}
