@@ -8,7 +8,7 @@
                     <td><a href="{{expenseclaim.display_url}}">{% if expenseclaim|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{expenseclaim.name}}</a></td>
                     <td>CHF {{expenseclaim.get_total|intcomma}}</td>
                     <td>{{expenseclaim.costcenter}}</td>
-                    <td><span class="label label-{% if expenseclaim.status == '1_unit_validable' %}primary{% else %}warning{% endif %}">{% if expenseclaim.status == '1_unit_validable' %}{% trans "À valider (trésorier)" %}{% else %}{% trans "À valider (AGEPoly)" %}{% endif %}</td>
+                    <td><span class="label label-{% if expenseclaim.status == '1_unit_validable' %}primary{% elif expenseclaim.status == '2_agep_validable' %}warning{% else %}info{% endif %}">{% if expenseclaim.status == '1_unit_validable' %}{% trans "À valider (trésorier)" %}{% elif expenseclaim.status == '2_agep_validable' %}{% trans "À valider (AGEPoly)" %}{% else %}{% trans "À signer (AGEPoly)" %}{% endif %}</td>
                 </tr>
             {% endfor %}
 
@@ -17,7 +17,7 @@
                     <td><a href="{{expenseclaim.display_url}}">{% if expenseclaim|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{expenseclaim.name}}</a></td>
                     <td>CHF {{expenseclaim.get_total|intcomma}}</td>
                     <td>{{expenseclaim.costcenter}}</td>
-                    <td><span class="label label-success">{% trans "A comptabiliser" %}</span></td>
+                    <td><span class="label label-{% if expenseclaim.status == '4_accountable' %}warning{% else %}primary{% endif %}">{% if expenseclaim.status == '4_accountable' %}{% trans "A comptabiliser (Secrétariat)" %}{% else %}{% trans "En comptabilisation (Comptabilité)" %}{% endif %}</td>
                 </tr>
             {% endfor %}
 
