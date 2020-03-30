@@ -803,10 +803,13 @@ class GenericAccountingStateModel(object):
             '0_draft': _('Brouillon'),
             '0_correct': _(u'Corrections nécessaires'),
             '1_unit_validable': _(u'Attente accord unité'),
-            '2_agep_validable': _(u'Attente accord AGEPoly'),
-            '3_accountable': _(u'A comptabiliser'),
-            '4_archived': _(u'Archivé'),
-            '4_canceled': _(u'Annulé'),
+            '2_agep_validable': _(u'Attente vérification secrétariat'),
+            '3_agep_sig1': _(u'Attente signature CdD 1'),
+            '3_agep_sig2': _(u'Attente signature CdD 2'),
+            '4_accountable': _(u'A comptabiliser'),
+            '5_in_accounting': _(u'En comptabilisation'),
+            '6_archived': _(u'Archivé'),
+            '6_canceled': _(u'Annulé'),
         }
         default = '0_draft'
 
@@ -814,36 +817,50 @@ class GenericAccountingStateModel(object):
             '0_draft': _(u'L\'objet est en cours de création.'),
             '0_correct': _(u'L\'objet nécessite d\'être modifié avant d\'être revalidé.'),
             '1_unit_validable': _(u'L\'objet doit être accepté au sein de l\'unité. A partir de maintenant, il n\'est plus éditable.'),
-            '2_agep_validable': _(u'L\'objet doit être accepté par l\'AGEPoly.'),
-            '3_accountable': _(u'L\'objet est en attente d\'être comptabilisé.'),
-            '4_archived': _(u'L\'objet est archivé. Il n\'est plus modifiable.'),
-            '4_canceled': _(u'L\'objet a été annulé.'),
+            '2_agep_validable': _(u'L\'objet doit être vérifié par le secrétariat de l\'AGEPoly.'),
+            '3_agep_sig1': _(u'L\'objet doit etre validé par un membre du CdD avec droit de signature.'),
+            '3_agep_sig2': _(u'L\'objet doit etre validé par un autre membre du CdD avec droit de signature.'),
+            '4_accountable': _(u'L\'objet est en attente d\'être comptabilisé.'),
+            '5_in_accounting': _(u'L\'objet est en cours de comptabilisation'),
+            '6_archived': _(u'L\'objet est comptabilisé et archivé. Il n\'est plus modifiable.'),
+            '6_canceled':  _(u'L\'objet a été annulé.'),
+
+        
         }
 
         states_links = {
-            '0_draft': ['1_unit_validable', '4_canceled'],
-            '0_correct': ['1_unit_validable', '4_canceled'],
-            '1_unit_validable': ['0_correct', '2_agep_validable', '4_canceled'],
-            '2_agep_validable': ['0_correct', '3_accountable', '4_canceled'],
-            '3_accountable': ['0_correct', '4_archived', '4_canceled'],
-            '4_archived': [],
-            '4_canceled': [],
+            '0_draft': ['1_unit_validable', '6_canceled'],
+            '0_correct': ['1_unit_validable', '6_canceled'],
+            '1_unit_validable': ['0_correct', '2_agep_validable', '6_canceled'],
+            '2_agep_validable': ['0_correct', '3_agep_sig1', '6_canceled'],
+            '3_agep_sig1': ['0_correct', '3_agep_sig2', '6_canceled'],
+            '3_agep_sig2': ['0_correct', '4_accountable', '6_canceled'],
+            '4_accountable': ['5_in_accounting'],
+            '5_in_accounting': ['0_correct', '6_archived', '6_canceled'],
+            '6_archived': [],
+            '6_canceled': [],
         }
 
         list_quick_switch = {
             '0_draft': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité'))],
             '0_correct': [('1_unit_validable', 'fa fa-question', _(u'Demander accord unité'))],
             '1_unit_validable': [('2_agep_validable', 'fa fa-question', _(u'Demander accord AGEPoly'))],
-            '2_agep_validable': [('3_accountable', 'fa fa-check', _(u'Demander à comptabiliser'))],
-            '3_accountable': [('4_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver'))],
+            '2_agep_validable': [('3_agep_sig1', 'fa fa-check', _(u'Passer en signature'))],
+            '3_agep_sig1': [('3_agep_sig2', 'fa fa-check', _(u'Signer (1)'))],
+            '3_agep_sig2': [('4_accountable', 'fa fa-check', _(u'Signer (2)'))],
+            '4_accountable':  [('3_accountable', 'fa fa-check', _(u'Marquer comme en comptabilisation'))],
+            '5_in_accounting':  [('6_archived', 'glyphicon glyphicon-remove-circle', _(u'Archiver'))],
         }
 
         states_quick_switch = {
             '0_draft': [('1_unit_validable', _(u'Demander accord unité'))],
             '0_correct': [('1_unit_validable', _(u'Demander accord unité'))],
             '1_unit_validable': [('2_agep_validable', _(u'Demander accord AGEPoly')), ('0_correct', _(u'Demander des corrections'))],
-            '2_agep_validable': [('0_correct', _(u'Demander des corrections')), ('3_accountable', _(u'Demander à comptabiliser'))],
-            '3_accountable': [('4_archived', _(u'Archiver'))]
+            '2_agep_validable': [('3_agep_sig1', _(u'Demander à signer')), ('0_correct', _(u'Demander des corrections')), ],
+            '3_agep_sig1': [('3_agep_sig2',  _(u'Signer (1)')), ('0_correct', _(u'Demander des corrections'))],
+            '3_agep_sig2': [('4_accountable', _(u'Signer (2)')), ('0_correct', _(u'Demander des corrections'))]
+            '4_accountable': [('5_in_accounting', _(u'Marquer comme en comptabilisation'))]
+            '5_in_accounting': [('6_archived', _(u'Archiver'))]
         }
 
         states_colors = {
@@ -851,9 +868,12 @@ class GenericAccountingStateModel(object):
             '0_correct': 'warning',
             '1_unit_validable': 'default',
             '2_agep_validable': 'default',
-            '3_accountable': 'info',
-            '4_archived': 'success',
-            '4_canceled': 'danger',
+            '3_agep_sig1': 'default',
+            '3_agep_sig2': 'default',
+            '4_accountable': 'warning',
+            '5_in_accounting': 'info',
+            '6_archived': 'success',
+            '6_canceled': 'danger',
         }
 
         states_icons = {
@@ -861,22 +881,28 @@ class GenericAccountingStateModel(object):
             '0_correct': '',
             '1_unit_validable': '',
             '2_agep_validable': '',
-            '3_accountable': '',
-            '4_archived': '',
-            '4_canceled': '',
+            '3_agep_sig1': '',
+            '3_agep_sig2': '',
+            '4_accountable': '',
+            '5_in_accounting': '',
+            '6_archived': 'fa fa-check',
+            '6_canceled': 'fa fa-cross',
         }
 
-        states_default_filter = '0_draft,0_correct,1_unit_validable,2_agep_validable'
+        states_default_filter = '0_draft,0_correct,1_unit_validable,2_agep_validable,3_agep_sig1,3_agep_sig2,5_in_accounting'
         status_col_id = 4
 
         forced_pos = {
             '0_draft': (0.1, 0.15),
-            '0_correct': (0.4, 0.85),
-            '1_unit_validable': (0.3, 0.15),
-            '2_agep_validable': (0.5, 0.15),
-            '3_accountable': (0.7, 0.15),
-            '4_archived': (0.9, 0.15),
-            '4_canceled': (0.9, 0.85),
+            '0_correct': (0.5, 0.85),
+            '1_unit_validable': (0.2, 0.40),
+            '2_agep_validable': (0.35, 0.40),
+            '3_agep_sig1': (0.35, 0.15),
+            '3_agep_sig2': (0.5, 0.15),
+            '4_accountable': (0.5, 0.40),
+            '5_in_accounting': (0.7, 0.40),
+            '6_archived': (0.9, 0.40),
+            '6_canceled': (0.9, 0.85),
         }
 
     def may_switch_to(self, user, dest_state):
