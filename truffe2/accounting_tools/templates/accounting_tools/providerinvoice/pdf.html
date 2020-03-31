@@ -31,10 +31,22 @@
 
          <tr><td colspan="5">&nbsp;</td></tr>
 
-        <tr><td colspan="2"><b>{% trans "Visa president(e) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
-        <tr><td colspan="4">&nbsp;</td></tr><tr><td colspan="4">&nbsp;</td></tr>
+      <tr>
+            <td colspan="3"><b>{% trans "Visa de l'unité : " %}</b></td>
+            <td colspan="4" style="border-bottom: 1px black solid;">{% if object.status == '2_agep_validable' or object.status == '3_agep_sig1' or object.status == '3_agep_sig2' or object.status == '4_accountable' or object.status == '5_in_accounting' or object.status == '6_archived' %}{% if object.get_unit_signer %}<img src="{{MEDIA_ROOT}}img/valid-circle-icon.png" style="margin-right: 8px;" height="13" width="13">&nbsp;&nbsp;{{ object.get_unit_signer.first_name }}  {{ object.get_unit_signer.last_name }}{% endif %}{% endif %}</td>
+        </tr>
+        <tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr>
 
-        <tr><td colspan="2"><b>{% trans "Visa administrateur(trice) AGEPoly : " %}</b></td><td colspan="2" style="border-bottom: 1px black solid;"></td></tr>
+        <tr>
+            <td colspan="3"><b>{% trans "Visa AGEPoly (1): " %}</b></td>
+            <td colspan="4" style="border-bottom: 1px black solid;">{% if object.status == '4_accountable' or object.status == '5_in_accounting' or object.status == '6_archived' %}{% if object.get_root_unit_signer_1 %}<img src="{{MEDIA_ROOT}}img/valid-circle-icon.png" style="margin-right: 8px;" height="13" width="13">&nbsp;&nbsp;{{ object.get_root_unit_signer_1.first_name }}  {{ object.get_root_unit_signer_1.last_name }}{% endif %}{% endif %}</td>
+        </tr>
+        <tr><td colspan="7">&nbsp;</td></tr><tr><td colspan="7">&nbsp;</td></tr>
+
+        <tr>
+            <td colspan="3"><b>{% trans "Visa AGEPoly (2): " %}</b></td>
+            <td colspan="4" style="border-bottom: 1px black solid;">{% if object.status == '4_accountable' or object.status == '5_in_accounting' or object.status == '6_archived' %}{% if object.get_root_unit_signer_2 %}<img src="{{MEDIA_ROOT}}img/valid-circle-icon.png" style="margin-right: 8px;" height="13" width="13">&nbsp;&nbsp;{{ object.get_root_unit_signer_2.first_name }}  {{ object.get_root_unit_signer_2.last_name }}{% endif %}{% endif %}</td>
+        </tr>
     </table>
 
 {% endblock %}
