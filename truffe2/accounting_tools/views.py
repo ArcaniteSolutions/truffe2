@@ -153,17 +153,21 @@ def internaltransfer_csv(request, pk):
     
     response = HttpResponse(content_type='text/csv; charset=cp1252')
     if len(transfers) == 1:
-        response['Content-Disposition'] = 'attachment; filename="Transfert Interne'+slugify(unicode(transfers[0]))+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="Transfert Interne {0} .csv"'.format(slugify(unicode(transfers[0])))
     else:
-        response['Content-Disposition'] = 'attachment; filename="transfers_internes_'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
-    #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
-    #We still need to add costcenters (and modify the sage import interface)
+        response['Content-Disposition'] = 'attachment; filename="transfers_internes_{0}.csv"'.format(datetime.date.today().strftime("%d-%m-%Y"))
+ 
+    # L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
+    # La prise en compte des centre de cout souffre encore de problèmes du coté de sage
+
     writer = UnicodeCSVWriter(response)
     line_number = 1
     for transfer in transfers:
-        header_row = [u'0',line_number,transfer.transfert_date.strftime(u"%d.%m.%Y"),100000+transfer.pk,transfer.name, transfer.amount, transfer.amount, '', '', u'CHF', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'INT_TF#'+unicode(transfer.pk), '']
-        debit_row  = [u'1','','','','','','','','','','','',u'1',line_number,transfer.account.account_number,u'CHF',transfer.name+u' - Débit',transfer.amount, '', 0, '', u'Non Soumis à la TVA' , u'Débit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk),  transfer.cost_center_from.account_number] 
-        credit_row = [u'2','','','','','','','','','','','',u'2',line_number,transfer.account.account_number,u'CHF',transfer.name+u' - Crédit',transfer.amount, '', 0, '', u'Non Soumis à la TVA' , u'Crédit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#'+unicode(transfer.pk),  transfer.cost_center_to.account_number] 
+        if not transfer.status[0] in ['4', '5', '6']:
+            raise Exception(u'Internal Transfer {0} pas à l\'état à comptabiliser'.format(unicode(transfer)))
+        header_row = [u'0',line_number,transfer.transfert_date.strftime(u"%d.%m.%Y"),100000+transfer.pk,transfer.name, transfer.amount, transfer.amount, '', '', u'CHF', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'INT_TF#{0}'.format(unicode(transfer.pk)), '']
+        debit_row  = [u'1','','','','','','','','','','','',u'1',line_number,transfer.account.account_number,u'CHF',u'{0} - Débit'.format(transfer.name),transfer.amount, '', 0, '', u'Non Soumis à la TVA' , u'Débit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#{0}'.format(unicode(transfer.pk)),  transfer.cost_center_from.account_number] 
+        credit_row = [u'2','','','','','','','','','','','',u'2',line_number,transfer.account.account_number,u'CHF',u'{0} - Crédit'.format(transfer.name),transfer.amount, '', 0, '', u'Non Soumis à la TVA' , u'Crédit' ,'',transfer.transfert_date.strftime(u"%d.%m.%Y"),0,transfer.amount,transfer.amount,0,u'INT_TF#{0}'.format(unicode(transfer.pk)),  transfer.cost_center_to.account_number] 
         writer.writerows([header_row, debit_row, credit_row])
         line_number = line_number + 1
     return response
@@ -191,12 +195,13 @@ def expenseclaim_csv(request, pk):
     
     response = HttpResponse(content_type='text/csv; charset=cp1252')
     if len(expenseclaims) == 1:
-        response['Content-Disposition'] = 'attachment; filename="NDF - '+slugify(unicode(expenseclaims[0]))+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="NDF - {0}.csv"'.format(slugify(unicode(expenseclaims[0])))
     else:
-        response['Content-Disposition'] = 'attachment; filename="notes_de_frais'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="notes_de_frais_{0}.csv"'.format(datetime.date.today().strftime("%d-%m-%Y"))
 
-    #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
-    
+    # L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
+    # La prise en compte des centre de cout souffre encore de problèmes du coté de sage
+
     provider_to_export = []
     writer = UnicodeCSVWriter(response)
     
@@ -204,9 +209,9 @@ def expenseclaim_csv(request, pk):
     for expenseclaim in expenseclaims:
         if not expenseclaim.rights_can('SHOW', request.user):
             raise Http404
-        if not expenseclaim.status[0] == '3':
-            raise Exception(u'NDF '+unicode(expenseclaim)+u' pas à l\'état à comptabiliser')
-        writer.writerow([u'0',expenseclaim_count,u'Crédit', 300000+expenseclaim.pk,  expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), expenseclaim.user.username, u'CHF', 0, u'2000', u'NDF - '+unicode(expenseclaim), expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), '', '', '', '', '', '', '', '', u'NDF#'+unicode(expenseclaim.pk)])
+        if not expenseclaim.status[0] in ['4', '5', '6']:
+            raise Exception(u'NDF {0} pas à l\'état à comptabiliser'.format(unicode(expenseclaim)))
+        writer.writerow([u'0',expenseclaim_count,u'Crédit', 300000+expenseclaim.pk,  expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), expenseclaim.user.username, u'CHF', 0, u'2000', u'NDF - {0}'.format(unicode(expenseclaim)), expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), '', '', '', '', '', '', '', '', u'NDF#{0}'.format(unicode(expenseclaim.pk))])
         provider_to_export.append(expenseclaim.user) 
         first = True
         line_count = 1
@@ -224,7 +229,7 @@ def expenseclaim_csv(request, pk):
         for provider in provider_to_export:
             address_lines = unicode.splitlines(provider.adresse)
             try:
-                city = address_lines[1] #to be improved
+                city = address_lines[1]
                 zip = address_lines[1] 
             except:
                 zip = u'1015'
@@ -232,7 +237,7 @@ def expenseclaim_csv(request, pk):
             
             address_complete = u''
             for adr in address_lines:
-                address_complete = address_complete + adr + u', '
+                address_complete = address_complete + u'{0},'.format(adr)
             
             writer.writerow([provider.first_name, provider.last_name, address_lines[0], city, zip, provider.username, provider.email, provider.nom_banque, provider.iban_ou_ccp, address_complete]); 
     return response
@@ -243,8 +248,6 @@ def expenseclaim_line_write(writer, expenseclaim, line, line_number, last_line, 
     from accounting_core.models import TVA
     from app.utils import UnicodeCSVWriter
 
-    
-    
     try: 
         tva = TVA.objects.get(value=line.tva)
     except TVA.DoesNotExist: 
@@ -259,15 +262,14 @@ def expenseclaim_line_write(writer, expenseclaim, line, line_number, last_line, 
          tva_string = u'Soumis à la TVA'
          is_tva = True
          
+    row = [u'1','','','','','','','','','','', expenseclaim_number*10+line_number, line_number, line.value, u'NDF - {0} - {1}'.unicode(expenseclaim, line.label), line.account.account_number, tva.code, tva.value, u'OK', u'NDF#{0}'.format(unicode(expenseclaim.pk)), expenseclaim.costcenter.account_number]
 
-    row = [u'1','','','','','','','','','','', expenseclaim_number*10+line_number, line_number, line.value, u'NDF - '+unicode(expenseclaim)+u' - '+line.label, line.account.account_number, tva.code, tva.value, u'OK', u'NDF#'+unicode(expenseclaim.pk), expenseclaim.costcenter.account_number]
-
-    if last_line == True: #la dernière écriture doit être de type 2
+    if last_line == True: # la dernière écriture doit être de type 2
         row[0]=u'2'
     
     writer.writerow(row)
 
-    return 1 #number of line written
+    return 1 # nombre de ligne écrite
 
 
 @login_required
@@ -288,30 +290,28 @@ def cashbook_csv(request, pk):
     from accounting_core.models import TVA
     from app.utils import UnicodeCSVWriter
 
-
-     
-    
     cashbooks = [get_object_or_404(CashBook, pk=pk_, deleted=False) for pk_ in filter(lambda x: x, pk.split(','))]
     
     response = HttpResponse(content_type='text/csv; charset=cp1252')
     if len(cashbooks) == 1:
-        response['Content-Disposition'] = 'attachment; filename="JDC - '+slugify(unicode(cashbooks[0]))+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="JDC - {0}.csv"'.format(slugify(unicode(cashbooks[0])))
     else:
-        response['Content-Disposition'] = 'attachment; filename="journaux_de_caisse'+datetime.date.today().strftime("%d-%m-%Y")+'.csv"'
+        response['Content-Disposition'] = 'attachment; filename="journaux_de_caisse_{0}.csv"'.format(datetime.date.today().strftime("%d-%m-%Y"))
 
-    #L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
-    
+    # L'écriture du csv permet l'import dans sage comme définit ici : https://onlinehelp.sageschweiz.ch/sage-start/fr-ch/content/technique/d%C3%A9finition%20de%20l%20interface.htm
+    # La prise en compte des centre de cout souffre encore de problèmes du coté de sage
+
     writer = UnicodeCSVWriter(response)
     
     cashbook_count = 1
     for cashbook in cashbooks:
         if not cashbook.rights_can('SHOW', request.user):
             raise Http404
-        if not cashbook.status[0] == '3':
-            raise Exception(u'JDC '+unicode(cashbook)+u' pas à l\'état à comptabiliser')
+        if not cashbook.status[0] in ['4', '5', '6']:
+            raise Exception(u'JDC {0} pas à l\'état à comptabiliser'.format(unicode(cashbook)))
         if not cashbook.total_incomes() == cashbook.total_outcomes():
-            raise Exception(u'JDC '+unicode(cashbook)+u' pas a 0, merci de le mettre a 0')
-        writer.writerow([u'0',cashbook_count,cashbook.get_lines()[0].date.strftime(u"%d.%m.%Y"),200000+cashbook.pk,cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', u'CHF' ,0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#'+unicode(cashbook.pk)])
+            raise Exception(u'JDC {0} pas a 0, merci de le mettre a 0'.format(unicode(cashbook)))
+        writer.writerow([u'0',cashbook_count,cashbook.get_lines()[0].date.strftime(u"%d.%m.%Y"),200000+cashbook.pk,cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', u'CHF' ,0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',u'CASHBOOK#{0}'.format(unicode(cashbook.pk))])
         first = True
         line_count = 1
         firstline = CashBookLine()
@@ -334,20 +334,13 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
     
     initial_line_number = line_number
     
-    # tva export
-    # try: 
-        # tva = TVA.objects.get(value=line.tva)
-    # except TVA.DoesNotExist: 
-        # raise Exception(u'TVA '+str(line.tva)+u' Not found - Impossible d\'exporter des lignes avec TVA speciales')
-        
-
-    if line.is_output(): 
+    if line.is_output: 
         type = u'Débit' 
     else: 
         type = u'Crédit'
 
-    tva = TVA() #remove for tva export
-    tva.value = line.tva #remove for tva export
+    tva = TVA()
+    tva.value = line.tva
     
     if tva.value == 0.0: 
         tva_string = u'Non soumis à la TVA'
@@ -355,39 +348,24 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
         is_tva = False
     else: 
          tva_string = u'Soumis'
-         tva.code = 'TOSET' #remove for tva export
+         tva.code = 'TOSET' 
          is_tva = True
          
-    
-    
-    if line.account.account_number[0] == '3' or line.account.account_number[0] == '4': #may be better to use AccountCategory
+    if line.account.account_number[0] == '3' or line.account.account_number[0] == '4': # peut être utilisé AccountCategory serait mieux
         cost_center = cashbook.costcenter.account_number
     else:
         cost_center = ''
 
-    row = [u'1','','','','','','','','','','','',line_number,cashbook_number,line.account.account_number,u'CHF',cashbook.name+u' '+line.label , line.value_ttc, tva.code, tva.value , '' , tva_string , type ,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc,line.value_ttc, 100 ,u'CASHBOOK#'+unicode(cashbook.pk), cost_center]
+    row = [u'1','','','','','','','','','','','',line_number,cashbook_number,line.account.account_number,u'CHF','{0} {1}'.format(cashbook.name, line.label), line.value_ttc, tva.code, tva.value,'',tva_string,type,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc,line.value_ttc, 100 ,u'CASHBOOK#{0}'.format(unicode(cashbook.pk)), cost_center]
     
     line_number = line_number + 1
 
-    # tva export
-    # if is_tva: #on génère la ligne correspondante de tva si besoin
-        # tva_row = [u'1','','','','','','','','','','','',line_number,cashbook_number,tva.account.account_number,u'CHF',cashbook.name+u' '+line.label+u' - TVA',line.value_ttc-line.value, tva.code , tva.value, line_number-1 ,u'Montant TVA', type,'',line.date.strftime(u"%d.%m.%Y"),0,line.value_ttc-line.value,line.value_ttc-line.value, 100 ,u'CASHBOOK#'+unicode(cashbook.pk)]
-        # line_number = line_number + 1
 
-    if last_line == True: #la dernière écriture doit être de type 2
-        # tva export
-        # if is_tva:
-            # tva_row[0] = u'2'
-        # else:
-            # row[0]=u'2'
+    if last_line == True: # la dernière écriture doit être de type 2
         row[0]=u'2'
     
-    writer.writerow(row)
-    # tva export
-    # if is_tva:
-        # writer.writerow(tva_row)
-        
-    return line_number - initial_line_number #number of line written
+    writer.writerow(row)        
+    return line_number - initial_line_number # nombre de ligne écrite
 
 @login_required
 def get_withdrawal_infos(request, pk):
