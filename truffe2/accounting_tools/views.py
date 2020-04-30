@@ -163,7 +163,7 @@ def internaltransfer_csv(request, pk):
     line_number = 1
     for transfer in transfers:
         if not transfer.status[0] in ['4', '5', '6']:
-            raise Exception(u'Internal Transfer {0} pas à l\'état à comptabiliser'.format(unicode(transfer)))
+            raise Exception(_(u'Internal Transfer {0} pas à l\'état à comptabiliser').format(unicode(transfer)))
         header_row = [u'0', line_number, transfer.transfert_date.strftime(u"%d.%m.%Y"), 100000 + transfer.pk, transfer.name, transfer.amount, transfer.amount, '', '', u'CHF', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', u'INT_TF#{0}'.format(unicode(transfer.pk)), '']
         debit_row = [u'1', '', '', '', '', '', '', '', '', '', '', '', u'1', line_number, transfer.account.account_number, u'CHF', u'{0} - Débit'.format(transfer.name), transfer.amount, '', 0, '', u'Non Soumis à la TVA', u'Débit', '', transfer.transfert_date.strftime(u"%d.%m.%Y"), 0, transfer.amount, transfer.amount, 0, u'INT_TF#{0}'.format(unicode(transfer.pk)), transfer.cost_center_from.account_number]
         credit_row = [u'2', '', '', '', '', '', '', '', '', '', '', '', u'2', line_number, transfer.account.account_number, u'CHF', u'{0} - Crédit'.format(transfer.name), transfer.amount, '', 0, '', u'Non Soumis à la TVA', u'Crédit', '', transfer.transfert_date.strftime(u"%d.%m.%Y"), 0, transfer.amount, transfer.amount, 0, u'INT_TF#{0}'.format(unicode(transfer.pk)), transfer.cost_center_to.account_number]
@@ -209,7 +209,7 @@ def expenseclaim_csv(request, pk):
         if not expenseclaim.rights_can('SHOW', request.user):
             raise Http404
         if not expenseclaim.status[0] in ['4', '5', '6']:
-            raise Exception(u'NDF {0} pas à l\'état à comptabiliser'.format(unicode(expenseclaim)))
+            raise Exception(_(u'NDF {0} pas à l\'état à comptabiliser').format(unicode(expenseclaim)))
         writer.writerow([u'0', expenseclaim_count, u'Crédit', 300000 + expenseclaim.pk, expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), expenseclaim.user.username, u'CHF', 0, u'2000', u'NDF - {0}'.format(unicode(expenseclaim)), expenseclaim.logs.first().when.strftime(u"%d.%m.%Y"), '', '', '', '', '', '', '', '', u'NDF#{0}'.format(unicode(expenseclaim.pk))])
         provider_to_export.append(expenseclaim.user)
         first = True
@@ -300,9 +300,9 @@ def cashbook_csv(request, pk):
         if not cashbook.rights_can('SHOW', request.user):
             raise Http404
         if not cashbook.status[0] in ['4', '5', '6']:
-            raise Exception(u'JDC {0} pas à l\'état à comptabiliser'.format(unicode(cashbook)))
+            raise Exception(_(u'JDC {0} pas à l\'état à comptabiliser').format(unicode(cashbook)))
         if not cashbook.total_incomes() == cashbook.total_outcomes():
-            raise Exception(u'JDC {0} pas a 0, merci de le mettre a 0'.format(unicode(cashbook)))
+            raise Exception(_(u'JDC {0} pas a 0, merci de le mettre a 0').format(unicode(cashbook)))
         writer.writerow([u'0', cashbook_count, cashbook.get_lines()[0].date.strftime(u"%d.%m.%Y"), 200000 + cashbook.pk, cashbook.name, cashbook.total_incomes(), cashbook.total_incomes(), '', '', u'CHF', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', u'CASHBOOK#{0}'.format(unicode(cashbook.pk))])
         first = True
         line_count = 1
