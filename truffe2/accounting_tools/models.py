@@ -1585,15 +1585,15 @@ class CashBookLine(ModelUsedAsLine):
 
     def get_line_delta(self):
         return self.input_amount() - self.output_amount()
-    
-    @property
-    def is_input(self):
-        return self.helper[0] in ['0', '2', '6']:
 
-    @property   
-    def is_output(self):
-        return not self.helper[0] not in ['0', '2', '6']:
-        
+    @property
+        def is_input(self):
+            return self.helper[0] in ['0', '2', '6']:
+
+    @property
+        def is_output(self):
+            return self.helper[0] not in ['0', '2', '6']:
+
     def input_amount_ht(self):
         return self.value if self.is_input else 0
 
