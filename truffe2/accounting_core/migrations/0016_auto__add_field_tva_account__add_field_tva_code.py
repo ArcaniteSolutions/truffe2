@@ -10,12 +10,12 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'TVA.account'
         db.add_column(u'accounting_core_tva', 'account',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=1170, to=orm['accounting_core.Account']),
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=2601, to=orm['accounting_core.Account']),
                       keep_default=False)
 
         # Adding field 'TVA.code'
         db.add_column(u'accounting_core_tva', 'code',
-                      self.gf('django.db.models.fields.CharField')(default='1170', max_length=255),
+                      self.gf('django.db.models.fields.CharField')(default='UNKNOW', max_length=255),
                       keep_default=False)
 
 
