@@ -101,7 +101,7 @@ def _home_accounting_errors(request):
 
     open_errors = []
 
-    for error in AccountingError.objects.filter(deleted=False).exclude(status='2_fixed').order_by('pk'):
+    for error in AccountingError.objects.filter(deleted=False).exclude(status='2_fixed').exclude(accounting_year__status='3_archived').order_by('pk'):
         if error.rights_can('SHOW', request.user):
             open_errors.append(error)
 
