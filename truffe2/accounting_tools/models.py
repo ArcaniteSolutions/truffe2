@@ -1697,8 +1697,9 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
     class MetaData:
         list_display = [
             ('name', _('Titre')),
+            ('provider', _(u'Fournisseur')),
             ('costcenter', _(u'Centre de coûts')),
-            ('get_fullname', _(u'Personne')),
+            #('get_fullname', _(u'Personne')),
             ('get_total_ht', _(u'Total (HT)')),
             ('get_total', _(u'Total (TTC)')),
             ('status', _('Statut')),
