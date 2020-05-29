@@ -1659,12 +1659,18 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
     def genericFormExtraClean(self, data, form):
 
         if 'iban_ou_ccp' in data and data['iban_ou_ccp']:
-            try:
+            try: #IBAN correct ?
                 iban = IBAN(data['iban_ou_ccp'])
                 data['iban_ou_ccp'] = iban.formatted
             except:
                 raise forms.ValidationError(_(u'IBAN invalide'))
+            #IBAN déja dans la db ? (-> fournisseur déja entré) Pour héviter les doublons
+            from .models import FinancialProvider
+            if FinancialProvider.objects.filter(iban_ou_ccp = data['iban_ou_ccp']).exists():
+                fournisseur = FinancialProvider.objects.filter(iban_ou_ccp = data['iban_ou_ccp']).first()
+                raise forms.ValidationError(_(u'Le fournisseur '+ fournisseur.name + u'(' + fournisseur.iban_ou_ccp + u') est déja dans la base de donnée ! '))
            
+
     name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
     tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text = _(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>'))
     
