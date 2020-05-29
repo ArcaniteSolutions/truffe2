@@ -987,13 +987,17 @@ class GenericAccountingStateModel(object):
         if dest_status == '1_unit_validable':
             notify_people(request, '%s.unit_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_linked_unit('TRESORERIE'))
 
-        elif dest_status[0] in ['2', '3']:
+        elif dest_status[0] in '2':
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
             notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(['TRESORERIE', 'SECRETARIAT']))
 
+        elif dest_status[0] in '3':
+            unotify_people('%s.validable' % (self.__class__.__name__,), self)
+            notify_people(request, '%s.agep_validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(['TRESORERIE', 'PRESIDENCE']))
+
         elif dest_status in ['4', '5']:
             unotify_people('%s.validable' % (self.__class__.__name__,), self)
-            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'accounting_accountable', self, self.people_in_root_unit('SECRETARIAT'))
+            notify_people(request, '%s.accountable' % (self.__class__.__name__,), 'accounting_accountable', self, self.people_in_root_unit(['TRESORERIE', 'SECRETARIAT']))
 
         elif dest_status == '6_archived':
             if request.POST.get('archive_proving_obj') and self.proving_object:
