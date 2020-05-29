@@ -1672,12 +1672,12 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
            
 
     name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
-    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text = _(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>'))
+    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text = _(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
     
-    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_('(CCP -> <a href="https://www.postfinance.ch/fr/particuliers/assistance/outils-calculateurs/calculateur-iban.html">Calculateur CCP/IBAN)</a>'))
+    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(CCP -> <a href="https://www.postfinance.ch/fr/particuliers/assistance/outils-calculateurs/calculateur-iban.html">Calculateur CCP/IBAN</a>)'))
     bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True)
 
-    address = models.CharField(_('Adresse'), max_length=256, blank=True)
+    address = models.CharField(_('Adresse'), max_length=256, blank=True, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
 
 
 class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
