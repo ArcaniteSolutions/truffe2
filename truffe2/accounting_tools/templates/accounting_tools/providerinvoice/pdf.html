@@ -40,11 +40,13 @@
 {% endblock %}
 
 {% block linkedinfo_basics %}
-                    <tr class="tr-info"><td class="td-label">{% trans "Fournisseur : " %}</td><td class="td-large">{{object.provider.name|upper}}</td></tr>
-                    <tr class="tr-info"><td class="td-label">{% trans "Adresse : " %}</td><td class="td-large">{{object.provider.address}}</td></tr>
-                    <tr class="tr-info"><td class="td-label">{% trans "TVA - ID : " %}</td><td class="td-large">{{object.provider.tva_number}}</td></tr>
-	            <tr class="tr-info"><td class="td-label">{% trans "IBAN / CCP : " %}</td><td class="td-large">{{object.provider.iban_ccp}}</td></tr>
-        	    <tr class="tr-info"><td class="td-label">{% trans "BIC / SWIFT" %}</td><td class="td-large">{{object.provider.bic}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Fournisseur" %} : </td><td class="td-large">{{object.provider.name|upper}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "Adresse" %} : </td><td class="td-large">{{object.provider.address}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "TVA - ID" %} : </td><td class="td-large">{{object.provider.tva_number}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "DEVISE" %} : </td><td class="td-large">{{object.devise}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "IBAN" %} : </td><td class="td-large">{{object.provider.iban_ccp}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "BIC / SWIFT" %} : </td><td class="td-large">{{object.provider.bic}}</td></tr>
+    <tr class="tr-info"><td class="td-label">{% trans "#REFERENCE" %} : </td><td class="td-large">{{object.reference_number}}</td></tr>
 
 {% endblock %}
 
