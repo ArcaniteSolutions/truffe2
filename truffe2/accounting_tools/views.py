@@ -338,12 +338,7 @@ def cashbook_line_write(writer, cashbook, line, line_number, last_line, cashbook
         tva_string = u'Soumis'
         tva.code = 'TOSET'
 
-    if line.account.account_number[0] == '3' or line.account.account_number[0] == '4':  # peut être utilisé AccountCategory serait mieux
-        cost_center = cashbook.costcenter.account_number
-    else:
-        cost_center = ''
-
-    row = [u'1', '', '', '', '', '', '', '', '', '', '', '', line_number, cashbook_number, line.account.account_number, u'CHF', '{0} {1}'.format(cashbook.name, line.label), line.value_ttc, tva.code, tva.value, '', tva_string, type, '', line.date.strftime(u"%d.%m.%Y"), 0, line.value_ttc, line.value_ttc, 100, u'CASHBOOK#{0}'.format(unicode(cashbook.pk)), cost_center]
+    row = [u'1', '', '', '', '', '', '', '', '', '', '', '', line_number, cashbook_number, line.account.account_number, u'CHF', '{0} {1}'.format(cashbook.name, line.label), line.value_ttc, tva.code, tva.value, '', tva_string, type, '', line.date.strftime(u"%d.%m.%Y"), 0, line.value_ttc, line.value_ttc, 100, u'CASHBOOK#{0}'.format(unicode(cashbook.pk)), cashbook.costcenter.account_number]
 
     line_number = line_number + 1
 
