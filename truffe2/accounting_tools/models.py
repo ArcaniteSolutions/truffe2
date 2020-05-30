@@ -1527,6 +1527,10 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
+    reference_number = models.CharField(_(u'Numéro de Référence'), null=True, blank=True, max_length=255)
+    raw_pay_code = models.TextField(_(u'Raw Swiss Payment Code'), null=True, blank=True)
+    devise = models.CharField(_(u'Devise'), max_length=3)
+
     provider = FalseFK('accounting_tools.models.FinancialProvider', verbose_name=_(u'Fournisseur'), blank=False, null=False)
 
     class MetaData:
@@ -1539,7 +1543,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
+        details_display = list_display + [('devise', _(u'Devise')), ('reference_number', _(u'Numéro de référence'))('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
         filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
