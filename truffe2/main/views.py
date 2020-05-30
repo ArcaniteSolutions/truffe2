@@ -145,6 +145,23 @@ def _home_cashbook(request):
     return {'cashbook_to_validate': cashbook_to_validate, 'cashbook_to_account': cashbook_to_account}
 
 
+def _home_providerInvoice(request):
+
+    from accounting_tools.models import ProviderInvoice
+
+    if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
+        providerinvoice_to_validate = ProviderInvoice.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable']).order_by('-pk')
+    else:
+        providerinvoice_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ProviderInvoice.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec: -ec.pk)
+
+    if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
+        providerinvoice_to_account = ProviderInvoice.objects.filter(deleted=False, status='3_accountable').order_by('pk')
+    else:
+        providerinvoice_to_account = None
+
+    return {'providerinvoice_to_validate': providerinvoice_to_validate, 'providerinvoice_to_account': providerinvoice_to_account}
+
+
 @login_required
 def home(request):
     """Home page dashboard"""
@@ -163,6 +180,7 @@ def home(request):
         (lambda request: request.user.rights_in_any_unit(['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_cashbook, "cashbooks.html"),
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_lines, "accounting_lines.html"),
         (lambda request: request.user.rights_in_any_unit('TRESORERIE') or request.user.is_superuser, _home_accounting_errors, "accounting_errors.html"),
+        (lambda request: request.user.rights_in_any_unit(['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser, _home_providerInvoice, "providerInvoice.html"),
     ]
 
     data = {}
