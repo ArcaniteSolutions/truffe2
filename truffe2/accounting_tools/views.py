@@ -91,6 +91,9 @@ def invoice_pdf(request, pk):
     if not invoice.rights_can('SHOW', request.user):
         raise Http404
 
+    if invoice.status not in ['2_accord', '3_sent', '4_archived'] and (not request.user.is_superuser or not invoice.rights_in_root_unit(request.user, 'SECRETARIAT')):
+        raise Http404
+
     img = invoice.generate_bvr()
     img = img.resize((1414, 1000), Image.LANCZOS)
     img.save(os.path.join(settings.MEDIA_ROOT, 'cache/bvr/{}.png').format(invoice.pk))
