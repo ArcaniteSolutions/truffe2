@@ -13,8 +13,9 @@ from django.utils.timezone import now
 from raven.contrib.django.models import client
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.template.defaultfilters import floatformat
-from schwifty import IBAN
 
+
+from schwifty import IBAN
 import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
@@ -27,6 +28,7 @@ from app.utils import get_current_year, get_current_unit
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel, LinkedInfoModel, SearchableModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
+
 
 class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel, SearchableModel):
 
@@ -1441,172 +1443,6 @@ class ExpenseClaimLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
 
-
-class _ExpenseClaim(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
-    """Modèle pour les notes de frais (NdF)"""
-
-    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
-        access = ['TRESORERIE', 'SECRETARIAT']
-
-    class MetaRights(UnitEditableModel.MetaRights):
-        linked_unit_property = 'costcenter.unit'
-
-    name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    nb_proofs = models.PositiveIntegerField(_(u'Nombre de justificatifs'), default=0)
-    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
-
-    class MetaData:
-        list_display = [
-            ('name', _('Titre')),
-            ('costcenter', _(u'Centre de coûts')),
-            ('get_fullname', _(u'Personne')),
-            ('get_total_ht', _(u'Total (HT)')),
-            ('get_total', _(u'Total (TTC)')),
-            ('status', _('Statut')),
-        ]
-
-        details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
-        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
-
-        default_sort = "[0, 'desc']"  # Creation date (pk) descending
-        trans_sort = {'get_fullname': 'user__first_name'}
-        not_sortable_columns = ['get_total', 'get_total_ht']
-
-        base_title = _(u'Notes de frais')
-        list_title = _(u'Liste des notes de frais')
-        files_title = _(u'Justificatifs')
-        base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-pencil-square-o'
-
-        @staticmethod
-        def extra_filter_for_list(request, current_unit, current_year, filtering):
-            if current_unit.is_user_in_groupe(request.user, access=['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
-                return lambda x: filtering(x)
-            else:
-                return lambda x: filtering(x).filter(user=request.user)
-
-        has_unit = True
-
-        menu_id = 'menu-compta-ndf'
-
-        forced_widths = {
-            '1': '350px',
-        }
-
-        help_list = _(u"""Les notes de frais permettent de se faire rembourser des frais avancés pour une unité.
-
-Il est nécessaire de fournir les preuves d'achat et que celles-ci contiennent uniquement des choses qui doivent être remboursées.
-Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si certains achats à la Migros sont à 8% et d'autres à 0%, il faut les séparer en 2 lignes.""")
-
-    class Meta:
-        abstract = True
-
-    class MetaEdit:
-        files_title = _(u'Justificatifs')
-        files_help = _(u'Justificatifs pour le remboursement de la note de frais.')
-
-        all_users = True
-
-    class MetaLines:
-        lines_objects = [
-            {
-                'title': _(u'Lignes'),
-                'class': 'accounting_tools.models.ExpenseClaimLine',
-                'form': 'accounting_tools.forms2.ExpenseClaimLineForm',
-                'related_name': 'lines',
-                'field': 'expense_claim',
-                'sortable': True,
-                'tva_fields': ['tva'],
-                'show_list': [
-                    ('label', _(u'Titre')),
-                    ('proof', _(u'Justificatif')),
-                    ('account', _(u'Compte')),
-                    ('value', _(u'Montant (HT)')),
-                    ('get_tva', _(u'TVA')),
-                    ('value_ttc', _(u'Montant (TTC)')),
-                ]},
-        ]
-
-    class MetaGroups(GenericGroupsModel.MetaGroups):
-        pass
-
-    class MetaState(GenericAccountingStateModel.MetaState):
-        pass
-
-    class MetaSearch(SearchableModel.MetaSearch):
-
-        extra_text = u"NDF"
-        index_files = True
-
-        fields = [
-            'name',
-            'user',
-            'comment',
-            'get_total',
-        ]
-
-        linked_lines = {
-            'lines': ['label', 'proof']
-        }
-
-    def __unicode__(self):
-        return u"{} - {}".format(self.name, self.costcenter)
-
-    def rights_can_EDIT(self, user):
-        if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
-            return True
-
-        return super(_ExpenseClaim, self).rights_can_EDIT(user)
-
-    def rights_can_LIST(self, user):
-        return True  # Tout le monde peut lister les notes de frais de n'importe quelle unité (à noter qu'il y a un sous filtre qui affiche que les NDF que l'user peut voir dans la liste)
-
-    def genericFormExtraClean(self, data, form):
-        if 'user' in data and not data['user'].is_profile_ok():
-            form._errors["user"] = form.error_class([_(u"Le profil de cet utilisateur doit d'abord être completé.")])  # Until Django 1.6
-            # form.add_error("user", _(u"Le profil de cet utilisateur doit d'abord être completé."))  # From Django 1.7
-
-        if 'user' in data and data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.user.is_superuser:
-            form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre.")])  # Until Django 1.6
-            # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une note de frais pour quelqu'un d'autre."))  # From Django 1.7
-
-    def get_lines(self):
-        return self.lines.order_by('order')
-
-    def get_total(self):
-        return sum([line.value_ttc for line in self.get_lines()])
-
-    def get_total_ht(self):
-        return sum([line.value for line in self.get_lines()])
-
-    def is_unit_validator(self, user):
-        """Check if user is a validator for the step '1_unit_validable'."""
-        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
-
-
-class ExpenseClaimLine(ModelUsedAsLine):
-
-    expense_claim = models.ForeignKey('ExpenseClaim', related_name="lines")
-
-    label = models.CharField(_(u'Concerne'), max_length=255)
-    proof = models.CharField(_(u'Justificatif'), max_length=255, blank=True)
-
-    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
-    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
-    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
-    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
-
-    def __unicode__(self):
-        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
-
-    def get_tva(self):
-        from accounting_core.models import TVA
-        return TVA.tva_format(self.tva)
-
-    def display_amount(self):
-        return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
-
 class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
     class MetaData:
         list_display = [
@@ -1620,8 +1456,7 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
         details_display = list_display
         filter_fields = ('name', 'tva_number', 'iban_ou_ccp', 'bic')
 
-        default_sort = "[0, 'name']" 
-
+        default_sort = "[0, 'name']"
 
         base_title = _(u'Fournisseur')
         list_title = _(u'Liste des Fournisseur')
@@ -1645,7 +1480,7 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
         all_users = True
 
     def __unicode__(self):
-        return self.name;
+        return self.name
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
@@ -1659,22 +1494,21 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
     def genericFormExtraClean(self, data, form):
 
         if 'iban_ou_ccp' in data and data['iban_ou_ccp']:
-            try: #IBAN correct ?
+            try:  # IBAN correct ?
                 iban = IBAN(data['iban_ou_ccp'])
                 data['iban_ou_ccp'] = iban.formatted
             except:
                 raise forms.ValidationError(_(u'IBAN invalide'))
-            #IBAN déja dans la db ? (-> fournisseur déja entré) Pour héviter les doublons
+            # IBAN déja dans la db ? (-> fournisseur déja entré) Pour éviter les doublons
             from .models import FinancialProvider
-            if FinancialProvider.objects.filter(iban_ou_ccp = data['iban_ou_ccp']).exists():
-                fournisseur = FinancialProvider.objects.filter(iban_ou_ccp = data['iban_ou_ccp']).first()
-                raise forms.ValidationError(_(u'Le fournisseur '+ fournisseur.name + u'(' + fournisseur.iban_ou_ccp + u') est déja dans la base de donnée ! '))
-           
+            if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).exists():
+                fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).first()
+                raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
 
     name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
-    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text = _(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
-    
-    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(CCP -> <a href="https://www.postfinance.ch/fr/particuliers/assistance/outils-calculateurs/calculateur-iban.html">Calculateur CCP/IBAN</a>)'))
+    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
+
+    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(#COMPTE -> <a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Calculateur IBAN</a>)'))
     bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True)
 
     address = models.CharField(_('Adresse'), max_length=256, blank=True, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
@@ -1685,6 +1519,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
 
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = ['TRESORERIE', 'SECRETARIAT']
+
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'costcenter.unit'
 
@@ -1699,7 +1534,6 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             ('name', _('Titre')),
             ('provider', _(u'Fournisseur')),
             ('costcenter', _(u'Centre de coûts')),
-            #('get_fullname', _(u'Personne')),
             ('get_total_ht', _(u'Total (HT)')),
             ('get_total', _(u'Total (TTC)')),
             ('status', _('Statut')),
@@ -1733,9 +1567,9 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             '1': '350px',
         }
 
-        help_list = _(u"""Les factures fournisseurs permettent à une unité de payer des factures. 
+        help_list = _(u"""Les factures fournisseurs permettent à une unité de payer des factures.
 
-Il est nécessaire de fournir la facture""")
+Il est nécéssaire de fournir la facture""")
 
     class Meta:
         abstract = True
@@ -1839,7 +1673,7 @@ class ProviderInvoiceLine(ModelUsedAsLine):
     def display_amount(self):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
-#tEO
+
 class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les journaux de caisse (JdC)"""
 
