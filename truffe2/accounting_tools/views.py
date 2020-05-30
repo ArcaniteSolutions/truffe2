@@ -225,7 +225,7 @@ def expenseclaim_csv(request, pk):
         expenseclaim_count = expenseclaim_count + 1
 
         for provider in provider_to_export:
-            address_lines = unicode.splitlines(provider.adresse)
+            address_lines = provider.adresse.splitlines()
             try:
                 city = address_lines[1]
                 zip = address_lines[1]
@@ -235,7 +235,7 @@ def expenseclaim_csv(request, pk):
 
             address_complete = u''
             for adr in address_lines:
-                address_complete = address_complete + u'{0},'.format(adr)
+                address_complete += unicode(adr)
 
             writer.writerow([provider.first_name, provider.last_name, address_lines[0], city, zip, provider.username, provider.email, provider.nom_banque, provider.iban_ou_ccp, address_complete])
     return response
