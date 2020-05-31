@@ -1541,21 +1541,29 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
     class MetaData:
         list_display = [
             ('name', _('Titre')),
-            ('provider', _(u'Fournisseur')),
             ('costcenter', _(u'Centre de coûts')),
+            ('provider', _(u'Fournisseur')),
             ('get_total_ht', _(u'Total (HT)')),
             ('get_total', _(u'Total (TTC)')),
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [
-            ('devise', _(u'Devise')),
+        details_display =
+        [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('provider', _(u'Fournisseur')),
             ('reference_number', _(u'Numéro de référence')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
+            ('devise', _(u'Devise')),
+            ('status', _('Statut')),
             ('accounting_year', _(u'Année comptable')),
-            ('comment', _(u'Commentaire'))
+            ('comment', _(u'Commentaire')),
+            ('raw_pay_code', _(u'SPC'))
         ]
 
-        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'reference_number', 'devise', 'provider__name', 'provider__tva_number', 'provider__iban')
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
