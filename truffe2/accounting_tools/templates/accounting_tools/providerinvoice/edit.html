@@ -20,9 +20,12 @@ x{% extends "accounting_tools/generic_tva_edit.html" %}
             $(element).css('width', sizes[index]);
         });
 
-        // Move providerinvoice up
-        var providerinvoice = $('#id_providerinvoice').parents('.form-group').remove();
-        $('#id_name').parents('.form-group').after(providerinvoice);
+        $('#id_raw_pay_code').parents('.form-group').remove();
+
+       // Move provider up
+        var provider = $('#id_provider').parents('.form-group').remove();
+        $('#id_name').parents('.form-group').after(provider);
+       
 
         // Transform id_user in select2
         $('#id_user').removeClass('form-control');

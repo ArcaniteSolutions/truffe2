@@ -20,7 +20,7 @@ import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
 import os
-
+from iso4217 import Currency
 
 from accounting_core.models import AccountingGroupModels
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -1508,11 +1508,12 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
     name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
     tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
 
-    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(#COMPTE -> <a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Calculateur IBAN</a>)'))
+    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(#COMPTE -> <a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Calculateur IBAN</a>) </br> Si IBAN introuvable, mettre CH36 0000 0000 0000 0000 0 et mettre le numéro de compte en remarque.'))
     bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True)
 
-    address = models.CharField(_('Adresse'), max_length=256, blank=True, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
+    address = models.CharField(_('Adresse'), max_length=255, blank=True, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
 
+    remarks = models.TextField(_(u'Remarques'), null=True, blank=True)
 
 class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les factures fournisseur"""
@@ -1529,7 +1530,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
 
     reference_number = models.CharField(_(u'Numéro de Référence'), null=True, blank=True, max_length=255)
     raw_pay_code = models.TextField(_(u'Raw Swiss Payment Code'), null=True, blank=True)
-    devise = models.CharField(_(u'Devise'), max_length=3)
+    currency = models.CharField(_(u'Devise'), max_length=3, choices=map(lambda i: (i.name, i.value), Currency), default=Currency.chf.code)
 
     provider = FalseFK('accounting_tools.models.FinancialProvider', verbose_name=_(u'Fournisseur'), blank=False, null=False)
 
@@ -1543,7 +1544,13 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             ('status', _('Statut')),
         ]
 
-        details_display = list_display + [('devise', _(u'Devise')), ('reference_number', _(u'Numéro de référence'))('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
+        details_display = list_display + [
+            ('devise', _(u'Devise')),
+            ('reference_number', _(u'Numéro de référence')),
+            ('accounting_year', _(u'Année comptable')),
+            ('comment', _(u'Commentaire'))
+        ]
+
         filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
