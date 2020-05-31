@@ -1,6 +1,4 @@
-x{% extends "accounting_tools/generic_tva_edit.html" %}
-
-
+{% extends "accounting_tools/generic_tva_edit.html" %}
 
 {% block bonus_year_updated %}
     update_accounts();
@@ -27,13 +25,22 @@ x{% extends "accounting_tools/generic_tva_edit.html" %}
         $('#id_name').parents('.form-group').after(provider);
        
 
-        // Transform id_user in select2
-        $('#id_user').removeClass('form-control');
-        $('#id_user').css('width', '100%').select2();
-
         // Transform id_provider in select2
         $('#id_provider').removeClass('form-control');
         $('#id_provider').css('width', '100%').select2();
+
+        $('#id_currency').children().first().before("<option value='eur'>EUR</option>");
+        $('#id_currency').children().first().before("<option value='chf' selected='selected'>CHF</option>");
+        // Transform id_currency in select2
+        $('#id_currency').removeClass('form-control');
+        $('#id_currency').css('width', '100%').select2({
+            placeholder: {
+                id: 'chf',
+                text: 'CHF'
+            }
+        });
+
+        
 
 
        $('#id_provider').parent().before().append('<a href="{% url 'accounting_tools.views.financialprovider_edit' '~' %}" id="new_provider" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> Ajouter un fournisseur</a>');
@@ -53,7 +60,7 @@ x{% extends "accounting_tools/generic_tva_edit.html" %}
                     credit_suisse_id = option.pk;
             });
 
-            $('#id_provider').each(function(index, element) {
+            $('.line_field_lines_account .select2').each(function(index, element) {
                 var elem = $(element).next('select');
                 var old_value = elem.val();
 

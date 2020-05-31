@@ -1492,24 +1492,29 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
         return self.get_creator() == user or self.rights_in_root_unit(user, access='TRESORERIE') or self.rights_in_root_unit(user, access='SECRETARIAT') or request.user.is_superuser
 
     def genericFormExtraClean(self, data, form):
-
         if 'iban_ou_ccp' in data and data['iban_ou_ccp']:
-            try:  # IBAN correct ?
-                iban = IBAN(data['iban_ou_ccp'])
-                data['iban_ou_ccp'] = iban.formatted
-            except:
-                raise forms.ValidationError(_(u'IBAN invalide'))
-            # IBAN déja dans la db ? (-> fournisseur déja entré) Pour éviter les doublons
-            from .models import FinancialProvider
-            if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).exists():
-                fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).first()
-                raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
+            if data['iban_ou_ccp'] != "CH00":
+                try:  # IBAN correct ?
+                    iban = IBAN(data['iban_ou_ccp'])
+                    data['iban_ou_ccp'] = iban.formatted
+                except:
+                    raise forms.ValidationError(_(u'IBAN invalide'))
+                
+                # IBAN déja dans la db ? (-> fournisseur déja entré) Pour éviter les doublons
+                if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).exists():
+                    fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).first()
+                    raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
+            
+            if data['iban_ou_ccp'][0:2] != 'CH':
+                if not('bic' in data and data['bic']):
+                    raise forms.ValidationError(_(u'BIC/SWIFT obligatoire pour un fournisseur étranger !'))
+
 
     name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
     tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
 
-    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(#COMPTE -> <a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Calculateur IBAN</a>) </br> Si IBAN introuvable, mettre CH36 0000 0000 0000 0000 0 et mettre le numéro de compte en remarque.'))
-    bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True)
+    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
+    bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True, help_text=_(u'Obligatoire si le fournisseur est étranger'))
 
     address = models.CharField(_('Adresse'), max_length=255, blank=True, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
 
@@ -1643,12 +1648,12 @@ Il est nécéssaire de fournir la facture""")
 
     def rights_can_LIST(self, user):
         return True  # Tout le monde peut lister les factures de n'importe quelle unité (à noter qu'il y a un sous filtre qui affiche que les factures que l'user peut voir dans la liste)
+    
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        del form.fields['user']
+        form.fields['user'] = forms.CharField(widget= forms.HiddenInput(), initial = current_user, required = False)
+        print(current_user)
 
-    def genericFormExtraClean(self, data, form):
-
-        if 'user' in data and data['user'] != form.truffe_request.user and not self.rights_in_linked_unit(form.truffe_request.user, self.MetaRightsUnit.access) and not form.truffe_request.user.is_superuser:
-            form._errors["user"] = form.error_class([_(u"Il faut plus de droits pour pouvoir faire une facture pour quelqu'un d'autre.")])  # Until Django 1.6
-            # form.add_error("user", _(u"Il faut plus de droits pour pouvoir faire une facture pour quelqu'un d'autre."))  # From Django 1.7
 
     def get_lines(self):
         return self.lines.order_by('order')
@@ -1662,6 +1667,12 @@ Il est nécéssaire de fournir la facture""")
     def is_unit_validator(self, user):
         """Check if user is a validator for the step '1_unit_validable'."""
         return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+    def genericFormExtraClean(self, data, form):
+        if self.get_creator():
+            data['user'] = self.get_creator()
+        else:
+            data['user'] = form.fields['user'].initial
 
 
 class ProviderInvoiceLine(ModelUsedAsLine):
