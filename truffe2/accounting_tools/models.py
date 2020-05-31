@@ -1515,7 +1515,7 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
     iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
     bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True, help_text=_(u'Obligatoire si le fournisseur est étranger'))
 
-    address = models.CharField(_('Adresse'), max_length=255, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
+    address = models.CharField(_('Adresse'), max_length=255, help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''))
 
     remarks = models.TextField(_(u'Remarques'), null=True, blank=True)
 
