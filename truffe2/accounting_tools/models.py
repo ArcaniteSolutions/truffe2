@@ -1447,7 +1447,7 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
     class MetaData:
         list_display = [
             ('name', _('Nom Société')),
-            ('tva_number', _(u'Numéro')),
+            ('tva_number', _(u'Numéro TVA')),
             ('iban_ou_ccp', _(u'IBAN/CCP')),
             ('bic', _(u'BIC')),
             ('address', _(u'Adresse')),
@@ -1499,16 +1499,15 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
                     data['iban_ou_ccp'] = iban.formatted
                 except:
                     raise forms.ValidationError(_(u'IBAN invalide'))
-                
+
                 # IBAN déja dans la db ? (-> fournisseur déja entré) Pour éviter les doublons
                 if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).exists():
                     fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).first()
                     raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
-            
+
             if data['iban_ou_ccp'][0:2] != 'CH':
                 if not('bic' in data and data['bic']):
                     raise forms.ValidationError(_(u'BIC/SWIFT obligatoire pour un fournisseur étranger !'))
-
 
     name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
     tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
@@ -1516,7 +1515,7 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
     iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
     bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True, help_text=_(u'Obligatoire si le fournisseur est étranger'))
 
-    address = models.CharField(_('Adresse'), max_length=255, blank=True, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
+    address = models.CharField(_('Adresse'), max_length=255, help_text=_(u'Format : Rue/Case Postale Numéro, NPA Localite'))
 
     remarks = models.TextField(_(u'Remarques'), null=True, blank=True)
 
