@@ -90,7 +90,8 @@ def _home_accounting_lines(request):
     # de manière fausse: basée sur les droits
     for unit in Unit.objects.filter(deleted=False).order_by('name'):
         if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
-            lines_status_by_unit[unit] = (AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='0_imported').count(), AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='2_error').count())
+            lines_status_by_unit[unit] = (AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='0_imported').exclude(accounting_year__status='3_archived').count(), 
+                                          AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='2_error').exclude(accounting_year__status='3_archived').count())
 
     return {'lines_status_by_unit': lines_status_by_unit}
 
@@ -101,7 +102,7 @@ def _home_accounting_errors(request):
 
     open_errors = []
 
-    for error in AccountingError.objects.filter(deleted=False).exclude(status='2_fixed').order_by('pk'):
+    for error in AccountingError.objects.filter(deleted=False).exclude(status='2_fixed').exclude(accounting_year__status='3_archived').order_by('pk'):
         if error.rights_can('SHOW', request.user):
             open_errors.append(error)
 
