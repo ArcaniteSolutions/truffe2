@@ -1444,9 +1444,20 @@ class ExpenseClaimLine(ModelUsedAsLine):
 
 
 class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
+
+    name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
+    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
+
+    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
+    bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True, help_text=_(u'Obligatoire si le fournisseur est étranger'))
+
+    address = models.CharField(_('Adresse'), max_length=255, help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''))
+
+    remarks = models.TextField(_(u'Remarques'), null=True, blank=True)
+
     class MetaData:
         list_display = [
-            ('name', _('Nom Société')),
+            ('name', _(u'Société')),
             ('tva_number', _(u'Numéro TVA')),
             ('iban_ou_ccp', _(u'IBAN/CCP')),
             ('bic', _(u'BIC')),
@@ -1461,7 +1472,7 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
         base_title = _(u'Fournisseur')
         list_title = _(u'Liste des Fournisseur')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-pencil-square-o'
+        elem_icon = 'fa fa-book'
 
         menu_id = 'menu-compta-financial-provider'
 
@@ -1509,15 +1520,6 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
                 if not('bic' in data and data['bic']):
                     raise forms.ValidationError(_(u'BIC/SWIFT obligatoire pour un fournisseur étranger !'))
 
-    name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
-    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
-
-    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
-    bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True, help_text=_(u'Obligatoire si le fournisseur est étranger'))
-
-    address = models.CharField(_('Adresse'), max_length=255, help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''))
-
-    remarks = models.TextField(_(u'Remarques'), null=True, blank=True)
 
 class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les factures fournisseur"""
@@ -1548,8 +1550,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             ('status', _('Statut')),
         ]
 
-        details_display =
-        [
+        details_display = [
             ('name', _('Titre')),
             ('costcenter', _(u'Centre de coûts')),
             ('provider', _(u'Fournisseur')),
@@ -1563,7 +1564,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             ('raw_pay_code', _(u'SPC'))
         ]
 
-        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'reference_number', 'devise', 'provider__name', 'provider__tva_number', 'provider__iban')
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'reference_number', 'devise', 'provider__name', 'provider__tva_number', 'provider__iban_ou_ccp')
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
@@ -1573,7 +1574,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
         list_title = _(u'Liste des factures (fournisseur)')
         files_title = _(u'Justificatifs')
         base_icon = 'fa fa-list'
-        elem_icon = 'fa fa-pencil-square-o'
+        elem_icon = 'fa fa-shopping-cart'
 
         @staticmethod
         def extra_filter_for_list(request, current_unit, current_year, filtering):
@@ -1655,12 +1656,11 @@ Il est nécéssaire de fournir la facture""")
 
     def rights_can_LIST(self, user):
         return True  # Tout le monde peut lister les factures de n'importe quelle unité (à noter qu'il y a un sous filtre qui affiche que les factures que l'user peut voir dans la liste)
-    
+
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         del form.fields['user']
-        form.fields['user'] = forms.CharField(widget= forms.HiddenInput(), initial = current_user, required = False)
+        form.fields['user'] = forms.CharField(widget=forms.HiddenInput(), initial=current_user, required=False)
         print(current_user)
-
 
     def get_lines(self):
         return self.lines.order_by('order')

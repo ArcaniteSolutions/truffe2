@@ -461,13 +461,13 @@
                                     
   			            {% ifhasright 'accounting_tools.models.ProviderInvoice' user 'LIST' %}
                                         <li id="menu-compta-provider-invoice">
-                                            <a href="{% url 'accounting_tools.views.providerinvoice_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Factures (Fournisseur)" %}</a>
+                                            <a href="{% url 'accounting_tools.views.providerinvoice_list' %}"><i class="fa fa-lg fa-fw fa-shopping-cart"></i> {% trans "Factures (Fournisseur)" %}</a>
                                         </li>
                                     {% endifhasright %}
                                    
   			            {% ifhasright 'accounting_tools.models.FinancialProvider' user 'LIST' %}
                                         <li id="menu-compta-financial-provider">
-                                            <a href="{% url 'accounting_tools.views.financialprovider_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Fournisseurs" %}</a>
+                                            <a href="{% url 'accounting_tools.views.financialprovider_list' %}"><i class="fa fa-lg fa-fw fa-book"></i> {% trans "Fournisseurs" %}</a>
                                         </li>
                                     {% endifhasright %}
 
