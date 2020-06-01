@@ -29,21 +29,15 @@
         $('#id_provider').removeClass('form-control');
         $('#id_provider').css('width', '100%').select2();
 
-        $('#id_currency').children().first().before("<option value='eur'>EUR</option>");
-        $('#id_currency').children().first().before("<option value='chf' selected='selected'>CHF</option>");
+        // move CHF and EUR as first choices
+        $('#id_currency').children().first().before($("#id_currency option[value|='EUR']")[0].outerHTML);
+        $('#id_currency').children().first().before($("#id_currency option[value|='CHF']")[0].outerHTML);
+
         // Transform id_currency in select2
         $('#id_currency').removeClass('form-control');
-        $('#id_currency').css('width', '100%').select2({
-            placeholder: {
-                id: 'chf',
-                text: 'CHF'
-            }
-        });
-
-        
-
-
-       $('#id_provider').parent().before().append('<a href="{% url 'accounting_tools.views.financialprovider_edit' '~' %}" id="new_provider" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> Ajouter un fournisseur</a>');
+        $('#id_currency').css('width', '100%').select2();
+    
+        $('#id_provider').parent().before().append('<a href="{% url 'accounting_tools.views.financialprovider_edit' '~' %}" id="new_provider" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> Ajouter un fournisseur</a>');
 
         update_accounts();
         update_provider();

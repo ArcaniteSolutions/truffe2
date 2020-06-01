@@ -1536,7 +1536,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
 
     reference_number = models.CharField(_(u'Numéro de Référence'), null=True, blank=True, max_length=255)
     raw_pay_code = models.TextField(_(u'Raw Swiss Payment Code'), null=True, blank=True)
-    currency = models.CharField(_(u'Devise'), max_length=3, choices=map(lambda i: (i.name, i.value), Currency), default=Currency.chf.code)
+    currency = models.CharField(_(u'Devise'), max_length=3, choices=map(lambda i: (i.value, i.value), Currency), default=Currency.chf.code)
 
     provider = FalseFK('accounting_tools.models.FinancialProvider', verbose_name=_(u'Fournisseur'), blank=False, null=False)
 
