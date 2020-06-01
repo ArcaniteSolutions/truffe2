@@ -16,6 +16,8 @@
             <li>{% trans "Note de frais" %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})</li>
         {% elif notification.linked_object|get_class == 'CashBook' %}
             <li>{% trans "Journal de Caisse" %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})</li>
+        {% elif notification.linked_object|get_class == 'ProviderInvoice' %}
+            <li>{% trans "Facture (fournisseur)" %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.provider}} - {{notification.linked_object.costcenter}})</li>
         {% else %}
             <li>{% blocktrans with class=notification.linked_object|get_class %}Objet non reconnu ({{class}}), contacter l'administrateur.{% endblocktrans %}</li>
         {% endif %}
