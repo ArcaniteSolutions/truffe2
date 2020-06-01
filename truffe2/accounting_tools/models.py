@@ -1557,7 +1557,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             ('reference_number', _(u'Numéro de référence')),
             ('get_total_ht', _(u'Total (HT)')),
             ('get_total', _(u'Total (TTC)')),
-            ('devise', _(u'Devise')),
+            ('currency', _(u'Devise')),
             ('status', _('Statut')),
             ('accounting_year', _(u'Année comptable')),
             ('comment', _(u'Commentaire')),
