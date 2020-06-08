@@ -1660,7 +1660,6 @@ Il est nécéssaire de fournir la facture""")
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
         del form.fields['user']
         form.fields['user'] = forms.CharField(widget=forms.HiddenInput(), initial=current_user, required=False)
-        print(current_user)
 
     def get_lines(self):
         return self.lines.order_by('order')
