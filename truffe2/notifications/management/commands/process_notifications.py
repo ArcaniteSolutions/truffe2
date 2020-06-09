@@ -41,11 +41,8 @@ class Command(BaseCommand):
                     context = {
                         'notification': notification.notification,
                     }
- 
-                    try:
-                        send_templated_mail(None, _(u'Truffe :: Notification :: {}'.format(notification.notification.key)), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notif', context)
-                    except Exception as e:
-                        print("Catched error while sending notification: {}".format(e)) 
+                    send_templated_mail(None, _(u'Truffe :: Notification :: {}'.format(notification.notification.key)), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notif', context)
+
                 if groups_notifications:
 
                     keys = []
@@ -57,10 +54,7 @@ class Command(BaseCommand):
                     context = {
                         'notifications': map(lambda n: n.notification, groups_notifications),
                     }
-                    try:
-                        send_templated_mail(None, _(u'Truffe :: Notifications ({}) :: {}'.format(len(groups_notifications), ', '.join(keys))), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notifs', context)
-                    except Exception as e:
-                        print("Catched error while sending notification: {}".format(e)) 
+                    send_templated_mail(None, _(u'Truffe :: Notifications ({}) :: {}'.format(len(groups_notifications), ', '.join(keys))), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notifs', context)
 
                 for notification in notifications:
                     notification.delete()
