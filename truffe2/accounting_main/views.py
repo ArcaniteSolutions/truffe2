@@ -165,7 +165,7 @@ def _csv_2014_processor(request, file):
         csv_reader = csv.reader(unicode_csv_data, *args, **kwargs)
         for row in csv_reader:
             # decode UTF-8 back to Unicode, cell by cell:
-            yield [unicode(cell, 'iso8859') for cell in row]
+            yield [unicode(cell, 'cp1252') for cell in row]
 
     try:
         with open(file, 'rb') as csvfile:
@@ -230,8 +230,8 @@ def _csv_2014_processor(request, file):
                                 'date': '{}-{}-{}'.format(cDate2[2], cDate2[1], cDate2[0]),
                                 'account': cCompte,
                                 'text': cTexte,
-                                'output': cDebit,
-                                'input': cCredit,
+                                'output': str(cDebit),
+                                'input': str(cCredit),
                                 'current_sum': cSituation,
                                 'tva': str(cTva),
                                 'order': order,
