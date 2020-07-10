@@ -1512,9 +1512,10 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
                     raise forms.ValidationError(_(u'IBAN invalide'))
 
                 # IBAN déja dans la db ? (-> fournisseur déja entré) Pour éviter les doublons
-                if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).exists():
-                    fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp']).first()
-                    raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
+                if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp'], deleted=False).exists():
+                    fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp'], deleted=False).first()
+                    if 'pk' not in data or fournisseur.pk != data['pk']:
+                        raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
 
             if data['iban_ou_ccp'][0:2] != 'CH':
                 if not('bic' in data and data['bic']):
