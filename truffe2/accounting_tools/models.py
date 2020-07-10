@@ -1564,7 +1564,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
             ('raw_pay_code', _(u'SPC'))
         ]
 
-        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'reference_number', 'devise', 'provider__name', 'provider__tva_number', 'provider__iban_ou_ccp')
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'reference_number', 'currency', 'provider__name', 'provider__tva_number', 'provider__iban_ou_ccp')
 
         default_sort = "[0, 'desc']"  # Creation date (pk) descending
         trans_sort = {'get_fullname': 'user__first_name'}
