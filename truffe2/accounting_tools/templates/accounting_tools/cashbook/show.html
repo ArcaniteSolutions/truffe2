@@ -3,6 +3,7 @@
 
 {% block bonus_buttons %}
     <a href="{% url 'accounting_tools.views.cashbook_pdf' obj.pk %}{% trans "Journal de caisse" %} {{obj.name|urlencode}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" class="btn btn-primary" target="_blank"><i class="fa fa-download"></i> PDF</a>
+    <a href="{% url 'accounting_tools.views.cashbook_csv' obj.pk %}{% trans "Journal de caisse" %} {{obj.name|urlencode}}.csv?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" class="btn btn-warning" target="_blank"><i class="fa fa-download"></i> CSV</a>
 {% endblock %}
 
 {% block post_lines %}
