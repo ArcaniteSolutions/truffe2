@@ -11,6 +11,7 @@ from django.contrib.sites.models import get_current_site
 from django.shortcuts import render
 
 
+import logging
 import cgi
 import ho.pisa as pisa
 import cStringIO as StringIO
@@ -119,7 +120,12 @@ def send_templated_mail(request, subject, email_from, emails_to, template, conte
 
     msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_FROM, emails_to)
     msg.attach_alternative(html_content, "text/html")
-    msg.send()
+
+    try:
+        msg.send()
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.exception(e)
 
 
 def get_property(obj, prop):

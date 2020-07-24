@@ -41,7 +41,6 @@ class Command(BaseCommand):
                     context = {
                         'notification': notification.notification,
                     }
-
                     send_templated_mail(None, _(u'Truffe :: Notification :: {}'.format(notification.notification.key)), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notif', context)
 
                 if groups_notifications:
@@ -55,7 +54,6 @@ class Command(BaseCommand):
                     context = {
                         'notifications': map(lambda n: n.notification, groups_notifications),
                     }
-
                     send_templated_mail(None, _(u'Truffe :: Notifications ({}) :: {}'.format(len(groups_notifications), ', '.join(keys))), 'nobody@truffe.agepoly.ch', [user.email], 'notifications/mails/new_notifs', context)
 
                 for notification in notifications:
