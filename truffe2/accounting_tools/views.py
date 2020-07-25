@@ -88,10 +88,7 @@ def invoice_pdf(request, pk):
 
     invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
 
-    if not invoice.rights_can('SHOW', request.user):
-        raise Http404
-
-    if invoice.status not in ['2_accord', '3_sent', '4_archived'] and (not request.user.is_superuser or not invoice.rights_in_root_unit(request.user, 'SECRETARIAT')):
+    if not invoice.rights_can('DOWNLOAD_PDF', request.user):
         raise Http404
 
     img = invoice.generate_bvr()

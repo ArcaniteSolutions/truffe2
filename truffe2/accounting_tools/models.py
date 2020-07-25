@@ -458,7 +458,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             '0_correct': _(u'La facture doit être corrigée'),
             '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
             '2_ask_accord': _(u'Il faut attendre l\'accord de l\'AGEPoly'),
-            '2_accord': _(u'Il faut envoyez la facture'),
+            '2_accord': _(u'Il faut envoyer la facture'),
             '3_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
             '4_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
             '5_canceled': _(u'La facture a été annulée'),
@@ -467,7 +467,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states_links = {
             '0_preparing': ['1_need_bvr', '2_ask_accord', '5_canceled'],
             '0_correct': ['1_need_bvr', '2_ask_accord', '5_canceled'],
-	    '1_need_bvr': ['0_correct'],
+            '1_need_bvr': ['0_correct'],
             '2_ask_accord': ['0_correct', '2_accord', '5_canceled'],
             '2_accord': ['0_correct', '3_sent', '4_archived', '5_canceled'],
             '3_sent': ['0_correct', '4_archived', '5_canceled'],
@@ -651,6 +651,20 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def rights_can_DISPLAY_LOG(self, user):
         """Always display log, even if current state dosen't allow edit"""
         return super(_Invoice, self).rights_can_EDIT(user)
+
+
+    def rights_can_DOWNLOAD_PDF(self, user):
+        if user.is_superuser:   
+            return True
+
+        if invoice.rights_in_root_unit(user, 'TRESORERIE') or invoice.rights_in_root_unit(user, 'SECRETARIAT'):
+            return True
+
+        if self.rights_can_SHOW(user) and self.status in ['2_accord', '3_sent' , '4_archived']:
+            return True
+    
+        return False
+
 
     class Meta:
         abstract = True

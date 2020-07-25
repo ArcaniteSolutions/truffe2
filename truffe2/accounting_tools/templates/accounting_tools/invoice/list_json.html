@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block bonus_buttons %}
-   	{% if obj.status == '4_archived' or obj.status == '3_sent' or obj.status == '2_accord'  %}
-    	<a href=\"{% url 'accounting_tools.views.invoice_pdf' elem.pk %}{% trans "Facture" %} {{elem.title|urlencode}} - {{elem.get_reference}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-primary\" target=\"blank\" title=\"{% trans "PDF" %}\" rel=\"tooltip\"><i class=\"fa fa-download\"></i></a>
-   {% endif %}
+    {% ifhasright Model user 'DOWNLOAD_PDF' %}
+        <a href=\"{% url 'accounting_tools.views.invoice_pdf' elem.pk %}{% trans "Facture" %} {{elem.title|urlencode}} - {{elem.get_reference}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-primary\" target=\"blank\" title=\"{% trans "PDF" %}\" rel=\"tooltip\"><i class=\"fa fa-download\"></i></a>
+    {% endifhasright %}
 {% endblock %}
