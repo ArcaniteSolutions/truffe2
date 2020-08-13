@@ -944,7 +944,7 @@ class GenericAccountingStateModel(object):
             return (False, _(u'Seul le CdD peut valider cet élément pour le moment. Merci de patienter.'))
 
         if self.status == '3_agep_sig2' and dest_state == '4_accountable' and user == self.get_root_unit_signer_1():
-            return (False, _(u'Tu ne peut peut pas faire les deux signature sur un objet.'))
+            return (False, _(u'Une personne ne peut pas faire les deux signature sur un même objet.'))
 
         return super(GenericAccountingStateModel, self).can_switch_to(user, dest_state)
 
