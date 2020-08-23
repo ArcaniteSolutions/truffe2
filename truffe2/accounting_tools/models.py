@@ -317,6 +317,13 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'costcenter.unit'
 
+    def __init__(self, *args, **kwargs):
+        super(_Invoice, self).__init__(*args, **kwargs)
+
+        self.MetaRights.rights_update({
+            'DOWNLOAD_PDF': _(u'Peut exporter la facture en PDF'),
+        })
+
     title = models.CharField(max_length=255)
 
     custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro aléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
@@ -490,26 +497,26 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         }
 
         list_quick_switch = {
-            '0_preparing':[('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')), 
-                           ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
-            '0_correct':  [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')), 
-                           ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
+            '0_preparing': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')),
+                            ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
+            '0_correct': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')),
+                          ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
             '1_need_bvr': [],
             '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donner l\'accord')),],
-            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée')),],
+            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée'))],
             '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
             '4_archived': [],
             '5_canceled': [],
         }
 
         states_quick_switch = {
-            '0_preparing':[('2_ask_accord', _(u'Demande accord AGEPoly')), 
-                           ('1_need_bvr', _(u'Demander un BVR'))],
-            '0_correct':  [('2_ask_accord',  _(u'Demande accord AGEPoly')), 
-                           ('1_need_bvr',  _(u'Demander un BVR'))],
+            '0_preparing': [('2_ask_accord', _(u'Demande accord AGEPoly')),
+                            ('1_need_bvr', _(u'Demander un BVR'))],
+            '0_correct': [('2_ask_accord', _(u'Demande accord AGEPoly')),
+                          ('1_need_bvr', _(u'Demander un BVR'))],
             '1_need_bvr': [],
-            '2_ask_accord': [('2_accord',  _(u'Donner l\'accord')),],
-            '2_accord': [('3_sent', _(u'Marquer comme envoyée')),],
+            '2_ask_accord': [('2_accord', _(u'Donner l\'accord'))],
+            '2_accord': [('3_sent', _(u'Marquer comme envoyée'))],
             '3_sent': [('4_archived', _(u'Marquer comme terminée')), ],
             '4_archived': [],
             '5_canceled': [],
@@ -593,7 +600,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         if dest_status == '2_ask_accord':
             notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(['TRESORERIE', 'SECRETARIAT']))
-        
+
         if dest_status == '2_accord':
             notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'invoices_accepted', self, self.build_group_members_for_editors())
 
@@ -612,7 +619,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         if dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
-        
+
         if dest_state == '2_accord' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
 
@@ -642,7 +649,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         if self.status == '2_accord' and (user.is_superuser or self.rights_in_root_unit(user, 'SECRETARIAT')):
             return True
-        
+
         if self.status in ['0_preparing', '0_correct', '1_need_bvr']:
             return super(_Invoice, self).rights_can_EDIT(user)
 
@@ -652,17 +659,16 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         """Always display log, even if current state dosen't allow edit"""
         return super(_Invoice, self).rights_can_EDIT(user)
 
-
     def rights_can_DOWNLOAD_PDF(self, user):
-        if user.is_superuser:   
+        if user.is_superuser:
             return True
 
-        if invoice.rights_in_root_unit(user, 'TRESORERIE') or invoice.rights_in_root_unit(user, 'SECRETARIAT'):
+        if self.rights_in_root_unit(user, 'TRESORERIE') or self.rights_in_root_unit(user, 'SECRETARIAT'):
             return True
 
-        if self.rights_can_SHOW(user) and self.status in ['2_accord', '3_sent' , '4_archived']:
+        if self.rights_can_SHOW(user) and self.status in ['2_accord', '3_sent', '4_archived']:
             return True
-    
+
         return False
 
 
