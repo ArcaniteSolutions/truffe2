@@ -6,19 +6,20 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
+    no_dry_run = True
 
     def forwards(self, orm):
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["5_canceled", "4_canceled"])
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["4_archived", "3_archived"])
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["3_sent", "2_sent"])
+        orm.Invoice.objects.all().filter(status="4_canceled").update(status="5_canceled")
+        orm.Invoice.objects.all().filter(status="3_archived").update(status="4_archived")
+        orm.Invoice.objects.all().filter(status="2_sent").update(status="3_sent")
 
     def backwards(self, orm):
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["4_canceled", "5_canceled"])
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["3_archived", "4_archived"])
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["2_sent", "3_sent"])
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["0_preparing", "2_ask_accord"])
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["0_preparing", "2_accord"])
-        db.execute("UPDATE accounting_tools_invoice SET status = %s WHERE status = %s", ["0_preparing", "0_correct"])
+        orm.Invoice.objects.all().filter(status="5_canceled").update(status="4_canceled")
+        orm.Invoice.objects.all().filter(status="4_archived").update(status="3_archived")
+        orm.Invoice.objects.all().filter(status="3_sent").update(status="2_sent")
+        orm.Invoice.objects.all().filter(status="2_ask_accord").update(status="0_preparing")
+        orm.Invoice.objects.all().filter(status="2_accord").update(status="0_preparing")
+        orm.Invoice.objects.all().filter(status="0_correct").update(status="0_preparing")
 
     models = {
         u'accounting_core.account': {
