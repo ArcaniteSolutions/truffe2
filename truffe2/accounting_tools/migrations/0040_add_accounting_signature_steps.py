@@ -6,42 +6,44 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
+    no_dry_run = True
 
     def forwards(self, orm):
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["6_canceled", "4_canceled"])
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["6_archived", "4_archived"])
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["4_accountable", "3_accountable"])
 
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["6_canceled", "4_canceled"])
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["6_archived", "4_archived"])
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["4_accountable", "3_accountable"])
+        orm.Cashbook.objects.all().filter(status="4_canceled").update(status="6_canceled")
+        orm.Cashbook.objects.all().filter(status="4_archived").update(status="6_archived")
+        orm.Cashbook.objects.all().filter(status="3_accountable").update(status="4_accountable")
 
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["6_canceled", "4_canceled"])
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["6_archived", "4_archived"])
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["4_accountable", "3_accountable"])
+        orm.Providerinvoice.objects.all().filter(status="4_canceled").update(status="6_canceled")
+        orm.Providerinvoice.objects.all().filter(status="4_archived").update(status="6_archived")
+        orm.Providerinvoice.objects.all().filter(status="3_accountable").update(status="4_accountable")
+
+        orm.ExpenseClaim.objects.all().filter(status="4_canceled").update(status="6_canceled")
+        orm.ExpenseClaim.objects.all().filter(status="4_archived").update(status="6_archived")
+        orm.ExpenseClaim.objects.all().filter(status="3_accountable").update(status="4_accountable")
 
 
     def backwards(self, orm):
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["4_canceled", "6_canceled"])
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["4_archived", "6_archived"])
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["3_accountable", "4_accountable"])
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["3_accountable", "5_in_accounting"])
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["2_agep_validable", "3_agep_sig1"])
-        db.execute("UPDATE accounting_tools_cashbook SET status = %s WHERE status = %s", ["2_agep_validable", "3_agep_sig2"])
+        orm.Cashbook.objects.all().filter(status="6_canceled").update(status="4_canceled")
+        orm.Cashbook.objects.all().filter(status="6_archived").update(status="4_archived")
+        orm.Cashbook.objects.all().filter(status="4_accountable").update(status="3_accountable")
+        orm.Cashbook.objects.all().filter(status="5_in_accounting").update(status="3_accountable")
+        orm.Cashbook.objects.all().filter(status="3_agep_sig1").update(status="2_agep_validable")
+        orm.Cashbook.objects.all().filter(status="3_agep_sig2").update(status="2_agep_validable")
 
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["4_canceled", "6_canceled"])
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["4_archived", "6_archived"])
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["3_accountable", "4_accountable"])
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["3_accountable", "5_in_accounting"])
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["2_agep_validable", "3_agep_sig1"])
-        db.execute("UPDATE accounting_tools_providerinvoice SET status = %s WHERE status = %s", ["2_agep_validable", "3_agep_sig2"])
+        orm.ProviderInvoice.objects.all().filter(status="6_canceled").update(status="4_canceled")
+        orm.ProviderInvoice.objects.all().filter(status="6_archived").update(status="4_archived")
+        orm.ProviderInvoice.objects.all().filter(status="4_accountable").update(status="3_accountable")
+        orm.ProviderInvoice.objects.all().filter(status="5_in_accounting").update(status="3_accountable")
+        orm.ProviderInvoice.objects.all().filter(status="3_agep_sig1").update(status="2_agep_validable")
+        orm.ProviderInvoice.objects.all().filter(status="3_agep_sig2").update(status="2_agep_validable")
 
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["4_canceled", "6_canceled"])
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["4_archived", "6_archived"])
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["3_accountable", "4_accountable"])
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["3_accountable", "5_in_accounting"])
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["2_agep_validable", "3_agep_sig1"])
-        db.execute("UPDATE accounting_tools_expenseclaim SET status = %s WHERE status = %s", ["2_agep_validable", "3_agep_sig2"])
+        orm.ExpenseClaim.objects.all().filter(status="6_canceled").update(status="4_canceled")
+        orm.ExpenseClaim.objects.all().filter(status="6_archived").update(status="4_archived")
+        orm.ExpenseClaim.objects.all().filter(status="4_accountable").update(status="3_accountable")
+        orm.ExpenseClaim.objects.all().filter(status="5_in_accounting").update(status="3_accountable")
+        orm.ExpenseClaim.objects.all().filter(status="3_agep_sig1").update(status="2_agep_validable")
+        orm.ExpenseClaim.objects.all().filter(status="3_agep_sig2").update(status="2_agep_validable")
 
 
     models = {
