@@ -1,0 +1,5 @@
+{% load i18n humanize %}
+
+{% blocktrans %}La Facture {{notification.linked_object}} a été validée.{% endblocktrans %}
+{% trans 'Facture' %} CHF {{notification.linked_object.get_total|intcomma}} ({{notification.linked_object.user}} - {{notification.linked_object.costcenter}})
+{% trans "Il faut l'envoyer !" %}

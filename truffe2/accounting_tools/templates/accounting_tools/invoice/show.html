@@ -1,8 +1,10 @@
 {% extends "generic/generic/show.html" %}
-{% load i18n humanize %}
+{% load i18n humanize rights_extras %}
 
 {% block bonus_buttons %}
-    <a href="{% url 'accounting_tools.views.invoice_pdf' obj.pk %}{% trans "Facture" %} {{obj.title|urlencode}} - {{obj.get_reference}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i> PDF</a>
+    {% ifhasright obj user 'DOWNLOAD_PDF' %}
+   		<a href="{% url 'accounting_tools.views.invoice_pdf' obj.pk %}{% trans "Facture" %} {{obj.title|urlencode}} - {{obj.get_reference}}.pdf?{% if upk_noswitch %}&_upkns=_{% endif %}{% if from_related %}&_fromrelated=_{% endif %}" style="margin-left: 3px;" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i> PDF</a>
+    {% endifhasright %}
 {% endblock %}
 
 {% block post_lines %}

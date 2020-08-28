@@ -88,7 +88,7 @@ def invoice_pdf(request, pk):
 
     invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
 
-    if not invoice.rights_can('SHOW', request.user):
+    if not invoice.rights_can('DOWNLOAD_PDF', request.user):
         raise Http404
 
     img = invoice.generate_bvr()

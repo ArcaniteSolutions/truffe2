@@ -38,14 +38,16 @@ def _home_invoices(request):
 
     from accounting_tools.models import Invoice
 
-    if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
+    if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.rights_in_root_unit(request.user, 'TRESORERIE') or request.user.is_superuser:
         invoices_need_bvr = Invoice.objects.filter(deleted=False, status='1_need_bvr').order_by('-pk')
-        invoices_waiting = Invoice.objects.filter(deleted=False, status='2_sent').order_by('-pk')
+        invoices_attente_accord = Invoice.objects.filter(deleted=False, status='2_ask_accord').order_by('-pk')
+	invoices_waiting = Invoice.objects.filter(deleted=False, status='3_sent').order_by('-pk')
     else:
         invoices_need_bvr = None
-        invoices_waiting = filter(lambda i: i.rights_can('SHOW', request.user), Invoice.objects.filter(deleted=False, status='2_sent'))
+        invoices_attente_accord = None
+        invoices_waiting = filter(lambda i: i.rights_can('SHOW', request.user), Invoice.objects.filter(deleted=False, status='3_sent'))
 
-    return {'invoices_need_bvr': invoices_need_bvr, 'invoices_waiting': invoices_waiting}
+    return {'invoices_need_bvr': invoices_need_bvr, 'invoices_attente_accord': invoices_attente_accord, 'invoices_waiting': invoices_waiting}
 
 
 def _home_internal_transferts(request):
