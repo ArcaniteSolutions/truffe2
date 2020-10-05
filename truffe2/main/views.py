@@ -116,12 +116,12 @@ def _home_expenseclaim(request):
     from accounting_tools.models import ExpenseClaim
 
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
-        expenseclaim_to_validate = ExpenseClaim.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable']).order_by('-pk')
+        expenseclaim_to_validate = ExpenseClaim.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable', '3_agep_sig1', '3_agep_sig2']).order_by('status', '-pk')
     else:
         expenseclaim_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ExpenseClaim.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec: -ec.pk)
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
-        expenseclaim_to_account = ExpenseClaim.objects.filter(deleted=False, status='3_accountable').order_by('pk')
+        expenseclaim_to_account = ExpenseClaim.objects.filter(deleted=False, status__in=['4_accountable', '5_in_accounting']).order_by('status', 'pk')
     else:
         expenseclaim_to_account = None
 
@@ -133,12 +133,12 @@ def _home_cashbook(request):
     from accounting_tools.models import CashBook
 
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
-        cashbook_to_validate = CashBook.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable']).order_by('-pk')
+        cashbook_to_validate = CashBook.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable', '3_agep_sig1', '3_agep_sig2']).order_by('status', '-pk')
     else:
         cashbook_to_validate = sorted(filter(lambda cb: cb.is_unit_validator(request.user), list(CashBook.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda cb: -cb.pk)
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
-        cashbook_to_account = CashBook.objects.filter(deleted=False, status='3_accountable').order_by('pk')
+        cashbook_to_account = CashBook.objects.filter(deleted=False, status__in=['4_accountable', '5_in_accounting']).order_by('status', 'pk')
     else:
         cashbook_to_account = None
 

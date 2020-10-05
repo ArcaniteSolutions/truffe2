@@ -8,7 +8,7 @@
                     <td><a href="{{cashbook.display_url}}">{% if cashbook|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{cashbook.name}}</a></td>
                     <td>CHF {{cashbook.get_total|stringformat:"+.2f"|intcomma|slice:"1:"}}</td>
                     <td>{{cashbook.costcenter}}</td>
-                    <td><span class="label label-{% if cashbook.status == '1_unit_validable' %}primary{% else %}warning{% endif %}">{% if cashbook.status == '1_unit_validable' %}{% trans "À valider (trésorier)" %}{% else %}{% trans "À valider (AGEPoly)" %}{% endif %}</td>
+                    <td><span class="label label-{% if cashbook.status == '1_unit_validable' %}primary{% elif cashbook.status == '2_agep_validable' %}warning{% else %}info{% endif %}">{% if cashbook.status == '1_unit_validable' %}{% trans "À valider (Trésorier - Unité)" %}{% elif cashbook.status == '2_agep_validable' %}{% trans "À valider (Secrétariat - AGEPoly)" %}{% else %}{% trans "À signer (Comité - AGEPoly)" %}{% endif %}</td>
                 </tr>
             {% endfor %}
 
@@ -17,7 +17,7 @@
                     <td><a href="{{cashbook.display_url}}">{% if cashbook|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{cashbook.name}}</a></td>
                     <td>CHF {{cashbook.get_total|stringformat:"+.2f"|intcomma|slice:"1:"}}</td>
                     <td>{{cashbook.costcenter}}</td>
-                    <td><span class="label label-success">{% trans "A comptabiliser" %}</span></td>
+                    <td><span class="label label-{% if cashbook.status == '4_accountable' %}warning{% else %}primary{% endif %}">{% if cashbook.status == '4_accountable' %}{% trans "A comptabiliser (Secrétariat - AGEPoly)" %}{% else %}{% trans "En comptabilisation (Comptable - AGEP)" %}{% endif %}</span></td>
                 </tr>
             {% endfor %}
 
