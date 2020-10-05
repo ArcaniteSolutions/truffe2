@@ -15,11 +15,12 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.template.defaultfilters import floatformat
 
 
+from schwifty import IBAN
 import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
 import os
-
+from iso4217 import Currency
 
 from accounting_core.models import AccountingGroupModels
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -370,8 +371,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         ]
         filter_fields = ('title', )
 
-        base_title = _(u'Facture')
-        list_title = _(u'Liste de toutes les factures')
+        base_title = _(u'Facture (client)')
+        list_title = _(u'Liste de toutes les factures (client)')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-pencil-square-o'
 
@@ -1426,6 +1427,266 @@ class ExpenseClaimLine(ModelUsedAsLine):
     label = models.CharField(_(u'Concerne'), max_length=255)
     proof = models.CharField(_(u'Justificatif'), max_length=255, blank=True)
 
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
+    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)
+
+    def display_amount(self):
+        return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
+
+
+class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
+
+    name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
+    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
+
+    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
+    bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True, help_text=_(u'Obligatoire si le fournisseur est étranger'))
+
+    address = models.CharField(_('Adresse'), max_length=255, help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''))
+
+    remarks = models.TextField(_(u'Remarques'), null=True, blank=True)
+
+    class MetaData:
+        list_display = [
+            ('name', _(u'Société')),
+            ('tva_number', _(u'Numéro TVA')),
+            ('iban_ou_ccp', _(u'IBAN/CCP')),
+            ('bic', _(u'BIC')),
+            ('address', _(u'Adresse')),
+        ]
+
+        details_display = list_display
+        filter_fields = ('name', 'tva_number', 'iban_ou_ccp', 'bic')
+
+        default_sort = "[0, 'name']"
+
+        base_title = _(u'Fournisseur')
+        list_title = _(u'Liste des Fournisseur')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-book'
+
+        menu_id = 'menu-compta-financial-provider'
+
+        forced_widths = {
+            '1': '350px',
+        }
+
+        help_list = _(u"""Les Fournisseurs sont liés aux facture fournisseurs.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Fournisseur')
+
+        all_users = True
+
+    def __unicode__(self):
+        return self.name
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    def rights_can_CREATE(self, user):
+        return True
+
+    def rights_can_EDIT(self, user):
+        return self.get_creator() == user or self.rights_in_root_unit(user, access='TRESORERIE') or self.rights_in_root_unit(user, access='SECRETARIAT') or request.user.is_superuser
+
+    def genericFormExtraClean(self, data, form):
+        if 'iban_ou_ccp' in data and data['iban_ou_ccp']:
+            if data['iban_ou_ccp'] != "CH00":
+                try:  # IBAN correct ?
+                    iban = IBAN(data['iban_ou_ccp'])
+                    data['iban_ou_ccp'] = iban.formatted
+                except:
+                    raise forms.ValidationError(_(u'IBAN invalide'))
+
+                # IBAN déja dans la db ? (-> fournisseur déja entré) Pour éviter les doublons
+                if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp'], deleted=False).exists():
+                    fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp'], deleted=False).first()
+                    if 'pk' not in data or fournisseur.pk != data['pk']:
+                        raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
+
+            if data['iban_ou_ccp'][0:2] != 'CH':
+                if not('bic' in data and data['bic']):
+                    raise forms.ValidationError(_(u'BIC/SWIFT obligatoire pour un fournisseur étranger !'))
+
+
+class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+    """Modèle pour les factures fournisseur"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
+    name = models.CharField(_(u'Titre de la facture fournisseur'), max_length=255)
+    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    reference_number = models.CharField(_(u'Numéro de Référence'), null=True, blank=True, max_length=255)
+    raw_pay_code = models.TextField(_(u'Raw Swiss Payment Code'), null=True, blank=True)
+    currency = models.CharField(_(u'Devise'), max_length=3, choices=map(lambda i: (i.value, i.value), Currency), default=Currency.chf.code)
+
+    provider = FalseFK('accounting_tools.models.FinancialProvider', verbose_name=_(u'Fournisseur'), blank=False, null=False)
+
+    class MetaData:
+        list_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('provider', _(u'Fournisseur')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('provider', _(u'Fournisseur')),
+            ('reference_number', _(u'Numéro de référence')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
+            ('currency', _(u'Devise')),
+            ('status', _('Statut')),
+            ('accounting_year', _(u'Année comptable')),
+            ('comment', _(u'Commentaire')),
+            ('raw_pay_code', _(u'SPC'))
+        ]
+
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'reference_number', 'currency', 'provider__name', 'provider__tva_number', 'provider__iban_ou_ccp')
+
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+        trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_columns = ['get_total', 'get_total_ht']
+
+        base_title = _(u'Factures (fournisseur)')
+        list_title = _(u'Liste des factures (fournisseur)')
+        files_title = _(u'Justificatifs')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-shopping-cart'
+
+        @staticmethod
+        def extra_filter_for_list(request, current_unit, current_year, filtering):
+            if current_unit.is_user_in_groupe(request.user, access=['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
+                return lambda x: filtering(x)
+            else:
+                return lambda x: filtering(x).filter(user=request.user)
+
+        has_unit = True
+
+        menu_id = 'menu-compta-provider-invoices'
+
+        forced_widths = {
+            '1': '350px',
+        }
+
+        help_list = _(u"""Les factures fournisseurs permettent à une unité de payer des factures.
+
+Il est nécéssaire de fournir la facture""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Scan')
+        files_help = _(u'scan de la facture')
+
+        all_users = True
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.ProviderInvoiceLine',
+                'form': 'accounting_tools.forms2.ProviderInvoiceLineForm',
+                'related_name': 'lines',
+                'field': 'providerInvoice',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'show_list': [
+                    ('label', _(u'Titre')),
+                    ('account', _(u'Compte')),
+                    ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('value_ttc', _(u'Montant (TTC)')),
+                ]},
+        ]
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"Factures Fournisseur"
+        index_files = True
+
+        fields = [
+            'name',
+            'provider',
+            'comment',
+            'get_total',
+        ]
+
+        linked_lines = {
+            'lines': ['label']
+        }
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.name, self.costcenter)
+
+    def rights_can_EDIT(self, user):
+        if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
+            return True
+
+        return super(_ProviderInvoice, self).rights_can_EDIT(user)
+
+    def rights_can_LIST(self, user):
+        return True  # Tout le monde peut lister les factures de n'importe quelle unité (à noter qu'il y a un sous filtre qui affiche que les factures que l'user peut voir dans la liste)
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        del form.fields['user']
+        form.fields['user'] = forms.CharField(widget=forms.HiddenInput(), initial=current_user, required=False)
+
+    def get_lines(self):
+        return self.lines.order_by('order')
+
+    def get_total(self):
+        return sum([line.value_ttc for line in self.get_lines()])
+
+    def get_total_ht(self):
+        return sum([line.value for line in self.get_lines()])
+
+    def is_unit_validator(self, user):
+        """Check if user is a validator for the step '1_unit_validable'."""
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+    def genericFormExtraClean(self, data, form):
+        if self.get_creator():
+            data['user'] = self.get_creator()
+        else:
+            data['user'] = form.fields['user'].initial
+
+
+class ProviderInvoiceLine(ModelUsedAsLine):
+
+    providerInvoice = models.ForeignKey('ProviderInvoice', related_name="lines")
+
+    label = models.CharField(_(u'Concerne'), max_length=255)
     account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
     value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
     tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)

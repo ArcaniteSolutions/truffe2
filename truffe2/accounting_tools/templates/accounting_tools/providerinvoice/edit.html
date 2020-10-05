@@ -1,0 +1,92 @@
+{% extends "accounting_tools/generic_tva_edit.html" %}
+
+{% block bonus_year_updated %}
+    update_accounts();
+{% endblock %}
+
+
+{% block line_js_bonus %}
+    {{block.super}}
+
+    $(function () {
+        // Remove style constraint on form max width
+        $('.row').children().css('max-width', '');
+
+        // Resize columns in the line table
+        sizes = ['', '', '300px', '120px', '', '120px'];
+        $("#lines_new_form_lines").children("td").each(function(index, element) {
+            $(element).css('width', sizes[index]);
+        });
+
+        $('#id_raw_pay_code').parents('.form-group').remove();
+
+       // Move provider up
+        var provider = $('#id_provider').parents('.form-group').remove();
+        $('#id_name').parents('.form-group').after(provider);
+       
+
+        // Transform id_provider in select2
+        $('#id_provider').removeClass('form-control');
+        $('#id_provider').css('width', '100%').select2();
+
+        // move CHF and EUR as first choices
+        $('#id_currency').children().first().before($("#id_currency option[value|='EUR']")[0].outerHTML);
+        $('#id_currency').children().first().before($("#id_currency option[value|='CHF']")[0].outerHTML);
+
+        // Transform id_currency in select2
+        $('#id_currency').removeClass('form-control');
+        $('#id_currency').css('width', '100%').select2();
+    
+        $('#id_provider').parent().before().append('<a href="{% url 'accounting_tools.views.financialprovider_edit' '~' %}" id="new_provider" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> Ajouter un fournisseur</a>');
+
+        update_accounts();
+        update_provider();
+    });
+
+   
+    function update_accounts() {
+        $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
+
+            var options = '<option value="">----------</option>';
+            $.each(data.data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+                if (option.name.indexOf("{{CS_account_number}}") == 0)
+                    credit_suisse_id = option.pk;
+            });
+
+            $('.line_field_lines_account .select2').each(function(index, element) {
+                var elem = $(element).next('select');
+                var old_value = elem.val();
+
+                elem.select2('destroy');
+                elem.html(options);
+                elem.val(old_value);
+                elem.select2();
+            });
+        });
+    }
+    
+    function update_provider() {
+        $.ajax('{% url 'accounting_tools.views.provider_available_list' %}').done(function (data) {
+
+            var old_value = $('#id_provider').val();
+
+            var options = '<option value=""></option>';
+
+            $.each(data.data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+            });
+            $('#id_provider').select2('destroy');
+            $('#id_provider').html(options);
+            $('#id_provider').val(old_value);
+            $('#id_provider').select2();
+        });
+    }
+{% endblock %}
+
+
+{% block line_add_line_bonus %}
+    {{block.super}}
+    // Update accounts for the new line
+    update_accounts();
+{% endblock %}

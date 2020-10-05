@@ -1,0 +1,31 @@
+{% load i18n humanize generic_extras %}
+<div class="col-sm-12 col-md-12 col-lg-6" main_id="providerInvoice.html">
+    {% with w_title="Factures fournisseurs en attente" w_nopadding=True %}{% include "widget/header.html" %}{% endwith %}
+
+        <table class="table table-condensed table-hover table-striped">
+            {% for providerinvoice in providerinvoice_to_validate %}
+                <tr>
+                    <td><a href="{{providerinvoice.display_url}}">{% if providerinvoice|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{providerinvoice.name}}</a></td>
+                    <td>CHF {{providerinvoice.get_total|intcomma}}</td>
+                    <td>{{providerinvoice.costcenter}}</td>
+                    <td><span class="label label-{% if providerinvoice.status == '1_unit_validable' %}primary{% else %}warning{% endif %}">{% if providerinvoice.status == '1_unit_validable' %}{% trans "À valider (trésorier)" %}{% else %}{% trans "À valider (AGEPoly)" %}{% endif %}</td>
+                </tr>
+            {% endfor %}
+
+            {% for providerinvoice in providerinvoice_to_account %}
+                <tr>
+                    <td><a href="{{providerinvoice.display_url}}">{% if providerinvoice|is_new_for:user %}<i class="glyphicon glyphicon-certificate"></i> {% endif %}{{providerinvoice.name}}</a></td>
+                    <td>CHF {{providerinvoice.get_total|intcomma}}</td>
+                    <td>{{providerinvoice.costcenter}}</td>
+                    <td><span class="label label-success">{% trans "A comptabiliser" %}</span></td>
+                </tr>
+            {% endfor %}
+
+            {% if not providerinvoice_to_validate and not providerinvoice_to_account %}
+                <tr>
+                    <td colspan="4" class="success"><i class="fa fa-check"></i> {% trans "Aucune facture (fournisseur) en attente !" %}</td>
+                </tr>
+            {% endif %}
+        </table>
+    {% include "widget/footer.html" %}
+</div>

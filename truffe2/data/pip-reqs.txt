@@ -27,3 +27,4 @@ pypdf
 pyyaml
 wand
 schwifty
+iso4217  # currency list
